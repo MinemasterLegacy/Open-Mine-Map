@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "openminemap",
+	"version": "${version}",
+	"name": "OpenMineMap",
+	"description": "A map mod made for the BuildTheEarth project that integrates an interactable world map into the game. \nCredit to OpenStreetMap for mapping tiles.",
+	"authors": [
+		"MinemasterLegacy"
+	],
+	"contact": {
+		"homepage": "n/a",
+		"sources": "n/a"
+	},
+	"license": "n/a",
+	"icon": "assets/openminemap/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.mmly.openminemap.OpenMineMap"
+		],
+		"fabric-datagen": [
+			"net.mmly.openminemap.OpenMineMapDataGenerator"
+		],
+        "client": [
+            "net.mmly.openminemap.OpenMineMapClient"
+        ]
+	},
+	"mixins": [
+		"openminemap.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+    },
+	"suggests": {
+		"another-mod": "*"
+	}
+}

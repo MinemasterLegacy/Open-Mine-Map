@@ -9,10 +9,7 @@ import net.minecraft.util.Identifier;
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -113,7 +110,25 @@ public class TileManager {
                 System.out.println(Text.literal("OMM Directory Error: " + e));
             }
         }
+    }
 
+    public static void clearCacheDir() {
+        System.out.println("deletion");
+        try {
+            File cacheDirectory = new File(TileManager.getRootFile() + "openminemap");
+            for (int i = 0; i < 19; i++) {
+                try {
+                    cacheDirectory = new File(TileManager.getRootFile() + "openminemap/" + i);
+                    for (File subfile : cacheDirectory.listFiles()) {
+                        subfile.delete();
+                    }
+                } catch (Exception e) {
+                    System.out.println(Text.literal("OMM Directory Error: " + e));
+                }
+            }
+        } catch (Exception e) {
+
+        }
     }
 
     public static Identifier getOsmTile(int x, int y, int zoom, String type) { //get an osm map tile. It should be retrievd from cache if it is cached and retreived from the web otherwise

@@ -10,7 +10,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
+
+import java.util.Objects;
 
 public class ConfigScreen extends Screen {
     public ConfigScreen() {
@@ -81,6 +84,10 @@ public class ConfigScreen extends Screen {
     }
 
     public static void saveChanges() {
+        if (!Objects.equals(ConfigFile.readParameter("TileMapUrl"), textFieldWidget.getText())) {
+            System.out.println("yea");
+            TileManager.clearCacheDir();
+        }
         ConfigFile.writeParameter("TileMapUrl", textFieldWidget.getText());
         ConfigFile.writeToFile();
     }

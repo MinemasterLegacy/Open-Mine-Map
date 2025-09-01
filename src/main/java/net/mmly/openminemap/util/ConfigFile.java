@@ -18,12 +18,12 @@ public class ConfigFile {
             "TileMapUrl"
     };
     private static final String[] defaultValues = new String[] {
-            "Default",
+            "vanilla",
             "10",
             "10",
             "144",
             "81",
-            ""
+            "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
     };
     private static final int numOfArgs = keyNames.length;
 

@@ -11,14 +11,22 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class HudMap {
 
-    public static int hudMapX = 10;
-    public static int hudMapY = 10;
-    public static int hudMapWidth = 144;
-    public static int hudMapHeight = 81;
+    /*
+    HudMapX",
+            "HudMapY",
+            "HudMapWidth",
+            "HudMapHeight
+     */
+
+    public static int hudMapX = Integer.parseInt(ConfigFile.readParameter("HudMapX"));
+    public static int hudMapY = Integer.parseInt(ConfigFile.readParameter("HudMapY"));
+    public static int hudMapWidth = Integer.parseInt(ConfigFile.readParameter("HudMapWidth"));
+    public static int hudMapHeight = Integer.parseInt(ConfigFile.readParameter("HudMapHeight"));
     public static int hudMapX2 = hudMapX + hudMapWidth;
     public static int hudMapY2 = hudMapY + hudMapHeight;
     static boolean initialized = false;

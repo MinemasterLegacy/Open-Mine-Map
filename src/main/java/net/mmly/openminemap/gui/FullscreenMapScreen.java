@@ -17,8 +17,8 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
-    public FullscreenMapScreen(Text title) {
-        super(title);
+    public FullscreenMapScreen() {
+        super(Text.of("OMM Fullscreen Map"));
     }
 
     public static int zoomLevel = 0; //indicates the current zoom level of the map
@@ -173,7 +173,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                         if(b) {
                             Util.getOperatingSystem().open("https://openstreetmap.org/copyright");
                         }
-                        MinecraftClient.getInstance().setScreen(new FullscreenMapScreen(Text.empty()));
+                        MinecraftClient.getInstance().setScreen(new FullscreenMapScreen());
                     }
 
                 }, "https://openstreetmap.org/copyright", true)
@@ -189,7 +189,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                         if(b) {
                             Util.getOperatingSystem().open("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new");
                         }
-                        MinecraftClient.getInstance().setScreen(new FullscreenMapScreen(Text.empty()));
+                        MinecraftClient.getInstance().setScreen(new FullscreenMapScreen());
                     }
 
                 }, "https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", true)

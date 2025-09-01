@@ -7,7 +7,9 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
+import net.mmly.openminemap.gui.InteractionLayer;
 import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class MapConfigScreen extends Screen {
@@ -20,11 +22,13 @@ public class MapConfigScreen extends Screen {
     private static ResizeElement leftResize;
     private static RepositionElement repositionElement;
     private static ButtonLayer exitButton;
+    private static ButtonLayer saveButton;
     private static Identifier[] exitIdentifiers;
+    private static Identifier[] saveIdentifiers;
     private static Window window;
 
     protected MapConfigScreen() {
-        super(Text.empty());
+        super(Text.of("OMM Map Config"));
     }
 
     protected static void updateResizePos() {
@@ -40,15 +44,38 @@ public class MapConfigScreen extends Screen {
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {}
 
+    public static void saveChanges() {
+        ConfigFile.writeParameter("HudMapX", Integer.toString(HudMap.hudMapX));
+        ConfigFile.writeParameter("HudMapY", Integer.toString(HudMap.hudMapY));
+        ConfigFile.writeParameter("HudMapWidth", Integer.toString(HudMap.hudMapWidth));
+        ConfigFile.writeParameter("HudMapHeight", Integer.toString(HudMap.hudMapHeight));
+        ConfigFile.writeToFile();
+    }
+
+    public static void revertChanges() {
+        HudMap.hudMapX = Integer.parseInt(ConfigFile.readParameter("HudMapX"));
+        HudMap.hudMapY = Integer.parseInt(ConfigFile.readParameter("HudMapY"));
+        HudMap.hudMapWidth = Integer.parseInt(ConfigFile.readParameter("HudMapWidth"));
+        HudMap.hudMapHeight = Integer.parseInt(ConfigFile.readParameter("HudMapHeight"));
+        HudMap.updateX2Y2();
+    }
+
     @Override
     protected void init() {
         super.init();
 
         window = MinecraftClient.getInstance().getWindow();
 
-        exitIdentifiers = new Identifier[] {
+        saveIdentifiers = new Identifier[] {
                 Identifier.of("openminemap", "buttons/vanilla/default/check.png"),
                 Identifier.of("openminemap", "buttons/vanilla/hover/check.png")
+        };
+        saveButton = new ButtonLayer(0, 0,20, 20, 7);
+        this.addDrawableChild(saveButton);
+
+        exitIdentifiers = new Identifier[] {
+                Identifier.of("openminemap", "buttons/vanilla/default/exit.png"),
+                Identifier.of("openminemap", "buttons/vanilla/hover/exit.png")
         };
         exitButton = new ButtonLayer(0, 0,20, 20, 5);
         this.addDrawableChild(exitButton);
@@ -81,7 +108,10 @@ public class MapConfigScreen extends Screen {
         context.drawTexture(vertAdjust, (HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY2 - 3, 0, 0, 20, 7, 20, 7); //bottom
         context.drawTexture(vertAdjust, (HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY - 4, 0, 0, 20, 7, 20, 7); //top
 
-        exitButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10));
+        saveButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10));
+        context.drawTexture(saveButton.isHovered() ? saveIdentifiers[1] : saveIdentifiers[0], saveButton.getX(), saveButton.getY(), 0, 0, 20, 20, 20, 20);
+
+        exitButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10 + 24));
         context.drawTexture(exitButton.isHovered() ? exitIdentifiers[1] : exitIdentifiers[0], exitButton.getX(), exitButton.getY(), 0, 0, 20, 20, 20, 20);
     }
 }

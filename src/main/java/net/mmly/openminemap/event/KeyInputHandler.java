@@ -32,7 +32,7 @@ public class KeyInputHandler {
                 //client.player.sendMessage(Text.literal("Key pressed!")); //send message in chat
 
                 MinecraftClient.getInstance().setScreen(
-                        new FullscreenMapScreen(Text.empty())
+                        new FullscreenMapScreen()
                 );
 
             }

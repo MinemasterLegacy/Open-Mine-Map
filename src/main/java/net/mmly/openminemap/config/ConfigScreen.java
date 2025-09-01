@@ -3,7 +3,6 @@ package net.mmly.openminemap.config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.AbstractTextWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Window;
@@ -11,10 +10,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.util.ConfigFile;
 
 public class ConfigScreen extends Screen {
     public ConfigScreen() {
-        super(Text.empty());
+        super(Text.of("OMM Config"));
     }
 
     private static int windowHeight;
@@ -24,6 +24,7 @@ public class ConfigScreen extends Screen {
     private static ButtonLayer exitButtonLayer;
     private static ButtonLayer checkButtonLayer;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
+    public static TextFieldWidget textFieldWidget;
 
     protected static final int buttonSize = 20;
     protected final int[][] buttonPositionModifiers = new int[][] {
@@ -58,23 +59,30 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, 5);
-        checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, 6);
+        checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, 7);
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
         updateTileSet();
 
         ButtonWidget configHud = ButtonWidget.builder(Text.of("Configure HUD..."), (btn) -> {
-                    MinecraftClient.getInstance().setScreen(
-                            new MapConfigScreen()
-                    );
+                ConfigScreen.saveChanges();
+                MinecraftClient.getInstance().setScreen(
+                        new MapConfigScreen()
+                );
         }).dimensions(20, 20, 120, 20).build();
         this.addDrawableChild(configHud);
 
-        TextFieldWidget textFieldWidget = new TextFieldWidget(this.textRenderer, 20, 50, 300, 20, Text.of("Map Tile Data URL"));
-        textFieldWidget.setText("Map Tile Data URL");
+        textFieldWidget = new TextFieldWidget(this.textRenderer, 20, 50, 300, 20, Text.of("Map Tile Data URL"));
+        textFieldWidget.setMaxLength(100);
+        textFieldWidget.setText(ConfigFile.readParameter("TileMapUrl"));
         this.addDrawableChild(textFieldWidget);
 
+    }
+
+    public static void saveChanges() {
+        ConfigFile.writeParameter("TileMapUrl", textFieldWidget.getText());
+        ConfigFile.writeToFile();
     }
 
     @Override

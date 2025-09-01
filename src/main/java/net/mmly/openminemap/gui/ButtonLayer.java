@@ -2,10 +2,13 @@ package net.mmly.openminemap.gui;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.config.ConfigScreen;
+import net.mmly.openminemap.config.MapConfigScreen;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class ButtonLayer extends ClickableWidget {
@@ -47,6 +50,9 @@ public class ButtonLayer extends ClickableWidget {
                 );
                 break;
             case 5:
+                if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
+                    MapConfigScreen.revertChanges();
+                }
                 MinecraftClient.getInstance().setScreen(null);
                 FullscreenMapScreen.disableRightClickMenu();
                 break;
@@ -54,7 +60,14 @@ public class ButtonLayer extends ClickableWidget {
                 //waypoints
                 break;
             case 7:
-                //check
+                if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {
+                    ConfigScreen.saveChanges();
+                } else if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
+                    MapConfigScreen.saveChanges();
+                } else {
+                    break;
+                }
+                MinecraftClient.getInstance().setScreen(null);
                 break;
         }
     }

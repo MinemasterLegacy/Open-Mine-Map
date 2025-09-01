@@ -42,6 +42,11 @@ public class HudMap {
 
     }
 
+    public static void updateX2Y2() {
+        hudMapX2 = hudMapX + hudMapWidth;
+        hudMapY2 = hudMapY + hudMapHeight;
+    }
+
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
         if (reloadSkin > 0) {
             playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
@@ -58,17 +63,18 @@ public class HudMap {
         int trueHW = TileManager.hudTileScaledSize;
         int[] TopLeftData = TileManager.getTopLeftData();
 
+        context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0xFFCEE1E4);
+
         if (Double.isNaN(playerLon)) {
             //draw error message and exit
             MutableText text = Text.literal("Out Of Bounds").formatted(Formatting.ITALIC);
-            context.drawText(MinecraftClient.getInstance().textRenderer ,text ,hudMapX + 2, hudMapY + 2, 0xFFcccccc, true);
+            //context.fill(hudMapX + 2, hudMapY + 2, hudMapY + 74, hudMapY + 10, 0xFFFFFFFF);
+            context.drawText(MinecraftClient.getInstance().textRenderer, text, hudMapWidth > 73 ? (hudMapX + hudMapX2) / 2 - 37: hudMapX, hudMapHeight > 9 ? (hudMapY + hudMapY2) / 2 - 5 : hudMapY, 0xFFcccccc, true);
             return;
         } else {
             playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, TileManager.hudTileScaledSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
             playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, TileManager.hudTileScaledSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
         }
-
-        context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0xFFCEE1E4);
 
         mapTilePosX = UnitConvert.longToMx(playerLon, zoomLevel, TileManager.hudTileScaledSize);
         mapTilePosY = UnitConvert.latToMy(playerLat, zoomLevel, TileManager.hudTileScaledSize);
@@ -94,7 +100,8 @@ public class HudMap {
                     context.drawTexture(identifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
                 }
             }
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapX + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
+            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
+            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
         } else {
 
         }

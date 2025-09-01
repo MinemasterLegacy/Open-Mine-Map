@@ -14,7 +14,8 @@ public class PlayerLayer extends ClickableWidget {
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(getX(), getY(), getX() + 8, getY() + 8, 0xFF000000);
+       // context.fill(getX(), getY(), getX() + 8, getY() + 8, 0xFF000000);
+        //currently disabling player clicking, may be re-enabled later for right click menu-ing players
     }
 
     @Override

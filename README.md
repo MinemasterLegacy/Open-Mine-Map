@@ -10,3 +10,5 @@ Note that the map is specifically designed only to work with the BuildTheEarth m
  - @loafeon_ on Discord for GUI element textures
  - [OpenStreetMap](https://openstreetmap.org/copyright) for map tiles/data
  - BuildTheEarth Developers for longitude-latitude to/from Minecraft coordinates conversion code
+
+<sub>Requires FabricMC Modloader and FabricMC API</sub>

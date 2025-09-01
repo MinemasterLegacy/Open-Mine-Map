@@ -6,13 +6,14 @@ import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
-//import net.mmly.openminemap.projection.OutOfProjectionBoundsException;
-//import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.ConfigFile;
 
 public class OpenMineMapClient implements ClientModInitializer { // client class
 
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
+
+        ConfigFile.establishConfigFile();
 
         KeyInputHandler.register(); //register all new keybinds
 

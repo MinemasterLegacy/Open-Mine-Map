@@ -50,6 +50,12 @@ public class ButtonLayer extends ClickableWidget {
                 MinecraftClient.getInstance().setScreen(null);
                 FullscreenMapScreen.disableRightClickMenu();
                 break;
+            case 6:
+                //waypoints
+                break;
+            case 7:
+                //check
+                break;
         }
     }
 

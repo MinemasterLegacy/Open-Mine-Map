@@ -3,7 +3,9 @@ package net.mmly.openminemap.config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.AbstractTextWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -66,8 +68,13 @@ public class ConfigScreen extends Screen {
                     MinecraftClient.getInstance().setScreen(
                             new MapConfigScreen()
                     );
-        }).dimensions(40, 40, 120, 20).build();
+        }).dimensions(20, 20, 120, 20).build();
         this.addDrawableChild(configHud);
+
+        TextFieldWidget textFieldWidget = new TextFieldWidget(this.textRenderer, 20, 50, 300, 20, Text.of("Map Tile Data URL"));
+        textFieldWidget.setText("Map Tile Data URL");
+        this.addDrawableChild(textFieldWidget);
+
     }
 
     @Override

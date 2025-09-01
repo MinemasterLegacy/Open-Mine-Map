@@ -1,14 +1,17 @@
 {
 	"schemaVersion": 1,
 	"id": "openminemap",
-	"version": "1.0",
+	"version": "1.0.0",
 	"name": "OpenMineMap",
-	"description": "A map mod made for the BuildTheEarth project that integrates an interactable world map into the game. \nCredit to OpenStreetMap for mapping tiles.",
+	"description": "A map mod made for the BuildTheEarth project that integrates an interactable world map into the game.",
 	"authors": [
 		"MinemasterLegacy"
 	],
+    "contributors": [
+        "Loafeon_",
+        "OpenStreetMap"
+    ],
 	"contact": {
-		"homepage": "n/a",
 		"sources": "https://github.com/MinemasterLegacy/Open-Mine-Map"
 	},
 	"license": "MIT License",

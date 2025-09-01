@@ -17,13 +17,6 @@ import net.mmly.openminemap.util.UnitConvert;
 
 public class HudMap {
 
-    /*
-    HudMapX",
-            "HudMapY",
-            "HudMapWidth",
-            "HudMapHeight
-     */
-
     public static int hudMapX = Integer.parseInt(ConfigFile.readParameter("HudMapX"));
     public static int hudMapY = Integer.parseInt(ConfigFile.readParameter("HudMapY"));
     public static int hudMapWidth = Integer.parseInt(ConfigFile.readParameter("HudMapWidth"));

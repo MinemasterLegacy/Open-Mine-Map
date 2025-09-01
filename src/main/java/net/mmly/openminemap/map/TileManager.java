@@ -1,8 +1,8 @@
 package net.mmly.openminemap.map;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.texture.*;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -172,7 +172,11 @@ public class TileManager {
                 NativeImage nImage = NativeImage.read(is);
                 //System.out.println("new texture saved");
                 //register new dynamic texture and store it again to be referenced later
-                dyLoadedTiles.put(thisKey, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
+                //dyLoadedTiles.put(thisKey, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
+                //1.21.4 change
+                mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(nImage));
+                dyLoadedTiles.put(thisKey, Identifier.of("osmtile", zoom+"-"+x+"-"+y));
+
             }
 
             return dyLoadedTiles.get(thisKey);

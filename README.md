@@ -2,6 +2,7 @@
 
  - Right click on the map to copy or teleport to coordinates
  - See where you are at all times with the HUD map
+ - View real-world mapping data, courtesy of [OpenStreetMap](https://openstreetmap.org/)
  - (More coming soon)
 
 Note that the map is specifically designed only to work with the BuildTheEarth modified dymaxion projection; the map will not work correctly with any other projection.

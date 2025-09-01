@@ -7,7 +7,6 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
-import net.mmly.openminemap.gui.InteractionLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;

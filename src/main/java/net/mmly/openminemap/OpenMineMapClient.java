@@ -13,11 +13,10 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
 
-        ConfigFile.establishConfigFile();
-
         KeyInputHandler.register(); //register all new keybinds
 
         TileManager.createCacheDir();
+        ConfigFile.establishConfigFile();
         //ScreenMouseEvents.EVENT.re
 
         Requester osmTileRequester = new Requester();

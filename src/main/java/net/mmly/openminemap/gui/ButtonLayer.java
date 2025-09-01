@@ -2,13 +2,11 @@ package net.mmly.openminemap.gui;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.config.MapConfigScreen;
-import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class ButtonLayer extends ClickableWidget {

@@ -75,6 +75,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     static boolean rightClickMenuEnabled = false;
 
     private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
+    private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0, 157, 16);
+
     private static ButtonLayer zoominButtonLayer;
     private static ButtonLayer zoomoutButtonLayer;
     private static ButtonLayer resetButtonLayer;
@@ -179,6 +181,22 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         );
     }
 
+    protected static void openBugReportScreen() {
+        MinecraftClient.getInstance().setScreen(
+                new ConfirmLinkScreen(new BooleanConsumer() {
+                    @Override
+                    public void accept(boolean b) {
+                        if(b) {
+                            Util.getOperatingSystem().open("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new");
+                        }
+                        MinecraftClient.getInstance().setScreen(new FullscreenMapScreen(Text.empty()));
+                    }
+
+                }, "https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", true)
+
+        );
+    }
+
     protected static void disableRightClickMenu() {
         rightClickMenuEnabled = false;
         rightClickLayer.setPosition(-500, 500);
@@ -235,6 +253,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
+        bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32, 157, 16);
+        this.addDrawableChild(bugReportLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
 
         /* uncomment for adding waypoints
         WaypointLayer[] waypointLayer = new WaypointLayer[10];
@@ -262,6 +282,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         super.render(context, mouseX, mouseY, delta);
 
         attributionLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 16);
+        bugReportLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 32);
 
         zoominButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[0][0],windowScaledHeight - buttonPositionModifiers[0][1]);
         zoomoutButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[1][0],windowScaledHeight - buttonPositionModifiers[1][1]);
@@ -374,6 +395,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.fill(windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, 0x88000000);
         context.drawText(this.textRenderer, "Map data from", windowScaledWidth - 152, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10, 0xFFFFFFFF, true);
         context.drawText(this.textRenderer, Text.of("OpenStreetMap"), windowScaledWidth - 77, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10, 0xFF548AF7, true); //0xFF1b75d0
+        context.fill(windowScaledWidth - 70, windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
+        context.drawText(this.textRenderer, Text.of("Report Bugs"), windowScaledWidth - 65, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - 16, 0xFF0B9207, true);
+
 
         /* Seems that ~1.21.4+ needs an extra argument for context.drawTexture
         context.drawTexture(RenderLayer::getGuiTextured, ...); */

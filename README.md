@@ -1,4 +1,4 @@
-### OpenMineMap is a Minecraft mod made for the [BuildTheEarth](buildtheearth.net) project that implements a map of the Earth that corresponds to the BuildTheEarth Minecraft world. 
+### OpenMineMap is a Minecraft mod made for the [BuildTheEarth](https://buildtheearth.net/) project that implements a map of the Earth that corresponds to the BuildTheEarth Minecraft world. 
 
  - Right click on the map to copy or teleport to coordinates
  - See where you are at all times with the HUD map

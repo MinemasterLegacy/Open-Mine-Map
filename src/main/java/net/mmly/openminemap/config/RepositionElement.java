@@ -28,6 +28,7 @@ public class RepositionElement extends ClickableWidget {
 
     @Override
     protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
+        System.out.println("drag");
         subDeltaX += deltaX;
         subDeltaY += deltaY;
         HudMap.hudMapX += (int) subDeltaX;

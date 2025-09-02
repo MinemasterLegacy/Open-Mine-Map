@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 public class TileManager {
 
@@ -174,7 +175,8 @@ public class TileManager {
                 //register new dynamic texture and store it again to be referenced later
                 //dyLoadedTiles.put(thisKey, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
                 //1.21.4 change
-                mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(nImage));
+
+                mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(new nameSupplier(), nImage));
                 dyLoadedTiles.put(thisKey, Identifier.of("osmtile", zoom+"-"+x+"-"+y));
 
             }
@@ -186,5 +188,12 @@ public class TileManager {
             e.printStackTrace();
             return TileManager.getErrorTile();
         }
+    }
+}
+
+class nameSupplier implements Supplier<String> {
+    @Override
+    public String get() {
+        return "osmTileName";
     }
 }

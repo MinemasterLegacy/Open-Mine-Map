@@ -84,7 +84,7 @@ public class HudMap {
         if(!Double.isNaN(playerLat)) {
             for (int i = 0; i < identifiers.length; i++) {
                 for (int j = 0; j < identifiers[i].length; j++) {
-                    RenderSystem.setShaderTexture(0, identifiers[i][j]);
+                    //RenderSystem.setShaderTexture(0, identifiers[i][j]); //1.21.5 change
                     int tileX = ((((TopLeftData[0] + i) * TileManager.hudTileScaledSize) + hudMapX + hudMapWidth / 2) - (int) mapTilePosX);
                     int tileY = ((((TopLeftData[1] + j) * TileManager.hudTileScaledSize) + hudMapY + hudMapHeight / 2) - (int) mapTilePosY);
 

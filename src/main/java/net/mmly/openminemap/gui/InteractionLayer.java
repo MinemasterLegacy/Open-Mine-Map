@@ -35,9 +35,10 @@ public class InteractionLayer extends ClickableWidget {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if (verticalAmount > 0) {
-            FullscreenMapScreen.zoomIn();
+            //
+            FullscreenMapScreen.mouseZoomIn();
         } else {
-            FullscreenMapScreen.zoomOut();
+            FullscreenMapScreen.mouseZoomOut();
         }
         return false;
     }

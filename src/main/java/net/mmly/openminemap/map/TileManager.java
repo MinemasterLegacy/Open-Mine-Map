@@ -144,6 +144,11 @@ public class TileManager {
             https://stackoverflow.com/questions/17434226/fetch-openstreetmap-image-for-specified-latitude-longitude
              */
 
+            String thisKey = Arrays.toString(new int[] {zoom, x, y});
+            if (dyLoadedTiles.containsKey(thisKey)) {
+                return dyLoadedTiles.get(thisKey);
+            }
+
             //System.out.println("x = "+x+", eq = "+(Math.pow(2.0, zoom) - 1));
             if (isTileOutOfBounds(x, y, zoom)) { //if tile is out of bounds of the possible tile spaces
                 return getBlankTile();
@@ -163,19 +168,19 @@ public class TileManager {
                 return getErrorTile();
             }
 
-            String thisKey = Arrays.toString(new int[] {zoom, x, y});
             if (!dyLoadedTiles.containsKey(thisKey)) {
                 //convert to NaitiveImage
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ImageIO.write(osmTile, "png", os);
                 InputStream is = new ByteArrayInputStream(os.toByteArray());
                 NativeImage nImage = NativeImage.read(is);
-                //System.out.println("new texture saved");
                 //register new dynamic texture and store it again to be referenced later
                 dyLoadedTiles.put(thisKey, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
+                //System.out.println("New Dynamic tile");
+                return dyLoadedTiles.get(thisKey);
             }
 
-            return dyLoadedTiles.get(thisKey);
+            return getErrorTile();
 
         } catch (Exception e) {
             System.out.println("Error while getting tile: " + e);

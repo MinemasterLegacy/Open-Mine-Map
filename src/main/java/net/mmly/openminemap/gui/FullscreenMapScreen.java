@@ -59,8 +59,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     int lastMouseY = 0;
     protected static boolean lastMouseDown = false;
 
-    double mouseTilePosX = 64;
-    double mouseTilePosY = 64;
+    protected static double mouseTilePosX = 64;
+    protected static double mouseTilePosY = 64;
 
     // modifiers used to offset the map so it can be moved relative to the screen
     // these modifiers should be scaled when the screen is zoomed in or zoomed out
@@ -132,6 +132,22 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 buttonIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
             }
         }
+    }
+
+    static protected void mouseZoomIn() {
+        if (zoomLevel >= 18) return;
+        if (doFollowPlayer) zoomIn();
+        mapTilePosX -= (mapTilePosX - mouseTilePosX) / 2;
+        mapTilePosY -= (mapTilePosY - mouseTilePosY) / 2;
+        zoomIn();
+    }
+
+    static protected void mouseZoomOut() {
+        if (zoomLevel <= 0) return;
+        if (doFollowPlayer) zoomOut();
+        mapTilePosX += (mapTilePosX - mouseTilePosX);
+        mapTilePosY += (mapTilePosY - mouseTilePosY);
+        zoomOut();
     }
 
     static protected void zoomIn() {
@@ -228,10 +244,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         this.addDrawableChild(resetWidget);
         */
 
-        playerLayer = new PlayerLayer(100, 100, 8, 8);
+        //playerLayer = new PlayerLayer(100, 100, 8, 8);
         playerIdentifier = mClient.player.getSkinTextures().texture();
         HudMap.playerIdentifier = playerIdentifier;
-        this.addDrawableChild(playerLayer);
+        //this.addDrawableChild(playerLayer);
 
         //buttons should probably be turned into one buttons array
         zoominButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[0][0],windowScaledHeight - buttonPositionModifiers[0][1], buttonSize, buttonSize, 0);
@@ -313,11 +329,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (Double.isNaN(playerLon)) {
             playerMapX = -9999;
             playerMapY = -9999;
-            playerLayer.setPosition(-9999, -9999);
+            //playerLayer.setPosition(-9999, -9999);
         } else {
             playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, TileManager.tileScaledSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
             playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, TileManager.tileScaledSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
-            playerLayer.setPosition(playerMapX, playerMapY);
+            //playerLayer.setPosition(playerMapX, playerMapY);
         }
 
         if (lastMouseDown) {
@@ -357,7 +373,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         context.drawTexture(playerIdentifier, playerMapX, playerMapY, 8, 8,8,8, 8, 8, 64, 64);
         context.drawTexture(playerIdentifier, playerMapX, playerMapY, 8, 8,40,8, 8, 8, 64, 64);
-
 
         context.drawTexture(zoomLevel < 18 ? (zoominButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0]) : buttonIdentifiers[0][0], windowScaledWidth / 2 + buttonPositionModifiers[0][0], windowScaledHeight - buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(zoomLevel > 0 ? (zoomoutButtonLayer.isHovered() ? buttonIdentifiers[2][1] : buttonIdentifiers[1][1]) : buttonIdentifiers[0][1], windowScaledWidth / 2 + buttonPositionModifiers[1][0], windowScaledHeight - buttonPositionModifiers[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);

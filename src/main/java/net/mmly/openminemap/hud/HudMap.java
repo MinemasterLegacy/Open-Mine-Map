@@ -55,6 +55,30 @@ public class HudMap {
         hudMapY2 = hudMapY + hudMapHeight;
     }
 
+    public static void zoomIn() {
+        if (zoomLevel < 18) {
+            zoomLevel++;
+            mapTilePosX *= 2;
+            mapTilePosY *= 2;
+        } else {
+            zoomLevel = 18;
+        }
+    }
+
+    public static void zoomOut() {
+        if (zoomLevel > 0) {
+            zoomLevel--;
+            mapTilePosX = (float) mapTilePosX / 2;
+            mapTilePosY = (float) mapTilePosY / 2;
+        } else {
+            zoomLevel = 0;
+        }
+    }
+
+    public static void toggle() {
+        renderHud = !renderHud;
+    }
+
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
         if (reloadSkin > 0) {
             playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
@@ -116,28 +140,5 @@ public class HudMap {
 
     }
 
-    public static void zoomIn() {
-        if (zoomLevel < 18) {
-            zoomLevel++;
-            mapTilePosX *= 2;
-            mapTilePosY *= 2;
-        } else {
-            zoomLevel = 18;
-        }
-    }
-
-    public static void zoomOut() {
-        if (zoomLevel > 0) {
-            zoomLevel--;
-            mapTilePosX = (float) mapTilePosX / 2;
-            mapTilePosY = (float) mapTilePosY / 2;
-        } else {
-            zoomLevel = 0;
-        }
-    }
-
-    public static void toggle() {
-        renderHud = !renderHud;
-    }
 }
 

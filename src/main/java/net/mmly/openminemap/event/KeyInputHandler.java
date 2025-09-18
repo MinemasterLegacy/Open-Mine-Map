@@ -5,9 +5,18 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
+import net.mmly.openminemap.OpenMineMap;
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
+
+import java.awt.*;
+import java.util.Collection;
 
 public class KeyInputHandler {
     public static final String KEY_CATEGORY_OPENMINEMAP = "OpenMineMap"; //"key.category.osmMap.osmMapCategory";
@@ -15,13 +24,15 @@ public class KeyInputHandler {
     public static final String KEY_ZOOMIN_HUD_OSM_MAP = "Zoom In (HUD)";
     public static final String KEY_ZOOMOUT_HUD_OSM_MAP = "Zoom Out (HUD)";
     public static final String KEY_TOGGLE_HUD_OSM_MAP = "Toggle Map (HUD)";
-
+    public static final String KEY_COPY_COORDINATES = "Copy Coordinates to Clipboard";
 
     //objects for all custom keybindings
     private static KeyBinding openFullscreenOsmMapKey;
     private static KeyBinding hudMapZoomInKey;
     private static KeyBinding hudMapZoomOutKey;
     private static KeyBinding hudMapToggleKey;
+    private static KeyBinding copyCoordinatesKey;
+    private static int stopIt = 0;
 
     //event handling for when the keys are pressed
     public static void registerKeyInputs() {
@@ -46,6 +57,10 @@ public class KeyInputHandler {
 
             if(hudMapToggleKey.wasPressed()) {
                 HudMap.toggle();
+            }
+
+            if(copyCoordinatesKey.wasPressed()) {
+                copyPlayerCoordinates();
             }
 
         });
@@ -80,7 +95,51 @@ public class KeyInputHandler {
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
+        copyCoordinatesKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                KEY_COPY_COORDINATES,
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_UNKNOWN,
+                KEY_CATEGORY_OPENMINEMAP
+        ));
+
         registerKeyInputs(); //call the registerKeyInputs method defined above when the register method is called in TutorialModClient
+    }
+
+    private static void copyPlayerCoordinates() {
+        MinecraftClient minecraftClient = MinecraftClient.getInstance();
+        PlayerAttributes.updatePlayerLocations(minecraftClient);
+        try {
+            //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection("test"), null);
+            if (Double.isNaN(PlayerAttributes.playerLat)) {
+                stopIt++;
+                if (stopIt >= 10) {
+                    minecraftClient.player.sendMessage(Text.literal("stop it.")
+                            .formatted(Formatting.RED)
+                            .formatted(Formatting.ITALIC)
+                            .formatted(Formatting.BOLD));
+                    stopIt = 0;
+                } else {
+                    minecraftClient.player.sendMessage(Text.literal("Seems like you're outside the bounds of the projection. Please re-enter into reality and try again.")
+                            .formatted(Formatting.GRAY)
+                            .formatted(Formatting.ITALIC));
+                }
+
+            } else {
+                MinecraftClient.getInstance().keyboard.setClipboard(UnitConvert.floorToPlace(PlayerAttributes.playerLat, 7) + " " + UnitConvert.floorToPlace(PlayerAttributes.playerLon, 7));
+                minecraftClient.player.sendMessage(Text.literal("Coordinates copied to clipboard")
+                        .formatted(Formatting.GRAY)
+                        .formatted(Formatting.ITALIC));
+            }
+        } catch (Exception e) {
+            try {
+                minecraftClient.player.sendMessage(Text.literal("There was an error while doing that. Most likely a skill issue though.")
+                        .formatted(Formatting.RED)
+                        //.formatted(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/say e"))));
+                        .formatted(Formatting.ITALIC));
+            } catch (Exception e2) {
+                OpenMineMap.somethingF__kedUpReallyBadIfThisMethodIsBeingCalled();
+            }
+        }
     }
 
 }

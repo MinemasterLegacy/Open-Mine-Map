@@ -15,4 +15,8 @@ public class OpenMineMap implements ModInitializer {
 	public void onInitialize() {
 
 	}
+
+    public static void somethingF__kedUpReallyBadIfThisMethodIsBeingCalled() {
+        throw new Error();
+    }
 }

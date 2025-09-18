@@ -86,6 +86,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static ButtonLayer exitButtonLayer;
 
     private Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
+    static double rightClickX = 0;
+    static double rightClickY = 0;
 
     private static Identifier[][] buttonIdentifiers = new Identifier[3][6];
     public static int buttonTheme = 0; // 0 is vanilla, 1 is sodify
@@ -225,8 +227,19 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     protected static void enableRightClickMenu(double x, double y) {
         rightClickMenuEnabled = true;
+        rightClickX = x;
+        rightClickY = y;
         rightClickLayer.setPosition((int) x, (int) y);
         rightClickLayer.setSavedMouseLatLong(mouseLong, mouseLat);
+        System.out.println(rightClickLayer.getX());
+        System.out.println(rightClickLayer.getWidth());
+        System.out.println(windowScaledWidth);
+        if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
+            rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
+        }
+        if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
+            rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
+        }
     }
 
     @Override
@@ -437,7 +450,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             context.fill(rightClickLayer.getX(), rightClickLayer.getY(), rightClickLayer.getX() + RightClickMenu.width, rightClickLayer.getY() + RightClickMenu.height, 0x88000000);
             context.drawText(this.textRenderer, "Teleport Here", rightClickLayer.getX() + 4, rightClickLayer.getY() + 4, RightClickMenu.hoverOn == 1 ? 0xFFa8afff : 0xFFFFFFFF, false);
             context.drawText(this.textRenderer, "Copy Coordinates", rightClickLayer.getX() + 4, rightClickLayer.getY() + 20, RightClickMenu.hoverOn == 2 ? 0xFFa8afff : 0xFFFFFFFF, false);
-            context.drawTexture(rightClickCursor, rightClickLayer.getX() - 4, rightClickLayer.getY() - 4, 0, 0, 9, 9, 9, 9);
+            context.drawTexture(rightClickCursor, (int) rightClickX - 4, (int) rightClickY - 4, 0, 0, 9, 9, 9, 9);
         }
 
         /* uncomment for adding waypoints

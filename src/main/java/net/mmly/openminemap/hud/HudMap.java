@@ -80,11 +80,12 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+        if (!renderHud) return;
         if (reloadSkin > 0) {
             playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
             reloadSkin--;
         }
-        if (!renderHud) return;
+
         if (!initialized) initialize(context);
         PlayerAttributes.updatePlayerLocations(MinecraftClient.getInstance());
 

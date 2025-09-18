@@ -332,31 +332,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //this.updateTileRange();
         //identifiers = TileManager.getRangeOfTiles(mapTilePosX, mapTilePosY, zoomLevel, windowWidth, windowHeight);
 
-        PlayerAttributes.updatePlayerLocations(mClient);
-        if (playerGetCoordsDelay > -1) {
-            try {
-                if (Double.isNaN(playerLon)) throw new CoordinateValueError(playerLon, playerLat);
-                playerDisplayLon = UnitConvert.floorToPlace(playerLon, 5);
-                playerDisplayLat = UnitConvert.floorToPlace(playerLat, 5);
-            } catch (CoordinateValueError e) {
-                playerDisplayLon = "-.-";
-                playerDisplayLat = "-.-";
-            }
-            playerGetCoordsDelay = 0;
-        } else {
-            playerGetCoordsDelay++;
-        }
-
-        if (Double.isNaN(playerLon)) {
-            playerMapX = -9999;
-            playerMapY = -9999;
-            //playerLayer.setPosition(-9999, -9999);
-        } else {
-            playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, TileManager.tileScaledSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
-            playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, TileManager.tileScaledSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
-            //playerLayer.setPosition(playerMapX, playerMapY);
-        }
-
         if (lastMouseDown) {
             mapTilePosX += (UnitConvert.pixelToScaledCoords((float) (lastMouseX - mClient.mouse.getX())));
             mapTilePosY += (UnitConvert.pixelToScaledCoords((float) (lastMouseY - mClient.mouse.getY())));
@@ -390,6 +365,31 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 context.drawTexture(identifiers[i][j], (int) ((((TopLeftData[0] + i) * TileManager.tileScaledSize) + (float) windowScaledWidth / 2) - (int) mapTilePosX), (int) ((((TopLeftData[1]+j) * TileManager.tileScaledSize) + (float) windowScaledHeight / 2) - (int) mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
 
             }
+        }
+
+        PlayerAttributes.updatePlayerLocations(mClient);
+        if (playerGetCoordsDelay > -1) {
+            try {
+                if (Double.isNaN(playerLon)) throw new CoordinateValueError(playerLon, playerLat);
+                playerDisplayLon = UnitConvert.floorToPlace(playerLon, 5);
+                playerDisplayLat = UnitConvert.floorToPlace(playerLat, 5);
+            } catch (CoordinateValueError e) {
+                playerDisplayLon = "-.-";
+                playerDisplayLat = "-.-";
+            }
+            playerGetCoordsDelay = 0;
+        } else {
+            playerGetCoordsDelay++;
+        }
+
+        if (Double.isNaN(playerLon)) {
+            playerMapX = -9999;
+            playerMapY = -9999;
+            //playerLayer.setPosition(-9999, -9999);
+        } else {
+            playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, TileManager.tileScaledSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
+            playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, TileManager.tileScaledSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
+            //playerLayer.setPosition(playerMapX, playerMapY);
         }
 
         //this gui code is ugly af ):

@@ -23,10 +23,10 @@ public class HudMap {
     public static int hudMapX2 = hudMapX + hudMapWidth;
     public static int hudMapY2 = hudMapY + hudMapHeight;
     static boolean initialized = false;
-    static int zoomLevel = 0;
+    static int zoomLevel = Integer.parseInt(ConfigFile.readParameter("§hudlastzoom"));
     static Identifier[][] identifiers;
-    static double mapTilePosX = 32;
-    static double mapTilePosY = 32;
+    static double mapTilePosX = 64;
+    static double mapTilePosY = 64;
     static Window window = MinecraftClient.getInstance().getWindow();
     static int windowScaledHeight;
     static int windowScaledWidth;
@@ -53,6 +53,7 @@ public class HudMap {
             zoomLevel++;
             mapTilePosX *= 2;
             mapTilePosY *= 2;
+            writeZoom();
         } else {
             zoomLevel = 18;
         }
@@ -63,9 +64,15 @@ public class HudMap {
             zoomLevel--;
             mapTilePosX = (float) mapTilePosX / 2;
             mapTilePosY = (float) mapTilePosY / 2;
+            writeZoom();
         } else {
             zoomLevel = 0;
         }
+    }
+
+    private static void writeZoom() {
+        ConfigFile.writeParameter("§hudlastzoom", Integer.toString(zoomLevel));
+        ConfigFile.writeToFile();
     }
 
     public static void toggle() {

@@ -30,29 +30,28 @@ public class ButtonLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         switch (function) {
-            case 0:
+            case 0: //zoom in
                 FullscreenMapScreen.zoomIn();
                 break;
-            case 1:
+            case 1: //zoom out
                 FullscreenMapScreen.zoomOut();
                 break;
-            case 2:
+            case 2: //reset
                 FullscreenMapScreen.resetMap();
                 break;
-            case 3:
+            case 3: //follow
                 FullscreenMapScreen.followPlayer();
                 break;
-            case 4:
+            case 4: //config
                 MinecraftClient.getInstance().setScreen(
                         new ConfigScreen()
                 );
                 break;
-            case 5:
+            case 5: //exit
                 if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
                     MapConfigScreen.revertChanges();
                 }
-                MinecraftClient.getInstance().setScreen(null);
-                FullscreenMapScreen.disableRightClickMenu();
+                MinecraftClient.getInstance().currentScreen.close();
                 break;
             case 6:
                 //waypoints

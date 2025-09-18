@@ -1,5 +1,7 @@
 package net.mmly.openminemap.util;
 
+import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 
 import java.io.*;
@@ -9,21 +11,31 @@ public class ConfigFile {
     public static File configFile;
     public static boolean isConfigLoaded = false;
     private static HashMap<String, String> configParams = new HashMap<>();
-    private static final String[] keyNames = new String[] {
+    private static final String[] keyNames = new String[] { //names for every config option / parameter
             "Theme",
             "HudMapX",
             "HudMapY",
             "HudMapWidth",
             "HudMapHeight",
-            "TileMapUrl"
+            "TileMapUrl",
+            "MaxLoadedTiles",
+            "§hudlastzoom",
+            "§fslastzoom",
+            "§fslastx",
+            "§fslasty"
     };
-    private static final String[] defaultValues = new String[] {
+    private static final String[] defaultValues = new String[] { //default values for every config option / parameter
             "vanilla",
             "10",
             "10",
             "144",
             "81",
-            "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "500",
+            "0",
+            "0",
+            "64",
+            "64"
     };
     private static final int numOfArgs = keyNames.length;
 

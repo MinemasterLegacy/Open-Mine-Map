@@ -14,6 +14,7 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
@@ -21,7 +22,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         super(Text.of("OMM Fullscreen Map"));
     }
 
-    public static int zoomLevel = 0; //indicates the current zoom level of the map
+    public static int zoomLevel = Integer.parseInt(ConfigFile.readParameter("§fslastzoom")); //indicates the current zoom level of the map | default 0
     Identifier identifiers[][];
 
     public static int windowHeight;
@@ -65,8 +66,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     // modifiers used to offset the map so it can be moved relative to the screen
     // these modifiers should be scaled when the screen is zoomed in or zoomed out
     // Ex: zoom 0, range -128 - 127 | zoom 1, range -256 - 255 | zoom 2, range -512 - 511 | etc.
-    static double mapTilePosX = TileManager.tileScaledSize / 2;
-    static double mapTilePosY = TileManager.tileScaledSize / 2;
+    static double mapTilePosX = Double.parseDouble(ConfigFile.readParameter("§fslastx")); //64 by default
+    static double mapTilePosY = Double.parseDouble(ConfigFile.readParameter("§fslasty")); //64 by default
 
     MinecraftClient mClient = MinecraftClient.getInstance();
     Window window = mClient.getWindow();
@@ -109,6 +110,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     @Override
     public void close() {
         disableRightClickMenu();
+        ConfigFile.writeParameter("§fslastzoom", Integer.toString(zoomLevel));
+        ConfigFile.writeParameter("§fslastx", Double.toString(mapTilePosX));
+        ConfigFile.writeParameter("§fslasty", Double.toString(mapTilePosY));
+        ConfigFile.writeToFile();
         this.client.setScreen(null);
     }
 
@@ -243,6 +248,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         this.addDrawableChild(zoomOutWidget);
         this.addDrawableChild(resetWidget);
         */
+        System.out.println(zoomLevel);
+        System.out.println(mapTilePosX);
+        System.out.println(mapTilePosY);
 
         //playerLayer = new PlayerLayer(100, 100, 8, 8);
         playerIdentifier = mClient.player.getSkinTextures().texture();

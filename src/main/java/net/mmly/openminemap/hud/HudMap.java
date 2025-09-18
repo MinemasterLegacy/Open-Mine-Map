@@ -16,13 +16,6 @@ import net.mmly.openminemap.util.UnitConvert;
 
 public class HudMap {
 
-    /*
-    HudMapX",
-            "HudMapY",
-            "HudMapWidth",
-            "HudMapHeight
-     */
-
     public static int hudMapX = Integer.parseInt(ConfigFile.readParameter("HudMapX"));
     public static int hudMapY = Integer.parseInt(ConfigFile.readParameter("HudMapY"));
     public static int hudMapWidth = Integer.parseInt(ConfigFile.readParameter("HudMapWidth"));
@@ -120,8 +113,8 @@ public class HudMap {
 
                     int leftCrop = tileX < hudMapX ? hudMapX - tileX : 0;
                     int topCrop = tileY < hudMapY ? hudMapY - tileY : 0;
-                    int rightCrop = tileX + 64 > hudMapX + hudMapWidth ? (tileX + 64) - (hudMapX + hudMapWidth) : 0;
-                    int bottomCrop = tileY + 64 > hudMapY + hudMapHeight ? (tileY + 64) - (hudMapY + hudMapHeight) : 0;
+                    int rightCrop = tileX + TileManager.hudTileScaledSize > hudMapX + hudMapWidth ? (tileX + TileManager.hudTileScaledSize) - (hudMapX + hudMapWidth) : 0;
+                    int bottomCrop = tileY + TileManager.hudTileScaledSize > hudMapY + hudMapHeight ? (tileY + TileManager.hudTileScaledSize) - (hudMapY + hudMapHeight) : 0;
 
                     //x, y define where the defined top left corner will go
                     //u, v define the lop left corner of the texture

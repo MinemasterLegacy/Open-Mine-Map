@@ -8,15 +8,11 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.mmly.openminemap.OpenMineMap;
-import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
-
-import java.awt.*;
-import java.util.Collection;
 
 public class KeyInputHandler {
     public static final String KEY_CATEGORY_OPENMINEMAP = "OpenMineMap"; //"key.category.osmMap.osmMapCategory";
@@ -56,7 +52,7 @@ public class KeyInputHandler {
             }
 
             if(hudMapToggleKey.wasPressed()) {
-                HudMap.toggle();
+                HudMap.toggleRendering();
             }
 
             if(copyCoordinatesKey.wasPressed()) {

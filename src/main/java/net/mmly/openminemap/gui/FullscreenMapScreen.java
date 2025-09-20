@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -66,10 +67,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static ButtonLayer followButtonLayer;
     private static ButtonLayer configButtonLayer;
     private static ButtonLayer exitButtonLayer;
+    private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
     private Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
     static double rightClickX = 0;
     static double rightClickY = 0;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][6];
+    private static Identifier[][] showIdentifiers = new Identifier[2][2];
     public static int buttonTheme = 0; // 0 is vanilla, 1 is sodify
     private static PlayerLayer playerLayer;
     private Identifier playerIdentifier;
@@ -117,6 +120,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 6; j++) {
                 buttonIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
+            }
+        }
+        names = new String[] {"mapoff.png", "mapon.png"};
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                showIdentifiers[i][j] = Identifier.of("openminemap", path + states[i + 1] + names[j]);
             }
         }
     }
@@ -290,6 +299,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         followButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[3][0],windowScaledHeight - buttonPositionModifiers[3][1], buttonSize, buttonSize, 3);
         configButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1], buttonSize, buttonSize, 4);
         exitButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1], buttonSize, buttonSize, 5);
+        toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
+        toggleHudMapButtonLayer.setTooltip(Tooltip.of(Text.of("Toggle HUD Map")));
 
         this.addDrawableChild(zoominButtonLayer);
         this.addDrawableChild(zoomoutButtonLayer);
@@ -297,6 +308,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         this.addDrawableChild(followButtonLayer);
         this.addDrawableChild(configButtonLayer);
         this.addDrawableChild(exitButtonLayer);
+        this.addDrawableChild(toggleHudMapButtonLayer);
 
         rightClickLayer = new RightClickMenu(0, 0);
         this.addDrawableChild(rightClickLayer);
@@ -340,6 +352,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         followButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[3][0],windowScaledHeight - buttonPositionModifiers[3][1]);
         configButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1]);
         exitButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1]);
+        toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
 
         this.updateScreenDims(); //update screen dimension variables in case screen has been resized
         //this.updateTileRange();
@@ -422,6 +435,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawTexture(Double.isNaN(playerLon) || doFollowPlayer ? buttonIdentifiers[0][3] : (followButtonLayer.isHovered() ? buttonIdentifiers[2][3] : buttonIdentifiers[1][3]), windowScaledWidth / 2 + buttonPositionModifiers[3][0], windowScaledHeight - buttonPositionModifiers[3][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(configButtonLayer.isHovered() ? buttonIdentifiers[2][4] : buttonIdentifiers[1][4], windowScaledWidth / 2 + buttonPositionModifiers[4][0], windowScaledHeight - buttonPositionModifiers[4][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(exitButtonLayer.isHovered() ? buttonIdentifiers[2][5] : buttonIdentifiers[1][5], windowScaledWidth / 2 + buttonPositionModifiers[5][0], windowScaledHeight - buttonPositionModifiers[5][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        int buttonStyle = HudMap.renderHud ? 1 : 0;
+        context.drawTexture(toggleHudMapButtonLayer.isHovered() ? showIdentifiers[1][buttonStyle] : showIdentifiers[0][buttonStyle], toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         //Double.isNaN(playerLon)
 

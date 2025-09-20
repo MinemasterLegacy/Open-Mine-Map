@@ -111,7 +111,7 @@ public class HudMap {
         ConfigFile.writeToFile();
     }
 
-    public static void toggle() {
+    public static void toggleRendering() {
         renderHud = !renderHud;
     }
 

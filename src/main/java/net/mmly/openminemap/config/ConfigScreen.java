@@ -3,6 +3,7 @@ package net.mmly.openminemap.config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Window;
@@ -13,6 +14,7 @@ import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 
+import javax.tools.Tool;
 import java.util.Objects;
 
 public class ConfigScreen extends Screen {
@@ -37,6 +39,8 @@ public class ConfigScreen extends Screen {
 
     Window window = MinecraftClient.getInstance().getWindow();
 
+    protected ButtonWidget toggleArtificialZoomButton;
+
     private void updateScreenDims() {
         windowHeight = window.getHeight();
         windowWidth = window.getWidth();
@@ -59,6 +63,36 @@ public class ConfigScreen extends Screen {
         }
     }
 
+    static protected String trueFalseToOnOff(boolean t) {
+        if (t) {
+            return "On";
+        } else {
+            return "Off";
+        }
+    }
+
+    static protected boolean onOffToTrueFalse(String t) {
+        return t.equals("On");
+    }
+
+    protected void toggleArtificialZoom() {
+        ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(!Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom"))));
+        //System.out.println(toggleArtificialZoomButton.getX());
+        toggleArtificialZoomButton.visible = false;
+        toggleArtificialZoomButton = newToggleArtificialZoomButton();
+        this.addDrawableChild(toggleArtificialZoomButton);
+    }
+
+    protected ButtonWidget newToggleArtificialZoomButton() {
+        ButtonWidget b = ButtonWidget.builder(Text.of("Artificial Zoom: " + trueFalseToOnOff(Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom")))), (btn) -> {
+            toggleArtificialZoom();
+        }).dimensions(160, 20, 120, 20).build();
+        b.setTooltip(Tooltip.of(Text.of(
+                "Artificial Zoom allows for higher zoom levels than normal (+6 levels) by oversizing the smallest tile size."
+        )));
+        return b;
+    }
+
     @Override
     protected void init() {
         exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, 5);
@@ -74,11 +108,16 @@ public class ConfigScreen extends Screen {
                         new MapConfigScreen()
                 );
         }).dimensions(20, 20, 120, 20).build();
+        configHud.setTooltip(Tooltip.of(Text.of("Change positioning and size of HUD elements.")));
         this.addDrawableChild(configHud);
+
+        toggleArtificialZoomButton = newToggleArtificialZoomButton();
+        this.addDrawableChild(toggleArtificialZoomButton);
 
         textFieldWidget = new TextFieldWidget(this.textRenderer, 20, 50, 300, 20, Text.of("Map Tile Data URL"));
         textFieldWidget.setMaxLength(100);
         textFieldWidget.setText(ConfigFile.readParameter("TileMapUrl"));
+        textFieldWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
         this.addDrawableChild(textFieldWidget);
 
     }
@@ -87,6 +126,7 @@ public class ConfigScreen extends Screen {
         if (!Objects.equals(ConfigFile.readParameter("TileMapUrl"), textFieldWidget.getText())) {
             System.out.println("yea");
             TileManager.clearCacheDir();
+            TileManager.setArtificialZoom();
         }
         ConfigFile.writeParameter("TileMapUrl", textFieldWidget.getText());
         ConfigFile.writeToFile();

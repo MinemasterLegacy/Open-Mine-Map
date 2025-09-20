@@ -5,7 +5,9 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class ConfigFile {
     public static File configFile;
@@ -18,6 +20,7 @@ public class ConfigFile {
             "HudMapWidth",
             "HudMapHeight",
             "TileMapUrl",
+            "ArtificialZoom",
             "§hudlastzoom",
             "§fslastzoom",
             "§fslastx",
@@ -30,6 +33,7 @@ public class ConfigFile {
             "144",
             "81",
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "false",
             "0",
             "0",
             "64",
@@ -57,7 +61,21 @@ public class ConfigFile {
     }
 
     public static String readParameter(String parameter) {
-        return configParams.get(parameter);
+        String value = configParams.get(parameter);
+        //System.out.println("Value for key "+parameter+" is "+value);
+        if (value.equals("null")) { //failsafe in case a value is somehow set to null
+            for (int i = 0; i < keyNames.length; i++) {
+                if (keyNames[i].equals(parameter)) {
+                    System.out.println("Null value for valid parameter detected; possible error occoured");
+                    writeParameter(parameter, defaultValues[i]);
+                    writeToFile();
+                    return defaultValues[i];
+                }
+            }
+            return null;
+        } else {
+            return value;
+        }
     }
 
     public static boolean writeToFile() {

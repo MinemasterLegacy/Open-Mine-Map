@@ -5,6 +5,9 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.util.ConfigFile;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
@@ -19,7 +22,7 @@ public class TileManager {
     private static HashMap<String, Identifier> dyLoadedTiles = new HashMap<>();
     public static int tileScaledSize = 128; //should only be a power of 2
     public static int hudTileScaledSize = 128; //should only be a power of 2 (was 64 in v1.0.0)
-
+    public static boolean doArtificialZoom;
 
     public static final String OSM_MTYPE_STREET = "openstreetmap";
     //public static final String OSM_MTYPE_TOPO = "opentopomap";
@@ -187,5 +190,12 @@ public class TileManager {
             e.printStackTrace();
             return TileManager.getErrorTile();
         }
+    }
+
+    public static void setArtificialZoom() {
+        doArtificialZoom = Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom"));
+        //if (!doArtificialZoom) return;
+        //if (FullscreenMapScreen.trueZoomLevel > 18) FullscreenMapScreen.trueZoomLevel = 18;
+        //if (HudMap.trueZoomLevel > 18) FullscreenMapScreen.trueZoomLevel = 18;
     }
 }

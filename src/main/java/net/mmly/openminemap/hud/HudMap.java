@@ -23,7 +23,8 @@ public class HudMap {
     public static int hudMapX2 = hudMapX + hudMapWidth;
     public static int hudMapY2 = hudMapY + hudMapHeight;
     static boolean initialized = false;
-    static int zoomLevel = Integer.parseInt(ConfigFile.readParameter("§hudlastzoom"));
+    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter("§hudlastzoom"));
+    static int zoomLevel = Math.min(trueZoomLevel, 18); //essentially decides what tile size folder to pull from
     static Identifier[][] identifiers;
     static double mapTilePosX = 64;
     static double mapTilePosY = 64;
@@ -37,10 +38,15 @@ public class HudMap {
     public static boolean renderHud = true;
     public static int reloadSkin = 4;
 
-    public static Identifier playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
+    // used in conjunction with artificial zoom mode;
+    // TileManager.hudTileScaledSize does not get updated with artificial zoom, this variable does instead
+    // If artificialZoom is off, this variable should always equal TileManager.hudTileScaledSize
+    static int renderTileSize;
+
+    public static Identifier playerIdentifier;
 
     public static void initialize(DrawContext context) {
-
+        TileManager.setArtificialZoom();
     }
 
     public static void updateX2Y2() {
@@ -49,29 +55,59 @@ public class HudMap {
     }
 
     public static void zoomIn() {
-        if (zoomLevel < 18) {
-            zoomLevel++;
-            mapTilePosX *= 2;
-            mapTilePosY *= 2;
-            writeZoom();
+        if (TileManager.doArtificialZoom) {
+            if (trueZoomLevel < 24) {
+                trueZoomLevel++;
+                zoomLevel = Math.min(18, trueZoomLevel);
+                mapTilePosX *= 2;
+                mapTilePosY *= 2;
+                writeZoom();
+            } else {
+                zoomLevel = 18;
+                trueZoomLevel = 24;
+            }
         } else {
-            zoomLevel = 18;
+            if (trueZoomLevel < 18) {
+                zoomLevel++;
+                trueZoomLevel++;
+                mapTilePosX *= 2;
+                mapTilePosY *= 2;
+                writeZoom();
+            } else {
+                zoomLevel = 18;
+                trueZoomLevel = 18;
+            }
         }
     }
 
     public static void zoomOut() {
-        if (zoomLevel > 0) {
-            zoomLevel--;
-            mapTilePosX = (float) mapTilePosX / 2;
-            mapTilePosY = (float) mapTilePosY / 2;
-            writeZoom();
+        if (TileManager.doArtificialZoom) {
+            if (trueZoomLevel > 0) {
+                trueZoomLevel--;
+                zoomLevel = Math.min(18, trueZoomLevel);
+                mapTilePosX = (float) mapTilePosX / 2;
+                mapTilePosY = (float) mapTilePosY / 2;
+                writeZoom();
+            } else {
+                zoomLevel = 0;
+                trueZoomLevel = 0;
+            }
         } else {
-            zoomLevel = 0;
+            if (trueZoomLevel > 0) {
+                zoomLevel--;
+                trueZoomLevel--;
+                mapTilePosX = (float) mapTilePosX / 2;
+                mapTilePosY = (float) mapTilePosY / 2;
+                writeZoom();
+            } else {
+                zoomLevel = 0;
+                trueZoomLevel = 0;
+            }
         }
     }
 
     private static void writeZoom() {
-        ConfigFile.writeParameter("§hudlastzoom", Integer.toString(zoomLevel));
+        ConfigFile.writeParameter("§hudlastzoom", Integer.toString(trueZoomLevel));
         ConfigFile.writeToFile();
     }
 
@@ -92,9 +128,14 @@ public class HudMap {
         windowScaledHeight = window.getScaledHeight();
         windowScaledWidth = window.getScaledWidth();
 
-        identifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, TileManager.hudTileScaledSize);
-        int trueHW = TileManager.hudTileScaledSize;
+        renderTileSize = (int) Math.max(TileManager.hudTileScaledSize, Math.pow(2, trueZoomLevel - 11));
+        //System.out.println("TrueZoom: "+trueZoomLevel+" | Zoom: "+zoomLevel+" | calced size: "+Math.pow(2, trueZoomLevel - 11));
+
+        identifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize);
+        int trueHW = renderTileSize;
         int[] TopLeftData = TileManager.getTopLeftData();
+
+        //System.out.println(identifiers.length + ", " + identifiers[0].length);
 
         context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0xFFCEE1E4);
 
@@ -105,24 +146,24 @@ public class HudMap {
             context.drawText(MinecraftClient.getInstance().textRenderer, text, hudMapWidth > 73 ? (hudMapX + hudMapX2) / 2 - 37: hudMapX, hudMapHeight > 9 ? (hudMapY + hudMapY2) / 2 - 5 : hudMapY, 0xFFcccccc, true);
             return;
         } else {
-            playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, TileManager.hudTileScaledSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
-            playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, TileManager.hudTileScaledSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
+            playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
+            playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
         }
 
-        mapTilePosX = UnitConvert.longToMx(playerLon, zoomLevel, TileManager.hudTileScaledSize);
-        mapTilePosY = UnitConvert.latToMy(playerLat, zoomLevel, TileManager.hudTileScaledSize);
+        mapTilePosX = UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize);
+        mapTilePosY = UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize);
 
         if(!Double.isNaN(playerLat)) {
             for (int i = 0; i < identifiers.length; i++) {
                 for (int j = 0; j < identifiers[i].length; j++) {
                     RenderSystem.setShaderTexture(0, identifiers[i][j]);
-                    int tileX = ((((TopLeftData[0] + i) * TileManager.hudTileScaledSize) + hudMapX + hudMapWidth / 2) - (int) mapTilePosX);
-                    int tileY = ((((TopLeftData[1] + j) * TileManager.hudTileScaledSize) + hudMapY + hudMapHeight / 2) - (int) mapTilePosY);
+                    int tileX = ((((TopLeftData[0] + i) * renderTileSize) + hudMapX + hudMapWidth / 2) - (int) mapTilePosX);
+                    int tileY = ((((TopLeftData[1] + j) * renderTileSize) + hudMapY + hudMapHeight / 2) - (int) mapTilePosY);
 
                     int leftCrop = tileX < hudMapX ? hudMapX - tileX : 0;
                     int topCrop = tileY < hudMapY ? hudMapY - tileY : 0;
-                    int rightCrop = tileX + TileManager.hudTileScaledSize > hudMapX + hudMapWidth ? (tileX + TileManager.hudTileScaledSize) - (hudMapX + hudMapWidth) : 0;
-                    int bottomCrop = tileY + TileManager.hudTileScaledSize > hudMapY + hudMapHeight ? (tileY + TileManager.hudTileScaledSize) - (hudMapY + hudMapHeight) : 0;
+                    int rightCrop = tileX + renderTileSize > hudMapX + hudMapWidth ? (tileX + renderTileSize) - (hudMapX + hudMapWidth) : 0;
+                    int bottomCrop = tileY + renderTileSize > hudMapY + hudMapHeight ? (tileY + renderTileSize) - (hudMapY + hudMapHeight) : 0;
 
                     //x, y define where the defined top left corner will go
                     //u, v define the lop left corner of the texture

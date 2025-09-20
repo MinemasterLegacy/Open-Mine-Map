@@ -30,6 +30,7 @@ public class ConfigScreen extends Screen {
     private static ButtonLayer checkButtonLayer;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
     public static TextFieldWidget textFieldWidget;
+    protected static boolean artificialZoomOption;
 
     protected static final int buttonSize = 20;
     protected final int[][] buttonPositionModifiers = new int[][] {
@@ -39,7 +40,7 @@ public class ConfigScreen extends Screen {
 
     Window window = MinecraftClient.getInstance().getWindow();
 
-    protected ButtonWidget toggleArtificialZoomButton;
+    public static ButtonWidget toggleArtificialZoomButton;
 
     private void updateScreenDims() {
         windowHeight = window.getHeight();
@@ -76,7 +77,7 @@ public class ConfigScreen extends Screen {
     }
 
     protected void toggleArtificialZoom() {
-        ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(!Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom"))));
+        artificialZoomOption = !artificialZoomOption;
         //System.out.println(toggleArtificialZoomButton.getX());
         toggleArtificialZoomButton.visible = false;
         toggleArtificialZoomButton = newToggleArtificialZoomButton();
@@ -84,7 +85,7 @@ public class ConfigScreen extends Screen {
     }
 
     protected ButtonWidget newToggleArtificialZoomButton() {
-        ButtonWidget b = ButtonWidget.builder(Text.of("Artificial Zoom: " + trueFalseToOnOff(Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom")))), (btn) -> {
+        ButtonWidget b = ButtonWidget.builder(Text.of("Artificial Zoom: " + trueFalseToOnOff(artificialZoomOption)), (btn) -> {
             toggleArtificialZoom();
         }).dimensions(160, 20, 120, 20).build();
         b.setTooltip(Tooltip.of(Text.of(
@@ -111,6 +112,7 @@ public class ConfigScreen extends Screen {
         configHud.setTooltip(Tooltip.of(Text.of("Change positioning and size of HUD elements.")));
         this.addDrawableChild(configHud);
 
+        artificialZoomOption = Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom"));
         toggleArtificialZoomButton = newToggleArtificialZoomButton();
         this.addDrawableChild(toggleArtificialZoomButton);
 
@@ -124,11 +126,12 @@ public class ConfigScreen extends Screen {
 
     public static void saveChanges() {
         if (!Objects.equals(ConfigFile.readParameter("TileMapUrl"), textFieldWidget.getText())) {
-            System.out.println("yea");
+            //System.out.println("yea");
             TileManager.clearCacheDir();
             TileManager.setArtificialZoom();
         }
         ConfigFile.writeParameter("TileMapUrl", textFieldWidget.getText());
+        ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(artificialZoomOption));
         ConfigFile.writeToFile();
     }
 

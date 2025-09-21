@@ -19,7 +19,10 @@ public class MapConfigScreen extends Screen {
     private static ResizeElement rightResize;
     private static ResizeElement downResize;
     private static ResizeElement leftResize;
+    private static ResizeElement compassLeftResize;
+    private static ResizeElement compassRightResize;
     private static RepositionElement repositionElement;
+    private static RepositionElement compassRepositionElement;
     private static ButtonLayer exitButton;
     private static ButtonLayer saveButton;
     private static Identifier[] exitIdentifiers;
@@ -36,6 +39,8 @@ public class MapConfigScreen extends Screen {
         leftResize.setPosition(HudMap.hudMapX - 4, (HudMap.hudMapY2 + HudMap.hudMapY) / 2 - 10);
         downResize.setPosition((HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY2 - 3);
         upResize.setPosition((HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY - 4);
+        compassRightResize.setPosition(HudMap.hudCompassX + HudMap.hudCompassWidth - 3, HudMap.hudCompassY - 2);
+        compassLeftResize.setPosition(HudMap.hudCompassX - 4, HudMap.hudCompassY - 2);
     }
 
     @Override
@@ -48,6 +53,9 @@ public class MapConfigScreen extends Screen {
         ConfigFile.writeParameter("HudMapY", Integer.toString(HudMap.hudMapY));
         ConfigFile.writeParameter("HudMapWidth", Integer.toString(HudMap.hudMapWidth));
         ConfigFile.writeParameter("HudMapHeight", Integer.toString(HudMap.hudMapHeight));
+        ConfigFile.writeParameter("HudCompassX", Integer.toString(HudMap.hudCompassX));
+        ConfigFile.writeParameter("HudCompassY", Integer.toString(HudMap.hudCompassY));
+        ConfigFile.writeParameter("HudCompassWidth", Integer.toString(HudMap.hudCompassWidth));
         ConfigFile.writeToFile();
     }
 
@@ -56,6 +64,9 @@ public class MapConfigScreen extends Screen {
         HudMap.hudMapY = Integer.parseInt(ConfigFile.readParameter("HudMapY"));
         HudMap.hudMapWidth = Integer.parseInt(ConfigFile.readParameter("HudMapWidth"));
         HudMap.hudMapHeight = Integer.parseInt(ConfigFile.readParameter("HudMapHeight"));
+        HudMap.hudCompassX = Integer.parseInt(ConfigFile.readParameter("HudCompassX"));
+        HudMap.hudCompassY = Integer.parseInt(ConfigFile.readParameter("HudCompassY"));
+        HudMap.hudCompassWidth = Integer.parseInt(ConfigFile.readParameter("HudCompassWidth"));
         HudMap.updateX2Y2();
     }
 
@@ -84,15 +95,21 @@ public class MapConfigScreen extends Screen {
         leftResize = new ResizeElement(0, 0, 7, 20, 3);
         downResize = new ResizeElement(0, 0, 20, 7, 2);
         upResize = new ResizeElement(0, 0, 20, 7, 0);
+        compassLeftResize = new ResizeElement(0, 0, 7, 20, 4);
+        compassRightResize = new ResizeElement(0, 0, 7, 20, 5);
         updateResizePos();
 
         this.addDrawableChild(rightResize);
         this.addDrawableChild(leftResize);
         this.addDrawableChild(downResize);
         this.addDrawableChild(upResize);
+        this.addDrawableChild(compassLeftResize);
+        this.addDrawableChild(compassRightResize);
 
-        repositionElement = new RepositionElement();
+        repositionElement = new RepositionElement(0);
+        compassRepositionElement = new RepositionElement(1);
         this.addDrawableChild(repositionElement);
+        this.addDrawableChild(compassRepositionElement);
 
     }
 
@@ -107,6 +124,8 @@ public class MapConfigScreen extends Screen {
         context.drawTexture(horzAdjust, HudMap.hudMapX - 4, (HudMap.hudMapY2 + HudMap.hudMapY) / 2 - 10, 0, 0, 7, 20, 7, 20); //left
         context.drawTexture(vertAdjust, (HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY2 - 3, 0, 0, 20, 7, 20, 7); //bottom
         context.drawTexture(vertAdjust, (HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY - 4, 0, 0, 20, 7, 20, 7); //top
+        context.drawTexture(horzAdjust,HudMap.hudCompassX + HudMap.hudCompassWidth - 3, HudMap.hudCompassY - 2,0, 0, 7, 20, 7, 20);
+        context.drawTexture(horzAdjust, HudMap.hudCompassX - 4, HudMap.hudCompassY - 2,0, 0, 7, 20, 7, 20);
 
         saveButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10));
         context.drawTexture(saveButton.isHovered() ? saveIdentifiers[1] : saveIdentifiers[0], saveButton.getX(), saveButton.getY(), 0, 0, 20, 20, 20, 20);

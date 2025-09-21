@@ -4,6 +4,7 @@ import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 
+import javax.xml.crypto.dsig.keyinfo.KeyName;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +20,9 @@ public class ConfigFile {
             "HudMapY",
             "HudMapWidth",
             "HudMapHeight",
+            "HudCompassX",
+            "HudCompassY",
+            "HudCompassWidth",
             "TileMapUrl",
             "ArtificialZoom",
             "§hudlastzoom",
@@ -27,12 +31,15 @@ public class ConfigFile {
             "§fslasty"
     };
     private static final String[] defaultValues = new String[] { //default values for every config option / parameter
-            "vanilla",
-            "10",
-            "10",
-            "144",
-            "81",
-            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "vanilla", //theme
+            "10", //hudmapx
+            "10", //hudmapy
+            "144", //hudmapwidth
+            "81", //hudmapheight
+            "10", //hudcompassx
+            "96", //hudcompassy
+            "144", //hudcompasswidth
+            "https://tile.openstreetmap.org/{z}/{x}/{y}.png", //tilemapurl
             "false",
             "0",
             "0",
@@ -98,23 +105,37 @@ public class ConfigFile {
         configParams.clear();
         String line;
         String[] kvPair;
+        boolean[] foundParameter = new boolean[keyNames.length];
         try {
             BufferedReader reader = new BufferedReader(new FileReader(configFile));
-            for(int i = 0; i < numOfArgs; i++) {
+            for (int i = 0; i < numOfArgs; i++) {
                 line = reader.readLine();
-                if (line != null) {
-                    kvPair = line.split(" : ");
-                    if (kvPair.length == 1) configParams.put(kvPair[0], "");
-                    else configParams.put(kvPair[0], kvPair[1]);
-                } else {
-                    configParams.put(keyNames[i], defaultValues[i]);
+                if (line == null) break;
+                kvPair = line.split(" : ");
+                int searchResult = searchArray(keyNames, kvPair[0]);
+                if (searchResult >= 0) {
+                    configParams.put(kvPair[0], kvPair[1]);
+                    System.out.println("set "+kvPair[0]+" to "+kvPair[1]);
+                    foundParameter[searchResult] = true;
                 }
             }
             reader.close();
+            for (int i = 0; i < numOfArgs; i++) {
+                if (!foundParameter[i]) {
+                    configParams.put(keyNames[i], defaultValues[i]);
+                }
+            }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("readFromFile Error: "+e.getMessage());
             return false;
         }
         return true;
+    }
+
+    private static int searchArray(String[] array, String searchFor) {
+        for (int i = 0; i < array.length; i++) {
+            if (Objects.equals(array[i], searchFor)) return i;
+        }
+        return -1;
     }
 }

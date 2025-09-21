@@ -7,8 +7,17 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.hud.HudMap;
 
 public class RepositionElement extends ClickableWidget {
-    public RepositionElement() {
-        super(HudMap.hudMapX, HudMap.hudMapY, HudMap.hudMapWidth, HudMap.hudMapHeight, Text.empty());
+
+    int type;
+
+    public RepositionElement(int type) {
+        super(0, 0, 0, 0, Text.empty());
+        this.type = type; //0 is for map, 1 is for compass
+        if (type == 0) {
+            this.setDimensionsAndPosition(HudMap.hudMapWidth, HudMap.hudMapHeight, HudMap.hudMapX, HudMap.hudMapY);
+        } else if (type == 1) {
+            this.setDimensionsAndPosition(HudMap.hudCompassWidth, 16, HudMap.hudCompassX, HudMap.hudCompassY);
+        }
     }
 
     double subDeltaX = 0;
@@ -16,10 +25,11 @@ public class RepositionElement extends ClickableWidget {
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        setX(HudMap.hudMapX);
-        setY(HudMap.hudMapY);
-        setWidth(HudMap.hudMapWidth);
-        setHeight(HudMap.hudMapHeight);
+        if (type == 0) {
+            this.setDimensionsAndPosition(HudMap.hudMapWidth, HudMap.hudMapHeight, HudMap.hudMapX, HudMap.hudMapY);
+        } else if (type == 1) {
+            this.setDimensionsAndPosition(HudMap.hudCompassWidth, 16, HudMap.hudCompassX, HudMap.hudCompassY);
+        }
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x00000000);
     }
 
@@ -30,8 +40,13 @@ public class RepositionElement extends ClickableWidget {
     protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
         subDeltaX += deltaX;
         subDeltaY += deltaY;
-        HudMap.hudMapX += (int) subDeltaX;
-        HudMap.hudMapY += (int) subDeltaY;
+        if (type == 0) {
+            HudMap.hudMapX += (int) subDeltaX;
+            HudMap.hudMapY += (int) subDeltaY;
+        } else if (type == 1) {
+            HudMap.hudCompassX += (int) subDeltaX;
+            HudMap.hudCompassY += (int) subDeltaY;
+        }
         subDeltaX %= 1;
         subDeltaY %= 1;
         HudMap.updateX2Y2();

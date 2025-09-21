@@ -38,9 +38,9 @@ public class HudMap {
     static double playerMapY;
     public static boolean renderHud = true;
     public static int reloadSkin = 4;
-    public static int hudCompassX = 10;
-    public static int hudCompassY = 96;
-    public static int hudCompassWidth = 144;
+    public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter("HudCompassX"));
+    public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter("HudCompassY"));
+    public static int hudCompassWidth = Integer.parseInt(ConfigFile.readParameter("HudCompassWidth"));
     protected static Identifier compassIdentifier = Identifier.of("openminemap", "stripcompass.png");
     protected static int hudCompassCenter;
 
@@ -131,7 +131,7 @@ public class HudMap {
         if (!initialized) initialize(context);
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
         double direction = Direction.calcDymaxionAngleDifference();
-        hudCompassCenter = hudCompassWidth / 2;
+        hudCompassCenter = Math.round((float) hudCompassWidth / 2);
 
         windowScaledHeight = window.getScaledHeight();
         windowScaledWidth = window.getScaledWidth();
@@ -182,8 +182,8 @@ public class HudMap {
                     context.drawTexture(identifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
                 }
             }
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
+            //context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
+            //context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
         } else {
 
         }

@@ -54,7 +54,6 @@ public class ResizeElement extends ClickableWidget {
                     HudMap.hudMapY -= (int) (startMouseY - mouseY);
                     HudMap.hudMapHeight += (int) (startMouseY - mouseY);
                 }
-                MapConfigScreen.updateResizePos();
                 break;
             } case 1: {
                 if (HudMap.hudMapWidth + (int) (mouseX - startMouseX) < 20) {
@@ -62,7 +61,6 @@ public class ResizeElement extends ClickableWidget {
                 } else {
                     HudMap.hudMapWidth += (int) (mouseX - startMouseX);
                 }
-                MapConfigScreen.updateResizePos();
                 break;
             } case 2: {
                 if (HudMap.hudMapHeight + (int) (mouseY - startMouseY) < 20) {
@@ -70,7 +68,6 @@ public class ResizeElement extends ClickableWidget {
                 } else {
                     HudMap.hudMapHeight += (int) (mouseY - startMouseY);
                 }
-                MapConfigScreen.updateResizePos();
                 break;
             } case 3: {
                 if (HudMap.hudMapWidth + (int) (startMouseX - mouseX) < 20) {
@@ -80,13 +77,25 @@ public class ResizeElement extends ClickableWidget {
                     HudMap.hudMapX -= (int) (startMouseX - mouseX);
                     HudMap.hudMapWidth += (int) (startMouseX - mouseX);
                 }
-                MapConfigScreen.updateResizePos();
                 break;
             } case 4: {
-
+                if (HudMap.hudCompassWidth + (int) (startMouseX - mouseX) < 20) {
+                    HudMap.hudCompassX = (HudMap.hudCompassX + HudMap.hudCompassWidth - 20);
+                    HudMap.hudCompassWidth = 20;
+                } else {
+                    HudMap.hudCompassX -= (int) (startMouseX - mouseX);
+                    HudMap.hudCompassWidth += (int) (startMouseX - mouseX);
+                }
+                break;
             } case 5: {
-
+                if (HudMap.hudCompassWidth + (int) (mouseX - startMouseX) < 20) {
+                    HudMap.hudCompassWidth = 20;
+                } else {
+                    HudMap.hudCompassWidth += (int) (mouseX - startMouseX);
+                }
+                break;
             }
         }
+        MapConfigScreen.updateResizePos();
     }
 }

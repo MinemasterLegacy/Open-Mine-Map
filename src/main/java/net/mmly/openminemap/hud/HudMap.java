@@ -36,7 +36,7 @@ public class HudMap {
     public static double playerLat;
     static double playerMapX;
     static double playerMapY;
-    public static boolean renderHud = true;
+    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter("§hudtoggle"));
     public static int reloadSkin = 4;
     public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter("HudCompassX"));
     public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter("HudCompassY"));
@@ -119,6 +119,8 @@ public class HudMap {
 
     public static void toggleRendering() {
         renderHud = !renderHud;
+        ConfigFile.writeParameter("§hudtoggle", Boolean.toString(renderHud));
+        ConfigFile.writeToFile();
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
@@ -182,8 +184,8 @@ public class HudMap {
                     context.drawTexture(identifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
                 }
             }
-            //context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
-            //context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
+            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
+            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
         } else {
 
         }

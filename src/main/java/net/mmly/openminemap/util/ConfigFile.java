@@ -25,6 +25,7 @@ public class ConfigFile {
             "HudCompassWidth",
             "TileMapUrl",
             "ArtificialZoom",
+            "§hudtoggle",
             "§hudlastzoom",
             "§fslastzoom",
             "§fslastx",
@@ -41,6 +42,7 @@ public class ConfigFile {
             "144", //hudcompasswidth
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png", //tilemapurl
             "false",
+            "true",
             "0",
             "0",
             "64",

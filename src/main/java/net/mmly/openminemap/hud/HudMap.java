@@ -11,6 +11,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
@@ -37,6 +38,11 @@ public class HudMap {
     static double playerMapY;
     public static boolean renderHud = true;
     public static int reloadSkin = 4;
+    public static int hudCompassX = 10;
+    public static int hudCompassY = 96;
+    public static int hudCompassWidth = 144;
+    protected static Identifier compassIdentifier = Identifier.of("openminemap", "stripcompass.png");
+    protected static int hudCompassCenter;
 
     // used in conjunction with artificial zoom mode;
     // TileManager.hudTileScaledSize does not get updated with artificial zoom, this variable does instead
@@ -123,7 +129,9 @@ public class HudMap {
         }
 
         if (!initialized) initialize(context);
-        PlayerAttributes.updatePlayerLocations(MinecraftClient.getInstance());
+        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
+        double direction = Direction.calcDymaxionAngleDifference();
+        hudCompassCenter = hudCompassWidth / 2;
 
         windowScaledHeight = window.getScaledHeight();
         windowScaledWidth = window.getScaledWidth();
@@ -178,6 +186,18 @@ public class HudMap {
             context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
         } else {
 
+        }
+
+        //0xD9D9D9
+        if (!Double.isNaN(direction)) {
+            for (int i = 2; i >= 0; i--) {
+                context.fill(hudCompassX + i, hudCompassY + i, hudCompassX + hudCompassWidth - i, hudCompassY + 16 - i, 0x33CCCCCC);
+            }
+            //System.out.println(Direction.playerMcDirection);
+            //System.out.println(PlayerAttributes.yaw);
+            context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, (int) (Math.round(PlayerAttributes.yaw) - direction - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, 360, 16);
+            //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
+            context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);
         }
 
     }

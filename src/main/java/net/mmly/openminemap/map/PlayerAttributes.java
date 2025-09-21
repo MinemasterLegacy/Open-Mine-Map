@@ -6,16 +6,22 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.projection.Projection;
 
 public class PlayerAttributes {
-    public static double playerLon;
-    public static double playerLat;
+    public static double longitude;
+    public static double latitude;
+    public static double yaw;
 
     //private static MinecraftClient mClient = MinecraftClient.getInstance();
 
-    public static void updatePlayerLocations(MinecraftClient minecraftClient) {
+    public static void updatePlayerAttributes(MinecraftClient minecraftClient) {
+        yaw = minecraftClient.player.getYaw() % 360;
+        if (yaw < 0) {
+            yaw = yaw + 360;
+        }
+        //yaw = 0;
         try {
             double[] c = Projection.to_geo(minecraftClient.player.getX(), minecraftClient.player.getZ());
-            playerLon = c[1];
-            playerLat = c[0];
+            longitude = c[1];
+            latitude = c[0];
             FullscreenMapScreen.playerLon = c[1];
             FullscreenMapScreen.playerLat = c[0];
             HudMap.playerLon = c[1];
@@ -23,8 +29,8 @@ public class PlayerAttributes {
             return;
         } catch (Exception ignored) {}
 
-        playerLon = Double.NaN;
-        playerLat = Double.NaN;
+        longitude = Double.NaN;
+        latitude = Double.NaN;
         FullscreenMapScreen.playerLon = Double.NaN;
         FullscreenMapScreen.playerLat = Double.NaN;
         HudMap.playerLon = Double.NaN;

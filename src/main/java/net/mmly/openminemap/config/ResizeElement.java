@@ -14,6 +14,8 @@ public class ResizeElement extends ClickableWidget {
         {20, 7},
         {7, 20},
         {20, 7},
+        {7, 20},
+        {7, 20},
         {7, 20}
     };
     double startMouseX;
@@ -80,6 +82,10 @@ public class ResizeElement extends ClickableWidget {
                 }
                 MapConfigScreen.updateResizePos();
                 break;
+            } case 4: {
+
+            } case 5: {
+
             }
         }
     }

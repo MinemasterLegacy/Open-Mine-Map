@@ -103,10 +103,10 @@ public class KeyInputHandler {
 
     private static void copyPlayerCoordinates() {
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
-        PlayerAttributes.updatePlayerLocations(minecraftClient);
+        PlayerAttributes.updatePlayerAttributes(minecraftClient);
         try {
             //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection("test"), null);
-            if (Double.isNaN(PlayerAttributes.playerLat)) {
+            if (Double.isNaN(PlayerAttributes.latitude)) {
                 stopIt++;
                 if (stopIt >= 10) {
                     minecraftClient.player.sendMessage(Text.literal("stop it.")
@@ -121,7 +121,7 @@ public class KeyInputHandler {
                 }
 
             } else {
-                MinecraftClient.getInstance().keyboard.setClipboard(UnitConvert.floorToPlace(PlayerAttributes.playerLat, 7) + " " + UnitConvert.floorToPlace(PlayerAttributes.playerLon, 7));
+                MinecraftClient.getInstance().keyboard.setClipboard(UnitConvert.floorToPlace(PlayerAttributes.latitude, 7) + " " + UnitConvert.floorToPlace(PlayerAttributes.longitude, 7));
                 minecraftClient.player.sendMessage(Text.literal("Coordinates copied to clipboard")
                         .formatted(Formatting.GRAY)
                         .formatted(Formatting.ITALIC));

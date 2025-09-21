@@ -300,7 +300,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         configButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1], buttonSize, buttonSize, 4);
         exitButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1], buttonSize, buttonSize, 5);
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
-        toggleHudMapButtonLayer.setTooltip(Tooltip.of(Text.of("Toggle HUD Map")));
+        toggleHudMapButtonLayer.setTooltip(Tooltip.of(Text.of("Toggle HUD Elements")));
 
         this.addDrawableChild(zoominButtonLayer);
         this.addDrawableChild(zoomoutButtonLayer);
@@ -397,7 +397,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             }
         }
 
-        PlayerAttributes.updatePlayerLocations(mClient);
+        PlayerAttributes.updatePlayerAttributes(mClient);
         if (playerGetCoordsDelay > -1) {
             try {
                 if (Double.isNaN(playerLon)) throw new CoordinateValueError(playerLon, playerLat);

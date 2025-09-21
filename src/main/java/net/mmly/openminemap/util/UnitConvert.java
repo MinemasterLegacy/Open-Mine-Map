@@ -8,6 +8,7 @@ public class UnitConvert {
 
     // long/lat and x/y equations can be found at https://www.desmos.com/calculator/x8chytp9bq
 
+    //mx and my = mapx and mapy, they refer to the mercator coordinate system
     public static double mxToLong(double x, int zoom) {
         double mapSize = (128 * Math.pow(2, zoom));
         return x / (mapSize / 360) - 180;

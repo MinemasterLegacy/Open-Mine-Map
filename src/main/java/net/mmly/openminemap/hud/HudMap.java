@@ -3,6 +3,7 @@ package net.mmly.openminemap.hud;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.MutableText;
@@ -203,11 +204,11 @@ public class HudMap {
                     //texturewidth and textureheight should equal the scale of the tiles (64 here)
 
                     if (trueHW - rightCrop - leftCrop < 0 || trueHW - bottomCrop - topCrop < 0) continue;
-                    context.drawTexture(identifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
+                    context.drawTexture(RenderLayer::getGuiTextured, identifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
                 }
             }
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
+            context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8, 8,8, 8, 64, 64);
+            context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 40,8,8, 8, 8, 8, 64, 64);
         } /*else {
 
         }*/
@@ -219,8 +220,8 @@ public class HudMap {
             }
             //System.out.println(Direction.playerMcDirection);
             //System.out.println(PlayerAttributes.yaw);
-            context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16,  Math.round((PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 360, 16);
-            if (doSnapAngle) context.drawTexture(snapAngleIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, Math.round((PlayerAttributes.yaw + snapAngle - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 90, 16);
+            context.drawTexture(RenderLayer::getGuiTextured, compassIdentifier, hudCompassX, hudCompassY, (int) Math.round((PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 360, 16);
+            if (doSnapAngle) context.drawTexture(RenderLayer::getGuiTextured, snapAngleIdentifier, hudCompassX, hudCompassY, (int) Math.round((PlayerAttributes.yaw + snapAngle - ((double) hudCompassWidth / 2))) , 0,hudCompassWidth, 16,  hudCompassWidth, 16, 90, 16);
             //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
             context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);
         }

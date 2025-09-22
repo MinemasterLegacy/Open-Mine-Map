@@ -176,7 +176,8 @@ public class TileManager {
                 InputStream is = new ByteArrayInputStream(os.toByteArray());
                 NativeImage nImage = NativeImage.read(is);
                 //register new dynamic texture and store it again to be referenced later
-                dyLoadedTiles.put(thisKey, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
+                mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(nImage));
+                dyLoadedTiles.put(thisKey, Identifier.of("osmtile", zoom+"-"+x+"-"+y));
                 //System.out.println("New Dynamic tile");
                 return dyLoadedTiles.get(thisKey);
             }

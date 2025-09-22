@@ -129,12 +129,12 @@ public class KeyInputHandler {
         if (minecraftClient.player == null) {
             minecraftClient.player.sendMessage(Text.literal("An error occurred.")
                     .formatted(Formatting.RED)
-                    .formatted(Formatting.ITALIC));
+                    .formatted(Formatting.ITALIC), false);
         } else {
             minecraftClient.player.setYaw((float) snapAngle);
             minecraftClient.player.sendMessage(Text.literal("Snap!")
                     .formatted(Formatting.GRAY)
-                    .formatted(Formatting.ITALIC));
+                    .formatted(Formatting.ITALIC), false);
         }
 
     }
@@ -150,26 +150,26 @@ public class KeyInputHandler {
                     minecraftClient.player.sendMessage(Text.literal("stop it.")
                             .formatted(Formatting.RED)
                             .formatted(Formatting.ITALIC)
-                            .formatted(Formatting.BOLD));
+                            .formatted(Formatting.BOLD), false);
                     stopIt = 0;
                 } else {
                     minecraftClient.player.sendMessage(Text.literal("Seems like you're outside the bounds of the projection. Please re-enter into reality and try again.")
                             .formatted(Formatting.GRAY)
-                            .formatted(Formatting.ITALIC));
+                            .formatted(Formatting.ITALIC), false);
                 }
 
             } else {
                 MinecraftClient.getInstance().keyboard.setClipboard(UnitConvert.floorToPlace(PlayerAttributes.latitude, 7) + " " + UnitConvert.floorToPlace(PlayerAttributes.longitude, 7));
                 minecraftClient.player.sendMessage(Text.literal("Coordinates copied to clipboard")
                         .formatted(Formatting.GRAY)
-                        .formatted(Formatting.ITALIC));
+                        .formatted(Formatting.ITALIC), false);
             }
         } catch (Exception e) {
             try {
                 minecraftClient.player.sendMessage(Text.literal("There was an error while doing that. Most likely a skill issue though.")
                         .formatted(Formatting.RED)
                         //.formatted(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/say e"))));
-                        .formatted(Formatting.ITALIC));
+                        .formatted(Formatting.ITALIC), false);
             } catch (Exception e2) {
                 OpenMineMap.somethingF__kedUpReallyBadIfThisMethodIsBeingCalled();
             }

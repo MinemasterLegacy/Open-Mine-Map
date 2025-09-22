@@ -122,7 +122,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget = new TextFieldWidget(this.textRenderer, 20, 80, 100, 20, Text.of("Snap Angle"));
         snapAngleWidget.setMaxLength(20);
         snapAngleWidget.setText(ConfigFile.readParameter("SnapAngle"));
-        snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines.")));
+        snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
         this.addDrawableChild(snapAngleWidget);
 
     }

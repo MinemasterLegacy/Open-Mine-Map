@@ -117,8 +117,7 @@ public class KeyInputHandler {
     public static void snapToAngle() {
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
         //int cardinalDirection = minecraftClient.player.getFacing().getHorizontal();//0 is south, 1 is west, 2 is north, 3 is east
-        double offsetFromMC = HudMap.direction;
-        double facing = (Math.round(PlayerAttributes.yaw) - offsetFromMC - 1);
+        double facing = (Math.round(PlayerAttributes.yaw));
         facing += (360 * (facing < 0 ? 1 : 0));
         double snapAngle = -HudMap.snapAngle; //range: [0, 90]
         System.out.println(snapAngle);
@@ -132,7 +131,7 @@ public class KeyInputHandler {
                     .formatted(Formatting.RED)
                     .formatted(Formatting.ITALIC));
         } else {
-            minecraftClient.player.setYaw((float) (offsetFromMC + snapAngle));
+            minecraftClient.player.setYaw((float) snapAngle);
             minecraftClient.player.sendMessage(Text.literal("Snap!")
                     .formatted(Formatting.GRAY)
                     .formatted(Formatting.ITALIC));

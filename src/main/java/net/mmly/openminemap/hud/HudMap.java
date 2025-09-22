@@ -220,7 +220,7 @@ public class HudMap {
             //System.out.println(Direction.playerMcDirection);
             //System.out.println(PlayerAttributes.yaw);
             context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16,  Math.round((PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 360, 16);
-            if (doSnapAngle) context.drawTexture(snapAngleIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, Math.round((PlayerAttributes.yaw - direction + snapAngle - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 90, 16);
+            if (doSnapAngle) context.drawTexture(snapAngleIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, Math.round((PlayerAttributes.yaw + snapAngle - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 90, 16);
             //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
             context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);
         }

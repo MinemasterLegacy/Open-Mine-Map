@@ -61,7 +61,6 @@ public class InteractionLayer extends ClickableWidget {
             }
         }
         FullscreenMapScreen.doFollowPlayer = false;
-        return false;
-
+        return true;
     }
 }

@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 public class TileManager {
 
@@ -176,7 +177,7 @@ public class TileManager {
                 InputStream is = new ByteArrayInputStream(os.toByteArray());
                 NativeImage nImage = NativeImage.read(is);
                 //register new dynamic texture and store it again to be referenced later
-                mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(nImage));
+                mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(new nameSupplier(), nImage));
                 dyLoadedTiles.put(thisKey, Identifier.of("osmtile", zoom+"-"+x+"-"+y));
                 //System.out.println("New Dynamic tile");
                 return dyLoadedTiles.get(thisKey);
@@ -196,5 +197,12 @@ public class TileManager {
         //if (!doArtificialZoom) return;
         //if (FullscreenMapScreen.trueZoomLevel > 18) FullscreenMapScreen.trueZoomLevel = 18;
         //if (HudMap.trueZoomLevel > 18) FullscreenMapScreen.trueZoomLevel = 18;
+    }
+}
+
+class nameSupplier implements Supplier<String> {
+    @Override
+    public String get() {
+        return "osmTileName";
     }
 }

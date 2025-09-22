@@ -391,7 +391,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //draws the map tiles
         for (int i = 0; i < identifiers.length; i++) {
             for (int j = 0; j < identifiers[i].length; j++) {
-                RenderSystem.setShaderTexture(0, identifiers[i][j]);
+                //RenderSystem.setShaderTexture(0, identifiers[i][j]);
                 //System.out.println("Position "+((((TopLeftData[0] + i) * 256) + (float) windowWidth / 2) - mapTilePosX)+", "+((((TopLeftData[1]+j) * 256) + (float) windowHeight / 2) - mapTilePosY)+" calculated for tile ["+i+","+j+"]");
                 //context.drawTexture(identifiers[i][j], this.pixelToScaledCoords((((TopLeftData[0] + i) * 256) + (float) windowWidth / 2) - mapTilePosX), this.pixelToScaledCoords((((TopLeftData[1]+j) * 256) + (float) windowHeight / 2) - mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
                 context.drawTexture(RenderLayer::getGuiTextured, identifiers[i][j], (int) ((((TopLeftData[0] + i) * renderTileSize) + (float) windowScaledWidth / 2) - (int) mapTilePosX), (int) ((((TopLeftData[1]+j) * renderTileSize) + (float) windowScaledHeight / 2) - (int) mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);

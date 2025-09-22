@@ -42,7 +42,12 @@ public class HudMap {
     public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter("HudCompassY"));
     public static int hudCompassWidth = Integer.parseInt(ConfigFile.readParameter("HudCompassWidth"));
     protected static Identifier compassIdentifier = Identifier.of("openminemap", "stripcompass.png");
+    protected static Identifier snapAngleIdentifier = Identifier.of("openminemap", "snapangle.png");
     protected static int hudCompassCenter;
+    static double snapAngleInput;
+    public static double snapAngle; //range: (-90, 0]
+    public static double direction;
+    static boolean doSnapAngle = false;
 
     // used in conjunction with artificial zoom mode;
     // TileManager.hudTileScaledSize does not get updated with artificial zoom, this variable does instead
@@ -51,8 +56,20 @@ public class HudMap {
 
     public static Identifier playerIdentifier;
 
+    public static void setSnapAngle() {
+        String receivedSnapAngle = ConfigFile.readParameter("SnapAngle");
+        if (receivedSnapAngle.isEmpty()) {
+            doSnapAngle = false;
+        } else {
+            doSnapAngle = true;
+            snapAngleInput = Double.parseDouble(receivedSnapAngle);
+            snapAngle = ((-snapAngleInput) % 90) - (90 * (((-snapAngleInput) % 90) > 0 ? 1 : 0));
+        }
+    }
+
     public static void initialize(DrawContext context) {
         TileManager.setArtificialZoom();
+        setSnapAngle();
     }
 
     public static void updateX2Y2() {
@@ -132,7 +149,7 @@ public class HudMap {
 
         if (!initialized) initialize(context);
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
-        double direction = Direction.calcDymaxionAngleDifference();
+        direction = Direction.calcDymaxionAngleDifference();
         hudCompassCenter = Math.round((float) hudCompassWidth / 2);
 
         windowScaledHeight = window.getScaledHeight();
@@ -197,7 +214,8 @@ public class HudMap {
             }
             //System.out.println(Direction.playerMcDirection);
             //System.out.println(PlayerAttributes.yaw);
-            context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, (int) (Math.round(PlayerAttributes.yaw) - direction - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, 360, 16);
+            context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16,  Math.round((PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 360, 16);
+            if (doSnapAngle) context.drawTexture(snapAngleIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, Math.round((PlayerAttributes.yaw - direction + snapAngle - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 90, 16);
             //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
             context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);
         }

@@ -11,10 +11,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 
-import javax.tools.Tool;
 import java.util.Objects;
 
 public class ConfigScreen extends Screen {
@@ -29,7 +29,8 @@ public class ConfigScreen extends Screen {
     private static ButtonLayer exitButtonLayer;
     private static ButtonLayer checkButtonLayer;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
-    public static TextFieldWidget textFieldWidget;
+    public static TextFieldWidget customUrlWidget;
+    public static TextFieldWidget snapAngleWidget;
     protected static boolean artificialZoomOption;
 
     protected static final int buttonSize = 20;
@@ -116,23 +117,37 @@ public class ConfigScreen extends Screen {
         toggleArtificialZoomButton = newToggleArtificialZoomButton();
         this.addDrawableChild(toggleArtificialZoomButton);
 
-        textFieldWidget = new TextFieldWidget(this.textRenderer, 20, 50, 300, 20, Text.of("Map Tile Data URL"));
-        textFieldWidget.setMaxLength(100);
-        textFieldWidget.setText(ConfigFile.readParameter("TileMapUrl"));
-        textFieldWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
-        this.addDrawableChild(textFieldWidget);
+        customUrlWidget = new TextFieldWidget(this.textRenderer, 20, 50, 300, 20, Text.of("Map Tile Data URL"));
+        customUrlWidget.setMaxLength(100);
+        customUrlWidget.setText(ConfigFile.readParameter("TileMapUrl"));
+        customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
+        this.addDrawableChild(customUrlWidget);
+
+        snapAngleWidget = new TextFieldWidget(this.textRenderer, 20, 80, 100, 20, Text.of("Snap Angle"));
+        snapAngleWidget.setMaxLength(20);
+        snapAngleWidget.setText(ConfigFile.readParameter("SnapAngle"));
+        snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines.")));
+        this.addDrawableChild(snapAngleWidget);
 
     }
 
     public static void saveChanges() {
-        if (!Objects.equals(ConfigFile.readParameter("TileMapUrl"), textFieldWidget.getText())) {
+        if (!Objects.equals(ConfigFile.readParameter("TileMapUrl"), customUrlWidget.getText())) {
             //System.out.println("yea");
             TileManager.clearCacheDir();
             TileManager.setArtificialZoom();
         }
-        ConfigFile.writeParameter("TileMapUrl", textFieldWidget.getText());
+        String snapAngle;
+        try {
+            Double.parseDouble(snapAngleWidget.getText());
+        } catch (NumberFormatException e) {
+            snapAngle = "";
+        }
+        ConfigFile.writeParameter("TileMapUrl", customUrlWidget.getText());
+        ConfigFile.writeParameter("SnapAngle", snapAngleWidget.getText());
         ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(artificialZoomOption));
         ConfigFile.writeToFile();
+        HudMap.setSnapAngle();
     }
 
     @Override

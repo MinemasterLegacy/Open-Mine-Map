@@ -21,6 +21,7 @@ public class KeyInputHandler {
     public static final String KEY_ZOOMOUT_HUD_OSM_MAP = "Zoom Out (HUD)";
     public static final String KEY_TOGGLE_HUD_OSM_MAP = "Toggle Map (HUD)";
     public static final String KEY_COPY_COORDINATES = "Copy Coordinates to Clipboard";
+    public static final String KEY_SNAP_ANGLE = "Snap to Angle";
 
     //objects for all custom keybindings
     private static KeyBinding openFullscreenOsmMapKey;
@@ -28,6 +29,7 @@ public class KeyInputHandler {
     private static KeyBinding hudMapZoomOutKey;
     private static KeyBinding hudMapToggleKey;
     private static KeyBinding copyCoordinatesKey;
+    private static KeyBinding snapAngleKey;
     private static int stopIt = 0;
 
     //event handling for when the keys are pressed
@@ -57,6 +59,10 @@ public class KeyInputHandler {
 
             if(copyCoordinatesKey.wasPressed()) {
                 copyPlayerCoordinates();
+            }
+
+            if(snapAngleKey.wasPressed()) {
+                snapToAngle();
             }
 
         });
@@ -98,7 +104,34 @@ public class KeyInputHandler {
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
+        snapAngleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                KEY_SNAP_ANGLE,
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_UNKNOWN,
+                KEY_CATEGORY_OPENMINEMAP
+        ));
+
         registerKeyInputs(); //call the registerKeyInputs method defined above when the register method is called in TutorialModClient
+    }
+
+    public static void snapToAngle() {
+        MinecraftClient minecraftClient = MinecraftClient.getInstance();
+        //int cardinalDirection = minecraftClient.player.getFacing().getHorizontal();//0 is south, 1 is west, 2 is north, 3 is east
+        double offsetFromMC = HudMap.direction;
+        double facing = (Math.round(PlayerAttributes.yaw) - offsetFromMC - 1);
+        facing += (360 * (facing < 0 ? 1 : 0));
+        double snapAngle = -HudMap.snapAngle; //range: [0, 90]
+        System.out.println(snapAngle);
+        double faceInDirection;
+        while (Math.abs(facing - snapAngle) >=45 && snapAngle <= 360) {
+            snapAngle += 90;
+        }
+
+        System.out.println(snapAngle);
+        minecraftClient.player.setYaw((float) (offsetFromMC + snapAngle));
+        minecraftClient.player.sendMessage(Text.literal("Snap!")
+                .formatted(Formatting.GRAY)
+                .formatted(Formatting.ITALIC));
     }
 
     private static void copyPlayerCoordinates() {

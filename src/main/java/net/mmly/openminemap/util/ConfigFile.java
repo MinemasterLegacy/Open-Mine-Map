@@ -25,6 +25,7 @@ public class ConfigFile {
             "HudCompassWidth",
             "TileMapUrl",
             "ArtificialZoom",
+            "SnapAngle",
             "§hudtoggle",
             "§hudlastzoom",
             "§fslastzoom",
@@ -42,6 +43,7 @@ public class ConfigFile {
             "144", //hudcompasswidth
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png", //tilemapurl
             "false",
+            "/",
             "true",
             "0",
             "0",
@@ -114,6 +116,7 @@ public class ConfigFile {
                 line = reader.readLine();
                 if (line == null) break;
                 kvPair = line.split(" : ");
+                if (kvPair.length == 1) kvPair = new String[] {kvPair[0], ""};
                 int searchResult = searchArray(keyNames, kvPair[0]);
                 if (searchResult >= 0) {
                     configParams.put(kvPair[0], kvPair[1]);

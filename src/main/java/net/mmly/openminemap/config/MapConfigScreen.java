@@ -1,6 +1,7 @@
 package net.mmly.openminemap.config;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderLayer;
@@ -121,17 +122,17 @@ public class MapConfigScreen extends Screen {
         //Blue rectangle overlay
         //context.fill(HudMap.hudMapX, HudMap.hudMapY, HudMap.hudMapX2, HudMap.hudMapY2, 0xFFCEE1E4);
 
-        context.drawTexture(RenderLayer::getGuiTextured, horzAdjust, HudMap.hudMapX2 - 3, (HudMap.hudMapY2 + HudMap.hudMapY) / 2 - 10, 0, 0, 7, 20, 7, 20); //right
-        context.drawTexture(RenderLayer::getGuiTextured, horzAdjust, HudMap.hudMapX - 4, (HudMap.hudMapY2 + HudMap.hudMapY) / 2 - 10, 0, 0, 7, 20, 7, 20); //left
-        context.drawTexture(RenderLayer::getGuiTextured, vertAdjust, (HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY2 - 3, 0, 0, 20, 7, 20, 7); //bottom
-        context.drawTexture(RenderLayer::getGuiTextured, vertAdjust, (HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY - 4, 0, 0, 20, 7, 20, 7); //top
-        context.drawTexture(RenderLayer::getGuiTextured, horzAdjust,HudMap.hudCompassX + HudMap.hudCompassWidth - 3, HudMap.hudCompassY - 2,0, 0, 7, 20, 7, 20);
-        context.drawTexture(RenderLayer::getGuiTextured, horzAdjust, HudMap.hudCompassX - 4, HudMap.hudCompassY - 2,0, 0, 7, 20, 7, 20);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, horzAdjust, HudMap.hudMapX2 - 3, (HudMap.hudMapY2 + HudMap.hudMapY) / 2 - 10, 0, 0, 7, 20, 7, 20); //right
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, horzAdjust, HudMap.hudMapX - 4, (HudMap.hudMapY2 + HudMap.hudMapY) / 2 - 10, 0, 0, 7, 20, 7, 20); //left
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, vertAdjust, (HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY2 - 3, 0, 0, 20, 7, 20, 7); //bottom
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, vertAdjust, (HudMap.hudMapX + HudMap.hudMapX2) / 2 - 10, HudMap.hudMapY - 4, 0, 0, 20, 7, 20, 7); //top
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, horzAdjust,HudMap.hudCompassX + HudMap.hudCompassWidth - 3, HudMap.hudCompassY - 2,0, 0, 7, 20, 7, 20);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, horzAdjust, HudMap.hudCompassX - 4, HudMap.hudCompassY - 2,0, 0, 7, 20, 7, 20);
 
         saveButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10));
-        context.drawTexture(RenderLayer::getGuiTextured, saveButton.isHovered() ? saveIdentifiers[1] : saveIdentifiers[0], saveButton.getX(), saveButton.getY(), 0, 0, 20, 20, 20, 20);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, saveButton.isHovered() ? saveIdentifiers[1] : saveIdentifiers[0], saveButton.getX(), saveButton.getY(), 0, 0, 20, 20, 20, 20);
 
         exitButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10 + 24));
-        context.drawTexture(RenderLayer::getGuiTextured, exitButton.isHovered() ? exitIdentifiers[1] : exitIdentifiers[0], exitButton.getX(), exitButton.getY(), 0, 0, 20, 20, 20, 20);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, exitButton.isHovered() ? exitIdentifiers[1] : exitIdentifiers[0], exitButton.getX(), exitButton.getY(), 0, 0, 20, 20, 20, 20);
     }
 }

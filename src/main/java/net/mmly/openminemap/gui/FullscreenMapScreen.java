@@ -3,6 +3,7 @@ package net.mmly.openminemap.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -394,7 +395,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 //RenderSystem.setShaderTexture(0, identifiers[i][j]);
                 //System.out.println("Position "+((((TopLeftData[0] + i) * 256) + (float) windowWidth / 2) - mapTilePosX)+", "+((((TopLeftData[1]+j) * 256) + (float) windowHeight / 2) - mapTilePosY)+" calculated for tile ["+i+","+j+"]");
                 //context.drawTexture(identifiers[i][j], this.pixelToScaledCoords((((TopLeftData[0] + i) * 256) + (float) windowWidth / 2) - mapTilePosX), this.pixelToScaledCoords((((TopLeftData[1]+j) * 256) + (float) windowHeight / 2) - mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
-                context.drawTexture(RenderLayer::getGuiTextured, identifiers[i][j], (int) ((((TopLeftData[0] + i) * renderTileSize) + (float) windowScaledWidth / 2) - (int) mapTilePosX), (int) ((((TopLeftData[1]+j) * renderTileSize) + (float) windowScaledHeight / 2) - (int) mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
+                context.drawTexture(RenderPipelines.GUI_TEXTURED, identifiers[i][j], (int) ((((TopLeftData[0] + i) * renderTileSize) + (float) windowScaledWidth / 2) - (int) mapTilePosX), (int) ((((TopLeftData[1]+j) * renderTileSize) + (float) windowScaledHeight / 2) - (int) mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
 
             }
         }
@@ -427,18 +428,18 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //this gui code is ugly af ):
 
         //draws the player
-        context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8,8, 8, 8,8, 8, 64, 64);
-        context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 40,8,8, 8, 8, 8, 64, 64);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8,8, 8, 8,8, 8, 64, 64);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 40,8,8, 8, 8, 8, 64, 64);
 
         //draws the buttons
-        context.drawTexture(RenderLayer::getGuiTextured, zoomLevel < 18 ? (zoominButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0]) : buttonIdentifiers[0][0], windowScaledWidth / 2 + buttonPositionModifiers[0][0], windowScaledHeight - buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, zoomLevel > 0 ? (zoomoutButtonLayer.isHovered() ? buttonIdentifiers[2][1] : buttonIdentifiers[1][1]) : buttonIdentifiers[0][1], windowScaledWidth / 2 + buttonPositionModifiers[1][0], windowScaledHeight - buttonPositionModifiers[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, resetButtonLayer.isHovered() ? buttonIdentifiers[2][2] : buttonIdentifiers[1][2], windowScaledWidth / 2 + buttonPositionModifiers[2][0], windowScaledHeight - buttonPositionModifiers[2][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, Double.isNaN(playerLon) || doFollowPlayer ? buttonIdentifiers[0][3] : (followButtonLayer.isHovered() ? buttonIdentifiers[2][3] : buttonIdentifiers[1][3]), windowScaledWidth / 2 + buttonPositionModifiers[3][0], windowScaledHeight - buttonPositionModifiers[3][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, configButtonLayer.isHovered() ? buttonIdentifiers[2][4] : buttonIdentifiers[1][4], windowScaledWidth / 2 + buttonPositionModifiers[4][0], windowScaledHeight - buttonPositionModifiers[4][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, exitButtonLayer.isHovered() ? buttonIdentifiers[2][5] : buttonIdentifiers[1][5], windowScaledWidth / 2 + buttonPositionModifiers[5][0], windowScaledHeight - buttonPositionModifiers[5][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, zoomLevel < 18 ? (zoominButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0]) : buttonIdentifiers[0][0], windowScaledWidth / 2 + buttonPositionModifiers[0][0], windowScaledHeight - buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, zoomLevel > 0 ? (zoomoutButtonLayer.isHovered() ? buttonIdentifiers[2][1] : buttonIdentifiers[1][1]) : buttonIdentifiers[0][1], windowScaledWidth / 2 + buttonPositionModifiers[1][0], windowScaledHeight - buttonPositionModifiers[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, resetButtonLayer.isHovered() ? buttonIdentifiers[2][2] : buttonIdentifiers[1][2], windowScaledWidth / 2 + buttonPositionModifiers[2][0], windowScaledHeight - buttonPositionModifiers[2][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, Double.isNaN(playerLon) || doFollowPlayer ? buttonIdentifiers[0][3] : (followButtonLayer.isHovered() ? buttonIdentifiers[2][3] : buttonIdentifiers[1][3]), windowScaledWidth / 2 + buttonPositionModifiers[3][0], windowScaledHeight - buttonPositionModifiers[3][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, configButtonLayer.isHovered() ? buttonIdentifiers[2][4] : buttonIdentifiers[1][4], windowScaledWidth / 2 + buttonPositionModifiers[4][0], windowScaledHeight - buttonPositionModifiers[4][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, exitButtonLayer.isHovered() ? buttonIdentifiers[2][5] : buttonIdentifiers[1][5], windowScaledWidth / 2 + buttonPositionModifiers[5][0], windowScaledHeight - buttonPositionModifiers[5][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         int buttonStyle = HudMap.renderHud ? 1 : 0;
-        context.drawTexture(RenderLayer::getGuiTextured, toggleHudMapButtonLayer.isHovered() ? showIdentifiers[1][buttonStyle] : showIdentifiers[0][buttonStyle], toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, toggleHudMapButtonLayer.isHovered() ? showIdentifiers[1][buttonStyle] : showIdentifiers[0][buttonStyle], toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         //Double.isNaN(playerLon)
 
@@ -474,14 +475,14 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawText(this.textRenderer, Text.of("Report Bugs"), windowScaledWidth - 65, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - 16, 0xFF0B9207, true);
 
         /* Seems that ~1.21.4+ needs an extra argument for context.drawTexture
-        context.drawTexture(RenderLayer::getGuiTextured, ...); */
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, ...); */
 
         //draws the right click menu
         if (rightClickMenuEnabled) {
             context.fill(rightClickLayer.getX(), rightClickLayer.getY(), rightClickLayer.getX() + RightClickMenu.width, rightClickLayer.getY() + RightClickMenu.height, 0x88000000);
             context.drawText(this.textRenderer, "Teleport Here", rightClickLayer.getX() + 4, rightClickLayer.getY() + 4, RightClickMenu.hoverOn == 1 ? 0xFFa8afff : 0xFFFFFFFF, false);
             context.drawText(this.textRenderer, "Copy Coordinates", rightClickLayer.getX() + 4, rightClickLayer.getY() + 20, RightClickMenu.hoverOn == 2 ? 0xFFa8afff : 0xFFFFFFFF, false);
-            context.drawTexture(RenderLayer::getGuiTextured, rightClickCursor, (int) rightClickX - 4, (int) rightClickY - 4, 0, 0, 9, 9, 9, 9);
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, rightClickCursor, (int) rightClickX - 4, (int) rightClickY - 4, 0, 0, 9, 9, 9, 9);
         }
 
         /* uncomment for adding waypoints

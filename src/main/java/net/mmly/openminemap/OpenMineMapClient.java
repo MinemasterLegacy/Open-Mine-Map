@@ -1,9 +1,8 @@
 package net.mmly.openminemap;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
@@ -27,7 +26,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         Requester osmTileRequester = new Requester();
         osmTileRequester.start();
 
-        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, HUD_MAP_LAYER, HudMap::render));
+        HudElementRegistry.attachElementBefore(VanillaHudElements.MISC_OVERLAYS, HUD_MAP_LAYER, HudMap::render);
 
         //Tpll.lonLatToMcCoords(-112.07151142039129, 33.45512716304792);
         //test t = new test();

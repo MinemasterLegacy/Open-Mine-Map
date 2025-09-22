@@ -65,6 +65,7 @@ public class HudMap {
             snapAngleInput = Double.parseDouble(receivedSnapAngle);
             snapAngle = ((-snapAngleInput) % 90) - (90 * (((-snapAngleInput) % 90) > 0 ? 1 : 0));
         }
+
     }
 
     public static void initialize(DrawContext context) {
@@ -143,7 +144,11 @@ public class HudMap {
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
         if (!renderHud) return;
         if (reloadSkin > 0) {
-            playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
+            if (MinecraftClient.getInstance().player == null) {
+                playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
+            } else {
+                playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
+            }
             reloadSkin--;
         }
 
@@ -203,9 +208,9 @@ public class HudMap {
             }
             context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
             context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
-        } else {
+        } /*else {
 
-        }
+        }*/
 
         //0xD9D9D9
         if (!Double.isNaN(direction)) {

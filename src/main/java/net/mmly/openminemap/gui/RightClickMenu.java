@@ -42,7 +42,9 @@ public class RightClickMenu extends ClickableWidget {
                 //MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll " + savedMouseLat + " " + savedMouseLong);
                 try { //can be used during development to use the /tp command instead of /tpll
                     double[] xy = Projection.from_geo(savedMouseLat, savedMouseLong);
-                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) xy[0]+" ~ "+ (int) xy[1]);
+                    if (MinecraftClient.getInstance().player != null) {
+                        MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) xy[0]+" ~ "+ (int) xy[1]);
+                    }
                 } catch (CoordinateValueError error) {
                     System.out.println("Error with teleport here");
                 }

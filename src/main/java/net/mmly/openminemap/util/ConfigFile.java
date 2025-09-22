@@ -1,12 +1,8 @@
 package net.mmly.openminemap.util;
 
-import net.mmly.openminemap.gui.FullscreenMapScreen;
-import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 
-import javax.xml.crypto.dsig.keyinfo.KeyName;
 import java.io.*;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -15,7 +11,6 @@ public class ConfigFile {
     public static boolean isConfigLoaded = false;
     private static HashMap<String, String> configParams = new HashMap<>();
     private static final String[] keyNames = new String[] { //names for every config option / parameter
-            "Theme",
             "HudMapX",
             "HudMapY",
             "HudMapWidth",
@@ -33,7 +28,6 @@ public class ConfigFile {
             "§fslasty"
     };
     private static final String[] defaultValues = new String[] { //default values for every config option / parameter
-            "vanilla", //theme
             "10", //hudmapx
             "10", //hudmapy
             "144", //hudmapwidth
@@ -43,7 +37,7 @@ public class ConfigFile {
             "144", //hudcompasswidth
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png", //tilemapurl
             "false",
-            "/",
+            "",
             "true",
             "0",
             "0",
@@ -52,7 +46,7 @@ public class ConfigFile {
     };
     private static final int numOfArgs = keyNames.length;
 
-    public static boolean establishConfigFile() {
+    public static void establishConfigFile() {
         try {
             configFile = new File(TileManager.getRootFile() + "openminemap/config.txt");
             configFile.createNewFile();
@@ -61,14 +55,11 @@ public class ConfigFile {
             writeToFile();
         } catch (IOException e) {
             System.out.println("Could not discover/create openminemap/config.txt ; Configuration options will not be loaded or saved");
-            return false;
         }
-        return true;
     }
 
     public static boolean writeParameter(String parameter, String value) {
-        if (configParams.replace(parameter, value) == null) return false;
-        else return true;
+        return configParams.replace(parameter, value) != null;
     }
 
     public static String readParameter(String parameter) {

@@ -10,7 +10,6 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
@@ -54,10 +53,7 @@ public class ConfigScreen extends Screen {
         String path;
         String[] names = new String[] {"check.png", "exit.png"};
         String[] states = new String[] {"locked/", "default/", "hover/"};
-        switch (FullscreenMapScreen.buttonTheme) {
-            case 1: path = "buttons/sodify/";
-            default: path = "buttons/vanilla/"; // 0
-        };
+        path = "buttons/vanilla/";
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 2; j++) {
                 buttonIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);

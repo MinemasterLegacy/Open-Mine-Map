@@ -15,7 +15,7 @@ public class Requester extends Thread {
     boolean disableWebRequests = false; //development variable for disabling web requests. If disabled, tiles will ony be loaded from the cache or as error tiles
     int requestAttempts = 2; //how many times a tile will be requested before it is determined to not request it anymore
 
-    ArrayList<int[]> failedRequests = new ArrayList<int[]>();
+    ArrayList<int[]> failedRequests = new ArrayList<>();
 
     int requestCounter = 0;
 

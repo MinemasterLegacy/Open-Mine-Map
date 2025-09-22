@@ -25,7 +25,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter("§fslastzoom"));
     public static int zoomLevel = Math.min(trueZoomLevel, 18); //indicates the current zoom level of the map | default 0
-    Identifier identifiers[][];
+    Identifier[][] identifiers;
     public static int windowHeight;
     public static int windowWidth;
     public static int windowScaledHeight;
@@ -43,7 +43,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         {26,(8 + buttonSize)},
         {50,(8 + buttonSize)}
     };
-    protected static Identifier waypointIdentifiers[];
+    //protected static Identifier waypointIdentifiers[];
     // mouse x, y and down of previous frame, recorded here specifically so that changes in mousexy while left mouse is clicked can be detected.
     int lastMouseX = 0;
     int lastMouseY = 0;
@@ -68,13 +68,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static ButtonLayer configButtonLayer;
     private static ButtonLayer exitButtonLayer;
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
-    private Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
+    private final Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
     static double rightClickX = 0;
     static double rightClickY = 0;
-    private static Identifier[][] buttonIdentifiers = new Identifier[3][6];
-    private static Identifier[][] showIdentifiers = new Identifier[2][2];
-    public static int buttonTheme = 0; // 0 is vanilla, 1 is sodify
-    private static PlayerLayer playerLayer;
+    private static final Identifier[][] buttonIdentifiers = new Identifier[3][6];
+    private static final Identifier[][] showIdentifiers = new Identifier[2][2];
     private Identifier playerIdentifier;
     int playerMapX;
     int playerMapY;
@@ -113,10 +111,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         String path;
         String[] names = new String[] {"zoomin.png", "zoomout.png", "reset.png", "follow.png", "config.png", "exit.png"};
         String[] states = new String[] {"locked/", "default/", "hover/"};
-        switch (buttonTheme) {
-            case 1: path = "buttons/sodify/";
-            default: path = "buttons/vanilla/"; // 0
-        };
+        path = "buttons/vanilla/";
+
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 6; j++) {
                 buttonIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
@@ -288,7 +284,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //System.out.println(mapTilePosY);
 
         //playerLayer = new PlayerLayer(100, 100, 8, 8);
-        playerIdentifier = mClient.player.getSkinTextures().texture();
+
+        if (mClient.player == null) {
+            playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
+        } else {
+            playerIdentifier = mClient.player.getSkinTextures().texture();
+        }
         HudMap.playerIdentifier = playerIdentifier;
         //this.addDrawableChild(playerLayer);
 
@@ -445,8 +446,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         // Subtracting an extra 10 pixels will give the text some padding.
         // textRenderer, text, x, y, color, hasShadow
 
-        mouseTilePosX = mapTilePosX + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getX()) - (windowScaledWidth/2);
-        mouseTilePosY = mapTilePosY + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getY()) - (windowScaledHeight/2);
+        mouseTilePosX = mapTilePosX + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getX()) - (windowScaledWidth / 2);
+        mouseTilePosY = mapTilePosY + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getY()) - (windowScaledHeight / 2);
 
         if (mouseIsOutOfBounds()) {
             mouseDisplayLat = "-.-";

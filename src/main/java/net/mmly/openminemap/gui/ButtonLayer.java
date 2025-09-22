@@ -12,7 +12,6 @@ import net.mmly.openminemap.util.UnitConvert;
 public class ButtonLayer extends ClickableWidget {
 
     private int function;
-    protected static int[] buttonCostumes = new int[] {0, 0, 0, 0, 0, 0}; //-1 is diabled, 0 is enabled, 1 is hover
 
     public ButtonLayer(int x, int y, int width, int height, int f) {
         super(x, y, width, height, Text.empty());

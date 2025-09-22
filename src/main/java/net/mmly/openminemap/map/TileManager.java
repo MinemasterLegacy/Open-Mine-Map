@@ -5,8 +5,6 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
-import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.util.ConfigFile;
 
 import javax.imageio.IIOException;

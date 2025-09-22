@@ -7,9 +7,8 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.hud.HudMap;
 
 public class ResizeElement extends ClickableWidget {
-    int horz;
-    int vert;
     int direction;
+    /*
     int[][] dims = {
         {20, 7},
         {7, 20},
@@ -18,14 +17,13 @@ public class ResizeElement extends ClickableWidget {
         {7, 20},
         {7, 20}
     };
+     */
     double startMouseX;
     double startMouseY;
 
     //for parameter direction - up:0 right:1 down:2 left:3
     public ResizeElement(int x, int y, int width, int height, int direction) {
         super(x, y, width, height, Text.empty());
-        this.horz = horz;
-        this.vert = vert;
         this.direction = direction;
     }
 

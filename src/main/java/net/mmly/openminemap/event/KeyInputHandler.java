@@ -122,16 +122,22 @@ public class KeyInputHandler {
         facing += (360 * (facing < 0 ? 1 : 0));
         double snapAngle = -HudMap.snapAngle; //range: [0, 90]
         System.out.println(snapAngle);
-        double faceInDirection;
         while (Math.abs(facing - snapAngle) >=45 && snapAngle <= 360) {
             snapAngle += 90;
         }
 
         System.out.println(snapAngle);
-        minecraftClient.player.setYaw((float) (offsetFromMC + snapAngle));
-        minecraftClient.player.sendMessage(Text.literal("Snap!")
-                .formatted(Formatting.GRAY)
-                .formatted(Formatting.ITALIC));
+        if (minecraftClient.player == null) {
+            minecraftClient.player.sendMessage(Text.literal("An error occurred.")
+                    .formatted(Formatting.RED)
+                    .formatted(Formatting.ITALIC));
+        } else {
+            minecraftClient.player.setYaw((float) (offsetFromMC + snapAngle));
+            minecraftClient.player.sendMessage(Text.literal("Snap!")
+                    .formatted(Formatting.GRAY)
+                    .formatted(Formatting.ITALIC));
+        }
+
     }
 
     private static void copyPlayerCoordinates() {

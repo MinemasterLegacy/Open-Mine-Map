@@ -10,6 +10,7 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
+import net.mmly.openminemap.gui.TextFieldLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
@@ -119,7 +120,7 @@ public class ConfigScreen extends Screen {
         customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
         this.addDrawableChild(customUrlWidget);
 
-        snapAngleWidget = new TextFieldWidget(this.textRenderer, 20, 80, 100, 20, Text.of("Snap Angle"));
+        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, 80, 100, 20, Text.of("Snap Angle"), 0);
         snapAngleWidget.setMaxLength(20);
         snapAngleWidget.setText(ConfigFile.readParameter("SnapAngle"));
         snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
@@ -135,12 +136,12 @@ public class ConfigScreen extends Screen {
         }
         String snapAngle;
         try {
-            Double.parseDouble(snapAngleWidget.getText());
+            snapAngle = Double.toString(Double.parseDouble(snapAngleWidget.getText())); //will ensure that the snap angle is a number
         } catch (NumberFormatException e) {
             snapAngle = "";
         }
         ConfigFile.writeParameter("TileMapUrl", customUrlWidget.getText());
-        ConfigFile.writeParameter("SnapAngle", snapAngleWidget.getText());
+        ConfigFile.writeParameter("SnapAngle", snapAngle);
         ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(artificialZoomOption));
         ConfigFile.writeToFile();
         HudMap.setSnapAngle();

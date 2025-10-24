@@ -16,7 +16,7 @@ public class UnitConvert {
 
     public static double myToLat(double y, int zoom) {
         //following conversion is due to how the mapTilePosY numbers go top to bottom, while the equation was made for bottom to top numbers
-        y = -1 * (y - Math.pow(2, FullscreenMapScreen.zoomLevel + 7));
+        y = -1 * (y - Math.pow(2, FullscreenMapScreen.trueZoomLevel + 7));
 
         double mapSize = (128 * Math.pow(2, zoom));
         return ((360 * (Math.atan(Math.pow(Math.E, (2 * Math.PI * (-y + (mapSize / 2))) / mapSize)) - (Math.PI/4))) / -Math.PI);

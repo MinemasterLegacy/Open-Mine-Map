@@ -23,8 +23,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         super(Text.of("OMM Fullscreen Map"));
     }
 
-    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter("§fslastzoom"));
-    public static int zoomLevel = Math.min(trueZoomLevel, 18); //indicates the current zoom level of the map | default 0
+    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter("§fslastzoom")); //indicates the 'actual' zoom level, which includes artificial zoom | range 0-24 inclusive
+    public static int zoomLevel = Math.min(trueZoomLevel, 18); //indicates the current zoom level of the map | default 0 | range 0-18 inclusive
     Identifier[][] identifiers;
     public static int windowHeight;
     public static int windowWidth;
@@ -203,7 +203,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     protected boolean mouseIsOutOfBounds() {
-        return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, zoomLevel + 7) || mouseTilePosY > Math.pow(2, zoomLevel + 7);
+        return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, trueZoomLevel + 7) || mouseTilePosY > Math.pow(2, trueZoomLevel + 7);
     }
 
     protected static void openOSMAttrScreen() {
@@ -249,6 +249,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         rightClickY = y;
         rightClickLayer.setPosition((int) x, (int) y);
         rightClickLayer.setSavedMouseLatLong(mouseLong, mouseLat);
+        System.out.println(mouseLong);
+        System.out.println(mouseLat);
         //System.out.println(rightClickLayer.getX());
         //System.out.println(rightClickLayer.getWidth());
         //System.out.println(windowScaledWidth);
@@ -453,8 +455,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             mouseDisplayLat = "-.-";
             mouseDisplayLong = "-.-";
         } else {
-            mouseLong = UnitConvert.mxToLong(mouseTilePosX, zoomLevel);
-            mouseLat = UnitConvert.myToLat(mouseTilePosY, zoomLevel);
+            mouseLong = UnitConvert.mxToLong(mouseTilePosX, trueZoomLevel);
+            mouseLat = UnitConvert.myToLat(mouseTilePosY, trueZoomLevel);
             mouseDisplayLong = UnitConvert.floorToPlace(mouseLong, 5);
             mouseDisplayLat = UnitConvert.floorToPlace(mouseLat, 5);
         }

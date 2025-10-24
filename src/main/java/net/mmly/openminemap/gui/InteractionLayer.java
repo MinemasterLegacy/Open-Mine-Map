@@ -48,13 +48,13 @@ public class InteractionLayer extends ClickableWidget {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
+        if (button == 0) { //left click
             FullscreenMapScreen.lastMouseDown = true;
             FullscreenMapScreen.disableRightClickMenu();
         }
-        if (button == 1) {
+        if (button == 1) { //right click
             //System.out.println("got it");
-            if (FullscreenMapScreen.mouseDisplayLong.length() > 3) {
+            if (FullscreenMapScreen.mouseDisplayLong.length() > 3) { //checks if mouse is positioned on the map (this variable will be "-.-" if it isn't)
                 FullscreenMapScreen.enableRightClickMenu(mouseX, mouseY);
             } else {
                 FullscreenMapScreen.disableRightClickMenu();

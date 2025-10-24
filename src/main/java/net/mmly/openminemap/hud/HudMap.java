@@ -47,7 +47,7 @@ public class HudMap {
     static double snapAngleInput;
     public static double snapAngle; //range: (-90, 0]
     public static double direction;
-    static boolean doSnapAngle = false;
+    public static boolean doSnapAngle = false;
 
     // used in conjunction with artificial zoom mode;
     // TileManager.hudTileScaledSize does not get updated with artificial zoom, this variable does instead

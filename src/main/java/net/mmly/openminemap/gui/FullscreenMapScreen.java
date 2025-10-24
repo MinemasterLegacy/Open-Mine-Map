@@ -321,6 +321,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32, 157, 16);
         this.addDrawableChild(bugReportLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
 
+        new DirectionLayer(0, 0, 0, 0, Text.of(""));
+
         /* uncomment for adding waypoints
         WaypointLayer[] waypointLayer = new WaypointLayer[10];
         for (int i = 0; i < 10; i++) {

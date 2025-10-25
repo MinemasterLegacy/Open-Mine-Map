@@ -9,6 +9,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.Direction;
@@ -47,6 +48,7 @@ public class HudMap {
     static double snapAngleInput;
     public static double snapAngle; //range: (-90, 0]
     public static double direction;
+    private static DirectionIndicator directionIndicator = new DirectionIndicator(0, 0, 0, 0, Text.of(""));
     public static boolean doSnapAngle = false;
 
     // used in conjunction with artificial zoom mode;
@@ -206,6 +208,9 @@ public class HudMap {
                     context.drawTexture(identifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
                 }
             }
+
+            if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
+
             context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
             context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
         } /*else {

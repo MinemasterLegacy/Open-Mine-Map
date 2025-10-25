@@ -74,8 +74,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][6];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
     private Identifier playerIdentifier;
-    int playerMapX;
-    int playerMapY;
+    protected static int playerMapX;
+    protected static int playerMapY;
     public static double playerLon;
     public static double playerLat;
     int playerGetCoordsDelay = 20;
@@ -83,6 +83,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     String playerDisplayLat = "0.00000";
     public static boolean doFollowPlayer;
     static int renderTileSize;
+    DirectionIndicator directionIndicator;
 
     public static void followPlayer() {
         if (!Double.isNaN(playerLon)) {
@@ -321,7 +322,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32, 157, 16);
         this.addDrawableChild(bugReportLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
 
-        new DirectionLayer(0, 0, 0, 0, Text.of(""));
+        directionIndicator = new DirectionIndicator(0, 0, 0, 0, Text.of(""));
 
         /* uncomment for adding waypoints
         WaypointLayer[] waypointLayer = new WaypointLayer[10];
@@ -429,6 +430,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         //this gui code is ugly af ):
 
+        //draws the direction indicator
+        if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, playerMapX - 8, playerMapY - 8, 0, 0, 24, 24, 24, 24);
+
         //draws the player
         context.drawTexture(playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8,8,8, 8, 8, 64, 64);
         context.drawTexture(playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8,40,8, 8, 8, 64, 64);
@@ -486,6 +490,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             context.drawText(this.textRenderer, "Copy Coordinates", rightClickLayer.getX() + 4, rightClickLayer.getY() + 20, RightClickMenu.hoverOn == 2 ? 0xFFa8afff : 0xFFFFFFFF, false);
             context.drawTexture(rightClickCursor, (int) rightClickX - 4, (int) rightClickY - 4, 0, 0, 9, 9, 9, 9);
         }
+
+        directionIndicator.render(context);
 
         /* uncomment for adding waypoints
         for (int i = 0; i < 10; i++) {

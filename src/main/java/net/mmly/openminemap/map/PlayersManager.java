@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import net.minecraft.world.Heightmap;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class PlayersManager {
 
     public static HashMap<UUID, Identifier> playerSkinList;
 
+    //MinecraftClient.getInstance().world.getPlayers()
     public static List<PlayerEntity> getNearPlayers() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<PlayerEntity> l = MinecraftClient.getInstance().world.getEntitiesByType(EntityType.PLAYER, new Box(
@@ -39,5 +41,11 @@ public class PlayersManager {
             map.put(pList.get(i).getProfile().getId(), pList.get(i).getSkinTextures().texture());
         }
         playerSkinList = map;
+    }
+
+    public static double getHighestPoint(double x, double z) { //returns the highest applicable point for use in tpll commands
+        double altitude = MinecraftClient.getInstance().world.getTopY(Heightmap.Type.WORLD_SURFACE, (int) Math.floor(x), (int) Math.floor(z)); //get the highest point from cm heightmap
+        if (altitude == MinecraftClient.getInstance().world.getBottomY()) altitude = MinecraftClient.getInstance().player.getY(); //if the calculated altitude is the world bottom, then the area is likely unrendered, so use the player's current y-value instead
+        return altitude;
     }
 }

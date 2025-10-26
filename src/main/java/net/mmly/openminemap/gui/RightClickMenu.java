@@ -5,6 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
@@ -46,11 +47,11 @@ public class RightClickMenu extends ClickableWidget {
                 //MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll " + savedMouseLat + " " + savedMouseLong);
                 try { //can be used during development to use the /tp command instead of /tpll
                     if (MinecraftClient.getInstance().player != null) {
+                        double[] mcXz = Projection.from_geo(savedMouseLat, savedMouseLong);
                         if (useTp) {
-                            double[] xy = Projection.from_geo(savedMouseLat, savedMouseLong);
-                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) xy[0]+" ~ "+ (int) xy[1]);
+                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) mcXz[0]+" "+PlayersManager.getHighestPoint(mcXz[0], mcXz[1])+" "+ (int) mcXz[1]);
                         } else {
-                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" ~ "+savedMouseLong);
+                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong+ PlayersManager.getHighestPoint(mcXz[0], mcXz[1]));
                         }
                     }
                 } catch (CoordinateValueError error) {

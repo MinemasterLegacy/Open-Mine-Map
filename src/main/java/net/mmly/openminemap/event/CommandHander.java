@@ -17,7 +17,9 @@ import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.world.Heightmap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
@@ -57,12 +59,11 @@ public class CommandHander {
         try { altitude = context.getArgument("altitude", String.class); }
         catch (IllegalArgumentException e) { altitude = null; }
         //TODO without an altitude argument, find the highest block of the column if area is loaded, otherwise use current
-
         String lat = context.getArgument("latitude", String.class);
         String lon = context.getArgument("longitude", String.class);
 
-        double[] covertedCoords = UnitConvert.toDecimalDegrees(lat, lon);
-        if (covertedCoords == null) {
+        double[] convertedCoords = UnitConvert.toDecimalDegrees(lat, lon);
+        if (convertedCoords == null) {
             context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered coordinates with invalid formatting."));
             return 0;
         }
@@ -76,7 +77,8 @@ public class CommandHander {
 
         String yTp = "~";
         try {
-            double[] coordsToTp = Projection.from_geo(covertedCoords[0], covertedCoords[1]);
+            double[] coordsToTp = Projection.from_geo(convertedCoords[0], convertedCoords[1]);
+            if (altitude == null) altitude = Double.toString(PlayersManager.getHighestPoint(coordsToTp[0], coordsToTp[1]));
             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+String.format("%.7f", coordsToTp[0])+" "+altitude+" "+String.format("%.7f", coordsToTp[1]));
             return 1;
         } catch (CoordinateValueError e) {

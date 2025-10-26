@@ -1,6 +1,9 @@
 package net.mmly.openminemap.event;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -9,29 +12,36 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientCommandSource;
+import net.minecraft.command.argument.CoordinateArgument;
+import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.UnitConvert;
 
 public class CommandHander {
 
+    /*
+    //seems unused and unnecessary
     public static void registerCommands() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
         });
     }
 
+     */
+
     public static void register() { //this chaining is f***ing horrible
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("omm")
                     .then(ClientCommandManager.literal("tpllwtp")
-                            .then(ClientCommandManager.argument("latitude", DoubleArgumentType.doubleArg())
-                            .then(ClientCommandManager.argument("longitude", DoubleArgumentType.doubleArg())
+                            .then(ClientCommandManager.argument("latitude", StringArgumentType.string())
+                            .then(ClientCommandManager.argument("longitude", StringArgumentType.string())
                             .executes(CommandHander::tpllwtp)
-                            .then(ClientCommandManager.argument("altitude", DoubleArgumentType.doubleArg())
+                            .then(ClientCommandManager.argument("altitude", StringArgumentType.string())
                             .executes(CommandHander::tpllwtp)))))
                     .then(ClientCommandManager.literal("tpwtpll")
                             .then(ClientCommandManager.argument("x", DoubleArgumentType.doubleArg())
@@ -39,30 +49,35 @@ public class CommandHander {
                             .then(ClientCommandManager.argument("z", DoubleArgumentType.doubleArg())
                             .executes(CommandHander::tpwtpll)))))
         );});
-
-        registerCommands();
+        //registerCommands();
     }
 
-    //TODO set style attributes for all command text
-
     private static int tpllwtp(CommandContext<FabricClientCommandSource> context) {
-        double altitude;
-        try { altitude = context.getArgument("altitude", Double.class); }
-        catch (IllegalArgumentException e) { altitude = Double.NaN; }
+        String altitude;
+        try { altitude = context.getArgument("altitude", String.class); }
+        catch (IllegalArgumentException e) { altitude = null; }
+        //TODO without an altitude argument, find the highest block of the column if area is loaded, otherwise use current
 
-        double lat = context.getArgument("latitude", Double.class);
-        double lon = context.getArgument("longitude", Double.class);
+        String lat = context.getArgument("latitude", String.class);
+        String lon = context.getArgument("longitude", String.class);
 
-        //variable value output is temporary; TODO remove
+        double[] covertedCoords = UnitConvert.toDecimalDegrees(lat, lon);
+        if (covertedCoords == null) {
+            context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered coordinates with invalid formatting."));
+            return 0;
+        }
+        /*
         context.getSource().sendFeedback(Text.literal("Called /omm sub1. Args:"));
         context.getSource().sendFeedback(Text.literal(String.valueOf(lat)));
         context.getSource().sendFeedback(Text.literal(String.valueOf(lon)));
         if (Double.isNaN(altitude)) context.getSource().sendFeedback(Text.literal("No altitude argument"));
         else context.getSource().sendFeedback(Text.literal(String.valueOf(context.getArgument("altitude", Double.class))));
+         */
 
+        String yTp = "~";
         try {
-            double[] coordsToTp = Projection.from_geo(lat, lon);
-            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+String.format("%.7f", coordsToTp[0])+" ~ "+String.format("%.7f", coordsToTp[1])); //TODO disable /tp output or create own protocols
+            double[] coordsToTp = Projection.from_geo(covertedCoords[0], covertedCoords[1]);
+            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+String.format("%.7f", coordsToTp[0])+" "+altitude+" "+String.format("%.7f", coordsToTp[1]));
             return 1;
         } catch (CoordinateValueError e) {
             context.getSource().sendFeedback(Text.literal("An error occurred. You many have entered coordinates that are invalid or out of bounds."));
@@ -74,7 +89,7 @@ public class CommandHander {
 
     private static int tpwtpll(CommandContext<FabricClientCommandSource> context) {
         double x = context.getArgument("x", Double.class);
-        double y = context.getArgument("y", Double.class); //TODO make it so that ~ is recognised as a valid character (and maybe ^)
+        double y = context.getArgument("y", Double.class);
         double z = context.getArgument("z", Double.class);
         try {
             double[] coordsToTp = Projection.to_geo(x, z);
@@ -82,7 +97,7 @@ public class CommandHander {
                 context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered coordinates that are out of bounds."));
                 return 0;
             }
-            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", coordsToTp[0])+" "+String.format("%.7f", coordsToTp[1])+" "+y); //TODO disable /tp output or create own protocols
+            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", coordsToTp[0])+" "+String.format("%.7f", coordsToTp[1])+" "+y);
             return 1;
         } catch (CoordinateValueError e) {
             context.getSource().sendFeedback(Text.literal("An error occurred. You many have entered coordinates that are invalid or out of bounds."));

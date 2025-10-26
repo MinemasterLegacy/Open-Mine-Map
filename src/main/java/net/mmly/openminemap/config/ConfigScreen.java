@@ -35,6 +35,7 @@ public class ConfigScreen extends Screen {
     protected static boolean doArtificialZoom;
     ChoiceButtonWidget rightClickMeuUsesOption;
     ChoiceButtonWidget artificialZoomOption;
+    ChoiceButtonWidget reverseScrollOption;
     int nextOptionSlot;
     int totalOptions;
 
@@ -150,9 +151,11 @@ public class ConfigScreen extends Screen {
         snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
         this.addDrawableChild(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Right Click Menu Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu"), new String[] {"/tpll", "/tp"}, "RightClickMenuUses");
+        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Right Click Menu Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, "RightClickMenuUses");
         this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
 
+        reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, "ReverseScroll");
+        this.addDrawableChild(reverseScrollOption.getButtonWidget());
 
     }
 
@@ -172,9 +175,11 @@ public class ConfigScreen extends Screen {
         //ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(doArtificialZoom));
         rightClickMeuUsesOption.writeParameterToFile();
         artificialZoomOption.writeParameterToFile();
+        reverseScrollOption.writeParameterToFile();
         TileManager.setArtificialZoom();
-        ConfigFile.writeToFile();
+        TileManager.setReverseScroll();
         HudMap.setSnapAngle();
+        ConfigFile.writeToFile();
     }
 
     @Override

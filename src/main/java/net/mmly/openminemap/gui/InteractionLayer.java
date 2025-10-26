@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.map.TileManager;
 
 public class InteractionLayer extends ClickableWidget {
     public InteractionLayer(int x, int y, int width, int height) {
@@ -34,7 +35,7 @@ public class InteractionLayer extends ClickableWidget {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        if (verticalAmount > 0) {
+        if (verticalAmount * (TileManager.doReverseScroll ? -1 : 1) > 0) {
             //
             FullscreenMapScreen.mouseZoomIn();
         } else {

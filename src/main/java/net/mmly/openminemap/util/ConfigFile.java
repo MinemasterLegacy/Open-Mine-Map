@@ -21,6 +21,7 @@ public class ConfigFile {
             "TileMapUrl",
             "ArtificialZoom",
             "SnapAngle",
+            "RightClickMenuUses",
             "§hudtoggle",
             "§hudlastzoom",
             "§fslastzoom",
@@ -38,6 +39,7 @@ public class ConfigFile {
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png", //tilemapurl
             "false",
             "",
+            "tpll",
             "true",
             "0",
             "0",
@@ -74,6 +76,7 @@ public class ConfigFile {
                     return defaultValues[i];
                 }
             }
+            System.out.println("A parameter was not found when reading the ConfigFile");
             return null;
         } else {
             return value;

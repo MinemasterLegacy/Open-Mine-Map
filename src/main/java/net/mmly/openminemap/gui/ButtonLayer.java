@@ -57,7 +57,7 @@ public class ButtonLayer extends ClickableWidget {
                 break;
             case 7:
                 if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {
-                    ConfigScreen.saveChanges();
+                    ConfigScreen.getInstance().saveChanges();
                 } else if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
                     MapConfigScreen.saveChanges();
                 } else {

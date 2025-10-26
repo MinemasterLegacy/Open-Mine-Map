@@ -191,7 +191,7 @@ public class TileManager {
     }
 
     public static void setArtificialZoom() {
-        doArtificialZoom = Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom"));
+        doArtificialZoom = ConfigFile.readParameter("ArtificialZoom").equals("on");
         //if (!doArtificialZoom) return;
         //if (FullscreenMapScreen.trueZoomLevel > 18) FullscreenMapScreen.trueZoomLevel = 18;
         //if (HudMap.trueZoomLevel > 18) FullscreenMapScreen.trueZoomLevel = 18;

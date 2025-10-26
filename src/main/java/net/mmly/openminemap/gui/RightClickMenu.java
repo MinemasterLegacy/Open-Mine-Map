@@ -7,18 +7,22 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 import java.awt.*;
+import java.util.Objects;
 
 public class RightClickMenu extends ClickableWidget {
 
     public static final int width = 95;
     public static final int height = 32; // = 16 * number of menu options
     public static int hoverOn = 0;
+    private static boolean useTp;
 
     public RightClickMenu(int x, int y) {
         super(x, y, width, height, Text.empty());
+        useTp = Objects.equals(ConfigFile.readParameter("RightClickMenuUses"), "/tp");
     }
 
     float savedMouseLat;
@@ -41,9 +45,13 @@ public class RightClickMenu extends ClickableWidget {
             case 1: {
                 //MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll " + savedMouseLat + " " + savedMouseLong);
                 try { //can be used during development to use the /tp command instead of /tpll
-                    double[] xy = Projection.from_geo(savedMouseLat, savedMouseLong);
                     if (MinecraftClient.getInstance().player != null) {
-                        MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) xy[0]+" ~ "+ (int) xy[1]);
+                        if (useTp) {
+                            double[] xy = Projection.from_geo(savedMouseLat, savedMouseLong);
+                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) xy[0]+" ~ "+ (int) xy[1]);
+                        } else {
+                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" ~ "+savedMouseLong);
+                        }
                     }
                 } catch (CoordinateValueError error) {
                     System.out.println("Error with teleport here");

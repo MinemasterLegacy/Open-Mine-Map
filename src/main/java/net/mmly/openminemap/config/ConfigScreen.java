@@ -22,6 +22,7 @@ public class ConfigScreen extends Screen {
         super(Text.of("OMM Config"));
     }
 
+    static ConfigScreen configScreen;
     private static int windowHeight;
     private static int windowWidth;
     private static int windowScaledHeight;
@@ -31,7 +32,11 @@ public class ConfigScreen extends Screen {
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
     public static TextFieldWidget customUrlWidget;
     public static TextFieldWidget snapAngleWidget;
-    protected static boolean artificialZoomOption;
+    protected static boolean doArtificialZoom;
+    ChoiceButtonWidget rightClickMeuUsesOption;
+    ChoiceButtonWidget artificialZoomOption;
+    int nextOptionSlot;
+    int totalOptions;
 
     protected static final int buttonSize = 20;
     protected final int[][] buttonPositionModifiers = new int[][] {
@@ -40,8 +45,17 @@ public class ConfigScreen extends Screen {
     };
 
     Window window = MinecraftClient.getInstance().getWindow();
-
     public static ButtonWidget toggleArtificialZoomButton;
+
+    public static ConfigScreen getInstance() {
+        return configScreen;
+    }
+
+    private int getNextOptionSlot() {
+        totalOptions++;
+        nextOptionSlot += 25;
+        return nextOptionSlot;
+    }
 
     private void updateScreenDims() {
         windowHeight = window.getHeight();
@@ -75,7 +89,7 @@ public class ConfigScreen extends Screen {
     }
 
     protected void toggleArtificialZoom() {
-        artificialZoomOption = !artificialZoomOption;
+        doArtificialZoom = !doArtificialZoom;
         //System.out.println(toggleArtificialZoomButton.getX());
         toggleArtificialZoomButton.visible = false;
         toggleArtificialZoomButton = newToggleArtificialZoomButton();
@@ -83,9 +97,10 @@ public class ConfigScreen extends Screen {
     }
 
     protected ButtonWidget newToggleArtificialZoomButton() {
-        ButtonWidget b = ButtonWidget.builder(Text.of("Artificial Zoom: " + trueFalseToOnOff(artificialZoomOption)), (btn) -> {
+        ButtonWidget b = ButtonWidget.builder(Text.of("Artificial Zoom: " + trueFalseToOnOff(doArtificialZoom)), (btn) -> {
             toggleArtificialZoom();
-        }).dimensions(160, 20, 120, 20).build();
+        })
+                .dimensions(20, getNextOptionSlot(), 120, 20).build();
         b.setTooltip(Tooltip.of(Text.of(
                 "Artificial Zoom allows for higher zoom levels than normal (+6 levels) by oversizing the smallest tile size."
         )));
@@ -94,45 +109,57 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
+        totalOptions = 0;
+        nextOptionSlot = -5;
+        configScreen = this;
+
+        updateTileSet();
+
         exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, 5);
         checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, 7);
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-        updateTileSet();
 
         ButtonWidget configHud = ButtonWidget.builder(Text.of("Configure HUD..."), (btn) -> {
-                ConfigScreen.saveChanges();
-                MinecraftClient.getInstance().setScreen(
-                        new MapConfigScreen()
-                );
-        }).dimensions(20, 20, 120, 20).build();
+                this.saveChanges();
+                MinecraftClient.getInstance().setScreen(new MapConfigScreen());
+        }).dimensions(20, getNextOptionSlot(), 120, 20).build();
         configHud.setTooltip(Tooltip.of(Text.of("Change positioning and size of HUD elements.")));
         this.addDrawableChild(configHud);
 
-        artificialZoomOption = Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom"));
+        /*
+        doArtificialZoom = Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom"));
         toggleArtificialZoomButton = newToggleArtificialZoomButton();
         this.addDrawableChild(toggleArtificialZoomButton);
+         */
 
-        customUrlWidget = new TextFieldWidget(this.textRenderer, 20, 50, 300, 20, Text.of("Map Tile Data URL"));
+        doArtificialZoom = ConfigFile.readParameter("ArtificialZoom").equals("on");
+        artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Artificial Zoom"), Text.of(""), new String[] {"Off", "On"}, "ArtificialZoom");
+        this.addDrawableChild(artificialZoomOption.getButtonWidget());
+
+        customUrlWidget = new TextFieldWidget(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"));
         customUrlWidget.setMaxLength(100);
         customUrlWidget.setText(ConfigFile.readParameter("TileMapUrl"));
         customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
         this.addDrawableChild(customUrlWidget);
 
-        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, 80, 100, 20, Text.of("Snap Angle"), 0);
+        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.of("Snap Angle"), 0);
         snapAngleWidget.setMaxLength(20);
         snapAngleWidget.setText(ConfigFile.readParameter("SnapAngle"));
         snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
         this.addDrawableChild(snapAngleWidget);
 
+        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Right Click Menu Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu"), new String[] {"/tpll", "/tp"}, "RightClickMenuUses");
+        this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
+
+
     }
 
-    public static void saveChanges() {
+    public void saveChanges() {
         if (!Objects.equals(ConfigFile.readParameter("TileMapUrl"), customUrlWidget.getText())) {
             //System.out.println("yea");
             TileManager.clearCacheDir();
-            TileManager.setArtificialZoom();
         }
         String snapAngle;
         try {
@@ -142,7 +169,10 @@ public class ConfigScreen extends Screen {
         }
         ConfigFile.writeParameter("TileMapUrl", customUrlWidget.getText());
         ConfigFile.writeParameter("SnapAngle", snapAngle);
-        ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(artificialZoomOption));
+        //ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(doArtificialZoom));
+        rightClickMeuUsesOption.writeParameterToFile();
+        artificialZoomOption.writeParameterToFile();
+        TileManager.setArtificialZoom();
         ConfigFile.writeToFile();
         HudMap.setSnapAngle();
     }

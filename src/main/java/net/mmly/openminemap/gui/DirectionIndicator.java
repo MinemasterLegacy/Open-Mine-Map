@@ -64,7 +64,6 @@ public class DirectionIndicator extends ClickableWidget {
 
     private BufferedImage getRotatedTexture(double degrees) {
         //Rotation code source: https://www.geeksforgeeks.org/java/java-program-to-rotate-an-image/
-        System.out.println(degrees);
         // Getting Dimensions of image
         int width = 142; //img.getWidth();
         int height = 142; //img.getHeight();

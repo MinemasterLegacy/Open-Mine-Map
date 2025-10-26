@@ -8,13 +8,16 @@ import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.util.Window;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
+import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
@@ -345,6 +348,34 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     }
 
+    private static void drawPlayerToMap(DrawContext context, PlayerEntity player) {
+        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return; //cancel the call if the player is the user/client (it has seperate draw code)
+
+        double mcX = player.getX();
+        double mcZ = player.getZ();
+        double[] geoCoords;
+        try {
+            geoCoords = Projection.to_geo(mcX, mcZ);
+        } catch (CoordinateValueError e) {
+            return;
+        }
+        if (Double.isNaN(geoCoords[0])) return;
+        double lon = geoCoords[1];
+        double lat = geoCoords[0];
+        double mapX = UnitConvert.longToMapX(lon, zoomLevel, renderTileSize);
+        double mapY = UnitConvert.latToMapY(lat, zoomLevel, renderTileSize);
+        int mapXOffset = (int) ((mapX - mapTilePosX)); //from center of both the map and player
+        int mapYOffset = (int) ((mapY - mapTilePosY)); //from center of both the map and player
+
+        //context.drawTexture(pTexture, windowScaledWidth / 2, windowScaledHeight / 2, 0, 0, 64, 64, 64, 64);
+        Identifier pTexture = PlayersManager.playerSkinList.get(player.getUuid());
+        if (pTexture == null) pTexture = Identifier.of("openminemap", "skinbackup.png");
+
+        //context.fill( (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, (windowScaledWidth / 2) - 4 + mapXOffset + 8 , (windowScaledHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
+        context.drawTexture(pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 8, 8, 8,8, 8, 8, 64, 64);
+        context.drawTexture(pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 8, 8, 40,8, 8, 8, 64, 64);
+    }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
@@ -376,8 +407,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //System.out.println("TrueZoom: "+trueZoomLevel+" | Zoom: "+zoomLevel+" | calced size: "+Math.pow(2, trueZoomLevel - 11));
 
         if (doFollowPlayer) {
-            mapTilePosX = UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize);
-            mapTilePosY = UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize);
+            mapTilePosX = UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize);
+            mapTilePosY = UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize);
         }
 
         if (mapTilePosX < 0) mapTilePosX = 0;
@@ -423,12 +454,18 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             playerMapY = -9999;
             //playerLayer.setPosition(-9999, -9999);
         } else {
-            playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
-            playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
+            playerMapX = (int) (UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
+            playerMapY = (int) (UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
             //playerLayer.setPosition(playerMapX, playerMapY);
         }
 
         //this gui code is ugly af ):
+
+
+        PlayersManager.updatePlayerSkinList();
+        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+            drawPlayerToMap(context, player);
+        }
 
         //draws the direction indicator
         if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, playerMapX - 8, playerMapY - 8, 0, 0, 24, 24, 24, 24);

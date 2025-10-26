@@ -5,16 +5,22 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
+import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
+
+import java.util.*;
 
 public class HudMap {
 
@@ -143,6 +149,43 @@ public class HudMap {
         ConfigFile.writeToFile();
     }
 
+    private static void drawPlayerToMap(DrawContext context, PlayerEntity player) {
+        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return; //cancel the call if the player is the user/client (it has seperate draw code)
+
+        double mcX = player.getX();
+        double mcZ = player.getZ();
+        double[] geoCoords;
+        try {
+            geoCoords = Projection.to_geo(mcX, mcZ);
+        } catch (CoordinateValueError e) {
+            return;
+        }
+        if (Double.isNaN(geoCoords[0])) return;
+        double lon = geoCoords[1];
+        double lat = geoCoords[0];
+        double mapX = UnitConvert.longToMapX(lon, zoomLevel, renderTileSize);
+        double mapY = UnitConvert.latToMapY(lat, zoomLevel, renderTileSize);
+        int mapXOffset = (int) ((mapX - mapTilePosX)); //from center of both the map and player
+        int mapYOffset = (int) ((mapY - mapTilePosY)); //from center of both the map and player
+
+        int rightCrop = (int) (Math.ceil((double) hudMapWidth / 2) - (mapXOffset - 4));
+        rightCrop = Math.clamp(rightCrop, 0, 8);
+        int downCrop = (int) (Math.ceil((double) hudMapHeight / 2) - (mapYOffset - 4));
+        downCrop = Math.clamp(downCrop, 0, 8);
+        int leftCrop = ((int) ((mapXOffset + 4) - Math.ceil((double) hudMapWidth / -2)) - 8) * -1;
+        leftCrop = Math.clamp(leftCrop, 0, 8);
+        int upCrop = ((int) ((mapYOffset + 4) - Math.ceil((double) hudMapHeight / -2)) - 8) * -1;
+        upCrop = Math.clamp(upCrop, 0, 8);
+
+        //context.drawTexture(pTexture, windowScaledWidth / 2, windowScaledHeight / 2, 0, 0, 64, 64, 64, 64);
+        Identifier pTexture = PlayersManager.playerSkinList.get(player.getUuid());
+        if (pTexture == null) pTexture = Identifier.of("openminemap", "skinbackup.png");
+
+        //context.fill(hudMapX + (hudMapWidth / 2) - 4 + mapXOffset, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + 8 , hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
+        context.drawTexture(pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, rightCrop - leftCrop, downCrop - upCrop, 8 + leftCrop,8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
+        context.drawTexture(pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, rightCrop - leftCrop, downCrop - upCrop, 40 + leftCrop,8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
+    }
+
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
         if (!renderHud) return;
         if (reloadSkin > 0) {
@@ -180,12 +223,12 @@ public class HudMap {
             context.drawText(MinecraftClient.getInstance().textRenderer, text, hudMapWidth > 73 ? (hudMapX + hudMapX2) / 2 - 37: hudMapX, hudMapHeight > 9 ? (hudMapY + hudMapY2) / 2 - 5 : hudMapY, 0xFFcccccc, true);
             return;
         } else {
-            playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
-            playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
+            playerMapX = (int) (UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
+            playerMapY = (int) (UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
         }
 
-        mapTilePosX = UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize);
-        mapTilePosY = UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize);
+        mapTilePosX = UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize);
+        mapTilePosY = UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize);
 
         if(!Double.isNaN(playerLat)) {
             for (int i = 0; i < identifiers.length; i++) {
@@ -209,10 +252,15 @@ public class HudMap {
                 }
             }
 
+            PlayersManager.updatePlayerSkinList();
+            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+                drawPlayerToMap(context, player);
+            }
+
             if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
 
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8,8, 8, 8, 64, 64);
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,40,8, 8, 8, 64, 64);
+            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 8, 8, 8, 8, 64, 64);
+            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 40, 8, 8, 8, 64, 64);
         } /*else {
 
         }*/

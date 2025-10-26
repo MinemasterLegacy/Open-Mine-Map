@@ -22,12 +22,12 @@ public class UnitConvert {
         return ((360 * (Math.atan(Math.pow(Math.E, (2 * Math.PI * (-y + (mapSize / 2))) / mapSize)) - (Math.PI/4))) / -Math.PI);
     }
 
-    public static double longToMx(double longitude, int zoom, int scaledSize) {
+    public static double longToMapX(double longitude, int zoom, int scaledSize) {
         double mapSize = (scaledSize * Math.pow(2, zoom));
         return (longitude + 180) * (mapSize / 360);
     }
 
-    public static double latToMy(double latitude, int zoom, int scaledSize) {
+    public static double latToMapY(double latitude, int zoom, int scaledSize) {
         double mapSize = (scaledSize * Math.pow(2, zoom));
         return (mapSize / 2) - (((Math.log(Math.tan((Math.PI / 4) + (((latitude * Math.PI)/180) / 2)))/Math.log(Math.E)) * mapSize) / (2 * Math.PI));
     }

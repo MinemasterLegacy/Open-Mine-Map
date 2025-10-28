@@ -38,8 +38,18 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget rightClickMeuUsesOption;
     ChoiceButtonWidget artificialZoomOption;
     ChoiceButtonWidget reverseScrollOption;
+    ButtonWidget configHud;
     int nextOptionSlot;
     int totalOptions;
+    private int scrollRange;
+    private int currentScroll = 0;
+    private int maxScroll;
+    private final int SCROLLSPEED = 5;
+
+    /*
+        each button/text field is 20 tall, with a buffer zome of 5 between buttons.
+        The top and bottom of the screen have a padding of 20.
+     */
 
     protected static final int buttonSize = 20;
     protected final int[][] buttonPositionModifiers = new int[][] {
@@ -110,6 +120,40 @@ public class ConfigScreen extends Screen {
         return b;
     }
 
+    private void updateScrollPositions(int change) {
+        currentScroll -= change;
+        configHud.setY(configHud.getY() + change);
+        artificialZoomOption.getButtonWidget().setY(artificialZoomOption.getButtonWidget().getY() + change);
+        customUrlWidget.setY(customUrlWidget.getY() + change);
+        snapAngleWidget.setY(snapAngleWidget.getY() + change);
+        rightClickMeuUsesOption.getButtonWidget().setY(rightClickMeuUsesOption.getButtonWidget().getY() + change);
+        reverseScrollOption.getButtonWidget().setY(reverseScrollOption.getButtonWidget().getY() + change);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        boolean b = super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+        maxScroll = Math.max(scrollRange - windowScaledHeight, 0);
+        //System.out.println(verticalAmount);
+        if (ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on")) verticalAmount *= -1;
+        if (verticalAmount < 0) { //down
+            if (currentScroll + SCROLLSPEED < maxScroll) {
+                updateScrollPositions(-SCROLLSPEED);
+            } else {
+                updateScrollPositions(currentScroll - maxScroll);
+            }
+        } else /*verticalAmount > 0*/ { //up
+            if (currentScroll - SCROLLSPEED > 0) {
+                updateScrollPositions(SCROLLSPEED);
+            } else {
+                updateScrollPositions(currentScroll);
+            }
+        }
+        //System.out.println(": "+maxScroll+", "+currentScroll+", "+windowScaledHeight+", "+scrollRange);
+        //System.out.println(currentScroll);
+        return b;
+    }
+
     @Override
     protected void init() {
         totalOptions = 0;
@@ -123,8 +167,7 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-
-        ButtonWidget configHud = ButtonWidget.builder(Text.of("Configure HUD..."), (btn) -> {
+        configHud = ButtonWidget.builder(Text.of("Configure HUD..."), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
         }).dimensions(20, getNextOptionSlot(), 120, 20).build();
@@ -159,6 +202,7 @@ public class ConfigScreen extends Screen {
         reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
         this.addDrawableChild(reverseScrollOption.getButtonWidget());
 
+        scrollRange = totalOptions * 25 + 35;
     }
 
     public void saveChanges() {

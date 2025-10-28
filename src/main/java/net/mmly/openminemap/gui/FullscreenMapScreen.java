@@ -12,6 +12,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -26,7 +28,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         super(Text.of("OMM Fullscreen Map"));
     }
 
-    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter("§fslastzoom")); //indicates the 'actual' zoom level, which includes artificial zoom | range 0-24 inclusive
+    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM)); //indicates the 'actual' zoom level, which includes artificial zoom | range 0-24 inclusive
     public static int zoomLevel = Math.min(trueZoomLevel, 18); //indicates the current zoom level of the map | default 0 | range 0-18 inclusive
     Identifier[][] identifiers;
     public static int windowHeight;
@@ -56,8 +58,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     // modifiers used to offset the map so it can be moved relative to the screen
     // these modifiers should be scaled when the screen is zoomed in or zoomed out
     // Ex: zoom 0, range -128 - 127 | zoom 1, range -256 - 255 | zoom 2, range -512 - 511 | etc.
-    static double mapTilePosX = Double.parseDouble(ConfigFile.readParameter("§fslastx")); //64 by default
-    static double mapTilePosY = Double.parseDouble(ConfigFile.readParameter("§fslasty")); //64 by default
+    static double mapTilePosX = Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)); //64 by default
+    static double mapTilePosY = Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y)); //64 by default
     MinecraftClient mClient = MinecraftClient.getInstance();
     Window window = mClient.getWindow();
     private static RightClickMenu rightClickLayer = new RightClickMenu(0, 0);
@@ -97,9 +99,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     @Override
     public void close() {
         disableRightClickMenu();
-        ConfigFile.writeParameter("§fslastzoom", Integer.toString(trueZoomLevel));
-        ConfigFile.writeParameter("§fslastx", Double.toString(mapTilePosX));
-        ConfigFile.writeParameter("§fslasty", Double.toString(mapTilePosY));
+        ConfigFile.writeParameter(ConfigOptions._FS_LAST_ZOOM, Integer.toString(trueZoomLevel));
+        ConfigFile.writeParameter(ConfigOptions._FS_LAST_X, Double.toString(mapTilePosX));
+        ConfigFile.writeParameter(ConfigOptions._FS_LAST_Y, Double.toString(mapTilePosY));
         ConfigFile.writeToFile();
         this.client.setScreen(null);
     }
@@ -300,12 +302,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //this.addDrawableChild(playerLayer);
 
         //buttons should probably be turned into one buttons array
-        zoominButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[0][0],windowScaledHeight - buttonPositionModifiers[0][1], buttonSize, buttonSize, 0);
-        zoomoutButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[1][0],windowScaledHeight - buttonPositionModifiers[1][1], buttonSize, buttonSize, 1);
-        resetButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[2][0],windowScaledHeight - buttonPositionModifiers[2][1], buttonSize, buttonSize, 2);
-        followButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[3][0],windowScaledHeight - buttonPositionModifiers[3][1], buttonSize, buttonSize, 3);
-        configButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1], buttonSize, buttonSize, 4);
-        exitButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1], buttonSize, buttonSize, 5);
+        zoominButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[0][0],windowScaledHeight - buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.ZOOM_IN);
+        zoomoutButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[1][0],windowScaledHeight - buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.ZOOM_OUT);
+        resetButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[2][0],windowScaledHeight - buttonPositionModifiers[2][1], buttonSize, buttonSize, ButtonFunction.RESET);
+        followButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[3][0],windowScaledHeight - buttonPositionModifiers[3][1], buttonSize, buttonSize, ButtonFunction.FOLLOW);
+        configButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1], buttonSize, buttonSize, ButtonFunction.CONFIG);
+        exitButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1], buttonSize, buttonSize, ButtonFunction.EXIT);
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         toggleHudMapButtonLayer.setTooltip(Tooltip.of(Text.of("Toggle HUD Elements")));
 

@@ -5,6 +5,7 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
 import javax.imageio.IIOException;
@@ -192,10 +193,10 @@ public class TileManager {
     }
 
     public static void setArtificialZoom() {
-        doArtificialZoom = ConfigFile.readParameter("ArtificialZoom").equals("on");
+        doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
     }
 
     public static void setReverseScroll() {
-        doReverseScroll = ConfigFile.readParameter("ReverseScroll").equals("on");
+        doReverseScroll = ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on");
     }
 }

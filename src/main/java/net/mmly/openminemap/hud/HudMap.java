@@ -10,6 +10,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -23,14 +24,14 @@ import net.mmly.openminemap.util.UnitConvert;
 public class HudMap {
 
     public static final int MIN_SIZE = 20;
-    public static int hudMapX = Integer.parseInt(ConfigFile.readParameter("HudMapX"));
-    public static int hudMapY = Integer.parseInt(ConfigFile.readParameter("HudMapY"));
-    public static int hudMapWidth = Integer.parseInt(ConfigFile.readParameter("HudMapWidth"));
-    public static int hudMapHeight = Integer.parseInt(ConfigFile.readParameter("HudMapHeight"));
+    public static int hudMapX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_X));
+    public static int hudMapY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_Y));
+    public static int hudMapWidth = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_WIDTH));
+    public static int hudMapHeight = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_HEIGHT));
     public static int hudMapX2 = hudMapX + hudMapWidth;
     public static int hudMapY2 = hudMapY + hudMapHeight;
     static boolean initialized = false;
-    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter("§hudlastzoom"));
+    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM));
     static int zoomLevel = Math.min(trueZoomLevel, 18); //essentially decides what tile size folder to pull from
     static Identifier[][] identifiers;
     static double mapTilePosX = 64;
@@ -42,11 +43,11 @@ public class HudMap {
     public static double playerLat;
     static double playerMapX;
     static double playerMapY;
-    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter("§hudtoggle"));
+    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_TOGGLE));
     public static int reloadSkin = 4;
-    public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter("HudCompassX"));
-    public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter("HudCompassY"));
-    public static int hudCompassWidth = Integer.parseInt(ConfigFile.readParameter("HudCompassWidth"));
+    public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_X));
+    public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_Y));
+    public static int hudCompassWidth = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_WIDTH));
     protected static Identifier compassIdentifier = Identifier.of("openminemap", "stripcompass.png");
     protected static Identifier snapAngleIdentifier = Identifier.of("openminemap", "snapangle.png");
     protected static int hudCompassCenter;
@@ -64,7 +65,7 @@ public class HudMap {
     public static Identifier playerIdentifier;
 
     public static void setSnapAngle() {
-        String receivedSnapAngle = ConfigFile.readParameter("SnapAngle");
+        String receivedSnapAngle = ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE);
         if (receivedSnapAngle.isEmpty()) {
             doSnapAngle = false;
         } else {
@@ -138,13 +139,13 @@ public class HudMap {
     }
 
     private static void writeZoom() {
-        ConfigFile.writeParameter("§hudlastzoom", Integer.toString(trueZoomLevel));
+        ConfigFile.writeParameter(ConfigOptions._HUD_LAST_ZOOM, Integer.toString(trueZoomLevel));
         ConfigFile.writeToFile();
     }
 
     public static void toggleRendering() {
         renderHud = !renderHud;
-        ConfigFile.writeParameter("§hudtoggle", Boolean.toString(renderHud));
+        ConfigFile.writeParameter(ConfigOptions._HUD_TOGGLE, Boolean.toString(renderHud));
         ConfigFile.writeToFile();
     }
 

@@ -4,18 +4,19 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.enums.RepositionType;
 import net.mmly.openminemap.hud.HudMap;
 
 public class RepositionElement extends ClickableWidget {
 
-    int type;
+    RepositionType type;
 
-    public RepositionElement(int type) {
+    public RepositionElement(RepositionType type) {
         super(0, 0, 0, 0, Text.empty());
         this.type = type; //0 is for map, 1 is for compass
-        if (type == 0) {
+        if (type == RepositionType.MAP) {
             this.setDimensionsAndPosition(HudMap.hudMapWidth, HudMap.hudMapHeight, HudMap.hudMapX, HudMap.hudMapY);
-        } else if (type == 1) {
+        } else if (type == RepositionType.COMPASS) {
             this.setDimensionsAndPosition(HudMap.hudCompassWidth, 16, HudMap.hudCompassX, HudMap.hudCompassY);
         }
     }
@@ -25,9 +26,9 @@ public class RepositionElement extends ClickableWidget {
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (type == 0) {
+        if (type == RepositionType.MAP) {
             this.setDimensionsAndPosition(HudMap.hudMapWidth, HudMap.hudMapHeight, HudMap.hudMapX, HudMap.hudMapY);
-        } else if (type == 1) {
+        } else if (type == RepositionType.COMPASS) {
             this.setDimensionsAndPosition(HudMap.hudCompassWidth, 16, HudMap.hudCompassX, HudMap.hudCompassY);
         }
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x00000000);
@@ -40,10 +41,10 @@ public class RepositionElement extends ClickableWidget {
     protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
         subDeltaX += deltaX;
         subDeltaY += deltaY;
-        if (type == 0) {
+        if (type == RepositionType.MAP) {
             HudMap.hudMapX += (int) subDeltaX;
             HudMap.hudMapY += (int) subDeltaY;
-        } else if (type == 1) {
+        } else if (type == RepositionType.COMPASS) {
             HudMap.hudCompassX += (int) subDeltaX;
             HudMap.hudCompassY += (int) subDeltaY;
         }

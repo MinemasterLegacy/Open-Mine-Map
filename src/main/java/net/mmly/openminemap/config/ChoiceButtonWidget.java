@@ -3,6 +3,7 @@ package net.mmly.openminemap.config;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
 public class ChoiceButtonWidget extends ButtonWidget {
@@ -11,9 +12,9 @@ public class ChoiceButtonWidget extends ButtonWidget {
     String[] options;
     int selection;
     Text message;
-    String configOption;
+    ConfigOptions configOption;
 
-    protected ChoiceButtonWidget(int x, int y, Text message, Text tooltip, String[] options, String configOption) {
+    protected ChoiceButtonWidget(int x, int y, Text message, Text tooltip, String[] options, ConfigOptions configOption) {
         super(x, y, 120, 20, message, null, null);
         this.options = options;
         this.message = message;

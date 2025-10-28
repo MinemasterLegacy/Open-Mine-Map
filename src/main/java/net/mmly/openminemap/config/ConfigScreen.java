@@ -9,6 +9,8 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.TextFieldLayer;
 import net.mmly.openminemap.hud.HudMap;
@@ -116,8 +118,8 @@ public class ConfigScreen extends Screen {
 
         updateTileSet();
 
-        exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, 5);
-        checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, 7);
+        exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.EXIT);
+        checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.CHECKMARK);
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
@@ -135,32 +137,32 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(toggleArtificialZoomButton);
          */
 
-        doArtificialZoom = ConfigFile.readParameter("ArtificialZoom").equals("on");
-        artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Artificial Zoom"), Text.of(""), new String[] {"Off", "On"}, "ArtificialZoom");
+        doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
+        artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Artificial Zoom"), Text.of(""), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
 
         customUrlWidget = new TextFieldWidget(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"));
         customUrlWidget.setMaxLength(100);
-        customUrlWidget.setText(ConfigFile.readParameter("TileMapUrl"));
+        customUrlWidget.setText(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL));
         customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
         this.addDrawableChild(customUrlWidget);
 
         snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.of("Snap Angle"), 0);
         snapAngleWidget.setMaxLength(20);
-        snapAngleWidget.setText(ConfigFile.readParameter("SnapAngle"));
+        snapAngleWidget.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
         snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
         this.addDrawableChild(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Right Click Menu Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, "RightClickMenuUses");
+        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Right Click Menu Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
         this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
 
-        reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, "ReverseScroll");
+        reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
         this.addDrawableChild(reverseScrollOption.getButtonWidget());
 
     }
 
     public void saveChanges() {
-        if (!Objects.equals(ConfigFile.readParameter("TileMapUrl"), customUrlWidget.getText())) {
+        if (!Objects.equals(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL), customUrlWidget.getText())) {
             //System.out.println("yea");
             TileManager.clearCacheDir();
         }
@@ -170,8 +172,8 @@ public class ConfigScreen extends Screen {
         } catch (NumberFormatException e) {
             snapAngle = "";
         }
-        ConfigFile.writeParameter("TileMapUrl", customUrlWidget.getText());
-        ConfigFile.writeParameter("SnapAngle", snapAngle);
+        ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, customUrlWidget.getText());
+        ConfigFile.writeParameter(ConfigOptions.SNAP_ANGLE, snapAngle);
         //ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(doArtificialZoom));
         rightClickMeuUsesOption.writeParameterToFile();
         artificialZoomOption.writeParameterToFile();

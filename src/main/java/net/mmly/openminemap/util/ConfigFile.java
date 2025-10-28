@@ -1,5 +1,6 @@
 package net.mmly.openminemap.util;
 
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
 
 import java.io.*;
@@ -9,7 +10,7 @@ import java.util.Objects;
 public class ConfigFile {
     public static File configFile;
     public static boolean isConfigLoaded = false;
-    private static HashMap<String, String> configParams = new HashMap<>();
+    private static HashMap<ConfigOptions, String> configParams = new HashMap<>();
     private static final String[] keyNames = new String[] { //names for every config option / parameter
             "HudMapX",
             "HudMapY",
@@ -48,7 +49,7 @@ public class ConfigFile {
             "64",
             "64"
     };
-    private static final int numOfArgs = keyNames.length;
+    private static final int numOfArgs = ConfigOptions.length();
 
     public static void establishConfigFile() {
         try {
@@ -62,16 +63,16 @@ public class ConfigFile {
         }
     }
 
-    public static boolean writeParameter(String parameter, String value) {
+    public static boolean writeParameter(ConfigOptions parameter, String value) {
         return configParams.replace(parameter, value) != null;
     }
 
-    public static String readParameter(String parameter) {
+    public static String readParameter(ConfigOptions parameter) {
         String value = configParams.get(parameter);
         //System.out.println("Value for key "+parameter+" is "+value);
         if (value.equals("null")) { //failsafe in case a value is somehow set to null
-            for (int i = 0; i < keyNames.length; i++) {
-                if (keyNames[i].equals(parameter)) {
+            for (int i = 0; i < ConfigOptions.length(); i++) {
+                if (ConfigOptions.values()[i] == parameter) {
                     System.out.println("Null value for valid parameter detected; possible error occoured");
                     writeParameter(parameter, defaultValues[i]);
                     writeToFile();
@@ -89,7 +90,7 @@ public class ConfigFile {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
             for (int i = 0; i < numOfArgs; i++) {
-                writer.write(keyNames[i]+" : "+configParams.get(keyNames[i]));
+                writer.write(ConfigOptions.getRawTextOf(ConfigOptions.values()[i])+" : "+configParams.get(ConfigOptions.values()[i]));
                 writer.newLine();
 
             }
@@ -105,7 +106,7 @@ public class ConfigFile {
         configParams.clear();
         String line;
         String[] kvPair;
-        boolean[] foundParameter = new boolean[keyNames.length];
+        boolean[] foundParameter = new boolean[ConfigOptions.length()];
         try {
             BufferedReader reader = new BufferedReader(new FileReader(configFile));
             for (int i = 0; i < numOfArgs; i++) {
@@ -113,9 +114,9 @@ public class ConfigFile {
                 if (line == null) break;
                 kvPair = line.split(" : ");
                 if (kvPair.length == 1) kvPair = new String[] {kvPair[0], ""};
-                int searchResult = searchArray(keyNames, kvPair[0]);
+                int searchResult = searchFor(kvPair[0]);
                 if (searchResult >= 0) {
-                    configParams.put(kvPair[0], kvPair[1]);
+                    configParams.put(ConfigOptions.getOptionOf(kvPair[0]), kvPair[1]);
                     System.out.println("set "+kvPair[0]+" to "+kvPair[1]);
                     foundParameter[searchResult] = true;
                 }
@@ -123,7 +124,7 @@ public class ConfigFile {
             reader.close();
             for (int i = 0; i < numOfArgs; i++) {
                 if (!foundParameter[i]) {
-                    configParams.put(keyNames[i], defaultValues[i]);
+                    configParams.put(ConfigOptions.values()[i], defaultValues[i]);
                 }
             }
         } catch (IOException e) {
@@ -133,9 +134,10 @@ public class ConfigFile {
         return true;
     }
 
-    private static int searchArray(String[] array, String searchFor) {
+    private static int searchFor(String searchFor) {
+        ConfigOptions[] array = ConfigOptions.values();
         for (int i = 0; i < array.length; i++) {
-            if (Objects.equals(array[i], searchFor)) return i;
+            if (Objects.equals(ConfigOptions.getRawTextOf(array[i]), searchFor)) return i;
         }
         return -1;
     }

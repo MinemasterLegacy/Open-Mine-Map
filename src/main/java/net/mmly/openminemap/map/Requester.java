@@ -1,5 +1,6 @@
 package net.mmly.openminemap.map;
 
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
 import javax.imageio.ImageIO;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 
 public class Requester extends Thread {
 
-    boolean disableWebRequests = false; //development variable for disabling web requests. If disabled, tiles will ony be loaded from the cache or as error tiles
+    boolean disableWebRequests = true; //development variable for disabling web requests. If disabled, tiles will ony be loaded from the cache or as error tiles
     int requestAttempts = 2; //how many times a tile will be requested before it is determined to not request it anymore
 
     ArrayList<int[]> failedRequests = new ArrayList<>();
@@ -22,7 +23,7 @@ public class Requester extends Thread {
     public void run() {
         while (true) {
             if (RequestManager.pendingRequest != null) {
-                this.tileGetRequest(RequestManager.pendingRequest[0], RequestManager.pendingRequest[1], RequestManager.pendingRequest[2], ConfigFile.readParameter("TileMapUrl"));
+                this.tileGetRequest(RequestManager.pendingRequest[0], RequestManager.pendingRequest[1], RequestManager.pendingRequest[2], ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL));
                 requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;

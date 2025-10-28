@@ -7,13 +7,14 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.config.MapConfigScreen;
+import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class ButtonLayer extends ClickableWidget {
 
-    private int function;
+    private ButtonFunction function;
 
-    public ButtonLayer(int x, int y, int width, int height, int f) {
+    public ButtonLayer(int x, int y, int width, int height, ButtonFunction f) {
         super(x, y, width, height, Text.empty());
         function = f;
     }
@@ -29,33 +30,33 @@ public class ButtonLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         switch (function) {
-            case 0: //zoom in
+            case ButtonFunction.ZOOM_IN: //zoom in
                 FullscreenMapScreen.zoomIn();
                 break;
-            case 1: //zoom out
+            case ButtonFunction.ZOOM_OUT: //zoom out
                 FullscreenMapScreen.zoomOut();
                 break;
-            case 2: //reset
+            case ButtonFunction.RESET: //reset
                 FullscreenMapScreen.resetMap();
                 break;
-            case 3: //follow
+            case ButtonFunction.FOLLOW: //follow
                 FullscreenMapScreen.followPlayer();
                 break;
-            case 4: //config
+            case ButtonFunction.CONFIG: //config
                 MinecraftClient.getInstance().setScreen(
                         new ConfigScreen()
                 );
                 break;
-            case 5: //exit
+            case ButtonFunction.EXIT: //exit
                 if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
                     MapConfigScreen.revertChanges();
                 }
                 MinecraftClient.getInstance().currentScreen.close();
                 break;
-            case 6:
+            case ButtonFunction.WAYPOINTS:
                 //waypoints
                 break;
-            case 7:
+            case ButtonFunction.CHECKMARK:
                 if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {
                     ConfigScreen.getInstance().saveChanges();
                 } else if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {

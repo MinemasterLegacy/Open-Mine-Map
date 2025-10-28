@@ -5,6 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
@@ -23,7 +24,7 @@ public class RightClickMenu extends ClickableWidget {
 
     public RightClickMenu(int x, int y) {
         super(x, y, width, height, Text.empty());
-        useTp = Objects.equals(ConfigFile.readParameter("RightClickMenuUses"), "/tp");
+        useTp = Objects.equals(ConfigFile.readParameter(ConfigOptions.RIGHT_CLICK_MENU_USES), "/tp");
     }
 
     float savedMouseLat;

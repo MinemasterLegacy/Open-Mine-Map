@@ -20,10 +20,9 @@ import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
-import java.util.*;
-
 public class HudMap {
 
+    public static final int MIN_SIZE = 20;
     public static int hudMapX = Integer.parseInt(ConfigFile.readParameter("HudMapX"));
     public static int hudMapY = Integer.parseInt(ConfigFile.readParameter("HudMapY"));
     public static int hudMapWidth = Integer.parseInt(ConfigFile.readParameter("HudMapWidth"));

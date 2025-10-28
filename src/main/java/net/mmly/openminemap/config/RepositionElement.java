@@ -49,7 +49,6 @@ public class RepositionElement extends ClickableWidget {
         }
         subDeltaX %= 1;
         subDeltaY %= 1;
-        HudMap.updateX2Y2();
         MapConfigScreen.updateResizePos();
     }
 }

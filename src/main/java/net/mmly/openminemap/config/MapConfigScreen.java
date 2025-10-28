@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.enums.ResizeDirection;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.util.ConfigFile;
@@ -71,7 +72,7 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    protected void init() {
+    protected void init() { //TODO add "reset to default" option
         super.init();
 
         if (!HudMap.renderHud) HudMap.toggleRendering();
@@ -91,12 +92,12 @@ public class MapConfigScreen extends Screen {
         exitButton = new ButtonLayer(0, 0,20, 20, 5);
         this.addDrawableChild(exitButton);
 
-        rightResize = new ResizeElement(0, 0, 7, 20, 1);
-        leftResize = new ResizeElement(0, 0, 7, 20, 3);
-        downResize = new ResizeElement(0, 0, 20, 7, 2);
-        upResize = new ResizeElement(0, 0, 20, 7, 0);
-        compassLeftResize = new ResizeElement(0, 0, 7, 20, 4);
-        compassRightResize = new ResizeElement(0, 0, 7, 20, 5);
+        rightResize = new ResizeElement(0, 0, 7, 20, ResizeDirection.RIGHT_MAP);
+        leftResize = new ResizeElement(0, 0, 7, 20, ResizeDirection.LEFT_MAP);
+        downResize = new ResizeElement(0, 0, 20, 7, ResizeDirection.DOWN_MAP);
+        upResize = new ResizeElement(0, 0, 20, 7, ResizeDirection.UP_MAP);
+        compassLeftResize = new ResizeElement(0, 0, 7, 20, ResizeDirection.LEFT_COMPASS);
+        compassRightResize = new ResizeElement(0, 0, 7, 20, ResizeDirection.RIGHT_COMPASS);
         updateResizePos();
 
         this.addDrawableChild(rightResize);

@@ -11,25 +11,6 @@ public class ConfigFile {
     public static File configFile;
     public static boolean isConfigLoaded = false;
     private static HashMap<ConfigOptions, String> configParams = new HashMap<>();
-    private static final String[] keyNames = new String[] { //names for every config option / parameter
-            "HudMapX",
-            "HudMapY",
-            "HudMapWidth",
-            "HudMapHeight",
-            "HudCompassX",
-            "HudCompassY",
-            "HudCompassWidth",
-            "TileMapUrl",
-            "ArtificialZoom",
-            "SnapAngle",
-            "RightClickMenuUses",
-            "ReverseScroll",
-            "§hudtoggle",
-            "§hudlastzoom",
-            "§fslastzoom",
-            "§fslastx",
-            "§fslasty"
-    };
     private static final String[] defaultValues = new String[] { //default values for every config option / parameter
             "10", //hudmapx
             "10", //hudmapy
@@ -47,7 +28,8 @@ public class ConfigFile {
             "0",
             "0",
             "64",
-            "64"
+            "64",
+            "false"
     };
     private static final int numOfArgs = ConfigOptions.length();
 

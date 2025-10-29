@@ -1,6 +1,6 @@
 package net.mmly.openminemap.enums;
 
-public enum ConfigOptions {
+public enum ConfigOptions { //no underscore for standard config option, one for session variables (Ex: map positioning and zoom), two for development variables
     HUD_MAP_X,
     HUD_MAP_Y,
     HUD_MAP_WIDTH,
@@ -13,11 +13,14 @@ public enum ConfigOptions {
     SNAP_ANGLE,
     RIGHT_CLICK_MENU_USES,
     REVERSE_SCROLL,
+
     _HUD_TOGGLE,
     _HUD_LAST_ZOOM,
     _FS_LAST_ZOOM,
     _FS_LAST_X,
-    _FS_LAST_Y;
+    _FS_LAST_Y,
+
+    __DISABLE_WEB_REQUESTS;
 
     public static String getRawTextOf(ConfigOptions configOption) {
         switch (configOption) {
@@ -33,11 +36,14 @@ public enum ConfigOptions {
             case SNAP_ANGLE: return "SnapAngle";
             case RIGHT_CLICK_MENU_USES: return "RightClickMenuUses";
             case REVERSE_SCROLL: return "ReverseScroll";
+
             case _HUD_TOGGLE: return "§hudtoggle";
             case _HUD_LAST_ZOOM: return "§hudlastzoom";
             case _FS_LAST_ZOOM: return "§fslastzoom";
             case _FS_LAST_X: return "§fslastx";
             case _FS_LAST_Y: return "§fslasty";
+
+            case __DISABLE_WEB_REQUESTS: return "DisableWebRequests";
         }
         return null;
     }
@@ -56,11 +62,14 @@ public enum ConfigOptions {
             case "SnapAngle": return SNAP_ANGLE;
             case "RightClickMenuUses": return RIGHT_CLICK_MENU_USES;
             case "ReverseScroll": return REVERSE_SCROLL;
+
             case "§hudtoggle": return _HUD_TOGGLE;
             case "§hudlastzoom": return _HUD_LAST_ZOOM;
             case "§fslastzoom": return _FS_LAST_ZOOM;
             case "§fslastx": return _FS_LAST_X;
             case "§fslasty": return _FS_LAST_Y;
+
+            case "DisableWebRequests": return __DISABLE_WEB_REQUESTS;
         }
         return null;
     }

@@ -3,6 +3,7 @@ package net.mmly.openminemap.config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -77,7 +78,7 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    protected void init() { //TODO add "reset to default" option
+    protected void init() {
         super.init();
 
         if (!HudMap.renderHud) HudMap.toggleRendering();
@@ -88,6 +89,7 @@ public class MapConfigScreen extends Screen {
                 Identifier.of("openminemap", "buttons/vanilla/hover/check.png")
         };
         saveButton = new ButtonLayer(0, 0,20, 20, ButtonFunction.CHECKMARK);
+        saveButton.setTooltip(Tooltip.of(Text.of("Save and Exit")));
         this.addDrawableChild(saveButton);
 
         exitIdentifiers = new Identifier[] {
@@ -95,6 +97,7 @@ public class MapConfigScreen extends Screen {
                 Identifier.of("openminemap", "buttons/vanilla/hover/exit.png")
         };
         exitButton = new ButtonLayer(0, 0,20, 20, ButtonFunction.EXIT);
+        exitButton.setTooltip(Tooltip.of(Text.of("Exit without Saving")));
         this.addDrawableChild(exitButton);
 
         resetConfigIdentifiers = new Identifier[] {
@@ -102,6 +105,7 @@ public class MapConfigScreen extends Screen {
                 Identifier.of("openminemap", "buttons/vanilla/hover/resetconfig.png")
         };
         resetConfigButton = new ButtonLayer(0, 0, 20, 20, ButtonFunction.RESET_CONFIG);
+        resetConfigButton.setTooltip(Tooltip.of(Text.of("Reset to Default")));
         this.addDrawableChild(resetConfigButton);
 
         rightResize = new ResizeElement(0, 0, 7, 20, ResizeDirection.RIGHT_MAP);

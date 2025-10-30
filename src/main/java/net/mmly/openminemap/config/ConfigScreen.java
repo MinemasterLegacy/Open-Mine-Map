@@ -164,6 +164,8 @@ public class ConfigScreen extends Screen {
 
         exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.EXIT);
         checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.CHECKMARK);
+        exitButtonLayer.setTooltip(Tooltip.of(Text.of("Exit without Saving")));
+        checkButtonLayer.setTooltip(Tooltip.of(Text.of("Save and Exit")));
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 

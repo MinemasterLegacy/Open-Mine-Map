@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -77,7 +78,7 @@ public class HudMap {
     }
 
     public static void initialize(DrawContext context) {
-        TileManager.setArtificialZoom();
+        TileManager.initializeConfigParameters();
         setSnapAngle();
     }
 

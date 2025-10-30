@@ -24,11 +24,15 @@ public class ConfigFile {
             "",
             "tpll",
             "off",
+            "2", //for overlay options: 0 is none, 1 is client player, 2 is all players. Later on, 3 will be global players
+            "1",
+
             "true",
             "0",
             "0",
             "64",
             "64",
+
             "false"
     };
     private static final int numOfArgs = ConfigOptions.length();

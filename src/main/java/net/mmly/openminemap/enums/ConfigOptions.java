@@ -13,6 +13,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SNAP_ANGLE,
     RIGHT_CLICK_MENU_USES,
     REVERSE_SCROLL,
+    SHOW_PLAYERS,
+    SHOW_DIRECTION_INDICATORS,
 
     _HUD_TOGGLE,
     _HUD_LAST_ZOOM,
@@ -36,6 +38,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case SNAP_ANGLE: return "SnapAngle";
             case RIGHT_CLICK_MENU_USES: return "RightClickMenuUses";
             case REVERSE_SCROLL: return "ReverseScroll";
+            case SHOW_PLAYERS: return "ShowPlayers";
+            case SHOW_DIRECTION_INDICATORS: return "ShowDirectionIndicators";
 
             case _HUD_TOGGLE: return "§hudtoggle";
             case _HUD_LAST_ZOOM: return "§hudlastzoom";
@@ -62,6 +66,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case "SnapAngle": return SNAP_ANGLE;
             case "RightClickMenuUses": return RIGHT_CLICK_MENU_USES;
             case "ReverseScroll": return REVERSE_SCROLL;
+            case "ShowPlayers": return SHOW_PLAYERS;
+            case "ShowDirectionIndicators": return SHOW_DIRECTION_INDICATORS;
 
             case "§hudtoggle": return _HUD_TOGGLE;
             case "§hudlastzoom": return _HUD_LAST_ZOOM;

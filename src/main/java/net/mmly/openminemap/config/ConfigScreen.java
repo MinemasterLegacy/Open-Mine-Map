@@ -224,8 +224,7 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption.writeParameterToFile();
         artificialZoomOption.writeParameterToFile();
         reverseScrollOption.writeParameterToFile();
-        TileManager.setArtificialZoom();
-        TileManager.setReverseScroll();
+        TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();
     }

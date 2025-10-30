@@ -341,7 +341,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             waypointIdentifiers[i] = Identifier.of("openminemap", "waypoints/waypoint"+i+".png");
         }
         */
-        TileManager.setArtificialZoom();
+        TileManager.initializeConfigParameters();
 
         InteractionLayer interactionLayer = new InteractionLayer(0, 0, 5000, 5000);
         this.addDrawableChild(interactionLayer);

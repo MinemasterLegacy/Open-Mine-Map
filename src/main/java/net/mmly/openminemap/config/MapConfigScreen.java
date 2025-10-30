@@ -29,15 +29,17 @@ public class MapConfigScreen extends Screen {
     private static RepositionElement compassRepositionElement;
     private static ButtonLayer exitButton;
     private static ButtonLayer saveButton;
+    private static ButtonLayer resetConfigButton;
     private static Identifier[] exitIdentifiers;
     private static Identifier[] saveIdentifiers;
+    private static Identifier[] resetConfigIdentifiers;
     private static Window window;
 
     protected MapConfigScreen() {
         super(Text.of("OMM Map Config"));
     }
 
-    protected static void updateResizePos() {
+    public static void updateResizePos() {
         HudMap.updateX2Y2();
         rightResize.setPosition(HudMap.hudMapX2 - 3, (HudMap.hudMapY2 + HudMap.hudMapY) / 2 - 10);
         leftResize.setPosition(HudMap.hudMapX - 4, (HudMap.hudMapY2 + HudMap.hudMapY) / 2 - 10);
@@ -95,6 +97,13 @@ public class MapConfigScreen extends Screen {
         exitButton = new ButtonLayer(0, 0,20, 20, ButtonFunction.EXIT);
         this.addDrawableChild(exitButton);
 
+        resetConfigIdentifiers = new Identifier[] {
+                Identifier.of("openminemap", "buttons/vanilla/default/resetconfig.png"),
+                Identifier.of("openminemap", "buttons/vanilla/hover/resetconfig.png")
+        };
+        resetConfigButton = new ButtonLayer(0, 0, 20, 20, ButtonFunction.RESET_CONFIG);
+        this.addDrawableChild(resetConfigButton);
+
         rightResize = new ResizeElement(0, 0, 7, 20, ResizeDirection.RIGHT_MAP);
         leftResize = new ResizeElement(0, 0, 7, 20, ResizeDirection.LEFT_MAP);
         downResize = new ResizeElement(0, 0, 20, 7, ResizeDirection.DOWN_MAP);
@@ -136,5 +145,10 @@ public class MapConfigScreen extends Screen {
 
         exitButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10 + 24));
         context.drawTexture(exitButton.isHovered() ? exitIdentifiers[1] : exitIdentifiers[0], exitButton.getX(), exitButton.getY(), 0, 0, 20, 20, 20, 20);
+
+        resetConfigButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10 - 24));
+        context.drawTexture(resetConfigButton.isHovered() ? resetConfigIdentifiers[1] : resetConfigIdentifiers[0], resetConfigButton.getX(), resetConfigButton.getY(), 0, 0, 20, 20, 20, 20);
+
+
     }
 }

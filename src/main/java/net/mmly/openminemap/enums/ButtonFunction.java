@@ -8,5 +8,6 @@ public enum ButtonFunction {
     CONFIG,
     EXIT,
     WAYPOINTS,
-    CHECKMARK
+    CHECKMARK,
+    RESET_CONFIG
 }

@@ -8,6 +8,9 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class ButtonLayer extends ClickableWidget {
@@ -65,6 +68,16 @@ public class ButtonLayer extends ClickableWidget {
                     break;
                 }
                 MinecraftClient.getInstance().setScreen(null);
+                break;
+            case ButtonFunction.RESET_CONFIG:
+                HudMap.hudMapX = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_X));
+                HudMap.hudMapY = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_Y));
+                HudMap.hudMapWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_WIDTH));
+                HudMap.hudMapHeight = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_HEIGHT));
+                HudMap.hudCompassX = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_X));
+                HudMap.hudCompassY = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_Y));
+                HudMap.hudCompassWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_WIDTH));
+                MapConfigScreen.updateResizePos();
                 break;
         }
     }

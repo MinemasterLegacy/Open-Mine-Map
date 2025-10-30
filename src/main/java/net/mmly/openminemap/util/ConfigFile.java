@@ -49,6 +49,16 @@ public class ConfigFile {
         return configParams.replace(parameter, value) != null;
     }
 
+    public static boolean writeDefaultParameter(ConfigOptions parameter) {
+        System.out.println(parameter);
+        System.out.println(defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))]);
+        return configParams.replace(parameter, defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))]) != null;
+    }
+
+    public static String readDefaultParameter(ConfigOptions parameter) {
+        return defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))];
+    }
+
     public static String readParameter(ConfigOptions parameter) {
         String value = configParams.get(parameter);
         //System.out.println("Value for key "+parameter+" is "+value);

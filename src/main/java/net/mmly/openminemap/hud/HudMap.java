@@ -11,7 +11,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
-import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -34,7 +33,7 @@ public class HudMap {
     static boolean initialized = false;
     public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM));
     static int zoomLevel = Math.min(trueZoomLevel, 18); //essentially decides what tile size folder to pull from
-    static Identifier[][] identifiers;
+    static Identifier[][] tileIdentifiers;
     static double mapTilePosX = 64;
     static double mapTilePosY = 64;
     static Window window = MinecraftClient.getInstance().getWindow();
@@ -57,6 +56,7 @@ public class HudMap {
     public static double direction;
     private static DirectionIndicator directionIndicator = new DirectionIndicator(0, 0, 0, 0, Text.of(""));
     public static boolean doSnapAngle = false;
+    private static boolean playerIsOutOfBouds;
 
     // used in conjunction with artificial zoom mode;
     // TileManager.hudTileScaledSize does not get updated with artificial zoom, this variable does instead
@@ -188,36 +188,38 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
-        if (!renderHud) return;
-        if (reloadSkin > 0) {
+        if (!renderHud) return; //do not do anything if hud rendering is disabled
+
+        if (reloadSkin > 0) { //load player skins
             if (MinecraftClient.getInstance().player == null) {
                 playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
             } else {
                 playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
             }
+            PlayersManager.updatePlayerSkinList();
             reloadSkin--;
         }
 
-        if (!initialized) initialize(context);
-        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
-        direction = Direction.calcDymaxionAngleDifference();
-        hudCompassCenter = Math.round((float) hudCompassWidth / 2);
+        if (!initialized) initialize(context); //initialize hudmap if not done already
+        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw
+        direction = Direction.calcDymaxionAngleDifference(); //the difference between mc yaw and geo yaw
+        hudCompassCenter = Math.round((float) hudCompassWidth / 2); //center of the hud compass
 
+        //update window heights
         windowScaledHeight = window.getScaledHeight();
         windowScaledWidth = window.getScaledWidth();
 
+        //set hud tile render size; will be constant unless artificial zoom is enabled
         renderTileSize = (int) Math.max(TileManager.hudTileScaledSize, Math.pow(2, trueZoomLevel - 11));
-        //System.out.println("TrueZoom: "+trueZoomLevel+" | Zoom: "+zoomLevel+" | calced size: "+Math.pow(2, trueZoomLevel - 11));
 
-        identifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize);
+        tileIdentifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize); //get identifiers for all tiles that will be rendered this tick
         int trueHW = renderTileSize;
-        int[] TopLeftData = TileManager.getTopLeftData();
+        int[] TopLeftData = TileManager.getTopLeftData(); //gets the xy position of the top left most tile
 
-        //System.out.println(identifiers.length + ", " + identifiers[0].length);
-
+        //basic monocolor background
         context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0xFFCEE1E4);
 
-        if (Double.isNaN(playerLon)) {
+        if (Double.isNaN(playerLon)) {//if the player is out of bounds this will be NaN. all other rendering is skipped due to this
             //draw error message and exit
             MutableText text = Text.literal("Out Of Bounds").formatted(Formatting.ITALIC);
             //context.fill(hudMapX + 2, hudMapY + 2, hudMapY + 74, hudMapY + 10, 0xFFFFFFFF);
@@ -228,54 +230,55 @@ public class HudMap {
             playerMapY = (int) (UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
         }
 
+        //determine map tile positions
         mapTilePosX = UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize);
         mapTilePosY = UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize);
 
-        if(!Double.isNaN(playerLat)) {
-            for (int i = 0; i < identifiers.length; i++) {
-                for (int j = 0; j < identifiers[i].length; j++) {
-                    RenderSystem.setShaderTexture(0, identifiers[i][j]);
-                    int tileX = ((((TopLeftData[0] + i) * renderTileSize) + hudMapX + hudMapWidth / 2) - (int) mapTilePosX);
-                    int tileY = ((((TopLeftData[1] + j) * renderTileSize) + hudMapY + hudMapHeight / 2) - (int) mapTilePosY);
+        //deaw map tiles, cropping when needed
+        for (int i = 0; i < tileIdentifiers.length; i++) {
+            for (int j = 0; j < tileIdentifiers[i].length; j++) {
+                RenderSystem.setShaderTexture(0, tileIdentifiers[i][j]);
+                int tileX = ((((TopLeftData[0] + i) * renderTileSize) + hudMapX + hudMapWidth / 2) - (int) mapTilePosX);
+                int tileY = ((((TopLeftData[1] + j) * renderTileSize) + hudMapY + hudMapHeight / 2) - (int) mapTilePosY);
 
-                    int leftCrop = tileX < hudMapX ? hudMapX - tileX : 0;
-                    int topCrop = tileY < hudMapY ? hudMapY - tileY : 0;
-                    int rightCrop = tileX + renderTileSize > hudMapX + hudMapWidth ? (tileX + renderTileSize) - (hudMapX + hudMapWidth) : 0;
-                    int bottomCrop = tileY + renderTileSize > hudMapY + hudMapHeight ? (tileY + renderTileSize) - (hudMapY + hudMapHeight) : 0;
+                int leftCrop = tileX < hudMapX ? hudMapX - tileX : 0;
+                int topCrop = tileY < hudMapY ? hudMapY - tileY : 0;
+                int rightCrop = tileX + renderTileSize > hudMapX + hudMapWidth ? (tileX + renderTileSize) - (hudMapX + hudMapWidth) : 0;
+                int bottomCrop = tileY + renderTileSize > hudMapY + hudMapHeight ? (tileY + renderTileSize) - (hudMapY + hudMapHeight) : 0;
 
-                    //x, y define where the defined top left corner will go
-                    //u, v define the lop left corner of the texture
-                    //w, h crop the texture from right and down
-                    //texturewidth and textureheight should equal the scale of the tiles (64 here)
+                //x, y define where the defined top left corner will go
+                //u, v define the lop left corner of the texture
+                //w, h crop the texture from right and down
+                //texturewidth and textureheight should equal the scale of the tiles (64 here)
 
-                    if (trueHW - rightCrop - leftCrop < 0 || trueHW - bottomCrop - topCrop < 0) continue;
-                    context.drawTexture(identifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
-                }
+                if (trueHW - rightCrop - leftCrop < 0 || trueHW - bottomCrop - topCrop < 0) continue;
+                context.drawTexture(tileIdentifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
             }
+        }
 
-            PlayersManager.updatePlayerSkinList();
-            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-                drawPlayerToMap(context, player);
-            }
+        //draw all players (except self)
+        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+            drawPlayerToMap(context, player);
+        }
 
-            if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
+        //draw the direction indicator
+        if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
 
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 8, 8, 8, 8, 64, 64);
-            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 40, 8, 8, 8, 64, 64);
-        } /*else {
-
-        }*/
+        //draw the player; two draw statements are used in order to display both skin layers
+        context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 8, 8, 8, 8, 64, 64);
+        context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 40, 8, 8, 8, 64, 64);
 
         //0xD9D9D9
-        if (!Double.isNaN(direction)) {
-            for (int i = 2; i >= 0; i--) {
+        if (!Double.isNaN(direction)) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)
+            for (int i = 2; i >= 0; i--) { //draw the semi-transparent compass background
                 context.fill(hudCompassX + i, hudCompassY + i, hudCompassX + hudCompassWidth - i, hudCompassY + 16 - i, 0x33CCCCCC);
             }
-            //System.out.println(Direction.playerMcDirection);
-            //System.out.println(PlayerAttributes.yaw);
+            //draw the compass
             context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16,  Math.round((PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 360, 16);
+            //draw the snap angle indicator
             if (doSnapAngle) context.drawTexture(snapAngleIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, Math.round((PlayerAttributes.yaw + snapAngle - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, 90, 16);
             //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
+            //draw the compass direction needle line thing (i dont have a good name for it)
             context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);
         }
 

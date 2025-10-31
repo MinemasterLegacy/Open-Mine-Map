@@ -3,6 +3,7 @@ package net.mmly.openminemap.map;
 import net.minecraft.client.MinecraftClient;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 
@@ -25,7 +26,6 @@ public class PlayerAttributes {
 
         try {
             if (minecraftClient.player != null) {
-
                 double[] c = Projection.to_geo(minecraftClient.player.getX(), minecraftClient.player.getZ());
                 longitude = c[1];
                 latitude = c[0];
@@ -35,7 +35,7 @@ public class PlayerAttributes {
                 HudMap.playerLat = c[0];
             }
             return;
-        } catch (Exception ignored) {}
+        } catch (CoordinateValueError ignored) {}
 
         longitude = Double.NaN;
         latitude = Double.NaN;

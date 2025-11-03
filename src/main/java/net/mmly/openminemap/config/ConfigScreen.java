@@ -187,13 +187,13 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
 
         customUrlWidget = new TextFieldWidget(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"));
-        customUrlWidget.setMaxLength(100);
+        customUrlWidget.setMaxLength(1000);
         customUrlWidget.setText(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL));
         customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
         this.addDrawableChild(customUrlWidget);
 
         snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.of("Snap Angle"), 0);
-        snapAngleWidget.setMaxLength(20);
+        snapAngleWidget.setMaxLength(50);
         snapAngleWidget.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
         snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
         this.addDrawableChild(snapAngleWidget);

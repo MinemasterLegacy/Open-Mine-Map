@@ -31,6 +31,8 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 
+import java.util.Arrays;
+
 public class CommandHander {
 
     public static void register() { //this chaining is f***ing horrible
@@ -39,26 +41,34 @@ public class CommandHander {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("omm")
                     .then(ClientCommandManager.literal("tpllwtp")
-                            .then(ClientCommandManager.argument("latitude", CoordinateArgumentType.coordinateArgumentType())
-                            .then(ClientCommandManager.argument("longitude", CoordinateArgumentType.coordinateArgumentType())
-                            .executes(CommandHander::tpllwtp)
-                            .then(ClientCommandManager.argument("altitude", StringArgumentType.string())
-                            .executes(CommandHander::tpllwtp)))))
+                            .then(ClientCommandManager.argument("coords", CoordinateArgumentType.coordinateArgumentType())
+                            .executes(CommandHander::tpllwtp)))
                     .then(ClientCommandManager.literal("tpwtpll")
-                            .then(ClientCommandManager.argument("x", CoordinateArgumentType.coordinateArgumentType())
-                            .then(ClientCommandManager.argument("y", CoordinateArgumentType.coordinateArgumentType())
-                            .then(ClientCommandManager.argument("z", CoordinateArgumentType.coordinateArgumentType())
-                            .executes(CommandHander::tpwtpll)))))
+                            .then(ClientCommandManager.argument("xyz", CoordinateArgumentType.coordinateArgumentType())
+                            .executes(CommandHander::tpwtpll)))
         );});
         //registerCommands();
     }
 
     private static int tpllwtp(CommandContext<FabricClientCommandSource> context) {
+        /*
         String altitude;
         try { altitude = context.getArgument("altitude", String.class); }
         catch (IllegalArgumentException e) { altitude = null; }
         String lat = context.getArgument("latitude", CoordinateValue.class).value;
         String lon = context.getArgument("longitude", CoordinateValue.class).value;
+         */
+
+        String[] coords = context.getArgument("coords", CoordinateValue.class).value.split(" ");
+        if (coords.length < 2) {
+            context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered incomplete coordinates.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            return 0;
+        }
+        String lat = coords[0];
+        String lon = coords[1];
+        String altitude;
+        if (coords.length < 3) altitude = null;
+        else altitude = coords[2];
 
         double[] convertedCoords = UnitConvert.toDecimalDegrees(lat, lon);
         if (convertedCoords == null) {
@@ -87,11 +97,9 @@ public class CommandHander {
     }
 
     private static int tpwtpll(CommandContext<FabricClientCommandSource> context) {
-        String[] xyzStrings = new String[] {
-            context.getArgument("x", CoordinateValue.class).value,
-            context.getArgument("y", CoordinateValue.class).value,
-            context.getArgument("z", CoordinateValue.class).value
-        };
+        String[] xyzStrings = context.getArgument("xyz", CoordinateValue.class).value.split(" ");
+
+        System.out.println(Arrays.toString(xyzStrings));
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         double[] xyz = new double[3];
@@ -101,7 +109,7 @@ public class CommandHander {
             for (int i = 0; i < 3; i++) {
                 if (xyzStrings[i].startsWith("~")) {
                     if (xyzStrings[i].length() == 1) xyz[i] = xyzPlayer[i];
-                    xyz[i] = xyzPlayer[i] + Double.parseDouble(xyzStrings[i].substring(1));
+                    else xyz[i] = xyzPlayer[i] + Double.parseDouble(xyzStrings[i].substring(1));
                 } else {
                     xyz[i] = Double.parseDouble(xyzStrings[i]);
                 }
@@ -113,7 +121,7 @@ public class CommandHander {
 
         try {
             double[] coordsToTp = Projection.to_geo(xyz[0], xyz[2]);
-            if (Double.isNaN(xyz[0])) {
+            if (Double.isNaN(coordsToTp[0])) {
                 context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered coordinates that are out of bounds.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
                 return 0;
             }

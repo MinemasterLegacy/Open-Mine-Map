@@ -18,7 +18,7 @@ class CoordinateValue {
     }
 
 }
-
+//  33.451363° -112.072678°
 public class CoordinateArgumentType implements ArgumentType<CoordinateValue> {
     @Override
     public CoordinateValue parse(StringReader reader) throws CommandSyntaxException {
@@ -26,7 +26,7 @@ public class CoordinateArgumentType implements ArgumentType<CoordinateValue> {
         if (!reader.canRead()) {
             reader.skip();
         }
-        while (reader.canRead() && (!Character.isSpaceChar(reader.peek()))) {
+        while (reader.canRead()) {
             reader.skip();
         }
         String value = reader.getString().substring(argBeginning, reader.getCursor());

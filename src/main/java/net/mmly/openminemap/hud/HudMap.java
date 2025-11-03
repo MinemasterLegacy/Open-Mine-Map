@@ -3,13 +3,15 @@ package net.mmly.openminemap.hud;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.Window;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.map.PlayerAttributes;
@@ -20,6 +22,7 @@ import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
+import org.joml.Matrix4f;
 
 public class HudMap {
 
@@ -185,6 +188,9 @@ public class HudMap {
         //context.fill(hudMapX + (hudMapWidth / 2) - 4 + mapXOffset, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + 8 , hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
         context.drawTexture(pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, rightCrop - leftCrop, downCrop - upCrop, 8 + leftCrop,8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
         context.drawTexture(pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, rightCrop - leftCrop, downCrop - upCrop, 40 + leftCrop,8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
+
+        double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
+        if (!Double.isNaN(d)) DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset);
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
@@ -261,8 +267,12 @@ public class HudMap {
             drawPlayerToMap(context, player);
         }
 
+
+
         //draw the direction indicator
-        if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
+        //context.fill(hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12,hudMapX + (hudMapWidth / 2) - 12 + 24, hudMapY + (hudMapHeight / 2) - 12 + 24, 0xFFFFFFFF);
+        if (directionIndicator.loadSuccess) DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12);
+        //if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
 
         //draw the player; two draw statements are used in order to display both skin layers
         context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 8, 8, 8, 8, 64, 64);

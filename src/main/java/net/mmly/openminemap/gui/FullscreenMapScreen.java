@@ -19,6 +19,7 @@ import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
+import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
@@ -376,6 +377,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //context.fill( (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, (windowScaledWidth / 2) - 4 + mapXOffset + 8 , (windowScaledHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
         context.drawTexture(pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 8, 8, 8,8, 8, 8, 64, 64);
         context.drawTexture(pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 8, 8, 40,8, 8, 8, 64, 64);
+
+        double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
+        if (!Double.isNaN(d)) DirectionIndicator.draw(context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset);
     }
 
     @Override
@@ -470,7 +474,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
 
         //draws the direction indicator
-        if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, playerMapX - 8, playerMapY - 8, 0, 0, 24, 24, 24, 24);
+        if (directionIndicator.loadSuccess) DirectionIndicator.draw(context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8);
 
         //draws the player
         context.drawTexture(playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8,8,8, 8, 8, 64, 64);

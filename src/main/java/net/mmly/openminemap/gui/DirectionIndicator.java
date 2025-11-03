@@ -1,26 +1,37 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.render.*;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import org.joml.Matrix4f;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.time.Clock;
 
 public class DirectionIndicator extends ClickableWidget {
 
-    public Identifier textureId = Identifier.of("openminemap", "rotatabledirectionindicator.png");
+    public static Identifier textureId = Identifier.of("openminemap", "rotatabledirectionindicator.png");
     BufferedImage baseTexture;
     public boolean loadSuccess;
+
+    static Clock clock = Clock.systemUTC();
+    static String instant;
+    static double before;
+    static double now;
 
     public DirectionIndicator(int x, int y, int width, int height, Text message) {
         super(x, y, width, height, message);
@@ -47,40 +58,49 @@ public class DirectionIndicator extends ClickableWidget {
         }
     }
 
-    public boolean updateDynamicTexture() { //true for no error, false for error
-        try {
-            MinecraftClient.getInstance().getTextureManager().destroyTexture(textureId);
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            if (Double.isNaN(PlayerAttributes.geoYaw)) return false;
-            ImageIO.write(getRotatedTexture(PlayerAttributes.geoYaw), "png", os);
-            InputStream is = new ByteArrayInputStream(os.toByteArray());
-            NativeImage nImage = NativeImage.read(is);
-            MinecraftClient.getInstance().getTextureManager().registerTexture(textureId, new NativeImageBackedTexture(nImage));
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
-    }
+    public static void draw(DrawContext context, double rotation, int x, int y) {
+        int x1 = x;
+        int y1 = y;
+        int x2 = x + 24;
+        int y2 = y + 24;
+        int z = 0;
+        float v1 = 0 + 0.0F / 24;
+        float v2 = 0 + 1.0F;
+        float u1 = 0 + 0.0F / 24;
+        float u2 = 0 + 1.0F;
 
-    private BufferedImage getRotatedTexture(double degrees) {
-        //Rotation code source: https://www.geeksforgeeks.org/java/java-program-to-rotate-an-image/
-        // Getting Dimensions of image
-        int width = 142; //img.getWidth();
-        int height = 142; //img.getHeight();
+        float width = 24;
+        float height = 24;
 
-        // Creating a new buffered image
-        BufferedImage newImage = new BufferedImage(width, height, baseTexture.getType());
+        MatrixStack matrices = context.getMatrices();
+        matrices.push();
+        //matrices.scale(1F, 1F, 1F);
+        //matrices.translate(x1, 0F, 0F);
+        matrices.translate(x + width / 2, y + height / 2, 0F);
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) rotation));
 
-        // creating Graphics in buffered image
-        Graphics2D g2 = newImage.createGraphics();
 
-        // Rotating image by degrees using toradians()
-        // method
-        // and setting new dimension t it
-        g2.rotate(Math.toRadians(degrees), (double) width / 2, (double) height / 2);
-        g2.drawImage(baseTexture, null, 0, 0);
-        // Return rotated buffer image
-        return newImage;
+        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+
+        /*
+        bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).texture(u1, v1);
+        bufferBuilder.vertex(matrix4f, (float)x1, (float)y2, (float)z).texture(u1, v2);
+        bufferBuilder.vertex(matrix4f, (float)x2, (float)y2, (float)z).texture(u2, v2);
+        bufferBuilder.vertex(matrix4f, (float)x2, (float)y1, (float)z).texture(u2, v1);
+         */
+
+        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) -height / 2, z).texture(u1, v1);
+        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) height / 2, z).texture(u1, v2);
+        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) height / 2, z).texture(u2, v2);
+        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) -height / 2, z).texture(u2, v1);
+
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+        RenderSystem.setShaderTexture(0, textureId);
+
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+
+        matrices.pop();
     }
 
     @Override

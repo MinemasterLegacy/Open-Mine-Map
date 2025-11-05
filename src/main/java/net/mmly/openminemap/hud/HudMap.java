@@ -195,7 +195,7 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
-        if (!renderHud) return; //do not do anything if hud rendering is disabled
+        if (!renderHud || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
 
         if (reloadSkin > 0) { //load player skins
             if (MinecraftClient.getInstance().player == null) {

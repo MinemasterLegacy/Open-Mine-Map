@@ -13,6 +13,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -190,7 +191,7 @@ public class HudMap {
         context.drawTexture(pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, rightCrop - leftCrop, downCrop - upCrop, 40 + leftCrop,8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
-        if (!Double.isNaN(d)) DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset);
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
@@ -263,20 +264,23 @@ public class HudMap {
         }
 
         //draw all players (except self)
-        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-            drawPlayerToMap(context, player);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
+            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+                drawPlayerToMap(context, player);
+            }
         }
-
 
 
         //draw the direction indicator
         //context.fill(hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12,hudMapX + (hudMapWidth / 2) - 12 + 24, hudMapY + (hudMapHeight / 2) - 12 + 24, 0xFFFFFFFF);
-        if (directionIndicator.loadSuccess) DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12);
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12);
         //if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
 
         //draw the player; two draw statements are used in order to display both skin layers
-        context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 8, 8, 8, 8, 64, 64);
-        context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 40, 8, 8, 8, 64, 64);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
+            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 8, 8, 8, 8, 64, 64);
+            context.drawTexture(playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 40, 8, 8, 8, 64, 64);
+        }
 
         //0xD9D9D9
         if (!Double.isNaN(direction)) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)

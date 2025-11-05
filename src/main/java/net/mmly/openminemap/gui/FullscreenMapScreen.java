@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -379,7 +380,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawTexture(pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 8, 8, 40,8, 8, 8, 64, 64);
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
-        if (!Double.isNaN(d)) DirectionIndicator.draw(context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset);
     }
 
     @Override
@@ -467,18 +468,21 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         //this gui code is ugly af ):
 
-
-        PlayersManager.updatePlayerSkinList();
-        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-            drawPlayerToMap(context, player);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
+            PlayersManager.updatePlayerSkinList();
+            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+                drawPlayerToMap(context, player);
+            }
         }
 
         //draws the direction indicator
-        if (directionIndicator.loadSuccess) DirectionIndicator.draw(context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8);
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8);
 
         //draws the player
-        context.drawTexture(playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8,8,8, 8, 8, 64, 64);
-        context.drawTexture(playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8,40,8, 8, 8, 64, 64);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
+            context.drawTexture(playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8,8,8, 8, 8, 64, 64);
+            context.drawTexture(playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8,40,8, 8, 8, 64, 64);
+        }
 
         //draws the buttons
         context.drawTexture(zoomLevel < 18 ? (zoominButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0]) : buttonIdentifiers[0][0], windowScaledWidth / 2 + buttonPositionModifiers[0][0], windowScaledHeight - buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);

@@ -25,4 +25,18 @@ public enum OverlayVisibility {
         };
     }
 
+    public static OverlayVisibility fromString(String s) {
+        return switch (s.toLowerCase()) {
+            case "all" -> ALL;
+            case "local" -> LOCAL;
+            case "self" -> SELF;
+            case "none" -> NONE;
+            default -> LOCAL;
+        };
+    }
+
+    public static boolean checkPermissionFor(OverlayVisibility currentPerm, OverlayVisibility requiredPerm) {
+        return getNumericIdOf(currentPerm) >= getNumericIdOf(requiredPerm);
+    }
+
 }

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -38,6 +39,10 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget rightClickMeuUsesOption;
     ChoiceButtonWidget artificialZoomOption;
     ChoiceButtonWidget reverseScrollOption;
+    ChoiceSliderWidget playerShowSlider;
+    ChoiceSliderWidget directionIndicatorShowSlider;
+    TextWidget overlayLabel;
+    TextWidget generalLabel;
     ButtonWidget configHud;
     int nextOptionSlot;
     int totalOptions;
@@ -122,12 +127,16 @@ public class ConfigScreen extends Screen {
 
     private void updateScrollPositions(int change) {
         currentScroll -= change;
+        generalLabel.setY(generalLabel.getY() + change);
         configHud.setY(configHud.getY() + change);
         artificialZoomOption.getButtonWidget().setY(artificialZoomOption.getButtonWidget().getY() + change);
         customUrlWidget.setY(customUrlWidget.getY() + change);
         snapAngleWidget.setY(snapAngleWidget.getY() + change);
         rightClickMeuUsesOption.getButtonWidget().setY(rightClickMeuUsesOption.getButtonWidget().getY() + change);
         reverseScrollOption.getButtonWidget().setY(reverseScrollOption.getButtonWidget().getY() + change);
+        overlayLabel.setY(overlayLabel.getY() + change);
+        playerShowSlider.setY(playerShowSlider.getY() + change);
+        directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
     }
 
     @Override
@@ -182,8 +191,12 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(toggleArtificialZoomButton);
          */
 
+        generalLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("General"), this.textRenderer);
+        this.addDrawableChild(generalLabel);
+
         doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
         artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Artificial Zoom"), Text.of(""), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
+        artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.of("Adds further zoom levels beyond what OpenStreetMap provides")));
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
 
         customUrlWidget = new TextFieldWidget(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"));
@@ -203,6 +216,18 @@ public class ConfigScreen extends Screen {
 
         reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
         this.addDrawableChild(reverseScrollOption.getButtonWidget());
+
+        overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("Overlays"), this.textRenderer);
+        overlayLabel.setTooltip(Tooltip.of(Text.of("")));
+        this.addDrawableChild(overlayLabel);
+
+        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Players"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
+        playerShowSlider.setTooltip(Tooltip.of(Text.of("Show Players on all maps")));
+        this.addDrawableChild(playerShowSlider);
+
+        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Directions"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
+        directionIndicatorShowSlider.setTooltip(Tooltip.of(Text.of("Show Direction Indicators on all maps")));
+        this.addDrawableChild(directionIndicatorShowSlider);
 
         scrollRange = totalOptions * 25 + 35;
     }
@@ -224,6 +249,8 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption.writeParameterToFile();
         artificialZoomOption.writeParameterToFile();
         reverseScrollOption.writeParameterToFile();
+        playerShowSlider.writeParameterToFile();
+        directionIndicatorShowSlider.writeParameterToFile();
         TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();

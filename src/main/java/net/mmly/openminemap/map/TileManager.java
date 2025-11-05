@@ -6,6 +6,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.util.ConfigFile;
 
 import javax.imageio.IIOException;
@@ -23,8 +24,8 @@ public class TileManager {
     public static int hudTileScaledSize = 128; //should only be a power of 2 (was 64 in v1.0.0)
     public static boolean doArtificialZoom;
     public static boolean doReverseScroll;
-    public static int showPlayers;
-    public static int showDirectionIndicators;
+    public static OverlayVisibility showPlayers;
+    public static OverlayVisibility showDirectionIndicators;
 
     public static final String OSM_MTYPE_STREET = "openstreetmap";
     //public static final String OSM_MTYPE_TOPO = "opentopomap";
@@ -197,8 +198,8 @@ public class TileManager {
     public static void initializeConfigParameters() {
         doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
         doReverseScroll = ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on");
-        showPlayers = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
-        showDirectionIndicators = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));
+        showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
+        showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));
     }
 
 }

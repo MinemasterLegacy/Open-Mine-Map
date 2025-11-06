@@ -64,6 +64,7 @@ public class DirectionIndicator extends ClickableWidget {
 
     //private static final RenderPipelines
 
+    /*
     private static final RenderPipeline DIRECTION_INDICATOR = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.POSITION_TEX_COLOR_SNIPPET)
             .withLocation(Identifier.of("openminemap", "pipeline/direction_indicator"))
             .withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
@@ -77,13 +78,14 @@ public class DirectionIndicator extends ClickableWidget {
             DIRECTION_INDICATOR,
             RenderLayer.MultiPhaseParameters.builder().build(false)
     );
+    */
 
     public static void draw(Function<Identifier, RenderLayer> renderLayers, DrawContext context, double rotation, int x, int y) {
         int x1 = x;
         int y1 = y;
         int x2 = x + 24;
         int y2 = y + 24;
-        int z = 0;
+        int z = 1;
         float v1 = 0 + 0.0F / 24;
         float v2 = 0 + 1.0F;
         float u1 = 0 + 0.0F / 24;
@@ -94,7 +96,7 @@ public class DirectionIndicator extends ClickableWidget {
 
         //context.drawTexture(renderLayers, textureId, 0, 0, 0, 0, 20, 20, 142, 142);
 
-        renderLayers.apply(textureId);
+        //renderLayers.apply(textureId);
 
         MatrixStack matrices = context.getMatrices();
         matrices.push();
@@ -111,16 +113,7 @@ public class DirectionIndicator extends ClickableWidget {
         bufferBuilder.vertex(matrix4f, (float) width / 2, (float) height / 2, z).texture(u2, v2).color(-1);
         bufferBuilder.vertex(matrix4f, (float) width / 2, (float) -height / 2, z).texture(u2, v1).color(-1);
 
-
-
-        //RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
-        //RenderSystem.setShaderTexture(0, textureId);
-
-        RenderSystem.setTextureMatrix();
-
-        //BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
-
-        renderLayer.draw(bufferBuilder.end());
+        RenderLayer.getGuiTextured(textureId).draw(bufferBuilder.end());
 
         matrices.pop();
     }

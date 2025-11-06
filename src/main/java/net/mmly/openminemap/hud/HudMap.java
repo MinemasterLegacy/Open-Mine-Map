@@ -3,31 +3,43 @@ package net.mmly.openminemap.hud;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
+import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.enums.OverlayVisibility;
+import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
+import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
+import org.joml.Matrix4f;
 
 public class HudMap {
 
-    public static int hudMapX = Integer.parseInt(ConfigFile.readParameter("HudMapX"));
-    public static int hudMapY = Integer.parseInt(ConfigFile.readParameter("HudMapY"));
-    public static int hudMapWidth = Integer.parseInt(ConfigFile.readParameter("HudMapWidth"));
-    public static int hudMapHeight = Integer.parseInt(ConfigFile.readParameter("HudMapHeight"));
+    public static final int MIN_SIZE = 20;
+    public static int hudMapX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_X));
+    public static int hudMapY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_Y));
+    public static int hudMapWidth = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_WIDTH));
+    public static int hudMapHeight = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_HEIGHT));
     public static int hudMapX2 = hudMapX + hudMapWidth;
     public static int hudMapY2 = hudMapY + hudMapHeight;
     static boolean initialized = false;
-    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter("§hudlastzoom"));
+    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM));
     static int zoomLevel = Math.min(trueZoomLevel, 18); //essentially decides what tile size folder to pull from
-    static Identifier[][] identifiers;
+    static Identifier[][] tileIdentifiers;
     static double mapTilePosX = 64;
     static double mapTilePosY = 64;
     static Window window = MinecraftClient.getInstance().getWindow();
@@ -37,18 +49,20 @@ public class HudMap {
     public static double playerLat;
     static double playerMapX;
     static double playerMapY;
-    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter("§hudtoggle"));
+    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_TOGGLE));
     public static int reloadSkin = 4;
-    public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter("HudCompassX"));
-    public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter("HudCompassY"));
-    public static int hudCompassWidth = Integer.parseInt(ConfigFile.readParameter("HudCompassWidth"));
+    public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_X));
+    public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_Y));
+    public static int hudCompassWidth = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_WIDTH));
     protected static Identifier compassIdentifier = Identifier.of("openminemap", "stripcompass.png");
     protected static Identifier snapAngleIdentifier = Identifier.of("openminemap", "snapangle.png");
     protected static int hudCompassCenter;
     static double snapAngleInput;
     public static double snapAngle; //range: (-90, 0]
     public static double direction;
-    static boolean doSnapAngle = false;
+    private static DirectionIndicator directionIndicator = new DirectionIndicator(0, 0, 0, 0, Text.of(""));
+    public static boolean doSnapAngle = false;
+    private static boolean playerIsOutOfBouds;
 
     // used in conjunction with artificial zoom mode;
     // TileManager.hudTileScaledSize does not get updated with artificial zoom, this variable does instead
@@ -58,7 +72,7 @@ public class HudMap {
     public static Identifier playerIdentifier;
 
     public static void setSnapAngle() {
-        String receivedSnapAngle = ConfigFile.readParameter("SnapAngle");
+        String receivedSnapAngle = ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE);
         if (receivedSnapAngle.isEmpty()) {
             doSnapAngle = false;
         } else {
@@ -70,7 +84,7 @@ public class HudMap {
     }
 
     public static void initialize(DrawContext context) {
-        TileManager.setArtificialZoom();
+        TileManager.initializeConfigParameters();
         setSnapAngle();
     }
 
@@ -132,97 +146,155 @@ public class HudMap {
     }
 
     private static void writeZoom() {
-        ConfigFile.writeParameter("§hudlastzoom", Integer.toString(trueZoomLevel));
+        ConfigFile.writeParameter(ConfigOptions._HUD_LAST_ZOOM, Integer.toString(trueZoomLevel));
         ConfigFile.writeToFile();
     }
 
     public static void toggleRendering() {
         renderHud = !renderHud;
-        ConfigFile.writeParameter("§hudtoggle", Boolean.toString(renderHud));
+        ConfigFile.writeParameter(ConfigOptions._HUD_TOGGLE, Boolean.toString(renderHud));
         ConfigFile.writeToFile();
     }
 
+    private static void drawPlayerToMap(DrawContext context, PlayerEntity player) {
+        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return; //cancel the call if the player is the user/client (it has seperate draw code)
+
+        double mcX = player.getX();
+        double mcZ = player.getZ();
+        double[] geoCoords;
+        try {
+            geoCoords = Projection.to_geo(mcX, mcZ);
+        } catch (CoordinateValueError e) {
+            return;
+        }
+        if (Double.isNaN(geoCoords[0])) return;
+        double lon = geoCoords[1];
+        double lat = geoCoords[0];
+        double mapX = UnitConvert.longToMapX(lon, zoomLevel, renderTileSize);
+        double mapY = UnitConvert.latToMapY(lat, zoomLevel, renderTileSize);
+        int mapXOffset = (int) ((mapX - mapTilePosX)); //from center of both the map and player
+        int mapYOffset = (int) ((mapY - mapTilePosY)); //from center of both the map and player
+
+        int rightCrop = (int) (Math.ceil((double) hudMapWidth / 2) - (mapXOffset - 4));
+        rightCrop = Math.clamp(rightCrop, 0, 8);
+        int downCrop = (int) (Math.ceil((double) hudMapHeight / 2) - (mapYOffset - 4));
+        downCrop = Math.clamp(downCrop, 0, 8);
+        int leftCrop = ((int) ((mapXOffset + 4) - Math.ceil((double) hudMapWidth / -2)) - 8) * -1;
+        leftCrop = Math.clamp(leftCrop, 0, 8);
+        int upCrop = ((int) ((mapYOffset + 4) - Math.ceil((double) hudMapHeight / -2)) - 8) * -1;
+        upCrop = Math.clamp(upCrop, 0, 8);
+
+        //context.drawTexture(pTexture, windowScaledWidth / 2, windowScaledHeight / 2, 0, 0, 64, 64, 64, 64);
+        Identifier pTexture = PlayersManager.playerSkinList.get(player.getUuid());
+        if (pTexture == null) pTexture = Identifier.of("openminemap", "skinbackup.png");
+
+        //context.fill(hudMapX + (hudMapWidth / 2) - 4 + mapXOffset, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + 8 , hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
+        context.drawTexture(RenderLayer::getGuiTextured, pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, 8 + leftCrop, 8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
+        context.drawTexture(RenderLayer::getGuiTextured, pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, 40 + leftCrop, 8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
+
+        double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(RenderLayer::getGuiTextured, context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset);
+    }
+
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
-        if (!renderHud) return;
-        if (reloadSkin > 0) {
+        if (!renderHud || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
+
+        if (reloadSkin > 0) { //load player skins
             if (MinecraftClient.getInstance().player == null) {
                 playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
             } else {
                 playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
             }
+            PlayersManager.updatePlayerSkinList();
             reloadSkin--;
         }
 
-        if (!initialized) initialize(context);
-        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
-        direction = Direction.calcDymaxionAngleDifference();
-        hudCompassCenter = Math.round((float) hudCompassWidth / 2);
+        if (!initialized) initialize(context); //initialize hudmap if not done already
+        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw
+        direction = Direction.calcDymaxionAngleDifference(); //the difference between mc yaw and geo yaw
+        hudCompassCenter = Math.round((float) hudCompassWidth / 2); //center of the hud compass
 
+        //update window heights
         windowScaledHeight = window.getScaledHeight();
         windowScaledWidth = window.getScaledWidth();
 
+        //set hud tile render size; will be constant unless artificial zoom is enabled
         renderTileSize = (int) Math.max(TileManager.hudTileScaledSize, Math.pow(2, trueZoomLevel - 11));
-        //System.out.println("TrueZoom: "+trueZoomLevel+" | Zoom: "+zoomLevel+" | calced size: "+Math.pow(2, trueZoomLevel - 11));
 
-        identifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize);
+        tileIdentifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize); //get identifiers for all tiles that will be rendered this tick
         int trueHW = renderTileSize;
-        int[] TopLeftData = TileManager.getTopLeftData();
+        int[] TopLeftData = TileManager.getTopLeftData(); //gets the xy position of the top left most tile
 
-        //System.out.println(identifiers.length + ", " + identifiers[0].length);
-
+        //basic monocolor background
         context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0xFFCEE1E4);
 
-        if (Double.isNaN(playerLon)) {
+        if (Double.isNaN(playerLon)) {//if the player is out of bounds this will be NaN. all other rendering is skipped due to this
             //draw error message and exit
             MutableText text = Text.literal("Out Of Bounds").formatted(Formatting.ITALIC);
             //context.fill(hudMapX + 2, hudMapY + 2, hudMapY + 74, hudMapY + 10, 0xFFFFFFFF);
             context.drawText(MinecraftClient.getInstance().textRenderer, text, hudMapWidth > 73 ? (hudMapX + hudMapX2) / 2 - 37: hudMapX, hudMapHeight > 9 ? (hudMapY + hudMapY2) / 2 - 5 : hudMapY, 0xFFcccccc, true);
             return;
         } else {
-            playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
-            playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
+            playerMapX = (int) (UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
+            playerMapY = (int) (UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
         }
 
-        mapTilePosX = UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize);
-        mapTilePosY = UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize);
+        //determine map tile positions
+        mapTilePosX = UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize);
+        mapTilePosY = UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize);
 
-        if(!Double.isNaN(playerLat)) {
-            for (int i = 0; i < identifiers.length; i++) {
-                for (int j = 0; j < identifiers[i].length; j++) {
-                    //RenderSystem.setShaderTexture(0, identifiers[i][j]);
-                    int tileX = ((((TopLeftData[0] + i) * renderTileSize) + hudMapX + hudMapWidth / 2) - (int) mapTilePosX);
-                    int tileY = ((((TopLeftData[1] + j) * renderTileSize) + hudMapY + hudMapHeight / 2) - (int) mapTilePosY);
+        //deaw map tiles, cropping when needed
+        for (int i = 0; i < tileIdentifiers.length; i++) {
+            for (int j = 0; j < tileIdentifiers[i].length; j++) {
+                //RenderSystem.setShaderTexture(0, tileIdentifiers[i][j]);
+                int tileX = ((((TopLeftData[0] + i) * renderTileSize) + hudMapX + hudMapWidth / 2) - (int) mapTilePosX);
+                int tileY = ((((TopLeftData[1] + j) * renderTileSize) + hudMapY + hudMapHeight / 2) - (int) mapTilePosY);
 
-                    int leftCrop = tileX < hudMapX ? hudMapX - tileX : 0;
-                    int topCrop = tileY < hudMapY ? hudMapY - tileY : 0;
-                    int rightCrop = tileX + renderTileSize > hudMapX + hudMapWidth ? (tileX + renderTileSize) - (hudMapX + hudMapWidth) : 0;
-                    int bottomCrop = tileY + renderTileSize > hudMapY + hudMapHeight ? (tileY + renderTileSize) - (hudMapY + hudMapHeight) : 0;
+                int leftCrop = tileX < hudMapX ? hudMapX - tileX : 0;
+                int topCrop = tileY < hudMapY ? hudMapY - tileY : 0;
+                int rightCrop = tileX + renderTileSize > hudMapX + hudMapWidth ? (tileX + renderTileSize) - (hudMapX + hudMapWidth) : 0;
+                int bottomCrop = tileY + renderTileSize > hudMapY + hudMapHeight ? (tileY + renderTileSize) - (hudMapY + hudMapHeight) : 0;
 
-                    //x, y define where the defined top left corner will go
-                    //u, v define the lop left corner of the texture
-                    //w, h crop the texture from right and down
-                    //texturewidth and textureheight should equal the scale of the tiles (64 here)
+                //x, y define where the defined top left corner will go
+                //u, v define the lop left corner of the texture
+                //w, h crop the texture from right and down
+                //texturewidth and textureheight should equal the scale of the tiles (64 here)
 
-                    if (trueHW - rightCrop - leftCrop < 0 || trueHW - bottomCrop - topCrop < 0) continue;
-                    context.drawTexture(RenderLayer::getGuiTextured, identifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
-                }
+                if (trueHW - rightCrop - leftCrop < 0 || trueHW - bottomCrop - topCrop < 0) continue;
+                context.drawTexture(RenderLayer::getGuiTextured, tileIdentifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
             }
-            context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8,8, 8,8, 8, 64, 64);
-            context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 40,8,8, 8, 8, 8, 64, 64);
-        } /*else {
+        }
 
-        }*/
+        //draw all players (except self)
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
+            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+                drawPlayerToMap(context, player);
+            }
+        }
+
+
+        //draw the direction indicator
+        //context.fill(hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12,hudMapX + (hudMapWidth / 2) - 12 + 24, hudMapY + (hudMapHeight / 2) - 12 + 24, 0xFFFFFFFF);
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(RenderLayer::getGuiTextured, context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12);
+        //if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
+
+        //draw the player; two draw statements are used in order to display both skin layers
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
+            context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 8, 8, 8, 8, 8, 8, 64, 64);
+            context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, hudMapX + (hudMapWidth / 2) - 4, hudMapY + (hudMapHeight / 2) - 4, 40, 8, 8, 8, 8, 8, 64, 64);
+        }
 
         //0xD9D9D9
-        if (!Double.isNaN(direction)) {
-            for (int i = 2; i >= 0; i--) {
+        if (!Double.isNaN(direction)) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)
+            for (int i = 2; i >= 0; i--) { //draw the semi-transparent compass background
                 context.fill(hudCompassX + i, hudCompassY + i, hudCompassX + hudCompassWidth - i, hudCompassY + 16 - i, 0x33CCCCCC);
             }
-            //System.out.println(Direction.playerMcDirection);
-            //System.out.println(PlayerAttributes.yaw);
-            context.drawTexture(RenderLayer::getGuiTextured, compassIdentifier, hudCompassX, hudCompassY, (int) Math.round((PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 360, 16);
-            if (doSnapAngle) context.drawTexture(RenderLayer::getGuiTextured, snapAngleIdentifier, hudCompassX, hudCompassY, (int) Math.round((PlayerAttributes.yaw + snapAngle - ((double) hudCompassWidth / 2))) , 0,hudCompassWidth, 16,  hudCompassWidth, 16, 90, 16);
+            //draw the compass
+            context.drawTexture(RenderLayer::getGuiTextured, compassIdentifier, hudCompassX, hudCompassY, (int) Math.round((PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16,  hudCompassWidth, 16, 360, 16);
+            //draw the snap angle indicator
+            if (doSnapAngle) context.drawTexture(RenderLayer::getGuiTextured, snapAngleIdentifier, hudCompassX, hudCompassY, (int) Math.round((PlayerAttributes.yaw + snapAngle - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 90, 16);
             //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
+            //draw the compass direction needle line thing (i dont have a good name for it)
             context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);
         }
 

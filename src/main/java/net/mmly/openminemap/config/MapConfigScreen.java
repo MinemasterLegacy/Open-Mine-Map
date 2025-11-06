@@ -77,6 +77,10 @@ public class MapConfigScreen extends Screen {
         HudMap.updateX2Y2();
     }
 
+    private void updateScreenDims() {
+        window = MinecraftClient.getInstance().getWindow();
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -133,7 +137,7 @@ public class MapConfigScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-
+        updateScreenDims();
         //Blue rectangle overlay
         //context.fill(HudMap.hudMapX, HudMap.hudMapY, HudMap.hudMapX2, HudMap.hudMapY2, 0xFFCEE1E4);
 

@@ -17,6 +17,7 @@ import net.mmly.openminemap.gui.TextFieldLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.UnitConvert;
 
 import java.util.Objects;
 
@@ -43,6 +44,7 @@ public class ConfigScreen extends Screen {
     ChoiceSliderWidget directionIndicatorShowSlider;
     TextWidget overlayLabel;
     TextWidget generalLabel;
+    TextWidget versionLabel;
     ButtonWidget configHud;
     int nextOptionSlot;
     int totalOptions;
@@ -62,7 +64,7 @@ public class ConfigScreen extends Screen {
             {(8 + buttonSize), -2},
     };
 
-    Window window = MinecraftClient.getInstance().getWindow();
+    Window window;
     public static ButtonWidget toggleArtificialZoomButton;
 
     public static ConfigScreen getInstance() {
@@ -76,6 +78,7 @@ public class ConfigScreen extends Screen {
     }
 
     private void updateScreenDims() {
+        window = MinecraftClient.getInstance().getWindow();
         windowHeight = window.getHeight();
         windowWidth = window.getWidth();
         windowScaledHeight = window.getScaledHeight();
@@ -165,11 +168,13 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
+        System.out.println("init");
         totalOptions = 0;
         nextOptionSlot = -5;
         configScreen = this;
 
         updateTileSet();
+        updateScreenDims();
 
         exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.EXIT);
         checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.CHECKMARK);
@@ -178,18 +183,16 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
+        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.2.0"), this.textRenderer);
+        versionLabel.alignRight();
+        this.addDrawableChild(versionLabel);
+
         configHud = ButtonWidget.builder(Text.of("Configure HUD..."), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
         }).dimensions(20, getNextOptionSlot(), 120, 20).build();
         configHud.setTooltip(Tooltip.of(Text.of("Change positioning and size of HUD elements.")));
         this.addDrawableChild(configHud);
-
-        /*
-        doArtificialZoom = Boolean.parseBoolean(ConfigFile.readParameter("ArtificialZoom"));
-        toggleArtificialZoomButton = newToggleArtificialZoomButton();
-        this.addDrawableChild(toggleArtificialZoomButton);
-         */
 
         generalLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("General"), this.textRenderer);
         this.addDrawableChild(generalLabel);

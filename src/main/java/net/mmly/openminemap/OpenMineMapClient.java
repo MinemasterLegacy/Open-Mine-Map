@@ -1,10 +1,14 @@
 package net.mmly.openminemap;
 
+import com.mojang.brigadier.Command;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.server.command.ServerCommandSource;
+import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
@@ -19,6 +23,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
 
         KeyInputHandler.register(); //register all new keybinds
+        CommandHander.register(); //register commands
 
         TileManager.createCacheDir();
         ConfigFile.establishConfigFile();

@@ -44,7 +44,7 @@ public class Projection {
 
     static ModifiedAirOcean _projection = new ModifiedAirOcean();
     static GeographicProjection _upright_proj = _orient_projection(_projection, Orientation.UPRIGHT);
-    static ScaleProjection _scale_proj = new ScaleProjection(_upright_proj, 7318261.522857145F, 7318261.522857145F);
+    static ScaleProjection _scale_proj = new ScaleProjection(_upright_proj, 7318261.522857145, 7318261.522857145);
 
     public static double[] from_geo(double lat, double lon) throws CoordinateValueError {
         _validate_geographic_coordinates(lat, lon);
@@ -276,7 +276,7 @@ class InvertedOrientation extends ProjectionTransform{ //TODO
 class ScaleProjection extends ProjectionTransform{
     double scale_x;
     double scale_y;
-    ScaleProjection(GeographicProjection input_projection, float scale_x, float scale_y) {
+    ScaleProjection(GeographicProjection input_projection, double scale_x, double scale_y) {
         super(input_projection);
         this.scale_x = scale_x;
         this.scale_y = scale_y;
@@ -309,16 +309,16 @@ class ScaleProjection extends ProjectionTransform{
     } //done
 
     @Override
-    float meters_per_unit() {
-        float base_mpu = this.input.meters_per_unit();
+    double meters_per_unit() {
+        double base_mpu = this.input.meters_per_unit();
         double scale_factor = Math.sqrt((this.scale_x * this.scale_x + this.scale_y * this.scale_y) / 2);
-        return (float) (base_mpu / scale_factor);
+        return (base_mpu / scale_factor);
     } //done
 } //done
 
 abstract class GeographicProjection {
-    final float EARTH_CIRCUMFERENCE = 40075017.0F;
-    final float EARTH_POLAR_CIRCUMFERENCE = 40008000.0F;
+    final double EARTH_CIRCUMFERENCE = 40075017.0F;
+    final double EARTH_POLAR_CIRCUMFERENCE = 40008000.0F;
 
     double[] to_geo(double x, double y) {
         return new double[] {x, y};
@@ -329,7 +329,7 @@ abstract class GeographicProjection {
         return new double[] {lon, lat};
     } //done
 
-    float meters_per_unit() {
+    double meters_per_unit() {
         return 100000.0F;
     } //done
 
@@ -372,7 +372,7 @@ abstract class ProjectionTransform extends GeographicProjection {
     } //done
 
     @Override
-    float meters_per_unit() {
+    double meters_per_unit() {
         return  this.input.meters_per_unit();
     } //done
 } //done
@@ -890,8 +890,8 @@ class ConformalEstimate extends Airocean {
     } //done
 
     @Override
-    float meters_per_unit() {
-        return (float) ((40075017 / (2 * Math.PI)) / this.VECTOR_SCALE_FACTOR);
+    double meters_per_unit() {
+        return ((40075017 / (2 * Math.PI)) / this.VECTOR_SCALE_FACTOR);
     } //done
 }
 

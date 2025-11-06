@@ -9,13 +9,20 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.Window;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
+import net.mmly.openminemap.projection.Direction;
+import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
@@ -24,8 +31,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         super(Text.of("OMM Fullscreen Map"));
     }
 
-    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter("§fslastzoom"));
-    public static int zoomLevel = Math.min(trueZoomLevel, 18); //indicates the current zoom level of the map | default 0
+    public static int trueZoomLevel = Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM)); //indicates the 'actual' zoom level, which includes artificial zoom | range 0-24 inclusive
+    public static int zoomLevel = Math.min(trueZoomLevel, 18); //indicates the current zoom level of the map | default 0 | range 0-18 inclusive
     Identifier[][] identifiers;
     public static int windowHeight;
     public static int windowWidth;
@@ -54,8 +61,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     // modifiers used to offset the map so it can be moved relative to the screen
     // these modifiers should be scaled when the screen is zoomed in or zoomed out
     // Ex: zoom 0, range -128 - 127 | zoom 1, range -256 - 255 | zoom 2, range -512 - 511 | etc.
-    static double mapTilePosX = Double.parseDouble(ConfigFile.readParameter("§fslastx")); //64 by default
-    static double mapTilePosY = Double.parseDouble(ConfigFile.readParameter("§fslasty")); //64 by default
+    static double mapTilePosX = Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)); //64 by default
+    static double mapTilePosY = Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y)); //64 by default
     MinecraftClient mClient = MinecraftClient.getInstance();
     Window window = mClient.getWindow();
     private static RightClickMenu rightClickLayer = new RightClickMenu(0, 0);
@@ -75,8 +82,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][6];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
     private Identifier playerIdentifier;
-    int playerMapX;
-    int playerMapY;
+    protected static int playerMapX;
+    protected static int playerMapY;
     public static double playerLon;
     public static double playerLat;
     int playerGetCoordsDelay = 20;
@@ -84,6 +91,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     String playerDisplayLat = "0.00000";
     public static boolean doFollowPlayer;
     static int renderTileSize;
+    DirectionIndicator directionIndicator;
 
     public static void followPlayer() {
         if (!Double.isNaN(playerLon)) {
@@ -94,9 +102,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     @Override
     public void close() {
         disableRightClickMenu();
-        ConfigFile.writeParameter("§fslastzoom", Integer.toString(trueZoomLevel));
-        ConfigFile.writeParameter("§fslastx", Double.toString(mapTilePosX));
-        ConfigFile.writeParameter("§fslasty", Double.toString(mapTilePosY));
+        ConfigFile.writeParameter(ConfigOptions._FS_LAST_ZOOM, Integer.toString(trueZoomLevel));
+        ConfigFile.writeParameter(ConfigOptions._FS_LAST_X, Double.toString(mapTilePosX));
+        ConfigFile.writeParameter(ConfigOptions._FS_LAST_Y, Double.toString(mapTilePosY));
         ConfigFile.writeToFile();
         this.client.setScreen(null);
     }
@@ -204,7 +212,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     protected boolean mouseIsOutOfBounds() {
-        return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, zoomLevel + 7) || mouseTilePosY > Math.pow(2, zoomLevel + 7);
+        return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, trueZoomLevel + 7) || mouseTilePosY > Math.pow(2, trueZoomLevel + 7);
     }
 
     protected static void openOSMAttrScreen() {
@@ -250,6 +258,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         rightClickY = y;
         rightClickLayer.setPosition((int) x, (int) y);
         rightClickLayer.setSavedMouseLatLong(mouseLong, mouseLat);
+        System.out.println(mouseLong);
+        System.out.println(mouseLat);
         //System.out.println(rightClickLayer.getX());
         //System.out.println(rightClickLayer.getWidth());
         //System.out.println(windowScaledWidth);
@@ -295,12 +305,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //this.addDrawableChild(playerLayer);
 
         //buttons should probably be turned into one buttons array
-        zoominButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[0][0],windowScaledHeight - buttonPositionModifiers[0][1], buttonSize, buttonSize, 0);
-        zoomoutButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[1][0],windowScaledHeight - buttonPositionModifiers[1][1], buttonSize, buttonSize, 1);
-        resetButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[2][0],windowScaledHeight - buttonPositionModifiers[2][1], buttonSize, buttonSize, 2);
-        followButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[3][0],windowScaledHeight - buttonPositionModifiers[3][1], buttonSize, buttonSize, 3);
-        configButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1], buttonSize, buttonSize, 4);
-        exitButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1], buttonSize, buttonSize, 5);
+        zoominButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[0][0],windowScaledHeight - buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.ZOOM_IN);
+        zoomoutButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[1][0],windowScaledHeight - buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.ZOOM_OUT);
+        resetButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[2][0],windowScaledHeight - buttonPositionModifiers[2][1], buttonSize, buttonSize, ButtonFunction.RESET);
+        followButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[3][0],windowScaledHeight - buttonPositionModifiers[3][1], buttonSize, buttonSize, ButtonFunction.FOLLOW);
+        configButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1], buttonSize, buttonSize, ButtonFunction.CONFIG);
+        exitButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1], buttonSize, buttonSize, ButtonFunction.EXIT);
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         toggleHudMapButtonLayer.setTooltip(Tooltip.of(Text.of("Toggle HUD Elements")));
 
@@ -320,6 +330,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32, 157, 16);
         this.addDrawableChild(bugReportLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
 
+        directionIndicator = new DirectionIndicator(0, 0, 0, 0, Text.of(""));
+
         /* uncomment for adding waypoints
         WaypointLayer[] waypointLayer = new WaypointLayer[10];
         for (int i = 0; i < 10; i++) {
@@ -332,13 +344,44 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             waypointIdentifiers[i] = Identifier.of("openminemap", "waypoints/waypoint"+i+".png");
         }
         */
-        TileManager.setArtificialZoom();
+        TileManager.initializeConfigParameters();
 
         InteractionLayer interactionLayer = new InteractionLayer(0, 0, 5000, 5000);
         this.addDrawableChild(interactionLayer);
 
         updateTileSet();
 
+    }
+
+    private static void drawPlayerToMap(DrawContext context, PlayerEntity player) {
+        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return; //cancel the call if the player is the user/client (it has seperate draw code)
+
+        double mcX = player.getX();
+        double mcZ = player.getZ();
+        double[] geoCoords;
+        try {
+            geoCoords = Projection.to_geo(mcX, mcZ);
+        } catch (CoordinateValueError e) {
+            return;
+        }
+        if (Double.isNaN(geoCoords[0])) return;
+        double lon = geoCoords[1];
+        double lat = geoCoords[0];
+        double mapX = UnitConvert.longToMapX(lon, zoomLevel, renderTileSize);
+        double mapY = UnitConvert.latToMapY(lat, zoomLevel, renderTileSize);
+        int mapXOffset = (int) ((mapX - mapTilePosX)); //from center of both the map and player
+        int mapYOffset = (int) ((mapY - mapTilePosY)); //from center of both the map and player
+
+        //context.drawTexture(pTexture, windowScaledWidth / 2, windowScaledHeight / 2, 0, 0, 64, 64, 64, 64);
+        Identifier pTexture = PlayersManager.playerSkinList.get(player.getUuid());
+        if (pTexture == null) pTexture = Identifier.of("openminemap", "skinbackup.png");
+
+        //context.fill( (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, (windowScaledWidth / 2) - 4 + mapXOffset + 8 , (windowScaledHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
+        context.drawTexture(RenderLayer::getGuiTextured, pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 8, 8, 8,8, 8, 8, 64, 64);
+        context.drawTexture(RenderLayer::getGuiTextured, pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 40, 8, 8 ,8, 8, 8, 64, 64);
+
+        double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset);
     }
 
     @Override
@@ -372,8 +415,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //System.out.println("TrueZoom: "+trueZoomLevel+" | Zoom: "+zoomLevel+" | calced size: "+Math.pow(2, trueZoomLevel - 11));
 
         if (doFollowPlayer) {
-            mapTilePosX = UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize);
-            mapTilePosY = UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize);
+            mapTilePosX = UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize);
+            mapTilePosY = UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize);
         }
 
         if (mapTilePosX < 0) mapTilePosX = 0;
@@ -419,16 +462,28 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             playerMapY = -9999;
             //playerLayer.setPosition(-9999, -9999);
         } else {
-            playerMapX = (int) (UnitConvert.longToMx(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
-            playerMapY = (int) (UnitConvert.latToMy(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
+            playerMapX = (int) (UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize) - mapTilePosX - 4 + ((double) windowScaledWidth / 2));
+            playerMapY = (int) (UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize) - mapTilePosY - 4 + ((double) windowScaledHeight / 2));
             //playerLayer.setPosition(playerMapX, playerMapY);
         }
 
         //this gui code is ugly af ):
 
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
+            PlayersManager.updatePlayerSkinList();
+            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+                drawPlayerToMap(context, player);
+            }
+        }
+
+        //draws the direction indicator
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8);
+
         //draws the player
-        context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8,8, 8, 8,8, 8, 64, 64);
-        context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 40,8,8, 8, 8, 8, 64, 64);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
+            context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8, 8, 8, 8, 8, 64, 64);
+            context.drawTexture(RenderLayer::getGuiTextured, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 40, 8, 8, 8, 8, 8, 64, 64);
+        }
 
         //draws the buttons
         context.drawTexture(RenderLayer::getGuiTextured, zoomLevel < 18 ? (zoominButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0]) : buttonIdentifiers[0][0], windowScaledWidth / 2 + buttonPositionModifiers[0][0], windowScaledHeight - buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
@@ -454,8 +509,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             mouseDisplayLat = "-.-";
             mouseDisplayLong = "-.-";
         } else {
-            mouseLong = UnitConvert.mxToLong(mouseTilePosX, zoomLevel);
-            mouseLat = UnitConvert.myToLat(mouseTilePosY, zoomLevel);
+            mouseLong = UnitConvert.mxToLong(mouseTilePosX, trueZoomLevel);
+            mouseLat = UnitConvert.myToLat(mouseTilePosY, trueZoomLevel);
             mouseDisplayLong = UnitConvert.floorToPlace(mouseLong, 5);
             mouseDisplayLat = UnitConvert.floorToPlace(mouseLat, 5);
         }
@@ -483,6 +538,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             context.drawText(this.textRenderer, "Copy Coordinates", rightClickLayer.getX() + 4, rightClickLayer.getY() + 20, RightClickMenu.hoverOn == 2 ? 0xFFa8afff : 0xFFFFFFFF, false);
             context.drawTexture(RenderLayer::getGuiTextured, rightClickCursor, (int) rightClickX - 4, (int) rightClickY - 4, 0, 0, 9, 9, 9, 9);
         }
+
+        directionIndicator.render(context);
 
         /* uncomment for adding waypoints
         for (int i = 0; i < 10; i++) {

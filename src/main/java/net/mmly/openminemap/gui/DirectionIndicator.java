@@ -2,21 +2,27 @@ package net.mmly.openminemap.gui;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.render.state.TexturedQuadGuiElementRenderState;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.*;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.texture.TextureSetup;
+import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix3x2fStack;
 import org.joml.Matrix4f;
 
 import javax.imageio.ImageIO;
@@ -64,11 +70,12 @@ public class DirectionIndicator extends ClickableWidget {
 
     //private static final RenderPipelines
 
-
+    /*
     private static final RenderPipeline DIRECTION_INDICATOR = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.POSITION_TEX_COLOR_SNIPPET)
             .withLocation(Identifier.of("openminemap", "pipeline/direction_indicator"))
             .withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
             .withCull(false)
+            .withVertexShader(textureId)
             .build()
     );
 
@@ -79,6 +86,10 @@ public class DirectionIndicator extends ClickableWidget {
             RenderLayer.MultiPhaseParameters.builder().build(false)
     );
 
+     */
+
+    private static final BufferAllocator allocator = new BufferAllocator(RenderLayer.CUTOUT_BUFFER_SIZE);
+    private static BufferBuilder newBuffer;
 
     public static void draw(RenderPipeline pipeline, DrawContext context, double rotation, int x, int y) {
         int x1 = x;
@@ -94,28 +105,16 @@ public class DirectionIndicator extends ClickableWidget {
         float width = 24;
         float height = 24;
 
-        //context.drawTexture(renderLayers, textureId, 0, 0, 0, 0, 20, 20, 142, 142);
+        Matrix3x2fStack matrices = context.getMatrices();
 
-        //renderLayers.apply(textureId);
+        matrices.pushMatrix();
+        matrices.rotateAbout((float) Math.toRadians(rotation), x1 + width / 2, y1 + height / 2);
 
-        MatrixStack matrices = context.getMatrices();
-        matrices.push();
-        //matrices.scale(1F, 1F, 1F);
-        //matrices.translate(x1, 0F, 0F);
-        matrices.translate(x + width / 2, y + height / 2, 0F);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) rotation));
+        GpuTextureView gpuTextureView = MinecraftClient.getInstance().getTextureManager().getTexture(textureId).getGlTextureView();
+        //context.fill(x1, y1, x2, y2, 0xFF888888);
+        context.state.addSimpleElement(new TexturedQuadGuiElementRenderState(pipeline, TextureSetup.withoutGlTexture(gpuTextureView), new Matrix3x2f(matrices), x1, y1, x2, y2, u1, u2, v1, v2, -1, context.scissorStack.peekLast()));
 
-        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-
-        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) -height / 2, z).texture(u1, v1).color(-1);
-        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) height / 2, z).texture(u1, v2).color(-1);
-        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) height / 2, z).texture(u2, v2).color(-1);
-        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) -height / 2, z).texture(u2, v1).color(-1);
-
-        RenderLayer.getGuiTextured(textureId).draw(bufferBuilder.end());
-
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     @Override

@@ -193,7 +193,7 @@ public class HudMap {
         context.drawTexture(RenderLayer::getGuiTextured, pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, 40 + leftCrop, 8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset, true);
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
@@ -267,6 +267,7 @@ public class HudMap {
 
         //draw all players (except self)
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
+            PlayersManager.updatePlayerSkinList();
             for (PlayerEntity player : PlayersManager.getNearPlayers()) {
                 drawPlayerToMap(context, player);
             }
@@ -275,7 +276,7 @@ public class HudMap {
 
         //draw the direction indicator
         //context.fill(hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12,hudMapX + (hudMapWidth / 2) - 12 + 24, hudMapY + (hudMapHeight / 2) - 12 + 24, 0xFFFFFFFF);
-        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12);
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, true);
         //if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
 
         //draw the player; two draw statements are used in order to display both skin layers

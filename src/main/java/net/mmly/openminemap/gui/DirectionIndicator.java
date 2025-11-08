@@ -80,26 +80,8 @@ public class DirectionIndicator extends ClickableWidget {
         matrices.translate(x + width / 2, y + height / 2, 0F);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) rotation));
 
-
-        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
-        /*
-        bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).texture(u1, v1);
-        bufferBuilder.vertex(matrix4f, (float)x1, (float)y2, (float)z).texture(u1, v2);
-        bufferBuilder.vertex(matrix4f, (float)x2, (float)y2, (float)z).texture(u2, v2);
-        bufferBuilder.vertex(matrix4f, (float)x2, (float)y1, (float)z).texture(u2, v1);
-         */
-
-        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) -height / 2, z).texture(u1, v1);
-        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) height / 2, z).texture(u1, v2);
-        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) height / 2, z).texture(u2, v2);
-        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) -height / 2, z).texture(u2, v1);
-
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
-        RenderSystem.setShaderTexture(0, textureId);
-
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        context.drawTexture(RenderLayer::getGuiTextured, textureId, -12, -12, u1, v1, 24, 24, 24, 24);
+        //BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 
         matrices.pop();
     }

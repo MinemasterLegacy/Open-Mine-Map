@@ -382,7 +382,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawTexture(RenderPipelines.GUI_TEXTURED, pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 40, 8, 8 ,8, 8, 8, 64, 64);
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset, true);
     }
 
     @Override
@@ -478,7 +478,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
 
         //draws the direction indicator
-        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8);
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8, true);
 
         //draws the player
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {

@@ -68,35 +68,17 @@ public class DirectionIndicator extends ClickableWidget {
         }
     }
 
-    //private static final RenderPipelines
-
-    /*
-    private static final RenderPipeline DIRECTION_INDICATOR = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.POSITION_TEX_COLOR_SNIPPET)
-            .withLocation(Identifier.of("openminemap", "pipeline/direction_indicator"))
-            .withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
-            .withCull(false)
-            .withVertexShader(textureId)
-            .build()
-    );
-
-    private static final RenderLayer renderLayer = RenderLayer.of(
-            "direction_indicator",
-            1536,
-            DIRECTION_INDICATOR,
-            RenderLayer.MultiPhaseParameters.builder().build(false)
-    );
-
-     */
-
-    private static final BufferAllocator allocator = new BufferAllocator(RenderLayer.CUTOUT_BUFFER_SIZE);
-    private static BufferBuilder newBuffer;
-
-    public static void draw(RenderPipeline pipeline, DrawContext context, double rotation, int x, int y) {
+    public static void draw(RenderPipeline pipeline, DrawContext context, double rotation, int x, int y, boolean hudCrop) {
         int x1 = x;
         int y1 = y;
         int x2 = x + 24;
         int y2 = y + 24;
-        int z = 1;
+
+        if (hudCrop && (x <= HudMap.hudMapX - 16 || y1 <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
+            return;
+        }
+
+        int z = 0;
         float v1 = 0 + 0.0F / 24;
         float v2 = 0 + 1.0F;
         float u1 = 0 + 0.0F / 24;

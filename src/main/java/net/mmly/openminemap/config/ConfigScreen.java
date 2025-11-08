@@ -183,7 +183,7 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.2.0"), this.textRenderer);
+        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.2.1"), this.textRenderer);
         versionLabel.alignRight();
         this.addDrawableChild(versionLabel);
 

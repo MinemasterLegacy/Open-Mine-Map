@@ -62,30 +62,17 @@ public class DirectionIndicator extends ClickableWidget {
         }
     }
 
-    //private static final RenderPipelines
-
-    /*
-    private static final RenderPipeline DIRECTION_INDICATOR = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.POSITION_TEX_COLOR_SNIPPET)
-            .withLocation(Identifier.of("openminemap", "pipeline/direction_indicator"))
-            .withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, VertexFormat.DrawMode.QUADS)
-            .withCull(false)
-            .build()
-    );
-
-    private static final RenderLayer renderLayer = RenderLayer.of(
-            "direction_indicator",
-            1536,
-            DIRECTION_INDICATOR,
-            RenderLayer.MultiPhaseParameters.builder().build(false)
-    );
-    */
-
-    public static void draw(Function<Identifier, RenderLayer> renderLayers, DrawContext context, double rotation, int x, int y) {
+    public static void draw(DrawContext context, double rotation, int x, int y, boolean hudCrop) {
         int x1 = x;
         int y1 = y;
         int x2 = x + 24;
         int y2 = y + 24;
-        int z = 1;
+
+        if (hudCrop && (x <= HudMap.hudMapX - 16 || y1 <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
+            return;
+        }
+
+        int z = 0;
         float v1 = 0 + 0.0F / 24;
         float v2 = 0 + 1.0F;
         float u1 = 0 + 0.0F / 24;
@@ -94,10 +81,6 @@ public class DirectionIndicator extends ClickableWidget {
         float width = 24;
         float height = 24;
 
-        //context.drawTexture(renderLayers, textureId, 0, 0, 0, 0, 20, 20, 142, 142);
-
-        //renderLayers.apply(textureId);
-
         MatrixStack matrices = context.getMatrices();
         matrices.push();
         //matrices.scale(1F, 1F, 1F);
@@ -105,15 +88,8 @@ public class DirectionIndicator extends ClickableWidget {
         matrices.translate(x + width / 2, y + height / 2, 0F);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) rotation));
 
-        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-
-        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) -height / 2, z).texture(u1, v1).color(-1);
-        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) height / 2, z).texture(u1, v2).color(-1);
-        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) height / 2, z).texture(u2, v2).color(-1);
-        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) -height / 2, z).texture(u2, v1).color(-1);
-
-        RenderLayer.getGuiTextured(textureId).draw(bufferBuilder.end());
+        context.drawTexture(RenderLayer::getGuiTextured, textureId, -12, -12, u1, v1, 24, 24, 24, 24);
+        //BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 
         matrices.pop();
     }

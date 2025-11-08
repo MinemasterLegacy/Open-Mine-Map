@@ -58,11 +58,16 @@ public class DirectionIndicator extends ClickableWidget {
         }
     }
 
-    public static void draw(DrawContext context, double rotation, int x, int y) {
+    public static void draw(DrawContext context, double rotation, int x, int y, boolean hudCrop) {
         int x1 = x;
         int y1 = y;
         int x2 = x + 24;
         int y2 = y + 24;
+
+        if (hudCrop && (x <= HudMap.hudMapX - 16 || y1 <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
+            return;
+        }
+
         int z = 0;
         float v1 = 0 + 0.0F / 24;
         float v2 = 0 + 1.0F;

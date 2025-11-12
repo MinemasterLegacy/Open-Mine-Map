@@ -52,7 +52,7 @@ public class RightClickMenu extends ClickableWidget {
                         if (useTp) {
                             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) mcXz[0]+" "+PlayersManager.getHighestPoint(mcXz[0], mcXz[1])+" "+ (int) mcXz[1]);
                         } else {
-                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong+ PlayersManager.getHighestPoint(mcXz[0], mcXz[1]));
+                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong+" "+PlayersManager.getHighestPoint(mcXz[0], mcXz[1]));
                         }
                     }
                 } catch (CoordinateValueError error) {

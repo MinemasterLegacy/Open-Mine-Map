@@ -65,7 +65,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     MinecraftClient mClient = MinecraftClient.getInstance();
     Window window = mClient.getWindow();
     private static RightClickMenu rightClickLayer = new RightClickMenu(0, 0);
-    static boolean rightClickMenuEnabled = false;
+    public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
     private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0, 157, 16);
     private static ButtonLayer zoominButtonLayer;
@@ -75,9 +75,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static ButtonLayer configButtonLayer;
     private static ButtonLayer exitButtonLayer;
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
-    private final Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
-    static double rightClickX = 0;
-    static double rightClickY = 0;
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][6];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
     private Identifier playerIdentifier;
@@ -210,7 +207,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         trueZoomLevel = 0;
     }
 
-    protected boolean mouseIsOutOfBounds() {
+    public static boolean mouseIsOutOfBounds() {
         return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, trueZoomLevel + 7) || mouseTilePosY > Math.pow(2, trueZoomLevel + 7);
     }
 
@@ -247,27 +244,31 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     protected static void disableRightClickMenu() {
-        rightClickMenuEnabled = false;
+        rightClickLayer.enabled = false;
         rightClickLayer.setPosition(-500, 500);
+        rightClickLayer.selectingSite = false;
     }
 
     protected static void enableRightClickMenu(double x, double y) {
-        rightClickMenuEnabled = true;
-        rightClickX = x;
-        rightClickY = y;
+        rightClickLayer.enabled = true;
+        rightClickLayer.selectingSite = false;
+        rightClickLayer.clickX = x;
+        rightClickLayer.clickY = y;
         rightClickLayer.setPosition((int) x, (int) y);
         rightClickLayer.setSavedMouseLatLong(mouseLong, mouseLat);
-        System.out.println(mouseLong);
-        System.out.println(mouseLat);
+        //System.out.println(mouseLong);
+        //System.out.println(mouseLat);
         //System.out.println(rightClickLayer.getX());
         //System.out.println(rightClickLayer.getWidth());
         //System.out.println(windowScaledWidth);
         if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
             rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
-        }
+            rightClickLayer.horizontalSide = -1;
+        } else rightClickLayer.horizontalSide = 1;
         if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
             rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
-        }
+            rightClickLayer.verticalSize = -1;
+        } else rightClickLayer.verticalSize = 1;
     }
 
     @Override
@@ -323,6 +324,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         rightClickLayer = new RightClickMenu(0, 0);
         this.addDrawableChild(rightClickLayer);
+        webAppSelectLayer = new WebAppSelectLayer();
+        this.addDrawableChild(webAppSelectLayer);
 
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
@@ -531,12 +534,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawTexture(RenderLayer::getGuiTextured, ...); */
 
         //draws the right click menu
-        if (rightClickMenuEnabled) {
-            context.fill(rightClickLayer.getX(), rightClickLayer.getY(), rightClickLayer.getX() + RightClickMenu.width, rightClickLayer.getY() + RightClickMenu.height, 0x88000000);
-            context.drawText(this.textRenderer, "Teleport Here", rightClickLayer.getX() + 4, rightClickLayer.getY() + 4, RightClickMenu.hoverOn == 1 ? 0xFFa8afff : 0xFFFFFFFF, false);
-            context.drawText(this.textRenderer, "Copy Coordinates", rightClickLayer.getX() + 4, rightClickLayer.getY() + 20, RightClickMenu.hoverOn == 2 ? 0xFFa8afff : 0xFFFFFFFF, false);
-            context.drawTexture(rightClickCursor, (int) rightClickX - 4, (int) rightClickY - 4, 0, 0, 9, 9, 9, 9);
-        }
+        rightClickLayer.drawWidget(context, this.textRenderer);
+        webAppSelectLayer.drawWidget(context);
 
         directionIndicator.render(context);
 

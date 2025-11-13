@@ -214,7 +214,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
         this.addDrawableChild(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Right Click Menu Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("RCM Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
         this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
 
         reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);

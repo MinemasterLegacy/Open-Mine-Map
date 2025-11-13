@@ -33,10 +33,10 @@ public class ButtonLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         switch (function) {
-            case ButtonFunction.ZOOM_IN: //zoom in
+            case ButtonFunction.ZOOMIN: //zoom in
                 FullscreenMapScreen.zoomIn();
                 break;
-            case ButtonFunction.ZOOM_OUT: //zoom out
+            case ButtonFunction.ZOOMOUT: //zoom out
                 FullscreenMapScreen.zoomOut();
                 break;
             case ButtonFunction.RESET: //reset

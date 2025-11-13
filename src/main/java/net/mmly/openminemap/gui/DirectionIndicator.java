@@ -43,11 +43,6 @@ public class DirectionIndicator extends ClickableWidget {
 
     }
 
-    protected void render(DrawContext context) {
-        //if (updateDynamicTexture() || !loadSuccess) return;
-        //context.drawTexture(textureId, FullscreenMapScreen.playerMapX - 8, FullscreenMapScreen.playerMapY - 8, 0, 0, 24, 24, 24, 24);
-    }
-
     private void getTextureFromResources() {
         try {
             InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(textureId).get().getInputStream();

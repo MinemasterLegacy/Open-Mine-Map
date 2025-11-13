@@ -270,10 +270,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         } else rightClickLayer.verticalSize = 1;
     }
 
-    private static int argb(int alpha, int green, int blue, int red) {
-        return (alpha << 24) | (red << 16) | (green << 8) | blue;
-    }
-
     @Override
     protected void init() { //called when screen is being initialized
 
@@ -369,9 +365,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             double altitudeOffset = player.y - PlayerAttributes.altitude;
             int alpha = (int) (Math.clamp(Math.abs(altitudeOffset) - 16, 0, 80) * 1.5);;
             if (altitudeOffset > 0) {
-                context.fill(x, y, x + 8, y + 8, argb(alpha, 255, 255, 255));
+                context.fill(x, y, x + 8, y + 8, UnitConvert.argb(alpha, 255, 255, 255));
             } else {
-                context.fill(x, y, x + 8, y + 8, argb(alpha, 0, 0, 0));
+                context.fill(x, y, x + 8, y + 8, UnitConvert.argb(alpha, 0, 0, 0));
             }
 
         }
@@ -508,7 +504,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             players.add(drawDirectionIndicatorsToMap(context, player));
         }
         //now that direction indicators have been drawn, players can be drawn
-        drawBufferedPlayersToMap(context, players);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL))
+            drawBufferedPlayersToMap(context, players);
 
         //draws the direction indicator (for self)
         if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8, false);

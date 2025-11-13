@@ -5,13 +5,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.Window;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
@@ -21,9 +19,12 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.BufferedPlayer;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
-import org.joml.Matrix4f;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class HudMap {
 
@@ -154,8 +155,8 @@ public class HudMap {
         ConfigFile.writeToFile();
     }
 
-    private static void drawPlayerToMap(DrawContext context, PlayerEntity player) {
-        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return; //cancel the call if the player is the user/client (it has seperate draw code)
+    private static BufferedPlayer drawDirectionIndicatorsToMap(DrawContext context, PlayerEntity player) {
+        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return null; //cancel the call if the player is the user/client (it has seperate draw code)
 
         double mcX = player.getX();
         double mcZ = player.getZ();
@@ -163,9 +164,9 @@ public class HudMap {
         try {
             geoCoords = Projection.to_geo(mcX, mcZ);
         } catch (CoordinateValueError e) {
-            return;
+            return null;
         }
-        if (Double.isNaN(geoCoords[0])) return;
+        if (Double.isNaN(geoCoords[0])) return null;
         double lon = geoCoords[1];
         double lat = geoCoords[0];
         double mapX = UnitConvert.longToMapX(lon, zoomLevel, renderTileSize);
@@ -187,11 +188,32 @@ public class HudMap {
         if (pTexture == null) pTexture = Identifier.of("openminemap", "skinbackup.png");
 
         //context.fill(hudMapX + (hudMapWidth / 2) - 4 + mapXOffset, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + 8 , hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
-        context.drawTexture(pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, rightCrop - leftCrop, downCrop - upCrop, 8 + leftCrop,8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
-        context.drawTexture(pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, rightCrop - leftCrop, downCrop - upCrop, 40 + leftCrop,8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset, true);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d))
+            DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset, true);
+
+        return new BufferedPlayer(mapXOffset, mapYOffset, pTexture, player.getY(), upCrop, downCrop, leftCrop, rightCrop);
+    }
+
+    private static void drawBufferedPlayersToMap(DrawContext context, ArrayList<BufferedPlayer> players) {
+        for (BufferedPlayer player : players) {
+            if (player == null) continue;
+            int x = hudMapX + (hudMapWidth / 2) - 4 + player.offsetX + player.leftCrop;
+            int y = hudMapY + (hudMapHeight / 2) - 4 + player.offsetY + player.upCrop;
+            int width = player.rightCrop - player.leftCrop;
+            int height = player.downCrop - player.upCrop;
+            context.drawTexture(player.texture, x, y, width, height, 8 + player.leftCrop,8 + player.upCrop, width, height, 64, 64);
+            context.drawTexture(player.texture, x, y, width, height,40 + player.leftCrop,8 + player.upCrop, width, height, 64, 64);
+            if(!Objects.equals(ConfigFile.readParameter(ConfigOptions.ALTITUDE_SHADING), "on")) return;
+            double altitudeOffset = player.y - PlayerAttributes.altitude;
+            int alpha = (int) (Math.clamp(Math.abs(altitudeOffset) -16, 0, 80) * 1.5);
+            if (altitudeOffset > 0) {
+                context.fill(x, y, x + width, y + height, UnitConvert.argb(alpha, 255, 255, 255));
+            } else {
+                context.fill(x, y, x + width, y + height, UnitConvert.argb(alpha, 0, 0, 0));
+            }
+        }
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
@@ -264,12 +286,15 @@ public class HudMap {
         }
 
         //draw all players (except self)
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
-            PlayersManager.updatePlayerSkinList();
-            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-                drawPlayerToMap(context, player);
-            }
+        PlayersManager.updatePlayerSkinList();
+        ArrayList<BufferedPlayer> players = new ArrayList<>();
+        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+            //direction indicators need to be drawn before players. To accomplish this, bufferedPlayer classes store the values needed to draw the players later
+            players.add(drawDirectionIndicatorsToMap(context, player));
         }
+        //now that direction indicators have been drawn, players can be drawn
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL))
+            drawBufferedPlayersToMap(context, players);
 
 
         //draw the direction indicator

@@ -79,7 +79,6 @@ public class DirectionIndicator extends ClickableWidget {
         matrices.translate(x + width / 2, y + height / 2, 0F);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) rotation));
 
-
         Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
         BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 

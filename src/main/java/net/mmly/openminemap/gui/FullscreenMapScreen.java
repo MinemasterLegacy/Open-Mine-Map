@@ -269,6 +269,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         } else rightClickLayer.verticalSize = 1;
     }
 
+    private static int argb(int alpha, int green, int blue, int red) {
+        return (alpha << 24) | (red << 16) | (green << 8) | blue;
+    }
+
     @Override
     protected void init() { //called when screen is being initialized
 
@@ -350,17 +354,28 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d) && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL))
             DirectionIndicator.draw(context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset, false);
 
-        return new BufferedPlayer(mapXOffset, mapYOffset, pTexture);
+        return new BufferedPlayer(mapXOffset, mapYOffset, pTexture, player.getY());
     }
 
     private static void drawBufferedPlayersToMap(DrawContext context, ArrayList<BufferedPlayer> players) {
         for (BufferedPlayer player : players) {
             if (player == null) continue;
-            context.drawTexture(player.texture, (windowScaledWidth / 2) - 4 + player.offsetX, (windowScaledHeight / 2) - 4 + player.offsetY, 8, 8, 8, 8, 8, 8, 64, 64);
-            context.drawTexture(player.texture, (windowScaledWidth / 2) - 4 + player.offsetX, (windowScaledHeight / 2) - 4 + player.offsetY, 8, 8, 40, 8, 8, 8, 64, 64);
+            int x = (windowScaledWidth / 2) - 4 + player.offsetX;
+            int y = (windowScaledHeight / 2) - 4 + player.offsetY;
+            context.drawTexture(player.texture, x, y, 8, 8, 8, 8, 8, 8, 64, 64);
+            context.drawTexture(player.texture, x, y, 8, 8, 40, 8, 8, 8, 64, 64);
+            double altitudeOffset = player.y - PlayerAttributes.altitude;
+            int alpha = (int) (Math.clamp(Math.abs(altitudeOffset) - 16, 0, 80) * 1.5);;
+            if (altitudeOffset > 0) {
+                context.fill(x, y, x + 8, y + 8, argb(alpha, 255, 255, 255));
+            } else {
+                context.fill(x, y, x + 8, y + 8, argb(alpha, 0, 0, 0));
+            }
 
         }
     }
+
+
 
     private static void drawButtons(DrawContext context) {
         //draws the buttons
@@ -485,13 +500,13 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //this gui code is ugly af ):
 
         PlayersManager.updatePlayerSkinList();
+        ArrayList<BufferedPlayer> players = new ArrayList<>();
         for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-            ArrayList<BufferedPlayer> players = new ArrayList<>();
             //direction indicators need to be drawn before players. To accomplish this, bufferedPlayer classes store the values needed to draw the players later
             players.add(drawDirectionIndicatorsToMap(context, player));
-            //now that direction indicators have been drawn, players can be drawn
-            drawBufferedPlayersToMap(context, players);
         }
+        //now that direction indicators have been drawn, players can be drawn
+        drawBufferedPlayersToMap(context, players);
 
         //draws the direction indicator (for self)
         if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8, false);

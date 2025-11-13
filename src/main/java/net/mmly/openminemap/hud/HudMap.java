@@ -155,7 +155,7 @@ public class HudMap {
         ConfigFile.writeToFile();
     }
 
-    private static BufferedPlayer drawDirectionIndicatorsToMap(DrawContext context, PlayerEntity player) {
+    private static BufferedPlayer drawDirectionIndicatorsToMap(DrawContext context, PlayerEntity player, boolean indicatorsOnly) {
         if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return null; //cancel the call if the player is the user/client (it has seperate draw code)
 
         double mcX = player.getX();
@@ -191,7 +191,7 @@ public class HudMap {
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d))
-            DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset, true);
+            DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset, true, indicatorsOnly);
 
         return new BufferedPlayer(mapXOffset, mapYOffset, pTexture, player.getY(), upCrop, downCrop, leftCrop, rightCrop);
     }
@@ -290,16 +290,18 @@ public class HudMap {
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         for (PlayerEntity player : PlayersManager.getNearPlayers()) {
             //direction indicators need to be drawn before players. To accomplish this, bufferedPlayer classes store the values needed to draw the players later
-            players.add(drawDirectionIndicatorsToMap(context, player));
+            players.add(drawDirectionIndicatorsToMap(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)));
         }
         //now that direction indicators have been drawn, players can be drawn
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL))
             drawBufferedPlayersToMap(context, players);
 
+        boolean indicatorOnly = !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF);
 
         //draw the direction indicator
         //context.fill(hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12,hudMapX + (hudMapWidth / 2) - 12 + 24, hudMapY + (hudMapHeight / 2) - 12 + 24, 0xFFFFFFFF);
-        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, true);
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF))
+            DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, true, indicatorOnly);
         //if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
 
         //draw the player; two draw statements are used in order to display both skin layers

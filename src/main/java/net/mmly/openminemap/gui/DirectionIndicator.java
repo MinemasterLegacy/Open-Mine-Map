@@ -24,7 +24,8 @@ import java.time.Clock;
 
 public class DirectionIndicator extends ClickableWidget {
 
-    public static Identifier textureId = Identifier.of("openminemap", "rotatabledirectionindicator.png");
+    private static final Identifier textureId = Identifier.of("openminemap", "rotatabledirectionindicator.png");
+    private static final Identifier playerOnlyTextureId = Identifier.of("openminemap", "rotatabledirectionedplayer.png");
     BufferedImage baseTexture;
     public boolean loadSuccess;
 
@@ -53,7 +54,7 @@ public class DirectionIndicator extends ClickableWidget {
         }
     }
 
-    public static void draw(DrawContext context, double rotation, int x, int y, boolean hudCrop) {
+    public static void draw(DrawContext context, double rotation, int x, int y, boolean hudCrop, boolean indicatorOnly) {
         int x1 = x;
         int y1 = y;
         int x2 = x + 24;
@@ -95,7 +96,7 @@ public class DirectionIndicator extends ClickableWidget {
         bufferBuilder.vertex(matrix4f, (float) width / 2, (float) -height / 2, z).texture(u2, v1);
 
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, textureId);
+        RenderSystem.setShaderTexture(0, indicatorOnly ? playerOnlyTextureId :textureId);
 
         BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 

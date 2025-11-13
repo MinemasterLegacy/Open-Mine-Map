@@ -322,7 +322,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     }
 
-    private static BufferedPlayer drawDirectionIndicatorsToMap(DrawContext context, PlayerEntity player) {
+    private static BufferedPlayer drawDirectionIndicatorsToMap(DrawContext context, PlayerEntity player, boolean indicatorsOnly) {
         if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return null; //cancel the call if the player is the user/client (it has seperate draw code)
 
         double mcX = player.getX();
@@ -349,7 +349,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d) && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL))
-            DirectionIndicator.draw(context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset, false);
+            DirectionIndicator.draw(context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset, false, indicatorsOnly);
 
         return new BufferedPlayer(mapXOffset, mapYOffset, pTexture, player.getY());
     }
@@ -501,14 +501,17 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         for (PlayerEntity player : PlayersManager.getNearPlayers()) {
             //direction indicators need to be drawn before players. To accomplish this, bufferedPlayer classes store the values needed to draw the players later
-            players.add(drawDirectionIndicatorsToMap(context, player));
+            players.add(drawDirectionIndicatorsToMap(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)));
         }
         //now that direction indicators have been drawn, players can be drawn
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL))
             drawBufferedPlayersToMap(context, players);
 
         //draws the direction indicator (for self)
-        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8, false);
+        boolean indicatorOnly = !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF);
+
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF))
+            DirectionIndicator.draw(context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8, false, indicatorOnly);
 
         //draws the player (for self)
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {

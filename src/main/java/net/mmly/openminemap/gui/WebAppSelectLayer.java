@@ -78,7 +78,7 @@ public class WebAppSelectLayer extends ClickableWidget {
                 openUrl("https://earth.google.com/web/search/"+lat+"+"+lon, false);
                 break;
             } case 2: {
-                openUrl("(no url)", true);
+                openUrl(lat+", "+lon+" (.kml file)", true);
                 break;
             } case 3: {
                 openUrl("https://openstreetmap.org/#map="+zoom+"/"+lat+"/"+lon, false);
@@ -112,7 +112,7 @@ public class WebAppSelectLayer extends ClickableWidget {
 
     private static void openInGep() {
         //Util.getOperatingSystem().
-        File file = new File(TileManager.getRootFile() + "openminemap/lastLocation.kml");
+        File file = new File(TileManager.getRootFile() + "openminemap/location.kml");
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(file), "utf-8"))) {
                 writer.write(
@@ -121,7 +121,7 @@ public class WebAppSelectLayer extends ClickableWidget {
                                 "<Document>\n" +
                                 "\t<name>OpenMineMap Location</name>\n" +
                                 "\t<Placemark>\n" +
-                                "\t\t<name>Placemark</name>\n" +
+                                "\t\t<name>"+RightClickMenu.savedMouseLat+", "+RightClickMenu.savedMouseLong+"</name>\n" +
                                 "\t\t<LookAt>\n" +
                                 "\t\t\t<longitude>"+RightClickMenu.savedMouseLong+"</longitude>\n" +
                                 "\t\t\t<latitude>"+RightClickMenu.savedMouseLat+"</latitude>\n" +

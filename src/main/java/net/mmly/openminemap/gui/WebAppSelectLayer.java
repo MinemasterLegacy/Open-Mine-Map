@@ -11,7 +11,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.enums.WebIcon;
+import net.mmly.openminemap.map.TileManager;
 
+import java.io.*;
+import java.nio.file.Files;
 import java.util.HashMap;
 
 public class WebAppSelectLayer extends ClickableWidget {
@@ -108,11 +111,49 @@ public class WebAppSelectLayer extends ClickableWidget {
     }
 
     private static void openInGep() {
-        //TODO
+        //Util.getOperatingSystem().
+        File file = new File(TileManager.getRootFile() + "openminemap/lastLocation.kml");
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(file), "utf-8"))) {
+                writer.write(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n" +
+                                "<Document>\n" +
+                                "\t<name>OpenMineMap Location</name>\n" +
+                                "\t<Placemark>\n" +
+                                "\t\t<name>Placemark</name>\n" +
+                                "\t\t<LookAt>\n" +
+                                "\t\t\t<longitude>"+RightClickMenu.savedMouseLong+"</longitude>\n" +
+                                "\t\t\t<latitude>"+RightClickMenu.savedMouseLat+"</latitude>\n" +
+                                "\t\t\t<altitude>0</altitude>\n" +
+                                "\t\t\t<heading>-11.42103893546798</heading>\n" +
+                                "\t\t\t<tilt>0</tilt>\n" +
+                                "\t\t\t<range>"+zoomToMetersAbove(FullscreenMapScreen.zoomLevel)+"</range>\n" +
+                                "\t\t\t<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>\n" +
+                                "\t\t</LookAt>\n" +
+                                "\t\t<Point>\n" +
+                                "\t\t\t<gx:drawOrder>1</gx:drawOrder>\n" +
+                                "\t\t\t<coordinates>"+RightClickMenu.savedMouseLong+","+RightClickMenu.savedMouseLat+",0</coordinates>\n" +
+                                "\t\t</Point>\n" +
+                                "\t</Placemark>\n" +
+                                "</Document>\n" +
+                                "</kml>"
+                );
+        } catch (IOException e) {
+            return;
+        }
+        System.out.println(file.exists());
+        Util.getOperatingSystem().open(file);
     }
 
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
+    }
+
+    private static String zoomToMetersAbove(int z) {
+        return String.format("%.7f",
+                84412457.8 * Math.pow(0.5, z)
+        );
     }
 }

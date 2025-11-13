@@ -26,6 +26,7 @@ import net.mmly.openminemap.util.UnitConvert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
     public FullscreenMapScreen() {
@@ -364,6 +365,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             int y = (windowScaledHeight / 2) - 4 + player.offsetY;
             context.drawTexture(player.texture, x, y, 8, 8, 8, 8, 8, 8, 64, 64);
             context.drawTexture(player.texture, x, y, 8, 8, 40, 8, 8, 8, 64, 64);
+            if (!Objects.equals(ConfigFile.readParameter(ConfigOptions.ALTITUDE_SHADING), "on")) return;
             double altitudeOffset = player.y - PlayerAttributes.altitude;
             int alpha = (int) (Math.clamp(Math.abs(altitudeOffset) - 16, 0, 80) * 1.5);;
             if (altitudeOffset > 0) {

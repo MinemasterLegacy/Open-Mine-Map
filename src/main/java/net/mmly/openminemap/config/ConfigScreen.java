@@ -42,6 +42,7 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget reverseScrollOption;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
+    ChoiceButtonWidget altitudeShadingOption;
     TextWidget overlayLabel;
     TextWidget generalLabel;
     TextWidget versionLabel;
@@ -140,6 +141,7 @@ public class ConfigScreen extends Screen {
         overlayLabel.setY(overlayLabel.getY() + change);
         playerShowSlider.setY(playerShowSlider.getY() + change);
         directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
+        altitudeShadingOption.setY(altitudeShadingOption.getButtonWidget().getY() + change);
     }
 
     @Override
@@ -232,6 +234,9 @@ public class ConfigScreen extends Screen {
         directionIndicatorShowSlider.setTooltip(Tooltip.of(Text.of("Show Direction Indicators on all maps")));
         this.addDrawableChild(directionIndicatorShowSlider);
 
+        altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Altitude Shading"),  Text.of("Shade other players white when they are above you and black when they are below you."), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
+        this.addDrawableChild(altitudeShadingOption.getButtonWidget());
+
         scrollRange = totalOptions * 25 + 35;
     }
 
@@ -254,6 +259,7 @@ public class ConfigScreen extends Screen {
         reverseScrollOption.writeParameterToFile();
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
+        altitudeShadingOption.writeParameterToFile();
         TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();

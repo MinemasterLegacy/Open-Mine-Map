@@ -26,6 +26,7 @@ public class ConfigFile {
             "off", //ReverseScroll
             "local", //ShowPlayers
             "local", //ShowDirectionIndicators
+            "on", //AltitudeShading
 
             "true", //hudtoggle
             "0", //hudlastzoom

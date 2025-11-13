@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.hud.HudMap;
@@ -270,6 +271,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         } else rightClickLayer.verticalSize = 1;
     }
 
+    private static Identifier getButtonTexture(ButtonFunction buttonFunction, ButtonState buttonState) {
+        return buttonIdentifiers[buttonState.ordinal()][buttonFunction.ordinal()];
+    }
+
     @Override
     protected void init() { //called when screen is being initialized
 
@@ -380,38 +385,38 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawTexture(
                 zoomLevel < 18 ?
                         (buttonlayers.get(ButtonFunction.ZOOMIN).isHovered() ?
-                                buttonIdentifiers[2][0] :
-                                buttonIdentifiers[1][0]) :
-                        buttonIdentifiers[0][0],
+                                getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.HOVER) :
+                                getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.DEFAULT)) :
+                        getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.LOCKED),
                 windowScaledWidth / 2 + buttonPositionModifiers[0][0], windowScaledHeight - buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(
                 zoomLevel > 0 ?
                         (buttonlayers.get(ButtonFunction.ZOOMOUT).isHovered() ?
-                                buttonIdentifiers[2][1] :
-                                buttonIdentifiers[1][1]) :
-                        buttonIdentifiers[0][1],
+                                getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.HOVER) :
+                                getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.DEFAULT)) :
+                        getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.LOCKED),
                 windowScaledWidth / 2 + buttonPositionModifiers[1][0], windowScaledHeight - buttonPositionModifiers[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(
                 buttonlayers.get(ButtonFunction.RESET).isHovered() ?
-                        buttonIdentifiers[2][2] :
-                        buttonIdentifiers[1][2],
+                        getButtonTexture(ButtonFunction.RESET, ButtonState.HOVER) :
+                        getButtonTexture(ButtonFunction.RESET, ButtonState.DEFAULT),
                 windowScaledWidth / 2 + buttonPositionModifiers[2][0], windowScaledHeight - buttonPositionModifiers[2][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(
                 Double.isNaN(playerLon) || doFollowPlayer ?
-                        buttonIdentifiers[0][3] :
+                        getButtonTexture(ButtonFunction.FOLLOW, ButtonState.LOCKED) :
                         (buttonlayers.get(ButtonFunction.FOLLOW).isHovered() ?
-                                buttonIdentifiers[2][3] :
-                                buttonIdentifiers[1][3]),
+                                getButtonTexture(ButtonFunction.FOLLOW, ButtonState.HOVER) :
+                                getButtonTexture(ButtonFunction.FOLLOW, ButtonState.DEFAULT)),
                 windowScaledWidth / 2 + buttonPositionModifiers[3][0], windowScaledHeight - buttonPositionModifiers[3][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(
                 buttonlayers.get(ButtonFunction.CONFIG).isHovered() ?
-                        buttonIdentifiers[2][4] :
-                        buttonIdentifiers[1][4],
+                        getButtonTexture(ButtonFunction.CONFIG, ButtonState.HOVER) :
+                        getButtonTexture(ButtonFunction.CONFIG, ButtonState.DEFAULT),
                 windowScaledWidth / 2 + buttonPositionModifiers[4][0], windowScaledHeight - buttonPositionModifiers[4][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(
                 buttonlayers.get(ButtonFunction.EXIT).isHovered() ?
-                        buttonIdentifiers[2][5] :
-                        buttonIdentifiers[1][5],
+                        getButtonTexture(ButtonFunction.EXIT, ButtonState.HOVER) :
+                        getButtonTexture(ButtonFunction.EXIT, ButtonState.DEFAULT),
                 windowScaledWidth / 2 + buttonPositionModifiers[5][0], windowScaledHeight - buttonPositionModifiers[5][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
     }
 

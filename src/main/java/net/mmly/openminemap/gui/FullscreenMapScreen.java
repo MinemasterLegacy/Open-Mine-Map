@@ -20,6 +20,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.BufferedPlayer;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
@@ -549,14 +550,3 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
 }
 
-class BufferedPlayer {
-    int offsetX;
-    int offsetY;
-    Identifier texture;
-
-    BufferedPlayer(int offsetX, int offsetY, Identifier texture) {
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        this.texture = texture;
-    }
-}

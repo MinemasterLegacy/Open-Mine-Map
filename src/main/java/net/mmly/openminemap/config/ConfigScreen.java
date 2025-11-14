@@ -226,12 +226,10 @@ public class ConfigScreen extends Screen {
         overlayLabel.setTooltip(Tooltip.of(Text.of("")));
         this.addDrawableChild(overlayLabel);
 
-        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Players"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
-        playerShowSlider.setTooltip(Tooltip.of(Text.of("Show Players on all maps")));
+        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Players"), Text.of("Show Players on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
         this.addDrawableChild(playerShowSlider);
 
-        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Directions"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
-        directionIndicatorShowSlider.setTooltip(Tooltip.of(Text.of("Show Direction Indicators on all maps")));
+        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Directions"), Text.of("Show Direction Indicators on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
         this.addDrawableChild(directionIndicatorShowSlider);
 
         altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Altitude Shading"),  Text.of("Shade other players white when they are above you and black when they are below you."), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);

@@ -170,7 +170,6 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        System.out.println("init");
         totalOptions = 0;
         nextOptionSlot = -5;
         configScreen = this;

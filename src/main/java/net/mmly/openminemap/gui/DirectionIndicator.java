@@ -60,7 +60,7 @@ public class DirectionIndicator extends ClickableWidget {
         int x2 = x + 24;
         int y2 = y + 24;
 
-        if (hudCrop && (x <= HudMap.hudMapX - 16 || y1 <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
+        if (hudCrop && (x <= HudMap.hudMapX - 16 || y <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
             return;
         }
 
@@ -80,25 +80,7 @@ public class DirectionIndicator extends ClickableWidget {
         matrices.translate(x + width / 2, y + height / 2, 0F);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) rotation));
 
-        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
-        /*
-        bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).texture(u1, v1);
-        bufferBuilder.vertex(matrix4f, (float)x1, (float)y2, (float)z).texture(u1, v2);
-        bufferBuilder.vertex(matrix4f, (float)x2, (float)y2, (float)z).texture(u2, v2);
-        bufferBuilder.vertex(matrix4f, (float)x2, (float)y1, (float)z).texture(u2, v1);
-         */
-
-        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) -height / 2, z).texture(u1, v1);
-        bufferBuilder.vertex(matrix4f, (float) -width / 2, (float) height / 2, z).texture(u1, v2);
-        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) height / 2, z).texture(u2, v2);
-        bufferBuilder.vertex(matrix4f, (float) width / 2, (float) -height / 2, z).texture(u2, v1);
-
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, indicatorOnly ? playerOnlyTextureId :textureId);
-
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        context.drawTexture(indicatorOnly ? playerOnlyTextureId : textureId, -12, -12, u1, v1, 24, 24, 24, 24);
 
         matrices.pop();
     }

@@ -48,7 +48,8 @@ public class HudMap {
     public static double playerLat;
     static double playerMapX;
     static double playerMapY;
-    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_TOGGLE));
+    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_TOGGLE)); //is toggled by the keybind
+    public static boolean hudEnabled = false; //is toggled by the fullscreen map button and is dominant over the keybind
     public static int reloadSkin = 4;
     public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_X));
     public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_Y));
@@ -150,8 +151,16 @@ public class HudMap {
     }
 
     public static void toggleRendering() {
+        if (!hudEnabled) return;
         renderHud = !renderHud;
         ConfigFile.writeParameter(ConfigOptions._HUD_TOGGLE, Boolean.toString(renderHud));
+        ConfigFile.writeToFile();
+    }
+
+    public static void toggleEnabled() {
+        hudEnabled = !hudEnabled;
+        if (hudEnabled && !renderHud) toggleRendering();
+        ConfigFile.writeParameter(ConfigOptions._HUD_ENABLED, Boolean.toString(hudEnabled));
         ConfigFile.writeToFile();
     }
 
@@ -217,7 +226,7 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
-        if (!renderHud || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
+        if (!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
 
         if (reloadSkin > 0) { //load player skins
             if (MinecraftClient.getInstance().player == null) {

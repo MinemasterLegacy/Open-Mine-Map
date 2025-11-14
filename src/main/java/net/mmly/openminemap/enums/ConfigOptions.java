@@ -18,6 +18,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     ALTITUDE_SHADING,
 
     _HUD_TOGGLE,
+    _HUD_ENABLED,
     _HUD_LAST_ZOOM,
     _FS_LAST_ZOOM,
     _FS_LAST_X,
@@ -44,6 +45,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case ALTITUDE_SHADING: return "AltitudeShading";
 
             case _HUD_TOGGLE: return "§hudtoggle";
+            case _HUD_ENABLED: return "§hudenabled";
             case _HUD_LAST_ZOOM: return "§hudlastzoom";
             case _FS_LAST_ZOOM: return "§fslastzoom";
             case _FS_LAST_X: return "§fslastx";
@@ -73,6 +75,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case "AltitudeShading": return ALTITUDE_SHADING;
 
             case "§hudtoggle": return _HUD_TOGGLE;
+            case "§hudenabled": return _HUD_ENABLED;
             case "§hudlastzoom": return _HUD_LAST_ZOOM;
             case "§fslastzoom": return _FS_LAST_ZOOM;
             case "§fslastx": return _FS_LAST_X;

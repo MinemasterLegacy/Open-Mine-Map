@@ -13,7 +13,7 @@ public class ToggleHudMapButtonLayer extends ClickableWidget {
 
     public ToggleHudMapButtonLayer(int x, int y) {
         super(x, y, 20,20, Text.of(""));
-        this.setTooltip(Tooltip.of(Text.of("Toggle HUD Elements")));
+        setOwnTooltip();
     }
 
     @Override
@@ -26,7 +26,12 @@ public class ToggleHudMapButtonLayer extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        HudMap.toggleRendering();
+        HudMap.toggleEnabled();
+        setOwnTooltip();
+    }
+
+    private void setOwnTooltip() {
+        this.setTooltip(Tooltip.of(Text.of("Toggle Hud Elements\nDominant over the toggle keybind\nCurrently "+(Boolean.toString(HudMap.hudEnabled).equals("true") ? "Enabled" : "Disabled"))));
     }
 
     public boolean isHovered() {

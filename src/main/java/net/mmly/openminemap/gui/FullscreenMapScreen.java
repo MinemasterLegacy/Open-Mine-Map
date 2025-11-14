@@ -526,7 +526,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         drawButtons(context);
 
-        int buttonStyle = HudMap.renderHud ? 1 : 0;
+        int buttonStyle = HudMap.hudEnabled ? 1 : 0;
         context.drawTexture(toggleHudMapButtonLayer.isHovered() ? showIdentifiers[1][buttonStyle] : showIdentifiers[0][buttonStyle], toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         //Double.isNaN(playerLon)

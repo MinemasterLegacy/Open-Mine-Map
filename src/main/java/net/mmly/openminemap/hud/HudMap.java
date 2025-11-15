@@ -49,7 +49,7 @@ public class HudMap {
     static double playerMapX;
     static double playerMapY;
     public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_TOGGLE)); //is toggled by the keybind
-    public static boolean hudEnabled = false; //is toggled by the fullscreen map button and is dominant over the keybind
+    public static boolean hudEnabled = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_ENABLED)); //is toggled by the fullscreen map button and is dominant over the keybind
     public static int reloadSkin = 4;
     public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_X));
     public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_Y));

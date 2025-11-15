@@ -33,13 +33,13 @@ public class CommandHander {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("omm")
                     .then(ClientCommandManager.literal("tpllwtp")
-                            .then(ClientCommandManager.argument("coords", CoordinateArgumentType.coordinateArgumentType())
+                            .then(ClientCommandManager.argument("latitude longitude [altitude]", CoordinateArgumentType.coordinateArgumentType())
                             .executes(CommandHander::tpllwtp)))
                     .then(ClientCommandManager.literal("tpwtpll")
-                            .then(ClientCommandManager.argument("xyz", CoordinateArgumentType.coordinateArgumentType())
+                            .then(ClientCommandManager.argument("x y z", CoordinateArgumentType.coordinateArgumentType())
                             .executes(CommandHander::tpwtpll)))
                     .then(ClientCommandManager.literal("tpllto")
-                            .then(ClientCommandManager.argument("player", CoordinateArgumentType.coordinateArgumentType())
+                            .then(ClientCommandManager.argument("player name", CoordinateArgumentType.coordinateArgumentType())
                             .suggests(new TplltoSuggestionProvider())
                             .executes(CommandHander::tpllto)))
         );});
@@ -55,7 +55,7 @@ public class CommandHander {
         String lon = context.getArgument("longitude", CoordinateValue.class).value;
          */
 
-        String[] coords = context.getArgument("coords", CoordinateValue.class).value.split(" ");
+        String[] coords = context.getArgument("latitude longitude [altitude]", CoordinateValue.class).value.split(" ");
         if (coords.length < 2) {
             context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered incomplete coordinates.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
             return 0;
@@ -93,7 +93,7 @@ public class CommandHander {
     }
 
     private static int tpwtpll(CommandContext<FabricClientCommandSource> context) {
-        String[] xyzStrings = context.getArgument("xyz", CoordinateValue.class).value.split(" ");
+        String[] xyzStrings = context.getArgument("x y z", CoordinateValue.class).value.split(" ");
 
         System.out.println(Arrays.toString(xyzStrings));
 
@@ -130,7 +130,7 @@ public class CommandHander {
     }
 
     private static int tpllto(CommandContext<FabricClientCommandSource> context) {
-        String desiredPlayer = context.getArgument("player", CoordinateValue.class).value.trim();
+        String desiredPlayer = context.getArgument("player name", CoordinateValue.class).value.trim();
 
         for (PlayerEntity knownPlayer : PlayersManager.getNearPlayers()) {
             try {

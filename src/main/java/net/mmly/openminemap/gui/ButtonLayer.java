@@ -32,6 +32,7 @@ public class ButtonLayer extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
+        FullscreenMapScreen.disableRightClickMenu();
         switch (function) {
             case ButtonFunction.ZOOMIN: //zoom in
                 FullscreenMapScreen.zoomIn();

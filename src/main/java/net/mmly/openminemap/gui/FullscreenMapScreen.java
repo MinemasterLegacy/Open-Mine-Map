@@ -137,6 +137,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     static protected void mouseZoomIn() {
+        if (rightClickLayer.enabled) return;
         FullscreenMapScreen.getInstance().updateTilePositions();
         if ((!TileManager.doArtificialZoom && zoomLevel >= 18) || (TileManager.doArtificialZoom && trueZoomLevel >= 24)) return;
         if (!doFollowPlayer) {
@@ -147,6 +148,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     static protected void mouseZoomOut() {
+        if (rightClickLayer.enabled) return;
         FullscreenMapScreen.getInstance().updateTilePositions();
         if (zoomLevel <= 0) return;
         if (!doFollowPlayer) {

@@ -19,10 +19,6 @@ public class PlayerLayer extends ClickableWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-    }
-
-    @Override
     public void playDownSound(SoundManager soundManager) {}
 
     @Override

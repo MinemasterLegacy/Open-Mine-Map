@@ -1,5 +1,6 @@
 package net.mmly.openminemap.gui;
 
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -29,7 +30,7 @@ public class InteractionLayer extends ClickableWidget {
     */
 
     @Override
-    public void onRelease(double mouseX, double mouseY) {
+    public void onRelease(Click click) {
         FullscreenMapScreen.lastMouseDown = false;
     }
 
@@ -48,15 +49,15 @@ public class InteractionLayer extends ClickableWidget {
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) { //left click
+    public boolean mouseClicked(Click click, boolean doubled) {
+        if (click.button() == 0) { //left click
             FullscreenMapScreen.lastMouseDown = true;
             FullscreenMapScreen.disableRightClickMenu();
         }
-        if (button == 1) { //right click
+        if (click.button() == 1) { //right click
             //System.out.println("got it");
             if (FullscreenMapScreen.mouseDisplayLong.length() > 3) { //checks if mouse is positioned on the map (this variable will be "-.-" if it isn't)
-                FullscreenMapScreen.enableRightClickMenu(mouseX, mouseY);
+                FullscreenMapScreen.enableRightClickMenu(click.x(), click.y());
             } else {
                 FullscreenMapScreen.disableRightClickMenu();
             }

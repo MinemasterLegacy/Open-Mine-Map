@@ -284,7 +284,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (mClient.player == null) {
             playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
         } else {
-            playerIdentifier = mClient.player.getSkinTextures().texture();
+            playerIdentifier = mClient.player.getSkin().body().texturePath();
         }
         HudMap.playerIdentifier = playerIdentifier;
         //this.addDrawableChild(playerLayer);

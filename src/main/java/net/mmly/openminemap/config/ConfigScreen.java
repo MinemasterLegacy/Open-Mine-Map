@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -184,7 +185,7 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.2.1"), this.textRenderer);
+        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.2.2"), this.textRenderer);
         versionLabel.alignRight();
         this.addDrawableChild(versionLabel);
 

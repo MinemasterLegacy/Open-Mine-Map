@@ -142,7 +142,7 @@ public class ConfigScreen extends Screen {
         overlayLabel.setY(overlayLabel.getY() + change);
         playerShowSlider.setY(playerShowSlider.getY() + change);
         directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
-        altitudeShadingOption.setY(altitudeShadingOption.getButtonWidget().getY() + change);
+        altitudeShadingOption.getButtonWidget().setY(altitudeShadingOption.getButtonWidget().getY() + change);
     }
 
     @Override
@@ -236,6 +236,7 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(altitudeShadingOption.getButtonWidget());
 
         scrollRange = totalOptions * 25 + 35;
+        currentScroll = 0;
     }
 
     public void saveChanges() {

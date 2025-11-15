@@ -21,10 +21,8 @@ public class TextFieldLayer extends TextFieldWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         super.onClick(mouseX, mouseY);
-        System.out.println("click");
         System.out.println("\""+this.getText()+"\"");
         if (ID == 0 && this.getText().isEmpty() && !this.isFocused()) {
-            System.out.println("yea");
             this.setText(UnitConvert.floorToPlace(PlayerAttributes.yaw, 3));
             this.setSelectionStart(0);
             this.setSelectionEnd(this.getText().length());

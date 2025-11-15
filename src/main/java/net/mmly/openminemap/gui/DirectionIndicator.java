@@ -28,7 +28,8 @@ import java.util.function.Function;
 
 public class DirectionIndicator extends ClickableWidget {
 
-    public static Identifier textureId = Identifier.of("openminemap", "rotatabledirectionindicator.png");
+    private static final Identifier textureId = Identifier.of("openminemap", "rotatabledirectionindicator.png");
+    private static final Identifier playerOnlyTextureId = Identifier.of("openminemap", "rotatabledirectionedplayer.png");
     BufferedImage baseTexture;
     public boolean loadSuccess;
 
@@ -47,11 +48,6 @@ public class DirectionIndicator extends ClickableWidget {
 
     }
 
-    protected void render(DrawContext context) {
-        //if (updateDynamicTexture() || !loadSuccess) return;
-        //context.drawTexture(textureId, FullscreenMapScreen.playerMapX - 8, FullscreenMapScreen.playerMapY - 8, 0, 0, 24, 24, 24, 24);
-    }
-
     private void getTextureFromResources() {
         try {
             InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(textureId).get().getInputStream();
@@ -62,13 +58,13 @@ public class DirectionIndicator extends ClickableWidget {
         }
     }
 
-    public static void draw(DrawContext context, double rotation, int x, int y, boolean hudCrop) {
+    public static void draw(DrawContext context, double rotation, int x, int y, boolean hudCrop, boolean indicatorOnly) {
         int x1 = x;
         int y1 = y;
         int x2 = x + 24;
         int y2 = y + 24;
 
-        if (hudCrop && (x <= HudMap.hudMapX - 16 || y1 <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
+        if (hudCrop && (x <= HudMap.hudMapX - 16 || y <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
             return;
         }
 
@@ -88,8 +84,7 @@ public class DirectionIndicator extends ClickableWidget {
         matrices.translate(x + width / 2, y + height / 2, 0F);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) rotation));
 
-        context.drawTexture(RenderLayer::getGuiTextured, textureId, -12, -12, u1, v1, 24, 24, 24, 24);
-        //BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        context.drawTexture(RenderLayer::getGuiTextured, indicatorOnly ? playerOnlyTextureId : textureId, -12, -12, u1, v1, 24, 24, 24, 24);
 
         matrices.pop();
     }

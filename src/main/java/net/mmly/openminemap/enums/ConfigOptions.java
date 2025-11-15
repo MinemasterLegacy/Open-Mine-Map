@@ -15,8 +15,10 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     REVERSE_SCROLL,
     SHOW_PLAYERS,
     SHOW_DIRECTION_INDICATORS,
+    ALTITUDE_SHADING,
 
     _HUD_TOGGLE,
+    _HUD_ENABLED,
     _HUD_LAST_ZOOM,
     _FS_LAST_ZOOM,
     _FS_LAST_X,
@@ -40,8 +42,10 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case REVERSE_SCROLL: return "ReverseScroll";
             case SHOW_PLAYERS: return "ShowPlayers";
             case SHOW_DIRECTION_INDICATORS: return "ShowDirectionIndicators";
+            case ALTITUDE_SHADING: return "AltitudeShading";
 
             case _HUD_TOGGLE: return "§hudtoggle";
+            case _HUD_ENABLED: return "§hudenabled";
             case _HUD_LAST_ZOOM: return "§hudlastzoom";
             case _FS_LAST_ZOOM: return "§fslastzoom";
             case _FS_LAST_X: return "§fslastx";
@@ -68,8 +72,10 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case "ReverseScroll": return REVERSE_SCROLL;
             case "ShowPlayers": return SHOW_PLAYERS;
             case "ShowDirectionIndicators": return SHOW_DIRECTION_INDICATORS;
+            case "AltitudeShading": return ALTITUDE_SHADING;
 
             case "§hudtoggle": return _HUD_TOGGLE;
+            case "§hudenabled": return _HUD_ENABLED;
             case "§hudlastzoom": return _HUD_LAST_ZOOM;
             case "§fslastzoom": return _FS_LAST_ZOOM;
             case "§fslastx": return _FS_LAST_X;

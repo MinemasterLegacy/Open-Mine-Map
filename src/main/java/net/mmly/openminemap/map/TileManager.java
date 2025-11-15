@@ -120,7 +120,6 @@ public class TileManager {
     }
 
     public static void clearCacheDir() {
-        System.out.println("deletion");
         try {
             File cacheDirectory = new File(TileManager.getRootFile() + "openminemap");
             for (int i = 0; i < 19; i++) {

@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.DrawableMapTile;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
@@ -27,24 +28,19 @@ public class TileManager {
     public static OverlayVisibility showPlayers;
     public static OverlayVisibility showDirectionIndicators;
 
-    public static final String OSM_MTYPE_STREET = "openstreetmap";
-    //public static final String OSM_MTYPE_TOPO = "opentopomap";
-    private static int centerTileArrayIndexX;
-    private static int centerTileArrayIndexY;
-
     public static String getRootFile() { //returns directory of .minecraft (or equivalent folder)
         return System.getProperty("user.dir") + File.separator;
     }
 
-    public static Identifier getErrorTile() { //tile used when there was an error getting an expected tile
+    public static Identifier getErrorIdentifier() { //tile used when there was an error getting an expected tile
         return Identifier.of("openminemap", "errortile.png");
     }
 
-    public static Identifier getBlankTile() { //tile used for out of bounds tiles
+    public static Identifier getBlankIdentifier() { //tile used for out of bounds tiles
         return Identifier.of("openminemap", "blanktile.png");
     }
 
-    public static Identifier getLoadingTile() { //tile used for out of bounds tiles
+    public static Identifier getLoadingIdentifier() { //tile used for out of bounds tiles
         return Identifier.of("openminemap", "loadingtile.png");
     }
 
@@ -78,7 +74,7 @@ public class TileManager {
         Identifier[][] identifiers = new Identifier[horzTileCount][vertTileCount];
         for (int j = 0; j < horzTileCount; j++) {
             for (int k = 0; k < vertTileCount; k++) {
-                identifiers[j][k] = getOsmTile(leftMostX + j, topMostY + k, zoom, TileManager.OSM_MTYPE_STREET);
+                identifiers[j][k] = getOsmTile(leftMostX + j, topMostY + k, zoom);
             }
         }
 
@@ -87,10 +83,6 @@ public class TileManager {
 
     public static boolean isTileOutOfBounds(int x, int y, int zoom) { //checks if a given tile is out of bounds
         return (x < 0 || y < 0 || x > Math.pow(2, zoom) - 1 || y > Math.pow(2, zoom) - 1);
-    }
-
-    public static int[] getCenterTileArrayIndexes() {
-        return new int[] {centerTileArrayIndexX, centerTileArrayIndexY};
     }
 
     public static void createCacheDir() {
@@ -136,7 +128,7 @@ public class TileManager {
         }
     }
 
-    public static Identifier getOsmTile(int x, int y, int zoom, String type) { //get an osm map tile. It should be retrievd from cache if it is cached and retreived from the web otherwise
+    public static Identifier getOsmTile(int x, int y, int zoom) { //get an osm map tile. It should be retrievd from cache if it is cached and retreived from the web otherwise
         try {
             /*
             osm tile url format: http://[abc].tile.openstreetmap.org/zoom/x/y.png
@@ -156,7 +148,7 @@ public class TileManager {
 
             //System.out.println("x = "+x+", eq = "+(Math.pow(2.0, zoom) - 1));
             if (isTileOutOfBounds(x, y, zoom)) { //if tile is out of bounds of the possible tile spaces
-                return getBlankTile();
+                return getBlankIdentifier();
             }
 
             BufferedImage osmTile;
@@ -166,11 +158,11 @@ public class TileManager {
                 //System.out.println("Requesting OSM Tile...");
                 //osmTile = RequestManager.tileGetRequest(x, y, zoom, type);
                 RequestManager.trySetRequest(x, y, zoom);
-                return getLoadingTile();
+                return getLoadingIdentifier();
             }
 
             if (osmTile == null) { //if file was not found AND tileGetRequest failed
-                return getErrorTile();
+                return getErrorIdentifier();
             }
 
             if (!dyLoadedTiles.containsKey(thisKey)) {
@@ -185,12 +177,12 @@ public class TileManager {
                 return dyLoadedTiles.get(thisKey);
             }
 
-            return getErrorTile();
+            return getErrorIdentifier();
 
         } catch (Exception e) {
             System.out.println("Error while getting tile: " + e);
             e.printStackTrace();
-            return TileManager.getErrorTile();
+            return TileManager.getErrorIdentifier();
         }
     }
 

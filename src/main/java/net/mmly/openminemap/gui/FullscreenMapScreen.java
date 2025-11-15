@@ -1,6 +1,5 @@
 package net.mmly.openminemap.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
@@ -15,6 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.hud.HudMap;
@@ -24,8 +24,13 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.BufferedPlayer;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
     public FullscreenMapScreen() {
@@ -44,7 +49,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     protected static String mouseDisplayLong = "0.00000";
     protected static String mouseDisplayLat = "0.00000";
     protected static final int buttonSize = 20;
-    protected final int[][] buttonPositionModifiers = new int[][] {
+    private static final int numHotbarButtons = 6; //determines number of buttons expected for the bottom bar of the screen
+    protected static final int[][] buttonPositionModifiers = new int[][] {
         {-70,(8 + buttonSize)},
         {-46,(8 + buttonSize)},
         {-22,(8 + buttonSize)},
@@ -67,19 +73,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     MinecraftClient mClient = MinecraftClient.getInstance();
     Window window = mClient.getWindow();
     private static RightClickMenu rightClickLayer = new RightClickMenu(0, 0);
-    static boolean rightClickMenuEnabled = false;
+    public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
     private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0, 157, 16);
-    private static ButtonLayer zoominButtonLayer;
-    private static ButtonLayer zoomoutButtonLayer;
-    private static ButtonLayer resetButtonLayer;
-    private static ButtonLayer followButtonLayer;
-    private static ButtonLayer configButtonLayer;
-    private static ButtonLayer exitButtonLayer;
+    private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
-    private final Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
-    static double rightClickX = 0;
-    static double rightClickY = 0;
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][6];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
     private Identifier playerIdentifier;
@@ -212,7 +210,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         trueZoomLevel = 0;
     }
 
-    protected boolean mouseIsOutOfBounds() {
+    public static boolean mouseIsOutOfBounds() {
         return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, trueZoomLevel + 7) || mouseTilePosY > Math.pow(2, trueZoomLevel + 7);
     }
 
@@ -249,53 +247,39 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     protected static void disableRightClickMenu() {
-        rightClickMenuEnabled = false;
+        rightClickLayer.enabled = false;
         rightClickLayer.setPosition(-500, 500);
+        rightClickLayer.selectingSite = false;
     }
 
     protected static void enableRightClickMenu(double x, double y) {
-        rightClickMenuEnabled = true;
-        rightClickX = x;
-        rightClickY = y;
+        rightClickLayer.enabled = true;
+        rightClickLayer.selectingSite = false;
+        rightClickLayer.clickX = x;
+        rightClickLayer.clickY = y;
         rightClickLayer.setPosition((int) x, (int) y);
         rightClickLayer.setSavedMouseLatLong(mouseLong, mouseLat);
-        System.out.println(mouseLong);
-        System.out.println(mouseLat);
+        //System.out.println(mouseLong);
+        //System.out.println(mouseLat);
         //System.out.println(rightClickLayer.getX());
         //System.out.println(rightClickLayer.getWidth());
         //System.out.println(windowScaledWidth);
         if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
             rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
-        }
+            rightClickLayer.horizontalSide = -1;
+        } else rightClickLayer.horizontalSide = 1;
         if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
             rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
-        }
+            rightClickLayer.verticalSize = -1;
+        } else rightClickLayer.verticalSize = 1;
+    }
+
+    private static Identifier getButtonTexture(ButtonFunction buttonFunction, ButtonState buttonState) {
+        return buttonIdentifiers[buttonState.ordinal()][buttonFunction.ordinal()];
     }
 
     @Override
     protected void init() { //called when screen is being initialized
-        /*
-        // It's recommended to use the fixed height of 20 to prevent rendering issues with the button textures
-        ButtonWidget zoomInWidget = ButtonWidget.builder(Text.of("Zoom in"), (btn) -> {
-            this.zoomIn();
-        }).dimensions(40, 30, 120, 20).build();
-        ButtonWidget zoomOutWidget = ButtonWidget.builder(Text.of("Zoom out"), (btn) -> {
-            this.zoomOut();
-        }).dimensions(40, 10, 120, 20).build();
-        ButtonWidget resetWidget = ButtonWidget.builder(Text.of("Center"), (btn) -> {
-            mapTilePosX = (((double) TileManager.tileScaledSize /2) * Math.pow(2, zoomLevel));
-            mapTilePosY = (((double) TileManager.tileScaledSize /2) * Math.pow(2, zoomLevel));
-        }).dimensions(40, 50, 120, 20).build();
-        // Register the button widget(s).
-        this.addDrawableChild(zoomInWidget); //add the button widget to the fullscreen map
-        this.addDrawableChild(zoomOutWidget);
-        this.addDrawableChild(resetWidget);
-        */
-        //System.out.println(zoomLevel);
-        //System.out.println(mapTilePosX);
-        //System.out.println(mapTilePosY);
-
-        //playerLayer = new PlayerLayer(100, 100, 8, 8);
 
         if (mClient.player == null) {
             playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
@@ -305,26 +289,18 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         HudMap.playerIdentifier = playerIdentifier;
         //this.addDrawableChild(playerLayer);
 
-        //buttons should probably be turned into one buttons array
-        zoominButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[0][0],windowScaledHeight - buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.ZOOM_IN);
-        zoomoutButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[1][0],windowScaledHeight - buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.ZOOM_OUT);
-        resetButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[2][0],windowScaledHeight - buttonPositionModifiers[2][1], buttonSize, buttonSize, ButtonFunction.RESET);
-        followButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[3][0],windowScaledHeight - buttonPositionModifiers[3][1], buttonSize, buttonSize, ButtonFunction.FOLLOW);
-        configButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1], buttonSize, buttonSize, ButtonFunction.CONFIG);
-        exitButtonLayer = new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1], buttonSize, buttonSize, ButtonFunction.EXIT);
-        toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
-        toggleHudMapButtonLayer.setTooltip(Tooltip.of(Text.of("Toggle HUD Elements")));
+        for (int i = 0; i < numHotbarButtons; i++) {
+            buttonlayers.put(ButtonFunction.getEnumOf(i), new ButtonLayer(windowScaledWidth / 2 + buttonPositionModifiers[i][0], windowScaledHeight - buttonPositionModifiers[i][1], buttonSize, buttonSize, ButtonFunction.getEnumOf(i)));
+            this.addDrawableChild(buttonlayers.get(ButtonFunction.getEnumOf(i)));
+        }
 
-        this.addDrawableChild(zoominButtonLayer);
-        this.addDrawableChild(zoomoutButtonLayer);
-        this.addDrawableChild(resetButtonLayer);
-        this.addDrawableChild(followButtonLayer);
-        this.addDrawableChild(configButtonLayer);
-        this.addDrawableChild(exitButtonLayer);
+        toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
         rightClickLayer = new RightClickMenu(0, 0);
         this.addDrawableChild(rightClickLayer);
+        webAppSelectLayer = new WebAppSelectLayer();
+        this.addDrawableChild(webAppSelectLayer);
 
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
@@ -354,8 +330,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     }
 
-    private static void drawPlayerToMap(DrawContext context, PlayerEntity player) {
-        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return; //cancel the call if the player is the user/client (it has seperate draw code)
+    private static BufferedPlayer drawDirectionIndicatorsToMap(DrawContext context, PlayerEntity player, boolean indicatorsOnly) {
+        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return null; //cancel the call if the player is the user/client (it has seperate draw code)
 
         double mcX = player.getX();
         double mcZ = player.getZ();
@@ -363,9 +339,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         try {
             geoCoords = Projection.to_geo(mcX, mcZ);
         } catch (CoordinateValueError e) {
-            return;
+            return null;
         }
-        if (Double.isNaN(geoCoords[0])) return;
+        if (Double.isNaN(geoCoords[0])) return null;
         double lon = geoCoords[1];
         double lat = geoCoords[0];
         double mapX = UnitConvert.longToMapX(lon, zoomLevel, renderTileSize);
@@ -378,27 +354,92 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (pTexture == null) pTexture = Identifier.of("openminemap", "skinbackup.png");
 
         //context.fill( (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, (windowScaledWidth / 2) - 4 + mapXOffset + 8 , (windowScaledHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 8, 8, 8,8, 8, 8, 64, 64);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, pTexture, (windowScaledWidth / 2) - 4 + mapXOffset, (windowScaledHeight / 2) - 4 + mapYOffset, 40, 8, 8 ,8, 8, 8, 64, 64);
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset, true);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset, true, indicatorsOnly);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d) && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL))
+            DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, d,(windowScaledWidth / 2) - 12 + mapXOffset, (windowScaledHeight / 2) - 12 + mapYOffset, false, indicatorsOnly);
+
+        return new BufferedPlayer(mapXOffset, mapYOffset, pTexture, player.getY());
+    }
+
+    private static void drawBufferedPlayersToMap(DrawContext context, ArrayList<BufferedPlayer> players) {
+        for (BufferedPlayer player : players) {
+            if (player == null) continue;
+            int x = (windowScaledWidth / 2) - 4 + player.offsetX;
+            int y = (windowScaledHeight / 2) - 4 + player.offsetY;
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, player.texture, x, y, 8, 8, 8, 8, 8, 8, 64, 64);
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, player.texture, x, y, 40, 8, 8, 8, 8, 8, 64, 64);
+            if (!Objects.equals(ConfigFile.readParameter(ConfigOptions.ALTITUDE_SHADING), "on")) return;
+            double altitudeOffset = player.y - PlayerAttributes.altitude;
+            int alpha = (int) (Math.clamp(Math.abs(altitudeOffset) - 16, 0, 80) * 1.5);;
+            if (altitudeOffset > 0) {
+                context.fill(x, y, x + 8, y + 8, UnitConvert.argb(alpha, 255, 255, 255));
+            } else {
+                context.fill(x, y, x + 8, y + 8, UnitConvert.argb(alpha, 0, 0, 0));
+            }
+
+        }
+    }
+
+
+
+    private static void drawButtons(DrawContext context) {
+        //draws the buttons
+        context.drawTexture(RenderPipelines.GUI_TEXTURED,
+                zoomLevel < 18 ?
+                        (buttonlayers.get(ButtonFunction.ZOOMIN).isHovered() ?
+                                getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.HOVER) :
+                                getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.DEFAULT)) :
+                        getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.LOCKED),
+                windowScaledWidth / 2 + buttonPositionModifiers[0][0], windowScaledHeight - buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED,
+                zoomLevel > 0 ?
+                        (buttonlayers.get(ButtonFunction.ZOOMOUT).isHovered() ?
+                                getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.HOVER) :
+                                getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.DEFAULT)) :
+                        getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.LOCKED),
+                windowScaledWidth / 2 + buttonPositionModifiers[1][0], windowScaledHeight - buttonPositionModifiers[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED,
+                buttonlayers.get(ButtonFunction.RESET).isHovered() ?
+                        getButtonTexture(ButtonFunction.RESET, ButtonState.HOVER) :
+                        getButtonTexture(ButtonFunction.RESET, ButtonState.DEFAULT),
+                windowScaledWidth / 2 + buttonPositionModifiers[2][0], windowScaledHeight - buttonPositionModifiers[2][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED,
+                Double.isNaN(playerLon) || doFollowPlayer ?
+                        getButtonTexture(ButtonFunction.FOLLOW, ButtonState.LOCKED) :
+                        (buttonlayers.get(ButtonFunction.FOLLOW).isHovered() ?
+                                getButtonTexture(ButtonFunction.FOLLOW, ButtonState.HOVER) :
+                                getButtonTexture(ButtonFunction.FOLLOW, ButtonState.DEFAULT)),
+                windowScaledWidth / 2 + buttonPositionModifiers[3][0], windowScaledHeight - buttonPositionModifiers[3][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED,
+                buttonlayers.get(ButtonFunction.CONFIG).isHovered() ?
+                        getButtonTexture(ButtonFunction.CONFIG, ButtonState.HOVER) :
+                        getButtonTexture(ButtonFunction.CONFIG, ButtonState.DEFAULT),
+                windowScaledWidth / 2 + buttonPositionModifiers[4][0], windowScaledHeight - buttonPositionModifiers[4][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED,
+                buttonlayers.get(ButtonFunction.EXIT).isHovered() ?
+                        getButtonTexture(ButtonFunction.EXIT, ButtonState.HOVER) :
+                        getButtonTexture(ButtonFunction.EXIT, ButtonState.DEFAULT),
+                windowScaledWidth / 2 + buttonPositionModifiers[5][0], windowScaledHeight - buttonPositionModifiers[5][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+    }
+
+    private static void updateWidgetPositions() {
+        for (int i = 0; i < numHotbarButtons; i++) { //update button positions (in case screen size has changed)
+            buttonlayers.get(ButtonFunction.getEnumOf(i)).setPosition(windowScaledWidth / 2 + buttonPositionModifiers[i][0], windowScaledHeight - buttonPositionModifiers[i][1]);
+        }
+        toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
+        attributionLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 16);
+        bugReportLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 32);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
 
-        attributionLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 16);
-        bugReportLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 32);
+        updateScreenDims(); //update screen dimension variables in case window has been resized
 
-        zoominButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[0][0],windowScaledHeight - buttonPositionModifiers[0][1]);
-        zoomoutButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[1][0],windowScaledHeight - buttonPositionModifiers[1][1]);
-        resetButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[2][0],windowScaledHeight - buttonPositionModifiers[2][1]);
-        followButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[3][0],windowScaledHeight - buttonPositionModifiers[3][1]);
-        configButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[4][0],windowScaledHeight - buttonPositionModifiers[4][1]);
-        exitButtonLayer.setPosition(windowScaledWidth / 2 + buttonPositionModifiers[5][0],windowScaledHeight - buttonPositionModifiers[5][1]);
-        toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
+        updateWidgetPositions(); //update the positions of button and text field widgets in case window has been resized
 
         this.updateScreenDims(); //update screen dimension variables in case screen has been resized
         //this.updateTileRange();
@@ -435,11 +476,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //draws the map tiles
         for (int i = 0; i < identifiers.length; i++) {
             for (int j = 0; j < identifiers[i].length; j++) {
-                //RenderSystem.setShaderTexture(0, identifiers[i][j]);
-                //System.out.println("Position "+((((TopLeftData[0] + i) * 256) + (float) windowWidth / 2) - mapTilePosX)+", "+((((TopLeftData[1]+j) * 256) + (float) windowHeight / 2) - mapTilePosY)+" calculated for tile ["+i+","+j+"]");
-                //context.drawTexture(identifiers[i][j], this.pixelToScaledCoords((((TopLeftData[0] + i) * 256) + (float) windowWidth / 2) - mapTilePosX), this.pixelToScaledCoords((((TopLeftData[1]+j) * 256) + (float) windowHeight / 2) - mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
                 context.drawTexture(RenderPipelines.GUI_TEXTURED, identifiers[i][j], (int) ((((TopLeftData[0] + i) * renderTileSize) + (float) windowScaledWidth / 2) - (int) mapTilePosX), (int) ((((TopLeftData[1]+j) * renderTileSize) + (float) windowScaledHeight / 2) - (int) mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
-
             }
         }
 
@@ -470,30 +507,31 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         //this gui code is ugly af ):
 
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
-            PlayersManager.updatePlayerSkinList();
-            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-                drawPlayerToMap(context, player);
-            }
+        PlayersManager.updatePlayerSkinList();
+        ArrayList<BufferedPlayer> players = new ArrayList<>();
+        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+            //direction indicators need to be drawn before players. To accomplish this, bufferedPlayer classes store the values needed to draw the players later
+            players.add(drawDirectionIndicatorsToMap(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)));
         }
+        //now that direction indicators have been drawn, players can be drawn
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL))
+            drawBufferedPlayersToMap(context, players);
 
-        //draws the direction indicator
-        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8, true);
+        //draws the direction indicator (for self)
+        boolean indicatorOnly = !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF);
 
-        //draws the player
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF))
+            DirectionIndicator.draw(RenderPipelines.GUI_TEXTURED, context, PlayerAttributes.geoYaw, playerMapX - 8, playerMapY - 8, false, indicatorOnly);
+
+        //draws the player (for self)
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
             context.drawTexture(RenderPipelines.GUI_TEXTURED, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 8, 8, 8, 8, 8, 8, 64, 64);
             context.drawTexture(RenderPipelines.GUI_TEXTURED, playerIdentifier, doFollowPlayer ? windowScaledWidth / 2 - 4 : playerMapX, doFollowPlayer ? windowScaledHeight / 2 - 4 : playerMapY, 40, 8, 8, 8, 8, 8, 64, 64);
         }
 
-        //draws the buttons
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, zoomLevel < 18 ? (zoominButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0]) : buttonIdentifiers[0][0], windowScaledWidth / 2 + buttonPositionModifiers[0][0], windowScaledHeight - buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, zoomLevel > 0 ? (zoomoutButtonLayer.isHovered() ? buttonIdentifiers[2][1] : buttonIdentifiers[1][1]) : buttonIdentifiers[0][1], windowScaledWidth / 2 + buttonPositionModifiers[1][0], windowScaledHeight - buttonPositionModifiers[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, resetButtonLayer.isHovered() ? buttonIdentifiers[2][2] : buttonIdentifiers[1][2], windowScaledWidth / 2 + buttonPositionModifiers[2][0], windowScaledHeight - buttonPositionModifiers[2][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, Double.isNaN(playerLon) || doFollowPlayer ? buttonIdentifiers[0][3] : (followButtonLayer.isHovered() ? buttonIdentifiers[2][3] : buttonIdentifiers[1][3]), windowScaledWidth / 2 + buttonPositionModifiers[3][0], windowScaledHeight - buttonPositionModifiers[3][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, configButtonLayer.isHovered() ? buttonIdentifiers[2][4] : buttonIdentifiers[1][4], windowScaledWidth / 2 + buttonPositionModifiers[4][0], windowScaledHeight - buttonPositionModifiers[4][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, exitButtonLayer.isHovered() ? buttonIdentifiers[2][5] : buttonIdentifiers[1][5], windowScaledWidth / 2 + buttonPositionModifiers[5][0], windowScaledHeight - buttonPositionModifiers[5][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        int buttonStyle = HudMap.renderHud ? 1 : 0;
+        drawButtons(context);
+
+        int buttonStyle = HudMap.hudEnabled ? 1 : 0;
         context.drawTexture(RenderPipelines.GUI_TEXTURED, toggleHudMapButtonLayer.isHovered() ? showIdentifiers[1][buttonStyle] : showIdentifiers[0][buttonStyle], toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         //Double.isNaN(playerLon)
@@ -503,8 +541,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         // Subtracting an extra 10 pixels will give the text some padding.
         // textRenderer, text, x, y, color, hasShadow
 
-        mouseTilePosX = mapTilePosX + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getX()) - (windowScaledWidth / 2);
-        mouseTilePosY = mapTilePosY + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getY()) - (windowScaledHeight / 2);
+        mouseTilePosX = mapTilePosX + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getX()) - ((double) windowScaledWidth / 2);
+        mouseTilePosY = mapTilePosY + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getY()) - ((double) windowScaledHeight / 2);
 
         if (mouseIsOutOfBounds()) {
             mouseDisplayLat = "-.-";
@@ -523,24 +561,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawText(this.textRenderer, "Player: " + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16, 0xFFFFFFFF, true);
 
         //draws the attribution and report bug text fields
-        context.fill(windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, 0x88000000);
-        context.drawText(this.textRenderer, "Map data from", windowScaledWidth - 152, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10, 0xFFFFFFFF, true);
-        context.drawText(this.textRenderer, Text.of("OpenStreetMap"), windowScaledWidth - 77, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10, 0xFF548AF7, true); //0xFF1b75d0
-        context.fill(windowScaledWidth - 70, windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
-        context.drawText(this.textRenderer, Text.of("Report Bugs"), windowScaledWidth - 65, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - 16, 0xFF0B9207, true);
-
-        /* Seems that ~1.21.4+ needs an extra argument for context.drawTexture
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, ...); */
+        attributionLayer.drawWidget(context, this.textRenderer);
+        bugReportLayer.drawWidget(context, this.textRenderer);
 
         //draws the right click menu
-        if (rightClickMenuEnabled) {
-            context.fill(rightClickLayer.getX(), rightClickLayer.getY(), rightClickLayer.getX() + RightClickMenu.width, rightClickLayer.getY() + RightClickMenu.height, 0x88000000);
-            context.drawText(this.textRenderer, "Teleport Here", rightClickLayer.getX() + 4, rightClickLayer.getY() + 4, RightClickMenu.hoverOn == 1 ? 0xFFa8afff : 0xFFFFFFFF, false);
-            context.drawText(this.textRenderer, "Copy Coordinates", rightClickLayer.getX() + 4, rightClickLayer.getY() + 20, RightClickMenu.hoverOn == 2 ? 0xFFa8afff : 0xFFFFFFFF, false);
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, rightClickCursor, (int) rightClickX - 4, (int) rightClickY - 4, 0, 0, 9, 9, 9, 9);
-        }
-
-        directionIndicator.render(context);
+        rightClickLayer.drawWidget(context, this.textRenderer);
+        webAppSelectLayer.drawWidget(context);
 
         /* uncomment for adding waypoints
         for (int i = 0; i < 10; i++) {
@@ -550,3 +576,4 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
 }
+

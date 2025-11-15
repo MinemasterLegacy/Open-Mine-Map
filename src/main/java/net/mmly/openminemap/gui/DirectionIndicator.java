@@ -34,7 +34,8 @@ import java.util.function.Function;
 
 public class DirectionIndicator extends ClickableWidget {
 
-    public static Identifier textureId = Identifier.of("openminemap", "rotatabledirectionindicator.png");
+    private static final Identifier textureId = Identifier.of("openminemap", "rotatabledirectionindicator.png");
+    private static final Identifier playerOnlyTextureId = Identifier.of("openminemap", "rotatabledirectionedplayer.png");
     BufferedImage baseTexture;
     public boolean loadSuccess;
 
@@ -53,11 +54,6 @@ public class DirectionIndicator extends ClickableWidget {
 
     }
 
-    protected void render(DrawContext context) {
-        //if (updateDynamicTexture() || !loadSuccess) return;
-        //context.drawTexture(textureId, FullscreenMapScreen.playerMapX - 8, FullscreenMapScreen.playerMapY - 8, 0, 0, 24, 24, 24, 24);
-    }
-
     private void getTextureFromResources() {
         try {
             InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(textureId).get().getInputStream();
@@ -68,13 +64,13 @@ public class DirectionIndicator extends ClickableWidget {
         }
     }
 
-    public static void draw(RenderPipeline pipeline, DrawContext context, double rotation, int x, int y, boolean hudCrop) {
+    public static void draw(RenderPipeline pipeline, DrawContext context, double rotation, int x, int y, boolean hudCrop, boolean indicatorOnly) {
         int x1 = x;
         int y1 = y;
         int x2 = x + 24;
         int y2 = y + 24;
 
-        if (hudCrop && (x <= HudMap.hudMapX - 16 || y1 <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
+        if (hudCrop && (x <= HudMap.hudMapX - 16 || y <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
             return;
         }
 
@@ -92,9 +88,7 @@ public class DirectionIndicator extends ClickableWidget {
         matrices.pushMatrix();
         matrices.rotateAbout((float) Math.toRadians(rotation), x1 + width / 2, y1 + height / 2);
 
-        GpuTextureView gpuTextureView = MinecraftClient.getInstance().getTextureManager().getTexture(textureId).getGlTextureView();
-        //context.fill(x1, y1, x2, y2, 0xFF888888);
-        context.state.addSimpleElement(new TexturedQuadGuiElementRenderState(pipeline, TextureSetup.withoutGlTexture(gpuTextureView), new Matrix3x2f(matrices), x1, y1, x2, y2, u1, u2, v1, v2, -1, context.scissorStack.peekLast()));
+        context.drawTexture(pipeline, indicatorOnly ? playerOnlyTextureId : textureId, x1, y1, u1, v1, 24, 24, 24, 24);
 
         matrices.popMatrix();
     }

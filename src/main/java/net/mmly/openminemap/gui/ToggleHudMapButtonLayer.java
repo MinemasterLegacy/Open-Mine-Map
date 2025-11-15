@@ -3,6 +3,7 @@ package net.mmly.openminemap.gui;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.hud.HudMap;
@@ -12,6 +13,7 @@ public class ToggleHudMapButtonLayer extends ClickableWidget {
 
     public ToggleHudMapButtonLayer(int x, int y) {
         super(x, y, 20,20, Text.of(""));
+        setOwnTooltip();
     }
 
     @Override
@@ -24,7 +26,12 @@ public class ToggleHudMapButtonLayer extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        HudMap.toggleRendering();
+        HudMap.toggleEnabled();
+        setOwnTooltip();
+    }
+
+    private void setOwnTooltip() {
+        this.setTooltip(Tooltip.of(Text.of("Toggle Hud Elements\nDominant over the toggle keybind\nCurrently "+(Boolean.toString(HudMap.hudEnabled).equals("true") ? "Enabled" : "Disabled"))));
     }
 
     public boolean isHovered() {

@@ -1,11 +1,16 @@
 package net.mmly.openminemap.gui;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
@@ -13,22 +18,34 @@ import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 import java.awt.*;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class RightClickMenu extends ClickableWidget {
 
-    public static final int width = 95;
-    public static final int height = 32; // = 16 * number of menu options
-    public static int hoverOn = 0;
+    private static final int width = 95;
+    // = 16 * number of menu options
+    private static final int height = 48;
+    private static int hoverOn = 0;
     private static boolean useTp;
+    boolean enabled;
+    public static boolean selectingSite = false;
+    double clickX = 0;
+    double clickY = 0;
+    private final Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
+    public int horizontalSide = 1;
+    public int verticalSize = 1;
+    //private WebAppSelectLayer webSelect = null;
 
     public RightClickMenu(int x, int y) {
         super(x, y, width, height, Text.empty());
         useTp = Objects.equals(ConfigFile.readParameter(ConfigOptions.RIGHT_CLICK_MENU_USES), "/tp");
+        enabled = false;
+
     }
 
-    float savedMouseLat;
-    float savedMouseLong;
+    static float savedMouseLat;
+    static float savedMouseLong;
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -38,6 +55,24 @@ public class RightClickMenu extends ClickableWidget {
         } else {
             hoverOn = 0;
         }
+
+    }
+
+    public void drawWidget(DrawContext context, TextRenderer renderer) {
+        if (!enabled) return;
+        context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
+
+
+        context.drawText(renderer, "Teleport Here", getX() + 4, getY() + 4, RightClickMenu.hoverOn == 1 ? 0xFFa8afff : 0xFFFFFFFF, false);
+        context.drawText(renderer, "Copy Coordinates", getX() + 4, getY() + 20, RightClickMenu.hoverOn == 2 ? 0xFFa8afff : 0xFFFFFFFF, false);
+        context.drawText(renderer, "Open In...", getX() + 4, getY() + 36, RightClickMenu.hoverOn == 3 || selectingSite ? 0xFFa8afff : 0xFFFFFFFF, false);
+
+        /*
+
+
+         */
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, rightClickCursor, (int) clickX - 4, (int) clickY - 4, 0, 0, 9, 9, 9, 9);
+
 
     }
 
@@ -52,7 +87,7 @@ public class RightClickMenu extends ClickableWidget {
                         if (useTp) {
                             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) mcXz[0]+" "+PlayersManager.getHighestPoint(mcXz[0], mcXz[1])+" "+ (int) mcXz[1]);
                         } else {
-                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong+ PlayersManager.getHighestPoint(mcXz[0], mcXz[1]));
+                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong);
                         }
                     }
                 } catch (CoordinateValueError error) {
@@ -68,6 +103,16 @@ public class RightClickMenu extends ClickableWidget {
                     System.out.println("Unable to write to clipboard; System does not support it.");
                 }
                 break;
+            }
+            case 3: {
+                selectingSite = !selectingSite;
+                int modX = 0;
+                int modY = 0;
+                if (horizontalSide == -1) modX -= width + 8 + 14;
+                if (verticalSize == -1) modY -= (98 - height);
+
+                FullscreenMapScreen.webAppSelectLayer.setPosition(getX() + width + 4 + modX, getY() + modY);
+                return;
             }
         }
         FullscreenMapScreen.disableRightClickMenu();

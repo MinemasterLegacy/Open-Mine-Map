@@ -204,7 +204,7 @@ public class ConfigScreen extends Screen {
         artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.of("Adds further zoom levels beyond what OpenStreetMap provides")));
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
 
-        customUrlWidget = new TextFieldWidget(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"));
+        customUrlWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"), 1);
         customUrlWidget.setMaxLength(1000);
         customUrlWidget.setText(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL));
         customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));

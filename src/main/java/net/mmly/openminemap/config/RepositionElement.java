@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -38,9 +39,9 @@ public class RepositionElement extends ClickableWidget {
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     @Override
-    protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
-        subDeltaX += deltaX;
-        subDeltaY += deltaY;
+    protected void onDrag(Click click, double offsetX, double offsetY) {
+        subDeltaX += offsetX;
+        subDeltaY += offsetY;
         if (type == RepositionType.MAP) {
             HudMap.hudMapX += (int) subDeltaX;
             HudMap.hudMapY += (int) subDeltaY;

@@ -38,7 +38,7 @@ public class PlayersManager {
         List<PlayerListEntry> pList = pCollection.stream().toList();
         HashMap<UUID, Identifier> map = new HashMap<>();
         for (int i = 0; i < pList.size(); i++) {
-            map.put(pList.get(i).getProfile().getId(), pList.get(i).getSkinTextures().texture());
+            map.put(pList.get(i).getProfile().id(), pList.get(i).getSkinTextures().body().texturePath());
         }
         playerSkinList = map;
     }

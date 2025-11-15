@@ -7,6 +7,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
@@ -15,7 +16,7 @@ import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyInputHandler {
-    public static final String KEY_CATEGORY_OPENMINEMAP = "OpenMineMap"; //"key.category.osmMap.osmMapCategory";
+    public static final KeyBinding.Category KEY_CATEGORY_OPENMINEMAP = KeyBinding.Category.create(Identifier.of("openminemap", "keycategory")); //"key.category.osmMap.osmMapCategory";
     public static final String KEY_FULLSCREEN_OSM_MAP = "Open Fullscreen Map"; //"key.osmMap.fullscreenOsmMap";
     public static final String KEY_ZOOMIN_HUD_OSM_MAP = "Zoom In (HUD)";
     public static final String KEY_ZOOMOUT_HUD_OSM_MAP = "Zoom Out (HUD)";

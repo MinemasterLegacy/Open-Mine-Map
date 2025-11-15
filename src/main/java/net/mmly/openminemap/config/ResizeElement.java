@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -42,18 +43,19 @@ public class ResizeElement extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
+
     @Override
-    protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
+    protected void onDrag(Click click, double offsetX, double offsetY) {
         if (plane == ResizePlane.HORIZONTAL) {
             switch (direction) {
                 case ResizeDirection.RIGHT_MAP: {
-                    int change = (int) (deltaX + moveRemainder);
+                    int change = (int) (offsetX + moveRemainder);
                     if (HudMap.hudMapWidth + change < HudMap.MIN_SIZE) HudMap.hudMapWidth = HudMap.MIN_SIZE;
                     else HudMap.hudMapWidth += change;
                     MapConfigScreen.updateResizePos();
                     break;
                 } case ResizeDirection.LEFT_MAP: {
-                    int change = (int) (deltaX + moveRemainder);
+                    int change = (int) (offsetX + moveRemainder);
                     if (HudMap.hudMapWidth - change < HudMap.MIN_SIZE) {
                         HudMap.hudMapX = HudMap.hudMapX2 - HudMap.MIN_SIZE;
                         HudMap.hudMapWidth = HudMap.MIN_SIZE;
@@ -64,7 +66,7 @@ public class ResizeElement extends ClickableWidget {
                     MapConfigScreen.updateResizePos();
                     break;
                 } case ResizeDirection.LEFT_COMPASS: {
-                    int change = (int) (deltaX + moveRemainder);
+                    int change = (int) (offsetX + moveRemainder);
                     if (HudMap.hudCompassWidth - change < HudMap.MIN_SIZE) {
                         HudMap.hudCompassX = HudMap.hudCompassX + HudMap.hudCompassWidth - HudMap.MIN_SIZE;
                         HudMap.hudCompassWidth = HudMap.MIN_SIZE;
@@ -75,18 +77,18 @@ public class ResizeElement extends ClickableWidget {
                     MapConfigScreen.updateResizePos();
                     break;
                 } case ResizeDirection.RIGHT_COMPASS: {
-                    int change = (int) (deltaX + moveRemainder);
+                    int change = (int) (offsetX + moveRemainder);
                     if (HudMap.hudCompassWidth + change < HudMap.MIN_SIZE) HudMap.hudCompassWidth = HudMap.MIN_SIZE;
                     else HudMap.hudCompassWidth += change;
                     MapConfigScreen.updateResizePos();
                     break;
                 }
             }
-            moveRemainder = (deltaX + moveRemainder) % 1;
+            moveRemainder = (offsetX + moveRemainder) % 1;
         } else /*(plane == ResizePlane.VERTICAL)*/ {
             switch (direction) {
                 case ResizeDirection.UP_MAP: {
-                    int change = (int) (deltaY + moveRemainder);
+                    int change = (int) (offsetY + moveRemainder);
                     if (HudMap.hudMapHeight - change < HudMap.MIN_SIZE) {
                         HudMap.hudMapY = HudMap.hudMapY2 - HudMap.MIN_SIZE;
                         HudMap.hudMapHeight = HudMap.MIN_SIZE;
@@ -97,14 +99,14 @@ public class ResizeElement extends ClickableWidget {
                     MapConfigScreen.updateResizePos();
                     break;
                 } case ResizeDirection.DOWN_MAP: {
-                    int change = (int) (deltaY + moveRemainder);
+                    int change = (int) (offsetY + moveRemainder);
                     if (HudMap.hudMapHeight + change < HudMap.MIN_SIZE) HudMap.hudMapHeight = HudMap.MIN_SIZE;
                     else HudMap.hudMapHeight += change;
                     MapConfigScreen.updateResizePos();
                     break;
                 }
             }
-            moveRemainder = (deltaY + moveRemainder) % 1;
+            moveRemainder = (offsetY + moveRemainder) % 1;
         }
     }
 

@@ -3,6 +3,7 @@ package net.mmly.openminemap.gui;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -66,9 +67,10 @@ public class WebAppSelectLayer extends ClickableWidget {
         }
     }
 
+
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
+    public void onClick(Click click, boolean doubled) {
+        super.onClick(click, doubled);
         float lat = RightClickMenu.savedMouseLat;
         float lon = RightClickMenu.savedMouseLong;
         int zoom = FullscreenMapScreen.zoomLevel;

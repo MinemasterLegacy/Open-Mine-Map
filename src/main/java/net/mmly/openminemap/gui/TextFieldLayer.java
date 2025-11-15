@@ -1,6 +1,7 @@
 package net.mmly.openminemap.gui;
 
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.map.PlayerAttributes;
@@ -19,8 +20,8 @@ public class TextFieldLayer extends TextFieldWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
+    public void onClick(Click click, boolean doubled) {
+        super.onClick(click, doubled);
         System.out.println("\""+this.getText()+"\"");
         if (ID == 0 && this.getText().isEmpty() && !this.isFocused()) {
             this.setText(UnitConvert.floorToPlace(PlayerAttributes.yaw, 3));

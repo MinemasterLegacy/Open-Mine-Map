@@ -188,7 +188,8 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(checkButtonLayer);
 
         versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.3.0"), this.textRenderer);
-        versionLabel.alignRight();
+        //below is a substitude for alignRight() based off of the 1.21.8 code of the alightRight() method
+        versionLabel.setX(versionLabel.getX() + ((versionLabel.getWidth()) - (textRenderer.getWidth(versionLabel.getMessage()))));
         this.addDrawableChild(versionLabel);
 
         configHud = ButtonWidget.builder(Text.of("Configure HUD..."), (btn) -> {

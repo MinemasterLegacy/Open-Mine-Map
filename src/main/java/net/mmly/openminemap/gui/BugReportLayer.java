@@ -1,6 +1,7 @@
 package net.mmly.openminemap.gui;
 
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -30,7 +31,7 @@ public class BugReportLayer extends ClickableWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public void onClick(Click click, boolean doubled) {
         FullscreenMapScreen.openBugReportScreen();
     }
 }

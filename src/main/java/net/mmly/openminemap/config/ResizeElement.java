@@ -42,7 +42,7 @@ public class ResizeElement extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
-    @Override //TODO check if it saves properly
+    @Override
     protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
         if (plane == ResizePlane.HORIZONTAL) {
             switch (direction) {

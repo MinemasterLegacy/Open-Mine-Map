@@ -40,7 +40,7 @@ public class Projection {
         }
 
         return base;
-    } //TODO should return three different types (impossible), so a workaround is needed.
+    }
 
     static ModifiedAirOcean _projection = new ModifiedAirOcean();
     static GeographicProjection _upright_proj = _orient_projection(_projection, Orientation.UPRIGHT);
@@ -254,7 +254,7 @@ class UprightOrientation extends ProjectionTransform{
     } //done
 } //done
 
-class InvertedOrientation extends ProjectionTransform{ //TODO
+class InvertedOrientation extends ProjectionTransform{
     InvertedOrientation(GeographicProjection input_projection) {
         super(input_projection);
     } //done

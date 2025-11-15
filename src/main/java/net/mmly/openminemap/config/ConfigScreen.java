@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -43,6 +44,7 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget reverseScrollOption;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
+    ChoiceButtonWidget altitudeShadingOption;
     TextWidget overlayLabel;
     TextWidget generalLabel;
     TextWidget versionLabel;
@@ -141,6 +143,7 @@ public class ConfigScreen extends Screen {
         overlayLabel.setY(overlayLabel.getY() + change);
         playerShowSlider.setY(playerShowSlider.getY() + change);
         directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
+        altitudeShadingOption.setY(altitudeShadingOption.getButtonWidget().getY() + change);
     }
 
     @Override
@@ -169,7 +172,6 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        System.out.println("init");
         totalOptions = 0;
         nextOptionSlot = -5;
         configScreen = this;
@@ -184,7 +186,7 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.2.1"), this.textRenderer);
+        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.3.0"), this.textRenderer);
         versionLabel.alignRight();
         this.addDrawableChild(versionLabel);
 
@@ -215,7 +217,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
         this.addDrawableChild(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Right Click Menu Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("RCM Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
         this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
 
         reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
@@ -225,13 +227,14 @@ public class ConfigScreen extends Screen {
         overlayLabel.setTooltip(Tooltip.of(Text.of("")));
         this.addDrawableChild(overlayLabel);
 
-        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Players"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
-        playerShowSlider.setTooltip(Tooltip.of(Text.of("Show Players on all maps")));
+        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Players"), Text.of("Show Players on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
         this.addDrawableChild(playerShowSlider);
 
-        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Directions"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
-        directionIndicatorShowSlider.setTooltip(Tooltip.of(Text.of("Show Direction Indicators on all maps")));
+        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Directions"), Text.of("Show Direction Indicators on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
         this.addDrawableChild(directionIndicatorShowSlider);
+
+        altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Altitude Shading"),  Text.of("Shade other players white when they are above you and black when they are below you."), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
+        this.addDrawableChild(altitudeShadingOption.getButtonWidget());
 
         scrollRange = totalOptions * 25 + 35;
     }
@@ -255,6 +258,7 @@ public class ConfigScreen extends Screen {
         reverseScrollOption.writeParameterToFile();
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
+        altitudeShadingOption.writeParameterToFile();
         TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();

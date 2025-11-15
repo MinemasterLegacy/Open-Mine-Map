@@ -12,6 +12,7 @@ public class PlayerAttributes {
     public static double latitude;
     public static double yaw;
     public static double geoYaw;
+    public static double altitude;
 
     //private static MinecraftClient mClient = MinecraftClient.getInstance();
 
@@ -33,6 +34,7 @@ public class PlayerAttributes {
                 FullscreenMapScreen.playerLat = c[0];
                 HudMap.playerLon = c[1];
                 HudMap.playerLat = c[0];
+                altitude = minecraftClient.player.getY();
             }
             return;
         } catch (CoordinateValueError ignored) {}
@@ -43,5 +45,6 @@ public class PlayerAttributes {
         FullscreenMapScreen.playerLat = Double.NaN;
         HudMap.playerLon = Double.NaN;
         HudMap.playerLat = Double.NaN;
+        altitude = Double.NaN;
     }
 }

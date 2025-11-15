@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -12,13 +13,14 @@ public class ChoiceSliderWidget extends SliderWidget {
     Text message;
     ConfigOptions configOption;
 
-    public ChoiceSliderWidget(int x, int y, Text message, String[] options, ConfigOptions configOption) {
+    public ChoiceSliderWidget(int x, int y, Text message, Text tooltip, String[] options, ConfigOptions configOption) {
         super(x, y, 120, 20, message, 0);
         this.options = options;
         this.message = message;
         this.configOption = configOption;
         selection = getSelectedOption();
         this.value = (1F / (options.length - 1)) * selection;
+        this.setTooltip(Tooltip.of(tooltip));
         updateMessage();
     }
 

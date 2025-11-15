@@ -86,6 +86,7 @@ public class MapConfigScreen extends Screen {
     protected void init() {
         super.init();
 
+        if (!HudMap.hudEnabled) HudMap.toggleEnabled();
         if (!HudMap.renderHud) HudMap.toggleRendering();
         window = MinecraftClient.getInstance().getWindow();
 

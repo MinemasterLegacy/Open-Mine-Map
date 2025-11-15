@@ -1,37 +1,29 @@
 package net.mmly.openminemap.event;
 
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientCommandSource;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.command.argument.CoordinateArgument;
-import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.Heightmap;
-import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public class CommandHander {
 
@@ -41,11 +33,15 @@ public class CommandHander {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("omm")
                     .then(ClientCommandManager.literal("tpllwtp")
-                            .then(ClientCommandManager.argument("coords", CoordinateArgumentType.coordinateArgumentType())
+                            .then(ClientCommandManager.argument("latitude longitude [altitude]", CoordinateArgumentType.coordinateArgumentType())
                             .executes(CommandHander::tpllwtp)))
                     .then(ClientCommandManager.literal("tpwtpll")
-                            .then(ClientCommandManager.argument("xyz", CoordinateArgumentType.coordinateArgumentType())
+                            .then(ClientCommandManager.argument("x y z", CoordinateArgumentType.coordinateArgumentType())
                             .executes(CommandHander::tpwtpll)))
+                    .then(ClientCommandManager.literal("tpllto")
+                            .then(ClientCommandManager.argument("player name", CoordinateArgumentType.coordinateArgumentType())
+                            .suggests(new TplltoSuggestionProvider())
+                            .executes(CommandHander::tpllto)))
         );});
         //registerCommands();
     }
@@ -59,7 +55,7 @@ public class CommandHander {
         String lon = context.getArgument("longitude", CoordinateValue.class).value;
          */
 
-        String[] coords = context.getArgument("coords", CoordinateValue.class).value.split(" ");
+        String[] coords = context.getArgument("latitude longitude [altitude]", CoordinateValue.class).value.split(" ");
         if (coords.length < 2) {
             context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered incomplete coordinates.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
             return 0;
@@ -97,7 +93,7 @@ public class CommandHander {
     }
 
     private static int tpwtpll(CommandContext<FabricClientCommandSource> context) {
-        String[] xyzStrings = context.getArgument("xyz", CoordinateValue.class).value.split(" ");
+        String[] xyzStrings = context.getArgument("x y z", CoordinateValue.class).value.split(" ");
 
         System.out.println(Arrays.toString(xyzStrings));
 
@@ -131,8 +127,44 @@ public class CommandHander {
             context.getSource().sendFeedback(Text.literal("An error occurred. You many have entered coordinates that are invalid or out of bounds.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
             return 0;
         }
-
-
     }
 
+    private static int tpllto(CommandContext<FabricClientCommandSource> context) {
+        String desiredPlayer = context.getArgument("player name", CoordinateValue.class).value.trim();
+
+        for (PlayerEntity knownPlayer : PlayersManager.getNearPlayers()) {
+            try {
+                if (Objects.equals(Objects.requireNonNull(knownPlayer.getName()).getString(), desiredPlayer)) {
+                    double desiredY = knownPlayer.getY();
+                    double[] longLat = Projection.to_geo(knownPlayer.getX(), knownPlayer.getZ());
+                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", longLat[0])+" "+String.format("%.7f", longLat[1])+" "+desiredY);
+                    return 1;
+                }
+            } catch (NullPointerException e) {
+                System.out.println("NullPointerException thrown for /tpllto");
+                return 0;
+            } catch (CoordinateValueError e) {
+                context.getSource().sendFeedback(Text.of("Error parsing coordinates; The player you are trying to teleport to may be out of bounds of the projection."));
+                return 0;
+            }
+        }
+
+        context.getSource().sendFeedback(Text.literal("Could not find player \""+desiredPlayer+"\" within rendered area.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+
+        return 1;
+    }
+
+}
+
+class TplltoSuggestionProvider implements SuggestionProvider<FabricClientCommandSource> {
+
+    @Override
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
+        for (PlayerEntity knownPlayer : PlayersManager.getNearPlayers()) {
+            String name = knownPlayer.getName().getString();
+            if (name.equals(MinecraftClient.getInstance().player.getName().getString())) continue;
+            builder.suggest(name);
+        }
+        return builder.buildFuture();
+    }
 }

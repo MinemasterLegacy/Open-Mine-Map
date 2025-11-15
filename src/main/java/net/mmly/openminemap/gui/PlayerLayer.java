@@ -20,7 +20,6 @@ public class PlayerLayer extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        System.out.println("yea");
     }
 
     @Override

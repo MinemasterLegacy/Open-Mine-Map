@@ -7,13 +7,11 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
@@ -23,9 +21,12 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.BufferedPlayer;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
-import org.joml.Matrix4f;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class HudMap {
 
@@ -49,7 +50,8 @@ public class HudMap {
     public static double playerLat;
     static double playerMapX;
     static double playerMapY;
-    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_TOGGLE));
+    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_TOGGLE)); //is toggled by the keybind
+    public static boolean hudEnabled = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_ENABLED)); //is toggled by the fullscreen map button and is dominant over the keybind
     public static int reloadSkin = 4;
     public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_X));
     public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_Y));
@@ -151,13 +153,21 @@ public class HudMap {
     }
 
     public static void toggleRendering() {
+        if (!hudEnabled) return;
         renderHud = !renderHud;
         ConfigFile.writeParameter(ConfigOptions._HUD_TOGGLE, Boolean.toString(renderHud));
         ConfigFile.writeToFile();
     }
 
-    private static void drawPlayerToMap(DrawContext context, PlayerEntity player) {
-        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return; //cancel the call if the player is the user/client (it has seperate draw code)
+    public static void toggleEnabled() {
+        hudEnabled = !hudEnabled;
+        if (hudEnabled && !renderHud) toggleRendering();
+        ConfigFile.writeParameter(ConfigOptions._HUD_ENABLED, Boolean.toString(hudEnabled));
+        ConfigFile.writeToFile();
+    }
+
+    private static BufferedPlayer drawDirectionIndicatorsToMap(DrawContext context, PlayerEntity player, boolean indicatorsOnly) {
+        if (MinecraftClient.getInstance().player.getUuid().equals(player.getUuid())) return null; //cancel the call if the player is the user/client (it has seperate draw code)
 
         double mcX = player.getX();
         double mcZ = player.getZ();
@@ -165,9 +175,9 @@ public class HudMap {
         try {
             geoCoords = Projection.to_geo(mcX, mcZ);
         } catch (CoordinateValueError e) {
-            return;
+            return null;
         }
-        if (Double.isNaN(geoCoords[0])) return;
+        if (Double.isNaN(geoCoords[0])) return null;
         double lon = geoCoords[1];
         double lat = geoCoords[0];
         double mapX = UnitConvert.longToMapX(lon, zoomLevel, renderTileSize);
@@ -189,15 +199,36 @@ public class HudMap {
         if (pTexture == null) pTexture = Identifier.of("openminemap", "skinbackup.png");
 
         //context.fill(hudMapX + (hudMapWidth / 2) - 4 + mapXOffset, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + 8 , hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + 8, 0xFFFFFFFF);
-        context.drawTexture(RenderLayer::getGuiTextured, pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, 8 + leftCrop, 8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
-        context.drawTexture(RenderLayer::getGuiTextured, pTexture, hudMapX + (hudMapWidth / 2) - 4 + mapXOffset + leftCrop, hudMapY + (hudMapHeight / 2) - 4 + mapYOffset + upCrop, 40 + leftCrop, 8 + upCrop, rightCrop - leftCrop, downCrop - upCrop, rightCrop - leftCrop, downCrop - upCrop, 64, 64);
 
         double d = player.getYaw() - Direction.calcDymaxionAngleDifference();
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d)) DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset, true);
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(d))
+            DirectionIndicator.draw(context, d,hudMapX + (hudMapWidth / 2) - 12 + mapXOffset, hudMapY + (hudMapHeight / 2) - 12 + mapYOffset, true, indicatorsOnly);
+
+        return new BufferedPlayer(mapXOffset, mapYOffset, pTexture, player.getY(), upCrop, downCrop, leftCrop, rightCrop);
+    }
+
+    private static void drawBufferedPlayersToMap(DrawContext context, ArrayList<BufferedPlayer> players) {
+        for (BufferedPlayer player : players) {
+            if (player == null) continue;
+            int x = hudMapX + (hudMapWidth / 2) - 4 + player.offsetX + player.leftCrop;
+            int y = hudMapY + (hudMapHeight / 2) - 4 + player.offsetY + player.upCrop;
+            int width = player.rightCrop - player.leftCrop;
+            int height = player.downCrop - player.upCrop;
+            context.drawTexture(RenderLayer::getGuiTextured, player.texture, x, y, 8 + player.leftCrop,8 + player.upCrop, width, height,  width, height, 64, 64);
+            context.drawTexture(RenderLayer::getGuiTextured, player.texture, x, y, 40 + player.leftCrop,8 + player.upCrop, width, height, width, height, 64, 64);
+            if(!Objects.equals(ConfigFile.readParameter(ConfigOptions.ALTITUDE_SHADING), "on")) return;
+            double altitudeOffset = player.y - PlayerAttributes.altitude;
+            int alpha = (int) (Math.clamp(Math.abs(altitudeOffset) -16, 0, 80) * 1.5);
+            if (altitudeOffset > 0) {
+                context.fill(x, y, x + width, y + height, UnitConvert.argb(alpha, 255, 255, 255));
+            } else {
+                context.fill(x, y, x + width, y + height, UnitConvert.argb(alpha, 0, 0, 0));
+            }
+        }
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
-        if (!renderHud || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
+        if (!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
 
         if (reloadSkin > 0) { //load player skins
             if (MinecraftClient.getInstance().player == null) {
@@ -266,17 +297,22 @@ public class HudMap {
         }
 
         //draw all players (except self)
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
-            PlayersManager.updatePlayerSkinList();
-            for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-                drawPlayerToMap(context, player);
-            }
+        PlayersManager.updatePlayerSkinList();
+        ArrayList<BufferedPlayer> players = new ArrayList<>();
+        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+            //direction indicators need to be drawn before players. To accomplish this, bufferedPlayer classes store the values needed to draw the players later
+            players.add(drawDirectionIndicatorsToMap(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)));
         }
+        //now that direction indicators have been drawn, players can be drawn
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL))
+            drawBufferedPlayersToMap(context, players);
 
+        boolean indicatorOnly = !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF);
 
         //draw the direction indicator
         //context.fill(hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12,hudMapX + (hudMapWidth / 2) - 12 + 24, hudMapY + (hudMapHeight / 2) - 12 + 24, 0xFFFFFFFF);
-        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, true);
+        if (directionIndicator.loadSuccess && OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF))
+            DirectionIndicator.draw(context, PlayerAttributes.geoYaw,hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, true, indicatorOnly);
         //if (directionIndicator.updateDynamicTexture() && directionIndicator.loadSuccess) context.drawTexture(directionIndicator.textureId, hudMapX + (hudMapWidth / 2) - 12, hudMapY + (hudMapHeight / 2) - 12, 0, 0, 24, 24, 24, 24);
 
         //draw the player; two draw statements are used in order to display both skin layers
@@ -291,9 +327,9 @@ public class HudMap {
                 context.fill(hudCompassX + i, hudCompassY + i, hudCompassX + hudCompassWidth - i, hudCompassY + 16 - i, 0x33CCCCCC);
             }
             //draw the compass
-            context.drawTexture(RenderLayer::getGuiTextured, compassIdentifier, hudCompassX, hudCompassY, (int) Math.round((PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16,  hudCompassWidth, 16, 360, 16);
+            context.drawTexture(RenderLayer::getGuiTextured, compassIdentifier, hudCompassX, hudCompassY, (float) (PlayerAttributes.yaw - direction - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16,  hudCompassWidth, 16, 360, 16);
             //draw the snap angle indicator
-            if (doSnapAngle) context.drawTexture(RenderLayer::getGuiTextured, snapAngleIdentifier, hudCompassX, hudCompassY, (int) Math.round((PlayerAttributes.yaw + snapAngle - ((double) hudCompassWidth / 2))) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 90, 16);
+            if (doSnapAngle) context.drawTexture(RenderLayer::getGuiTextured, snapAngleIdentifier, hudCompassX, hudCompassY, (float) (PlayerAttributes.yaw + snapAngle - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 90, 16);
             //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
             //draw the compass direction needle line thing (i dont have a good name for it)
             context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);

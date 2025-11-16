@@ -13,10 +13,12 @@ import net.mmly.openminemap.util.DrawableMapTile;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class TileManager {
 
@@ -28,6 +30,7 @@ public class TileManager {
     public static boolean doReverseScroll;
     public static OverlayVisibility showPlayers;
     public static OverlayVisibility showDirectionIndicators;
+    public static int themeColor = 0xFF808080;
 
     public static String getRootFile() { //returns directory of .minecraft (or equivalent folder)
         return System.getProperty("user.dir") + File.separator;
@@ -265,6 +268,7 @@ public class TileManager {
         //register new dynamic texture and store it again to be referenced later
         dyLoadedTiles.put(key, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
         //System.out.println("New Dynamic tile");
+        if (key.equals(Arrays.toString(new int[] {0, 0, 0}))) themeColor = image.getRGB(3, 3);
         return dyLoadedTiles.get(key);
     }
 

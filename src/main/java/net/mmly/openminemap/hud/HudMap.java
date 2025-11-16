@@ -94,6 +94,7 @@ public class HudMap {
     public static void initialize(DrawContext context) {
         TileManager.initializeConfigParameters();
         setSnapAngle();
+        initialized = true;
     }
 
     public static void updateX2Y2() {
@@ -251,7 +252,8 @@ public class HudMap {
         renderTileSize = (int) Math.max(TileManager.hudTileScaledSize, Math.pow(2, trueZoomLevel - 11));
 
         //basic monocolor background
-        context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0xFFCEE1E4);
+        context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, TileManager.themeColor);
+        context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0x10000000);
 
         if (Double.isNaN(playerLon)) {//if the player is out of bounds this will be NaN. all other rendering is skipped due to this
             //draw error message and exit

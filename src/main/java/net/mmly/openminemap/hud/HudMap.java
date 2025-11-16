@@ -21,6 +21,7 @@ import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.BufferedPlayer;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.DrawableMapTile;
 import net.mmly.openminemap.util.UnitConvert;
 
 import java.util.ArrayList;
@@ -257,10 +258,6 @@ public class HudMap {
         //set hud tile render size; will be constant unless artificial zoom is enabled
         renderTileSize = (int) Math.max(TileManager.hudTileScaledSize, Math.pow(2, trueZoomLevel - 11));
 
-        tileIdentifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize); //get identifiers for all tiles that will be rendered this tick
-        int trueHW = renderTileSize;
-        int[] TopLeftData = TileManager.getTopLeftData(); //gets the xy position of the top left most tile
-
         //basic monocolor background
         context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0xFFCEE1E4);
 
@@ -279,7 +276,51 @@ public class HudMap {
         mapTilePosX = UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize);
         mapTilePosY = UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize);
 
-        //deaw map tiles, cropping when needed
+        int scaleMultiplier = (int) Math.pow(2, trueZoomLevel - zoomLevel);
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize);
+
+        //draw map tiles, cropping when needed
+
+        for (DrawableMapTile[] column : tiles) {
+            for (DrawableMapTile tile : column) {
+                int tileX = (int) ((tile.x + hudMapX + (double) hudMapWidth / 2) - (int) mapTilePosX);
+                int tileY = (int) ((tile.y + hudMapY + (double) hudMapHeight / 2) - (int) mapTilePosY);
+
+                int leftCrop = tileX < hudMapX ? hudMapX - tileX : 0;
+                int topCrop = tileY < hudMapY ? hudMapY - tileY : 0;
+                int rightCrop = tileX + renderTileSize > hudMapX + hudMapWidth ? (tileX + renderTileSize) - (hudMapX + hudMapWidth) : 0;
+                int bottomCrop = tileY + renderTileSize > hudMapY + hudMapHeight ? (tileY + renderTileSize) - (hudMapY + hudMapHeight) : 0;
+
+                //x, y define where the defined top left corner will go
+                //u, v define the lop left corner of the texture
+                //w, h crop the texture from right and down
+                //texturewidth and textureheight should equal the scale of the tiles (64 here)
+
+                if (renderTileSize - rightCrop - leftCrop < 0 || renderTileSize - bottomCrop - topCrop < 0) continue;
+
+                double u = (tile.subSectionSize * tile.subSectionX) + ((double) leftCrop / ((double) renderTileSize / tile.subSectionSize)) * scaleMultiplier;
+                double v = (tile.subSectionSize * tile.subSectionY) + ((double) topCrop / ((double) renderTileSize / tile.subSectionSize)) * scaleMultiplier;
+
+                double regionWidth = (tile.subSectionSize - ((double) (rightCrop + leftCrop) / ((double) renderTileSize / tile.subSectionSize))) * scaleMultiplier;
+                double regionHeight = (tile.subSectionSize - ((double) (bottomCrop + topCrop) / ((double) renderTileSize / tile.subSectionSize))) * scaleMultiplier;
+
+                context.drawTexture(
+                        tile.identifier,
+                        tileX + leftCrop,
+                        tileY + topCrop,
+                        renderTileSize - rightCrop - leftCrop,
+                        renderTileSize - bottomCrop - topCrop,
+                        (float) u,
+                        (float) v,
+                        (int) regionWidth,
+                        (int) regionHeight,
+                        renderTileSize,
+                        renderTileSize
+                );
+            }
+        }
+
+    /*
         for (int i = 0; i < tileIdentifiers.length; i++) {
             for (int j = 0; j < tileIdentifiers[i].length; j++) {
                 RenderSystem.setShaderTexture(0, tileIdentifiers[i][j]);
@@ -297,9 +338,22 @@ public class HudMap {
                 //texturewidth and textureheight should equal the scale of the tiles (64 here)
 
                 if (trueHW - rightCrop - leftCrop < 0 || trueHW - bottomCrop - topCrop < 0) continue;
-                context.drawTexture(tileIdentifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
+                context.drawTexture(
+                        tileIdentifiers[i][j],
+                        tileX + leftCrop,
+                        tileY + topCrop,
+                        leftCrop,
+                        topCrop,
+                        trueHW - rightCrop - leftCrop,
+                        trueHW - bottomCrop - topCrop,
+                        trueHW,
+                        trueHW);
             }
         }
+
+     */
+
+
 
         //draw all players (except self)
         PlayersManager.updatePlayerSkinList();

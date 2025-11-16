@@ -43,6 +43,10 @@ public class WebAppSelectLayer extends ClickableWidget {
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        if (!RightClickMenu.selectingSite) {
+            setX(-100);
+            return;
+        }
         selection = (int) Math.floor((double) (mouseY - getY() - 1) / 16);
         if (selection > 5 || selection < 0 || mouseX < getX() || mouseX > getX() + getWidth() - 1) {
             selection = -1;

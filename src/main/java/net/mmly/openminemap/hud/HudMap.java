@@ -71,6 +71,13 @@ public class HudMap {
 
     public static Identifier playerIdentifier;
 
+    public static void clampZoom() {
+        //used to decrease zoom level (if needed) when artificial zoom is disabled
+        while (trueZoomLevel > 18) {
+            zoomOut();
+        }
+    }
+
     public static void setSnapAngle() {
         String receivedSnapAngle = ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE);
         if (receivedSnapAngle.isEmpty()) {

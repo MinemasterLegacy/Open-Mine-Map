@@ -91,6 +91,13 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     DirectionIndicator directionIndicator;
     static FullscreenMapScreen instance;
 
+    public static void clampZoom() {
+        //used to decrease zoom level (if needed) when artificial zoom is disabled
+        while (trueZoomLevel > 18) {
+            zoomOut();
+        }
+    }
+
     public static void followPlayer() {
         if (!Double.isNaN(playerLon)) {
             doFollowPlayer = true;

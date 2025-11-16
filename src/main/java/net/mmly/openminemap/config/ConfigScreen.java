@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.gui.TextFieldLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
@@ -259,6 +260,8 @@ public class ConfigScreen extends Screen {
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
         altitudeShadingOption.writeParameterToFile();
+        FullscreenMapScreen.clampZoom();
+        HudMap.clampZoom();
         TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();

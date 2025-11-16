@@ -236,15 +236,7 @@ public class HudMap {
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
         if (!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
 
-        if (reloadSkin > 0) { //load player skins
-            if (MinecraftClient.getInstance().player == null) {
-                playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
-            } else {
-                playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
-            }
-            PlayersManager.updatePlayerSkinList();
-            reloadSkin--;
-        }
+        playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
 
         if (!initialized) initialize(context); //initialize hudmap if not done already
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw

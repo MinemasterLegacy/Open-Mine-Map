@@ -54,6 +54,16 @@ public class ButtonLayer extends ClickableWidget {
             case ButtonFunction.EXIT: //exit
                 if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
                     MapConfigScreen.revertChanges();
+                    MinecraftClient.getInstance().setScreen(
+                            new ConfigScreen()
+                    );
+                    break;
+                }
+                if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {
+                    MinecraftClient.getInstance().setScreen(
+                            new FullscreenMapScreen()
+                    );
+                    break;
                 }
                 MinecraftClient.getInstance().currentScreen.close();
                 break;
@@ -63,6 +73,10 @@ public class ButtonLayer extends ClickableWidget {
             case ButtonFunction.CHECKMARK:
                 if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {
                     ConfigScreen.getInstance().saveChanges();
+                    MinecraftClient.getInstance().setScreen(
+                            new FullscreenMapScreen()
+                    );
+                    break;
                 } else if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
                     MapConfigScreen.saveChanges();
                 } else {

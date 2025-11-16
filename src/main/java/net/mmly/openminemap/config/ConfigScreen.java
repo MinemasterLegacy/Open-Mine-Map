@@ -70,6 +70,14 @@ public class ConfigScreen extends Screen {
     Window window;
     public static ButtonWidget toggleArtificialZoomButton;
 
+    @Override
+    public void close() {
+        super.close();
+        MinecraftClient.getInstance().setScreen(
+                new FullscreenMapScreen()
+        );
+    }
+
     public static ConfigScreen getInstance() {
         return configScreen;
     }

@@ -23,6 +23,7 @@ import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.BufferedPlayer;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.DrawableMapTile;
 import net.mmly.openminemap.util.UnitConvert;
 
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     String playerDisplayLon = "0.00000";
     String playerDisplayLat = "0.00000";
     public static boolean doFollowPlayer;
-    static int renderTileSize;
+    public static int renderTileSize;
     DirectionIndicator directionIndicator;
     static FullscreenMapScreen instance;
 
@@ -474,19 +475,38 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         updateTilePositions();
 
         //basically a list of tile references to be rendered
-        identifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, windowScaledWidth, windowScaledHeight, renderTileSize);
+        //identifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, windowScaledWidth, windowScaledHeight, renderTileSize);
 
         lastMouseX = (int) mClient.mouse.getX();
         lastMouseY = (int) mClient.mouse.getY();
 
-        //int trueHW = this.pixelToScaledCoords(256);
-        int trueHW = renderTileSize;
-        int[] TopLeftData = TileManager.getTopLeftData();
-
-        //draws the map tiles
+        /*
         for (int i = 0; i < identifiers.length; i++) {
             for (int j = 0; j < identifiers[i].length; j++) {
                 context.drawTexture(identifiers[i][j], (int) ((((TopLeftData[0] + i) * renderTileSize) + (float) windowScaledWidth / 2) - (int) mapTilePosX), (int) ((((TopLeftData[1]+j) * renderTileSize) + (float) windowScaledHeight / 2) - (int) mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
+            }
+        }
+        */
+
+        int scaleMultiplier = (int) Math.pow(2, trueZoomLevel - zoomLevel);
+
+        //draws the map tiles
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, windowScaledWidth, windowScaledHeight, renderTileSize);
+        for (DrawableMapTile[] column : tiles) {
+            for (DrawableMapTile tile : column) {
+                context.drawTexture(
+                        tile.identifier,
+                        (int) (tile.x + ((double) windowScaledWidth / 2) - mapTilePosX),
+                        (int) (tile.y + ((double) windowScaledHeight / 2) - mapTilePosY),
+                        renderTileSize,
+                        renderTileSize,
+                        tile.subSectionSize * scaleMultiplier * tile.subSectionX,
+                        tile.subSectionSize * scaleMultiplier * tile.subSectionY,
+                        tile.subSectionSize * scaleMultiplier,
+                        tile.subSectionSize * scaleMultiplier,
+                        renderTileSize,
+                        renderTileSize
+                );
             }
         }
 

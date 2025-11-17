@@ -49,7 +49,7 @@ public class Requester extends Thread {
             URL url = new URI(urlPattern).toURL();
             URLConnection connection = url.openConnection();
 
-            connection.setRequestProperty("User-Agent", "Java/21.0.8 OpenMineMap");
+            connection.setRequestProperty("User-Agent", "Java/21.0.8 OpenMineMap (contact: minemasterlegacy@gmail.com)");
             connection.setRequestProperty("cache-control", "max-age=7");
             connection.setUseCaches(true);
             connection.setRequestProperty("Retry-After", "3");

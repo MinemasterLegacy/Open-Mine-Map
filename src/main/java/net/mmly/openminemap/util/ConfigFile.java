@@ -19,7 +19,7 @@ public class ConfigFile {
             "10", //hudcompassx
             "96", //hudcompassy
             "144", //hudcompasswidth
-            "https://tile.openstreetmap.org/{z}/{x}/{y}.png", //tilemapurl
+            "OpenStreetMap", //tilemapurl, was "https://tile.openstreetmap.org/{z}/{x}/{y}.png" in 1.3.0
             "false", //ArtificialZoom
             "", //SnapAngle
             "/tpll", //RightClickMenuUses

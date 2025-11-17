@@ -1,6 +1,5 @@
 package net.mmly.openminemap.config;
 
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -19,9 +18,7 @@ import net.mmly.openminemap.gui.TextFieldLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.UnitConvert;
-
-import java.util.Objects;
+import net.mmly.openminemap.util.TileUrlFile;
 
 public class ConfigScreen extends Screen {
     public ConfigScreen() {
@@ -33,28 +30,36 @@ public class ConfigScreen extends Screen {
     private static int windowWidth;
     private static int windowScaledHeight;
     private static int windowScaledWidth;
-    private static ButtonLayer exitButtonLayer;
-    private static ButtonLayer checkButtonLayer;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
-    public static TextFieldWidget customUrlWidget;
-    public static TextFieldWidget snapAngleWidget;
     protected static boolean doArtificialZoom;
-    ChoiceButtonWidget rightClickMeuUsesOption;
-    ChoiceButtonWidget artificialZoomOption;
-    ChoiceButtonWidget reverseScrollOption;
-    ChoiceSliderWidget playerShowSlider;
-    ChoiceSliderWidget directionIndicatorShowSlider;
-    ChoiceButtonWidget altitudeShadingOption;
-    TextWidget overlayLabel;
-    TextWidget generalLabel;
-    TextWidget versionLabel;
-    ButtonWidget configHud;
+
     int nextOptionSlot;
     int totalOptions;
     private int scrollRange;
     private int currentScroll = 0;
     private int maxScroll;
     private final int SCROLLSPEED = 5;
+
+    private static ButtonLayer exitButtonLayer;
+    private static ButtonLayer checkButtonLayer;
+    TextWidget versionLabel;
+    ButtonWidget configHud;
+
+    TextWidget generalLabel;
+    ChoiceButtonWidget artificialZoomOption;
+    public static TextFieldWidget snapAngleWidget;
+    ChoiceButtonWidget rightClickMeuUsesOption;
+    ChoiceButtonWidget reverseScrollOption;
+
+    TextWidget overlayLabel;
+    ChoiceSliderWidget playerShowSlider;
+    ChoiceSliderWidget directionIndicatorShowSlider;
+    ChoiceButtonWidget altitudeShadingOption;
+
+    TextWidget urlLabel;
+    public static TextFieldWidget customUrlWidget;
+    private static UrlChoiceWidget definedUrlWidget;
+
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -144,7 +149,7 @@ public class ConfigScreen extends Screen {
         generalLabel.setY(generalLabel.getY() + change);
         configHud.setY(configHud.getY() + change);
         artificialZoomOption.getButtonWidget().setY(artificialZoomOption.getButtonWidget().getY() + change);
-        customUrlWidget.setY(customUrlWidget.getY() + change);
+       // customUrlWidget.setY(customUrlWidget.getY() + change);
         snapAngleWidget.setY(snapAngleWidget.getY() + change);
         rightClickMeuUsesOption.getButtonWidget().setY(rightClickMeuUsesOption.getButtonWidget().getY() + change);
         reverseScrollOption.getButtonWidget().setY(reverseScrollOption.getButtonWidget().getY() + change);
@@ -152,6 +157,8 @@ public class ConfigScreen extends Screen {
         playerShowSlider.setY(playerShowSlider.getY() + change);
         directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
         altitudeShadingOption.getButtonWidget().setY(altitudeShadingOption.getButtonWidget().getY() + change);
+        urlLabel.setY(urlLabel.getY() + change);
+        definedUrlWidget.setY(definedUrlWidget.getY() + change);
     }
 
     @Override
@@ -213,12 +220,6 @@ public class ConfigScreen extends Screen {
         artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.of("Adds further zoom levels beyond what OpenStreetMap provides")));
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
 
-        customUrlWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"), 1);
-        customUrlWidget.setMaxLength(1000);
-        customUrlWidget.setText(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL));
-        customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
-        this.addDrawableChild(customUrlWidget);
-
         snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.of("Snap Angle"), 0);
         snapAngleWidget.setMaxLength(50);
         snapAngleWidget.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
@@ -232,7 +233,6 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(reverseScrollOption.getButtonWidget());
 
         overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("Overlays"), this.textRenderer);
-        overlayLabel.setTooltip(Tooltip.of(Text.of("")));
         this.addDrawableChild(overlayLabel);
 
         playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Players"), Text.of("Show Players on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
@@ -244,22 +244,48 @@ public class ConfigScreen extends Screen {
         altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Altitude Shading"),  Text.of("Shade other players white when they are above you and black when they are below you."), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
         this.addDrawableChild(altitudeShadingOption.getButtonWidget());
 
+        urlLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("Tile Source"), this.textRenderer);
+        this.addDrawableChild(urlLabel);
+
+        /*
+        customUrlWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"), 1);
+        customUrlWidget.setMaxLength(1000);
+        customUrlWidget.setText(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL));
+        customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
+        this.addDrawableChild(customUrlWidget);
+
+         */
+
+        definedUrlWidget = new UrlChoiceWidget(this.textRenderer, 20, getNextOptionSlot(), 120, 20);
+        this.addDrawableChild(definedUrlWidget);
+        this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
+        this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
+
         scrollRange = totalOptions * 25 + 35;
         currentScroll = 0;
     }
 
     public void saveChanges() {
+
+        if (definedUrlWidget.currentUrlId != TileUrlFile.getCurrentUrlId()) {
+            definedUrlWidget.writeParameterToFile();
+            TileManager.setCacheDir();
+        }
+
+        /*
         if (!Objects.equals(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL), customUrlWidget.getText())) {
             //System.out.println("yea");
             TileManager.clearCacheDir();
         }
+
+         */
         String snapAngle;
         try {
             snapAngle = Double.toString(Double.parseDouble(snapAngleWidget.getText())); //will ensure that the snap angle is a number
         } catch (NumberFormatException e) {
             snapAngle = "";
         }
-        ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, customUrlWidget.getText());
+        //ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, customUrlWidget.getText());
         ConfigFile.writeParameter(ConfigOptions.SNAP_ANGLE, snapAngle);
         //ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(doArtificialZoom));
         rightClickMeuUsesOption.writeParameterToFile();

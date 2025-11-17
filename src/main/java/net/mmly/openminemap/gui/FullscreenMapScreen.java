@@ -21,10 +21,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
-import net.mmly.openminemap.util.BufferedPlayer;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.DrawableMapTile;
-import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.util.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,12 +46,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     protected static final int buttonSize = 20;
     private static final int numHotbarButtons = 6; //determines number of buttons expected for the bottom bar of the screen
     protected static final int[][] buttonPositionModifiers = new int[][] {
-        {-70,(8 + buttonSize)},
-        {-46,(8 + buttonSize)},
-        {-22,(8 + buttonSize)},
-        {2,(8 + buttonSize)},
-        {26,(8 + buttonSize)},
-        {50,(8 + buttonSize)}
+        {-70,(8 + buttonSize + 12)},
+        {-46,(8 + buttonSize + 12)},
+        {-22,(8 + buttonSize + 12)},
+        {2,(8 + buttonSize + 12)},
+        {26,(8 + buttonSize + 12)},
+        {50,(8 + buttonSize + 12)}
     };
     //protected static Identifier waypointIdentifiers[];
     // mouse x, y and down of previous frame, recorded here specifically so that changes in mousexy while left mouse is clicked can be detected.
@@ -228,18 +225,34 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, trueZoomLevel + 7) || mouseTilePosY > Math.pow(2, trueZoomLevel + 7);
     }
 
+    protected static void openLinkScreen(String link, Screen returnScreen) {
+        MinecraftClient.getInstance().setScreen(
+                new ConfirmLinkScreen(new BooleanConsumer() {
+                    @Override
+                    public void accept(boolean b) {
+                        if(b) {
+                            Util.getOperatingSystem().open(link);
+                        }
+                        MinecraftClient.getInstance().setScreen(returnScreen);
+                    }
+
+                }, link, true)
+
+        );
+    }
+
     protected static void openOSMAttrScreen() {
         MinecraftClient.getInstance().setScreen(
                 new ConfirmLinkScreen(new BooleanConsumer() {
                     @Override
                     public void accept(boolean b) {
                         if(b) {
-                            Util.getOperatingSystem().open("https://openstreetmap.org/copyright");
+                            Util.getOperatingSystem().open(TileUrlFile.getCurrentUrl().attribution_links[0]);
                         }
                         MinecraftClient.getInstance().setScreen(new FullscreenMapScreen());
                     }
 
-                }, "https://openstreetmap.org/copyright", true)
+                }, TileUrlFile.getCurrentUrl().attribution_links[0], true)
 
         );
     }
@@ -441,7 +454,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             buttonlayers.get(ButtonFunction.getEnumOf(i)).setPosition(windowScaledWidth / 2 + buttonPositionModifiers[i][0], windowScaledHeight - buttonPositionModifiers[i][1]);
         }
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
-        attributionLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 16);
+        attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
         bugReportLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 32);
     }
 
@@ -588,11 +601,19 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             mouseDisplayLat = UnitConvert.floorToPlace(mouseLat, 5);
         }
 
+        int attributionOffset;
+        //if attribution would overlay the coordinate display
+        if (attributionLayer.getWidth() + textRenderer.getWidth("Mouse: " + mouseDisplayLat + "°, " + mouseDisplayLong + "°") > windowScaledWidth) {
+            attributionOffset = attributionLayer.getHeight();
+        } else {
+            attributionOffset = 0;
+        }
+
         //draws the Mouse and player coordinates text fields
-        context.fill(0, windowScaledHeight - 16, 53 + (mouseDisplayLong.length() * 6) + (mouseDisplayLat.length() * 6), windowScaledHeight, 0x88000000);
-        context.drawText(this.textRenderer, "Mouse: " + mouseDisplayLat + "°, " + mouseDisplayLong + "°", 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10, 0xFFFFFFFF, true);
-        context.fill(0, windowScaledHeight - 32, 55 + (playerDisplayLon.length() * 6) + (playerDisplayLat.length() * 6), windowScaledHeight - 16, 0x88000000);
-        context.drawText(this.textRenderer, "Player: " + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16, 0xFFFFFFFF, true);
+        context.fill(0, windowScaledHeight - 16 - attributionOffset, 53 + (mouseDisplayLong.length() * 6) + (mouseDisplayLat.length() * 6), windowScaledHeight - attributionOffset, 0x88000000);
+        context.drawText(this.textRenderer, "Mouse: " + mouseDisplayLat + "°, " + mouseDisplayLong + "°", 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, 0xFFFFFFFF, true);
+        context.fill(0, windowScaledHeight - 32 - attributionOffset, 55 + (playerDisplayLon.length() * 6) + (playerDisplayLat.length() * 6), windowScaledHeight - 16 - attributionOffset, 0x88000000);
+        context.drawText(this.textRenderer, "Player: " + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);

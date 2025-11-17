@@ -3,22 +3,23 @@ package net.mmly.openminemap.map;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.DrawableMapTile;
+import net.mmly.openminemap.util.TileUrlFile;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class TileManager {
 
@@ -31,6 +32,8 @@ public class TileManager {
     public static OverlayVisibility showPlayers;
     public static OverlayVisibility showDirectionIndicators;
     public static int themeColor = 0xFF808080;
+    public static boolean oldFilesDetected = false;
+    public static String cacheName;
 
     public static String getRootFile() { //returns directory of .minecraft (or equivalent folder)
         return System.getProperty("user.dir") + File.separator;
@@ -123,17 +126,19 @@ public class TileManager {
         return (x < 0 || y < 0 || x > Math.pow(2, zoom) - 1 || y > Math.pow(2, zoom) - 1);
     }
 
-    public static void createCacheDir() {
+    public static void createOpenminemapDir() {
         try { // create or open the base openminemap file for caching
-            File cacheDirectory = new File(TileManager.getRootFile() + "openminemap");
-            if (cacheDirectory.mkdir()) { //if directory does not exist
-                System.out.println("OMM Directory Creation Success: " + cacheDirectory.getAbsolutePath());
+            File ommDirectory = new File(TileManager.getRootFile() + "openminemap");
+            if (ommDirectory.mkdir()) { //if directory does not exist
+                System.out.println("OMM Directory Creation Success: " + ommDirectory.getAbsolutePath());
             } else { //if directory does exist
-                //System.out.println(Text.literal("OMM Directory Exists: " + cacheDirectory.getAbsolutePath()));
+                //System.out.println(Text.literal("OMM Directory Exists: " + ommDirectory.getAbsolutePath()));
             }
         } catch (Exception e) {
             System.out.println(Text.literal("OMM Directory Error: " + e));
         }
+
+        /*
         for (int i = 0; i < 19; i++) { //create subdirectories for osm zoom levels 0-18
             try {
                 File cacheDirectory = new File(TileManager.getRootFile() + "openminemap/" + i);
@@ -146,6 +151,79 @@ public class TileManager {
                 System.out.println(Text.literal("OMM Directory Error: " + e));
             }
         }
+         */
+
+        for (int i = 0; i < 19; i++) { //check for old directories that can be deleted (files 0-18)
+            if (Files.exists(Path.of(TileManager.getRootFile() + "openminemap/" + i))) {
+                oldFilesDetected = true;
+            }
+        }
+    }
+
+    public static void setCacheDir() {
+        purgeOldFiles();
+        cacheName = TileUrlFile.getCurrentUrl().name;
+        try { // create or open the base openminemap file for caching
+            File cacheDirectory = new File(TileManager.getRootFile() + "openminemap/"+cacheName+"/");
+            if (cacheDirectory.mkdir()) { //if directory does not exist
+                System.out.println("Cache Directory Creation Success: " + cacheDirectory.getAbsolutePath());
+            } else { //if directory does exist
+                //System.out.println(Text.literal("Cache Directory Exists: " + cacheDirectory.getAbsolutePath()));
+            }
+        } catch (Exception e) {
+            System.out.println(Text.literal("Cache Directory Error: " + e));
+        }
+        for (int i = 0; i < 19; i++) { //create subdirectories for osm zoom levels 0-18
+            try {
+                File zoomDirectory = new File(TileManager.getRootFile() + "openminemap/" + cacheName + "/" + i);
+                if (zoomDirectory.mkdir()) { //if directory does not exist
+                    System.out.println("Zoom Directory Creation Success: " + zoomDirectory.getAbsolutePath());
+                } else { //if directory does exist
+                    //System.out.println(Text.literal("Zoom Directory Exists: " + zoomDirectory.getAbsolutePath()));
+                }
+            } catch (Exception e) {
+                System.out.println(Text.literal("Zoom Directory Error: " + e));
+            }
+        }
+        //System.out.println("Clearing loaded tiles...");
+        TextureManager tm = MinecraftClient.getInstance().getTextureManager();
+        for (Identifier tile : dyLoadedTiles.values()) {
+            tm.destroyTexture(tile);
+        }
+        dyLoadedTiles.clear();
+    }
+
+    public static void purgeOldFiles() {
+        File cacheDirectory = new File(TileManager.getRootFile() + "openminemap");
+        for (File f : cacheDirectory.listFiles()) {
+            if (isPurgeable(f.getName())) {
+                for (File file : f.listFiles()) {
+                    file.delete();
+                }
+                if (f.delete()) {
+                    System.out.println("Success purging file/directory: "+f.getName());
+                } else {
+                    System.out.println("Error purging file/directory: "+f.getName());
+                }
+            }
+        }
+    }
+
+    private static final String[] toPurge = new String[] {
+            "0", "1", "2",
+            "3", "4", "5",
+            "6", "7", "8",
+            "9", "10", "11",
+            "13", "12", "11",
+            "12", "13", "14",
+            "15", "16", "17", "18"
+    };
+
+    private static boolean isPurgeable(String fileName) {
+        for (String purgeName : toPurge) {
+            if (purgeName.equals(fileName)) return true;
+        }
+        return false;
     }
 
     public static void clearCacheDir() {
@@ -187,7 +265,7 @@ public class TileManager {
 
             BufferedImage osmTile = null;
             try { //if image is found in cache
-                osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+mapZoom+"/"+tileX+"-"+tileY+".png")); //get an image from /run/openminemap;
+                osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+cacheName+"/"+mapZoom+"/"+tileX+"-"+tileY+".png")); //get an image from /run/openminemap;
                 registerDynamicIdentifier(osmTile, thisKey);
                 return new DrawableMapTile(
                         dyLoadedTiles.get(thisKey),
@@ -211,7 +289,7 @@ public class TileManager {
                     break;
                 }
                 try { //if a higher tile on disk
-                    osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+zoomToTry+"/"+xToTry+"-"+yToTry+".png")); //get an image from /run/openminemap;
+                    osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+cacheName+"/"+zoomToTry+"/"+xToTry+"-"+yToTry+".png")); //get an image from /run/openminemap;
                     registerDynamicIdentifier(osmTile, keyToTry);
                     foundTile = true;
                     break;
@@ -297,7 +375,7 @@ public class TileManager {
 
             BufferedImage osmTile;
             try { //if image is found in cache
-                osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+zoom+"/"+x+"-"+y+".png")); //get an image from /run/openminemap;
+                osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+cacheName+"/"+zoom+"/"+x+"-"+y+".png")); //get an image from /run/openminemap;
             } catch (IIOException e) { //else, request image from osm
                 //System.out.println("Requesting OSM Tile...");
                 //osmTile = RequestManager.tileGetRequest(x, y, zoom, type);

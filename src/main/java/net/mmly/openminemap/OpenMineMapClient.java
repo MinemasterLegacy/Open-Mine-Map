@@ -10,7 +10,12 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
 
+import java.util.ArrayList;
+
 public class OpenMineMapClient implements ClientModInitializer { // client class
+
+    public static ArrayList<String> debugMessages = new ArrayList<>();
+
 
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called

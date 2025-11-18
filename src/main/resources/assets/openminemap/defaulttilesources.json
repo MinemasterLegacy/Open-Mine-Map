@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "name": "Humanitarian",
+      "source_url": "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+      "attribution": "Tiles style by {Humanitarian OpenStreetMap Team} hosted by {OpenStreetMap France.}",
+      "attribution_links": [
+        "https://www.hotosm.org",
+        "https://www.openstreetmap.fr"
+      ]
+    },
+    {
+      "name": "CyclOSM",
+      "source_url": "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
+      "attribution": "{Leaflet} | {CyclOSM}",
+      "attribution_links": [
+        "https://leafletjs.com",
+        "https://www.cyclosm.org"
+      ]
+    }
+  ]
+}

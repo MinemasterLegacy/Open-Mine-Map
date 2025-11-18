@@ -10,6 +10,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
@@ -235,6 +236,11 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+        while (!OpenMineMapClient.debugMessages.isEmpty()) {
+            if (OpenMineMapClient.debugMessages.getFirst() != null) MinecraftClient.getInstance().player.sendMessage(Text.literal(OpenMineMapClient.debugMessages.getFirst()).formatted(Formatting.RED));
+            OpenMineMapClient.debugMessages.removeFirst();
+        }
+
         if (!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
 
         playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();

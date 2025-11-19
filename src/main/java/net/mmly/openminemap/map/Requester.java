@@ -1,5 +1,6 @@
 package net.mmly.openminemap.map;
 
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -25,6 +26,7 @@ public class Requester extends Thread {
     int requestCounter = 0;
 
     public void run() {
+        if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled for this session.");
         while (true) {
             if (RequestManager.pendingRequest != null) {
                 this.tileGetRequest(RequestManager.pendingRequest[0], RequestManager.pendingRequest[1], RequestManager.pendingRequest[2], TileUrlFile.getCurrentUrl().source_url);

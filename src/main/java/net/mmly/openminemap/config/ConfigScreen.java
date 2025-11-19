@@ -294,8 +294,11 @@ public class ConfigScreen extends Screen {
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
         altitudeShadingOption.writeParameterToFile();
-        FullscreenMapScreen.clampZoom();
-        HudMap.clampZoom();
+        if (!Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM))) {
+            FullscreenMapScreen.clampZoom();
+            HudMap.clampZoom();
+        }
+
         TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();

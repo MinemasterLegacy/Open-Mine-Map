@@ -13,11 +13,13 @@
         "ellie_4559 (moral support)"
     ],
 	"contact": {
-		"sources": "https://github.com/MinemasterLegacy/Open-Mine-Map"
+		"sources": "https://github.com/MinemasterLegacy/Open-Mine-Map",
+        "issues": "https://github.com/MinemasterLegacy/Open-Mine-Map/issues",
+        "homepage": "https://github.com/MinemasterLegacy/Open-Mine-Map"
 	},
 	"license": "MIT License",
 	"icon": "assets/openminemap/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
 		"main": [
 			"net.mmly.openminemap.OpenMineMap"

@@ -70,7 +70,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static RightClickMenu rightClickLayer = new RightClickMenu(0, 0);
     public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
     private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
-    private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0, 157, 16);
+    private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][6];
@@ -332,7 +332,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
-        bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32, 157, 16);
+        bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32);
         this.addDrawableChild(bugReportLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
 
         directionIndicator = new DirectionIndicator(0, 0, 0, 0, Text.of(""));
@@ -455,7 +455,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
         attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
-        bugReportLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 32);
+        bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
     }
 
     private void updateTilePositions() {

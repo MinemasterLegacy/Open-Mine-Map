@@ -1,11 +1,14 @@
 package net.mmly.openminemap.gui;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.mmly.openminemap.util.TileUrlFile;
+import net.mmly.openminemap.util.UnitConvert;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -19,6 +22,7 @@ public class AttributionLayer extends ClickableWidget {
     private final String attribution;
     private final char[] attributionString;
     private int[][] selectionZones;
+    private int selection = -1;
 
     public AttributionLayer(int x, int y, int width, int height) {
         super(x, y, width, height, Text.empty());
@@ -39,6 +43,8 @@ public class AttributionLayer extends ClickableWidget {
         //context.drawText(textRenderer, "Map data from", windowScaledWidth - 152, windowScaledHeight + 7 - textRenderer.fontHeight - 10, 0xFFFFFFFF, true);
         //context.drawText(textRenderer, Text.of("OpenStreetMap"), windowScaledWidth - 77, windowScaledHeight + 7 - textRenderer.fontHeight - 10, 0xFF548AF7, true); //0xFF1b75d0
 
+        calculateSelection();
+
         textWidth = textRenderer.getWidth(attribution);
         context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, 0x88000000);
 
@@ -53,7 +59,11 @@ public class AttributionLayer extends ClickableWidget {
             if (currentChar == '{') {
                 context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, 0xFFFFFFFF, true);
             } else if (currentChar == '}') {
-                context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, 0xFF548AF7, true);
+                context.drawText(textRenderer,
+                        selection == attributionsCount ?
+                                Text.literal(bufferedText.toString()).formatted(Formatting.UNDERLINE):
+                                Text.of(bufferedText.toString()),
+                        startX, y, 0xFF548AF7, true);
                 selectionZones[attributionsCount][0] = startX;
                 selectionZones[attributionsCount][1] = drawCursorX;
                 attributionsCount++;
@@ -73,15 +83,27 @@ public class AttributionLayer extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
-    @Override
-    public void onClick(double mouseX, double mouseY) {
+    private void calculateSelection() {
+        if (!isHovered()) {
+            selection = -1;
+            return;
+        }
+        double mouseX = UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getX());
         for (int i = 0 ; i < selectionZones.length ; i++) {
             if (mouseX > selectionZones[i][0] && mouseX < selectionZones[i][1]) {
-                String link;
-                if (i == 0) link = TileUrlFile.osmAttributionUrl;
-                else link = TileUrlFile.getCurrentUrl().attribution_links[i - 1];
-                FullscreenMapScreen.openLinkScreen(link, new FullscreenMapScreen());
+                selection = i;
+                return;
             }
         }
+        selection = -1;
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY) {
+        if (selection == -1) return;
+        String link;
+        if (selection == 0) link = TileUrlFile.osmAttributionUrl;
+        else link = TileUrlFile.getCurrentUrl().attribution_links[selection - 1];
+        FullscreenMapScreen.openLinkScreen(link, new FullscreenMapScreen());
     }
 }

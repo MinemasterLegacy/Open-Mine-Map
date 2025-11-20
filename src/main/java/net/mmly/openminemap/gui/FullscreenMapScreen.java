@@ -225,7 +225,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, trueZoomLevel + 7) || mouseTilePosY > Math.pow(2, trueZoomLevel + 7);
     }
 
-    protected static void openLinkScreen(String link, Screen returnScreen) {
+    public static void openLinkScreen(String link, Screen returnScreen) {
         MinecraftClient.getInstance().setScreen(
                 new ConfirmLinkScreen(new BooleanConsumer() {
                     @Override

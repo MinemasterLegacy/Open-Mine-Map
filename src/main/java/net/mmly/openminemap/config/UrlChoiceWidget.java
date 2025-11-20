@@ -10,6 +10,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -62,7 +63,7 @@ public class UrlChoiceWidget extends TextFieldWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        //TODO open guide page
+        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Configuration#tile-source", ConfigScreen.getInstance());
     }
 
     @Override

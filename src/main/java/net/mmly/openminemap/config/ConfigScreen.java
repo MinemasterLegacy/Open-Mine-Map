@@ -270,6 +270,7 @@ public class ConfigScreen extends Screen {
         if (definedUrlWidget.currentUrlId != TileUrlFile.getCurrentUrlId()) {
             definedUrlWidget.writeParameterToFile();
             TileManager.setCacheDir();
+            TileManager.themeColor = 0xFF808080; // will cause hudmap to request top tile for theme color refreshing
         }
 
         /*

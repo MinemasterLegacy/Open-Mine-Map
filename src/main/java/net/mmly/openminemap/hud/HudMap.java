@@ -243,6 +243,8 @@ public class HudMap {
 
         if (!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
 
+        if (TileManager.themeColor == 0xFF808080) TileManager.loadTopTile();
+
         playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
 
         if (!initialized) initialize(context); //initialize hudmap if not done already

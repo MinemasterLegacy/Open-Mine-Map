@@ -244,6 +244,10 @@ public class TileManager {
         }
     }
 
+    public static void loadTopTile() {
+        getDrawableTile(0, 0, 0, 128);
+    }
+
     private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize) {
         //tileXY do not refer to their pixel positions, they refer to their tile grid positions
         try {

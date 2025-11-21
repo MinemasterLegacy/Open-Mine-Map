@@ -28,8 +28,8 @@ public class ConfigScreen extends Screen {
     static ConfigScreen configScreen;
     private static int windowHeight;
     private static int windowWidth;
-    private static int windowScaledHeight;
-    private static int windowScaledWidth;
+    public static int windowScaledHeight;
+    public static int windowScaledWidth;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
     protected static boolean doArtificialZoom;
 
@@ -40,6 +40,7 @@ public class ConfigScreen extends Screen {
     private int maxScroll;
     private final int SCROLLSPEED = 5;
 
+    private static WikiLinkLayer wikiLinkLayer;
     private static ButtonLayer exitButtonLayer;
     private static ButtonLayer checkButtonLayer;
     TextWidget versionLabel;
@@ -194,6 +195,9 @@ public class ConfigScreen extends Screen {
         updateTileSet();
         updateScreenDims();
 
+        wikiLinkLayer = new WikiLinkLayer(0, 0);
+        this.addDrawableChild(wikiLinkLayer);
+
         exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.EXIT);
         checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.CHECKMARK);
         exitButtonLayer.setTooltip(Tooltip.of(Text.of("Exit without Saving")));
@@ -310,9 +314,11 @@ public class ConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
         updateScreenDims();
 
+        wikiLinkLayer.setPosition(windowScaledWidth - wikiLinkLayer.getWidth(), windowScaledHeight - 32);
         exitButtonLayer.setPosition(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1]);
         checkButtonLayer.setPosition(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1]);
 
+        wikiLinkLayer.drawWidget(context, textRenderer);
         context.drawTexture(checkButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0], windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
         context.drawTexture(exitButtonLayer.isHovered() ? buttonIdentifiers[2][1] : buttonIdentifiers[1][1], windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
 

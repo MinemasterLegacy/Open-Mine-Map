@@ -349,7 +349,7 @@ public class TileManager {
         InputStream is = new ByteArrayInputStream(os.toByteArray());
         NativeImage nImage = NativeImage.read(is);
         //register new dynamic texture and store it again to be referenced later
-        mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(nImage));
+        mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(new nameSupplier(), nImage));
         dyLoadedTiles.put(key, Identifier.of("osmtile", zoom+"-"+x+"-"+y));
         //System.out.println("New Dynamic tile");
         if (key.equals(Arrays.toString(new int[] {0, 0, 0}))) themeColor = image.getRGB(3, 3);

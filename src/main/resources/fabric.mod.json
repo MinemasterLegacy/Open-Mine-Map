@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "openminemap",
-	"version": "1.3.0",
+	"version": "1.4.0",
 	"name": "OpenMineMap",
 	"description": "A map mod made for the BuildTheEarth project that integrates an interactable world map into the game.",
 	"authors": [
@@ -13,11 +13,13 @@
         "ellie_4559 (moral support)"
     ],
 	"contact": {
-		"sources": "https://github.com/MinemasterLegacy/Open-Mine-Map"
+		"sources": "https://github.com/MinemasterLegacy/Open-Mine-Map",
+        "issues": "https://github.com/MinemasterLegacy/Open-Mine-Map/issues",
+        "homepage": "https://github.com/MinemasterLegacy/Open-Mine-Map"
 	},
 	"license": "MIT License",
 	"icon": "assets/openminemap/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
 		"main": [
 			"net.mmly.openminemap.OpenMineMap"

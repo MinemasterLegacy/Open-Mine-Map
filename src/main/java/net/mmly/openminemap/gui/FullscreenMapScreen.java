@@ -23,9 +23,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
-import net.mmly.openminemap.util.BufferedPlayer;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.util.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,12 +48,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     protected static final int buttonSize = 20;
     private static final int numHotbarButtons = 6; //determines number of buttons expected for the bottom bar of the screen
     protected static final int[][] buttonPositionModifiers = new int[][] {
-        {-70,(8 + buttonSize)},
-        {-46,(8 + buttonSize)},
-        {-22,(8 + buttonSize)},
-        {2,(8 + buttonSize)},
-        {26,(8 + buttonSize)},
-        {50,(8 + buttonSize)}
+        {-70,(8 + buttonSize + 12)},
+        {-46,(8 + buttonSize + 12)},
+        {-22,(8 + buttonSize + 12)},
+        {2,(8 + buttonSize + 12)},
+        {26,(8 + buttonSize + 12)},
+        {50,(8 + buttonSize + 12)}
     };
     //protected static Identifier waypointIdentifiers[];
     // mouse x, y and down of previous frame, recorded here specifically so that changes in mousexy while left mouse is clicked can be detected.
@@ -74,7 +72,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static RightClickMenu rightClickLayer = new RightClickMenu(0, 0);
     public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
     private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
-    private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0, 157, 16);
+    private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][6];
@@ -88,13 +86,25 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     String playerDisplayLon = "0.00000";
     String playerDisplayLat = "0.00000";
     public static boolean doFollowPlayer;
-    static int renderTileSize;
+    public static int renderTileSize;
     DirectionIndicator directionIndicator;
+    static FullscreenMapScreen instance;
+
+    public static void clampZoom() {
+        //used to decrease zoom level (if needed) when artificial zoom is disabled
+        while (trueZoomLevel > 18) {
+            zoomOut();
+        }
+    }
 
     public static void followPlayer() {
         if (!Double.isNaN(playerLon)) {
             doFollowPlayer = true;
         }
+    }
+
+    public static FullscreenMapScreen getInstance() {
+        return instance;
     }
 
     @Override
@@ -134,6 +144,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     static protected void mouseZoomIn() {
+        if (rightClickLayer.enabled) return;
+        FullscreenMapScreen.getInstance().updateTilePositions();
         if ((!TileManager.doArtificialZoom && zoomLevel >= 18) || (TileManager.doArtificialZoom && trueZoomLevel >= 24)) return;
         if (!doFollowPlayer) {
             mapTilePosX -= (mapTilePosX - mouseTilePosX) / 2;
@@ -143,6 +155,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     static protected void mouseZoomOut() {
+        if (rightClickLayer.enabled) return;
+        FullscreenMapScreen.getInstance().updateTilePositions();
         if (zoomLevel <= 0) return;
         if (!doFollowPlayer) {
             mapTilePosX += (mapTilePosX - mouseTilePosX);
@@ -213,18 +227,34 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return mouseTilePosX < 0 || mouseTilePosY < 0 || mouseTilePosX > Math.pow(2, trueZoomLevel + 7) || mouseTilePosY > Math.pow(2, trueZoomLevel + 7);
     }
 
+    public static void openLinkScreen(String link, Screen returnScreen) {
+        MinecraftClient.getInstance().setScreen(
+                new ConfirmLinkScreen(new BooleanConsumer() {
+                    @Override
+                    public void accept(boolean b) {
+                        if(b) {
+                            Util.getOperatingSystem().open(link);
+                        }
+                        MinecraftClient.getInstance().setScreen(returnScreen);
+                    }
+
+                }, link, true)
+
+        );
+    }
+
     protected static void openOSMAttrScreen() {
         MinecraftClient.getInstance().setScreen(
                 new ConfirmLinkScreen(new BooleanConsumer() {
                     @Override
                     public void accept(boolean b) {
                         if(b) {
-                            Util.getOperatingSystem().open("https://openstreetmap.org/copyright");
+                            Util.getOperatingSystem().open(TileUrlFile.getCurrentUrl().attribution_links[0]);
                         }
                         MinecraftClient.getInstance().setScreen(new FullscreenMapScreen());
                     }
 
-                }, "https://openstreetmap.org/copyright", true)
+                }, TileUrlFile.getCurrentUrl().attribution_links[0], true)
 
         );
     }
@@ -279,6 +309,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     @Override
     protected void init() { //called when screen is being initialized
+        instance = this;
 
         if (mClient.player == null) {
             playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
@@ -303,7 +334,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
-        bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32, 157, 16);
+        bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32);
         this.addDrawableChild(bugReportLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
 
         directionIndicator = new DirectionIndicator(0, 0, 0, 0, Text.of(""));
@@ -380,8 +411,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
     }
 
-
-
     private static void drawButtons(DrawContext context) {
         //draws the buttons
         context.drawTexture(RenderLayer::getGuiTextured,
@@ -427,29 +456,15 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             buttonlayers.get(ButtonFunction.getEnumOf(i)).setPosition(windowScaledWidth / 2 + buttonPositionModifiers[i][0], windowScaledHeight - buttonPositionModifiers[i][1]);
         }
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
-        attributionLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 16);
-        bugReportLayer.setDimensionsAndPosition(157, 16, windowScaledWidth - 157, windowScaledHeight - 32);
+        attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
+        bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
     }
 
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
-        super.render(context, mouseX, mouseY, delta);
-
-        updateScreenDims(); //update screen dimension variables in case window has been resized
-
-        updateWidgetPositions(); //update the positions of button and text field widgets in case window has been resized
-
-        this.updateScreenDims(); //update screen dimension variables in case screen has been resized
-        //this.updateTileRange();
-        //identifiers = TileManager.getRangeOfTiles(mapTilePosX, mapTilePosY, zoomLevel, windowWidth, windowHeight);
-
+    private void updateTilePositions() {
         if (lastMouseDown) {
             mapTilePosX += (UnitConvert.pixelToScaledCoords((float) (lastMouseX - mClient.mouse.getX())));
             mapTilePosY += (UnitConvert.pixelToScaledCoords((float) (lastMouseY - mClient.mouse.getY())));
         }
-
-        lastMouseX = (int) mClient.mouse.getX();
-        lastMouseY = (int) mClient.mouse.getY();
 
         renderTileSize = (int) Math.max(TileManager.tileScaledSize, Math.pow(2, trueZoomLevel - 11));
         //System.out.println("TrueZoom: "+trueZoomLevel+" | Zoom: "+zoomLevel+" | calced size: "+Math.pow(2, trueZoomLevel - 11));
@@ -464,17 +479,57 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (mapTilePosX > renderTileSize * Math.pow(2, zoomLevel)) mapTilePosX = renderTileSize * Math.pow(2, zoomLevel);
         if (mapTilePosY > renderTileSize * Math.pow(2, zoomLevel)) mapTilePosY = renderTileSize * Math.pow(2, zoomLevel);
 
+        mouseTilePosX = mapTilePosX + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getX()) - ((double) windowScaledWidth / 2);
+        mouseTilePosY = mapTilePosY + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getY()) - ((double) windowScaledHeight / 2);
+    }
+
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
+        super.render(context, mouseX, mouseY, delta);
+
+        updateScreenDims(); //update screen dimension variables in case window has been resized
+
+        updateWidgetPositions(); //update the positions of button and text field widgets in case window has been resized
+
+        //this.updateTileRange();
+        //identifiers = TileManager.getRangeOfTiles(mapTilePosX, mapTilePosY, zoomLevel, windowWidth, windowHeight);
+
+        updateTilePositions();
+
         //basically a list of tile references to be rendered
-        identifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, windowScaledWidth, windowScaledHeight, renderTileSize);
+        //identifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, windowScaledWidth, windowScaledHeight, renderTileSize);
 
-        //int trueHW = this.pixelToScaledCoords(256);
-        int trueHW = renderTileSize;
-        int[] TopLeftData = TileManager.getTopLeftData();
+        lastMouseX = (int) mClient.mouse.getX();
+        lastMouseY = (int) mClient.mouse.getY();
 
-        //draws the map tiles
+        /*
         for (int i = 0; i < identifiers.length; i++) {
             for (int j = 0; j < identifiers[i].length; j++) {
                 context.drawTexture(RenderLayer::getGuiTextured, identifiers[i][j], (int) ((((TopLeftData[0] + i) * renderTileSize) + (float) windowScaledWidth / 2) - (int) mapTilePosX), (int) ((((TopLeftData[1]+j) * renderTileSize) + (float) windowScaledHeight / 2) - (int) mapTilePosY), 0, 0, trueHW, trueHW, trueHW, trueHW);
+            }
+        }
+        */
+
+        int scaleMultiplier = (int) Math.pow(2, trueZoomLevel - zoomLevel);
+
+        //draws the map tiles
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, windowScaledWidth, windowScaledHeight, renderTileSize);
+        for (DrawableMapTile[] column : tiles) {
+            for (DrawableMapTile tile : column) {
+                context.drawTexture(
+                        RenderLayer::getGuiTextured,
+                        tile.identifier,
+                        (int) (tile.x + ((double) windowScaledWidth / 2) - mapTilePosX),
+                        (int) (tile.y + ((double) windowScaledHeight / 2) - mapTilePosY),
+                        tile.subSectionSize * scaleMultiplier * tile.subSectionX,
+                        tile.subSectionSize * scaleMultiplier * tile.subSectionY,
+                        renderTileSize,
+                        renderTileSize,
+                        tile.subSectionSize * scaleMultiplier,
+                        tile.subSectionSize * scaleMultiplier,
+                        renderTileSize,
+                        renderTileSize
+                );
             }
         }
 
@@ -539,9 +594,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         // Subtracting an extra 10 pixels will give the text some padding.
         // textRenderer, text, x, y, color, hasShadow
 
-        mouseTilePosX = mapTilePosX + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getX()) - ((double) windowScaledWidth / 2);
-        mouseTilePosY = mapTilePosY + UnitConvert.pixelToScaledCoords((float) mClient.mouse.getY()) - ((double) windowScaledHeight / 2);
-
         if (mouseIsOutOfBounds()) {
             mouseDisplayLat = "-.-";
             mouseDisplayLong = "-.-";
@@ -552,11 +604,19 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             mouseDisplayLat = UnitConvert.floorToPlace(mouseLat, 5);
         }
 
+        int attributionOffset;
+        //if attribution would overlay the coordinate display
+        if (attributionLayer.getWidth() + textRenderer.getWidth("Mouse: " + mouseDisplayLat + "°, " + mouseDisplayLong + "°") > windowScaledWidth) {
+            attributionOffset = attributionLayer.getHeight();
+        } else {
+            attributionOffset = 0;
+        }
+
         //draws the Mouse and player coordinates text fields
-        context.fill(0, windowScaledHeight - 16, 53 + (mouseDisplayLong.length() * 6) + (mouseDisplayLat.length() * 6), windowScaledHeight, 0x88000000);
-        context.drawText(this.textRenderer, "Mouse: " + mouseDisplayLat + "°, " + mouseDisplayLong + "°", 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10, 0xFFFFFFFF, true);
-        context.fill(0, windowScaledHeight - 32, 55 + (playerDisplayLon.length() * 6) + (playerDisplayLat.length() * 6), windowScaledHeight - 16, 0x88000000);
-        context.drawText(this.textRenderer, "Player: " + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16, 0xFFFFFFFF, true);
+        context.fill(0, windowScaledHeight - 16 - attributionOffset, 53 + (mouseDisplayLong.length() * 6) + (mouseDisplayLat.length() * 6), windowScaledHeight - attributionOffset, 0x88000000);
+        context.drawText(this.textRenderer, "Mouse: " + mouseDisplayLat + "°, " + mouseDisplayLong + "°", 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, 0xFFFFFFFF, true);
+        context.fill(0, windowScaledHeight - 32 - attributionOffset, 55 + (playerDisplayLon.length() * 6) + (playerDisplayLat.length() * 6), windowScaledHeight - 16 - attributionOffset, 0x88000000);
+        context.drawText(this.textRenderer, "Player: " + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);
@@ -572,6 +632,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
          */
     }
+
+
 
 }
 

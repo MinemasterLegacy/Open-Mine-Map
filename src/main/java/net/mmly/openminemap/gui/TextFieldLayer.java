@@ -4,7 +4,9 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class TextFieldLayer extends TextFieldWidget {
@@ -22,9 +24,14 @@ public class TextFieldLayer extends TextFieldWidget {
     @Override
     public void onClick(Click click, boolean doubled) {
         super.onClick(click, doubled);
-        System.out.println("\""+this.getText()+"\"");
+        //System.out.println("\""+this.getText()+"\"");
         if (ID == 0 && this.getText().isEmpty() && !this.isFocused()) {
             this.setText(UnitConvert.floorToPlace(PlayerAttributes.yaw, 3));
+            this.setSelectionStart(0);
+            this.setSelectionEnd(this.getText().length());
+        }
+        if (ID == 1 && this.getText().isEmpty() && !this.isFocused()) {
+            this.setText(ConfigFile.readDefaultParameter(ConfigOptions.TILE_MAP_URL));
             this.setSelectionStart(0);
             this.setSelectionEnd(this.getText().length());
         }

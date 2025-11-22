@@ -1,4 +1,4 @@
-package net.mmly.openminemap.gui;
+package net.mmly.openminemap.config;
 
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
@@ -7,14 +7,15 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
 
-import static net.mmly.openminemap.gui.FullscreenMapScreen.windowScaledHeight;
-import static net.mmly.openminemap.gui.FullscreenMapScreen.windowScaledWidth;
+import static net.mmly.openminemap.config.ConfigScreen.windowScaledHeight;
+import static net.mmly.openminemap.config.ConfigScreen.windowScaledWidth;
 
-public class BugReportLayer extends ClickableWidget {
+public class WikiLinkLayer extends ClickableWidget {
 
-    public BugReportLayer(int x, int y) {
-        super(x, y, 70, 16, Text.empty());
+    public WikiLinkLayer(int x, int y) {
+        super(x, y, 91, 16, Text.empty());
     }
 
     @Override
@@ -26,20 +27,20 @@ public class BugReportLayer extends ClickableWidget {
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
-        context.fill(windowScaledWidth - 70, windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
+        //context.fill(windowScaledWidth - 70, windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
         context.drawText(textRenderer,
                 isHovered() ?
-                        Text.literal("Report Bugs").formatted(Formatting.UNDERLINE) :
-                        Text.literal("Report Bugs"),
-                windowScaledWidth - 65,
+                        Text.literal("OpenMineMap Wiki").formatted(Formatting.UNDERLINE) :
+                        Text.literal("OpenMineMap Wiki"),
+                windowScaledWidth - 86,
                 windowScaledHeight + 7 - textRenderer.fontHeight - 10 - 16,
-                0xFF0B9207,
+                0xFF890792,
                 true);
     }
 
     @Override
     public void onClick(Click click, boolean doubled) {
         //FullscreenMapScreen.openBugReportScreen();
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new FullscreenMapScreen());
+        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", ConfigScreen.getInstance());
     }
 }

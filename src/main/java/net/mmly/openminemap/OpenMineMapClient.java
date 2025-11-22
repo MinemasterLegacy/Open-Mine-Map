@@ -1,6 +1,5 @@
 package net.mmly.openminemap;
 
-import com.mojang.brigadier.Command;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -14,8 +13,14 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.TileUrlFile;
+
+import java.util.ArrayList;
 
 public class OpenMineMapClient implements ClientModInitializer { // client class
+
+    public static ArrayList<String> debugMessages = new ArrayList<>();
+
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
 
@@ -25,7 +30,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         KeyInputHandler.register(); //register all new keybinds
         CommandHander.register(); //register commands
 
-        TileManager.createCacheDir();
+        TileManager.createOpenminemapDir();
         ConfigFile.establishConfigFile();
         //ScreenMouseEvents.EVENT.re
 
@@ -33,6 +38,8 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         osmTileRequester.start();
 
         HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, HUD_MAP_LAYER, HudMap::render));
+
+        TileUrlFile.establishUrls();
 
         //Tpll.lonLatToMcCoords(-112.07151142039129, 33.45512716304792);
         //test t = new test();

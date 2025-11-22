@@ -12,6 +12,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
@@ -23,6 +24,7 @@ import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.BufferedPlayer;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.DrawableMapTile;
 import net.mmly.openminemap.util.UnitConvert;
 
 import java.util.ArrayList;
@@ -73,6 +75,13 @@ public class HudMap {
 
     public static Identifier playerIdentifier;
 
+    public static void clampZoom() {
+        //used to decrease zoom level (if needed) when artificial zoom is disabled
+        while (trueZoomLevel > 18) {
+            zoomOut();
+        }
+    }
+
     public static void setSnapAngle() {
         String receivedSnapAngle = ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE);
         if (receivedSnapAngle.isEmpty()) {
@@ -88,6 +97,7 @@ public class HudMap {
     public static void initialize(DrawContext context) {
         TileManager.initializeConfigParameters();
         setSnapAngle();
+        initialized = true;
     }
 
     public static void updateX2Y2() {
@@ -228,17 +238,16 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+        while (!OpenMineMapClient.debugMessages.isEmpty()) {
+            if (OpenMineMapClient.debugMessages.getFirst() != null) MinecraftClient.getInstance().player.sendMessage(Text.literal(OpenMineMapClient.debugMessages.getFirst()).formatted(Formatting.RED), false);
+            OpenMineMapClient.debugMessages.removeFirst();
+        }
+
         if (!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) return; //do not do anything if hud rendering is disabled
 
-        if (reloadSkin > 0) { //load player skins
-            if (MinecraftClient.getInstance().player == null) {
-                playerIdentifier = Identifier.of("openminemap", "skinbackup.png");
-            } else {
-                playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
-            }
-            PlayersManager.updatePlayerSkinList();
-            reloadSkin--;
-        }
+        if (TileManager.themeColor == 0xFF808080) TileManager.loadTopTile();
+
+        playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
 
         if (!initialized) initialize(context); //initialize hudmap if not done already
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw
@@ -252,12 +261,9 @@ public class HudMap {
         //set hud tile render size; will be constant unless artificial zoom is enabled
         renderTileSize = (int) Math.max(TileManager.hudTileScaledSize, Math.pow(2, trueZoomLevel - 11));
 
-        tileIdentifiers = TileManager.getRangeOfTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize); //get identifiers for all tiles that will be rendered this tick
-        int trueHW = renderTileSize;
-        int[] TopLeftData = TileManager.getTopLeftData(); //gets the xy position of the top left most tile
-
         //basic monocolor background
-        context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0xFFCEE1E4);
+        context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, TileManager.themeColor);
+        context.fill(hudMapX, hudMapY, hudMapX2, hudMapY2, 0, 0x10000000);
 
         if (Double.isNaN(playerLon)) {//if the player is out of bounds this will be NaN. all other rendering is skipped due to this
             //draw error message and exit
@@ -274,7 +280,52 @@ public class HudMap {
         mapTilePosX = UnitConvert.longToMapX(playerLon, zoomLevel, renderTileSize);
         mapTilePosY = UnitConvert.latToMapY(playerLat, zoomLevel, renderTileSize);
 
-        //deaw map tiles, cropping when needed
+        int scaleMultiplier = (int) Math.pow(2, trueZoomLevel - zoomLevel);
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapTilePosX, (int) mapTilePosY, zoomLevel, hudMapWidth, hudMapHeight, renderTileSize);
+
+        //draw map tiles, cropping when needed
+
+        for (DrawableMapTile[] column : tiles) {
+            for (DrawableMapTile tile : column) {
+                int tileX = (int) ((tile.x + hudMapX + (double) hudMapWidth / 2) - (int) mapTilePosX);
+                int tileY = (int) ((tile.y + hudMapY + (double) hudMapHeight / 2) - (int) mapTilePosY);
+
+                int leftCrop = tileX < hudMapX ? hudMapX - tileX : 0;
+                int topCrop = tileY < hudMapY ? hudMapY - tileY : 0;
+                int rightCrop = tileX + renderTileSize > hudMapX + hudMapWidth ? (tileX + renderTileSize) - (hudMapX + hudMapWidth) : 0;
+                int bottomCrop = tileY + renderTileSize > hudMapY + hudMapHeight ? (tileY + renderTileSize) - (hudMapY + hudMapHeight) : 0;
+
+                //x, y define where the defined top left corner will go
+                //u, v define the lop left corner of the texture
+                //w, h crop the texture from right and down
+                //texturewidth and textureheight should equal the scale of the tiles (64 here)
+
+                if (renderTileSize - rightCrop - leftCrop < 0 || renderTileSize - bottomCrop - topCrop < 0) continue;
+
+                double u = (tile.subSectionSize * tile.subSectionX) + ((double) leftCrop / ((double) renderTileSize / tile.subSectionSize)) * scaleMultiplier;
+                double v = (tile.subSectionSize * tile.subSectionY) + ((double) topCrop / ((double) renderTileSize / tile.subSectionSize)) * scaleMultiplier;
+
+                double regionWidth = (tile.subSectionSize - ((double) (rightCrop + leftCrop) / ((double) renderTileSize / tile.subSectionSize))) * scaleMultiplier;
+                double regionHeight = (tile.subSectionSize - ((double) (bottomCrop + topCrop) / ((double) renderTileSize / tile.subSectionSize))) * scaleMultiplier;
+
+                context.drawTexture(
+                        RenderLayer::getGuiTextured,
+                        tile.identifier,
+                        tileX + leftCrop,
+                        tileY + topCrop,
+                        (float) u,
+                        (float) v,
+                        renderTileSize - rightCrop - leftCrop,
+                        renderTileSize - bottomCrop - topCrop,
+                        (int) regionWidth,
+                        (int) regionHeight,
+                        renderTileSize,
+                        renderTileSize
+                );
+            }
+        }
+
+    /*
         for (int i = 0; i < tileIdentifiers.length; i++) {
             for (int j = 0; j < tileIdentifiers[i].length; j++) {
                 RenderSystem.setShaderTexture(0, tileIdentifiers[i][j]);
@@ -292,9 +343,23 @@ public class HudMap {
                 //texturewidth and textureheight should equal the scale of the tiles (64 here)
 
                 if (trueHW - rightCrop - leftCrop < 0 || trueHW - bottomCrop - topCrop < 0) continue;
-                context.drawTexture(RenderLayer::getGuiTextured, tileIdentifiers[i][j], tileX + leftCrop, tileY + topCrop, leftCrop, topCrop, trueHW - rightCrop - leftCrop, trueHW - bottomCrop - topCrop, trueHW, trueHW);
+                context.drawTexture(
+                        RenderLayer::getGuiTextured,
+                        tileIdentifiers[i][j],
+                        tileX + leftCrop,
+                        tileY + topCrop,
+                        leftCrop,
+                        topCrop,
+                        trueHW - rightCrop - leftCrop,
+                        trueHW - bottomCrop - topCrop,
+                        trueHW,
+                        trueHW);
             }
         }
+
+     */
+
+
 
         //draw all players (except self)
         PlayersManager.updatePlayerSkinList();

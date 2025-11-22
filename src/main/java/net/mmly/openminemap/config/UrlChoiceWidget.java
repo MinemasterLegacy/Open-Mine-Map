@@ -28,7 +28,7 @@ public class UrlChoiceWidget extends TextFieldWidget {
         super(textRenderer, x, y, width, height, Text.of(""));
         this.setEditable(false);
         this.setMaxLength(1000);
-        this.setUneditableColor(14737632);
+        this.setUneditableColor(-2039584);
         upArrowWidget = new SelectArrow(ArrowDirection.up, this);
         downArrowWidget = new SelectArrow(ArrowDirection.down, this);
         this.setTooltip(Tooltip.of(Text.of("Set a custom URL for tiles to be loaded from. Click for more information.")));

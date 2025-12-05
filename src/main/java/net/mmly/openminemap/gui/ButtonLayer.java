@@ -85,10 +85,12 @@ public class ButtonLayer extends ClickableWidget {
                 MinecraftClient.getInstance().setScreen(null);
                 break;
             case ButtonFunction.RESET_CONFIG:
-                HudMap.hudMapX = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_X));
-                HudMap.hudMapY = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_Y));
-                HudMap.hudMapWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_WIDTH));
-                HudMap.hudMapHeight = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_HEIGHT));
+                HudMap.map.setRenderPositionAndSize(
+                        Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_X)),
+                        Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_Y)),
+                        Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_WIDTH)),
+                        Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_HEIGHT))
+                );
                 HudMap.hudCompassX = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_X));
                 HudMap.hudCompassY = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_Y));
                 HudMap.hudCompassWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_WIDTH));

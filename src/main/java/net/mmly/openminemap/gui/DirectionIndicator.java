@@ -36,7 +36,6 @@ public class DirectionIndicator extends ClickableWidget {
 
     public DirectionIndicator(int x, int y, int width, int height, Text message) {
         super(x, y, width, height, message);
-        getTextureFromResources();
     }
 
     @Override
@@ -44,25 +43,11 @@ public class DirectionIndicator extends ClickableWidget {
 
     }
 
-    private void getTextureFromResources() {
-        try {
-            InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(textureId).get().getInputStream();
-            baseTexture = ImageIO.read(stream);
-            loadSuccess = true;
-        } catch (IOException e) {
-            loadSuccess = false;
-        }
-    }
-
-    public static void draw(DrawContext context, double rotation, int x, int y, boolean hudCrop, boolean indicatorOnly) {
+    public static void draw(DrawContext context, double rotation, int x, int y, boolean indicatorOnly) {
         int x1 = x;
         int y1 = y;
         int x2 = x + 24;
         int y2 = y + 24;
-
-        if (hudCrop && (x <= HudMap.hudMapX - 16 || y <= HudMap.hudMapY - 16 || x2 >= HudMap.hudMapX2 + 16 || y2 >= HudMap.hudMapY2 + 16)) {
-            return;
-        }
 
         int z = 0;
         float v1 = 0 + 0.0F / 24;

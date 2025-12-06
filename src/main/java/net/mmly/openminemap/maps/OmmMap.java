@@ -6,6 +6,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.Window;
@@ -14,6 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
+import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.PlayerAttributes;
@@ -23,7 +25,9 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.*;
+import org.lwjgl.glfw.GLFW;
 
+import javax.swing.plaf.basic.BasicTreeUI;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -45,11 +49,6 @@ public class OmmMap extends ClickableWidget {
     private int renderAreaY2 = 0;
     private int renderAreaWidth = 0;
     private int renderAreaHeight = 0;
-
-    private int windowPixelWidth = 0;
-    private int windowPixelHeight = 0;
-    private int windowWidth = 0;
-    private int windowHeight = 0;
 
     private int zoom = 0;
     private final int tileSize = 128;
@@ -279,13 +278,6 @@ public class OmmMap extends ClickableWidget {
         this.followPlayer = followPlayer;
     }
 
-    private void updateWindowDimensions() {
-        windowWidth = window.getScaledWidth();
-        windowHeight = window.getScaledHeight();
-        windowPixelHeight = window.getHeight();
-        windowPixelWidth = window.getWidth();
-    }
-
     @Override
     protected void renderWidget(DrawContext context, int mX, int mY, float delta) {
         mouseX = mX;
@@ -303,6 +295,37 @@ public class OmmMap extends ClickableWidget {
         mapCenterY = 64;
         mapCenterX = 64;
         zoom = 0;
+    }
+
+    public void keyNavigate(int keyCode, int modifiers) {
+        if (!draggable) return;
+        //modifiers: bit 1 is shift, bit 2 is control, but 3 is alt
+
+        modifiers %= 4;
+        int change = 8;
+
+        if (modifiers < 3) {
+            if (modifiers == 2) {
+                change = 128;
+            }
+            if (modifiers == 1) {
+                change = 1;
+            }
+        }
+
+        if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_W) {
+            mapCenterY -= change;
+        }
+        if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_D) {
+            mapCenterX += change;
+        }
+        if (keyCode == GLFW.GLFW_KEY_DOWN || keyCode == GLFW.GLFW_KEY_S) {
+            mapCenterY += change;
+        }
+        if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_A) {
+            mapCenterX -= change;
+        }
+
     }
 
     @Override
@@ -400,8 +423,6 @@ public class OmmMap extends ClickableWidget {
     }
 
     private void drawMap(DrawContext context) {
-
-        updateWindowDimensions();
 
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);

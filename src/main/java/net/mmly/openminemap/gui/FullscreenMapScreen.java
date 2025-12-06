@@ -301,6 +301,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        map.keyNavigate(keyCode, modifiers);
+        return true;
+    }
+
+    @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
 
@@ -350,8 +356,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
 
     }
-
-
 
 }
 

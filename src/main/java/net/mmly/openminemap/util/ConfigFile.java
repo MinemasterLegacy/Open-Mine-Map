@@ -35,7 +35,8 @@ public class ConfigFile {
             "64", //fslastx
             "64", //fslasty
 
-            "false" //DisableWebRequests
+            "false", //DisableWebRequests
+            "false" //Waypoints
     };
     private static final int numOfArgs = ConfigOptions.length();
 

@@ -35,8 +35,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     protected static String mouseDisplayLat = "0.00000";
     private static final int buttonSize = 20;
     private static final int buttonMargin = 4;
-    private static final int numHotbarButtons = 6; //determines number of buttons expected for the bottom bar of the screen
-    private static int[][] buttonPositions = new int[2][6];
+    private static final int numHotbarButtons = OmmMap.doWaypoints ? 7 : 6; //determines number of buttons expected for the bottom bar of the screen
+    private static int[][] buttonPositions = new int[2][numHotbarButtons];
     // modifiers used to offset the map so it can be moved relative to the screen
     // these modifiers should be scaled when the screen is zoomed in or zoomed out
     // Ex: zoom 0, range -128 - 127 | zoom 1, range -256 - 255 | zoom 2, range -512 - 511 | etc.
@@ -48,7 +48,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
-    private static final Identifier[][] buttonIdentifiers = new Identifier[3][6];
+    private static final Identifier[][] buttonIdentifiers = new Identifier[3][numHotbarButtons];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
     String playerDisplayLon = "0.00000";
     String playerDisplayLat = "0.00000";
@@ -63,7 +63,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)),
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y))
     );
-
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
@@ -98,12 +97,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     static protected void updateTileSet() {
         String path;
-        String[] names = new String[] {"zoomin.png", "zoomout.png", "reset.png", "follow.png", "config.png", "exit.png"};
+        String[] names = new String[] {"zoomin.png", "zoomout.png", "reset.png", "follow.png", "config.png", "exit.png", "waypoint.png"};
         String[] states = new String[] {"locked/", "default/", "hover/"};
         path = "buttons/vanilla/";
 
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 6; j++) {
+            for (int j = 0; j < numHotbarButtons; j++) {
                 buttonIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
             }
         }
@@ -264,6 +263,13 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                         getButtonTexture(ButtonFunction.EXIT, ButtonState.HOVER) :
                         getButtonTexture(ButtonFunction.EXIT, ButtonState.DEFAULT),
                 buttonPositions[0][5], buttonPositions[1][5], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        if (OmmMap.doWaypoints) {
+            context.drawTexture( //waypoints
+                    buttonlayers.get(ButtonFunction.WAYPOINTS).isHovered() ?
+                            getButtonTexture(ButtonFunction.WAYPOINTS, ButtonState.HOVER) :
+                            getButtonTexture(ButtonFunction.WAYPOINTS, ButtonState.DEFAULT),
+                    buttonPositions[0][6], buttonPositions[1][6], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        }
     }
 
     private static void updateWidgetPositions(TextRenderer textRenderer) {

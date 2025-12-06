@@ -36,6 +36,8 @@ public class OmmMap extends ClickableWidget {
 
     public final static int TILEMAXZOOM = 18;
     public final static int TILEMAXARTIFICIALZOOM = 24;
+    public static boolean doWaypoints;
+    public static final int tileSize = 128;
 
     private boolean fieldsInitialized = false;
     private MinecraftClient client;
@@ -51,7 +53,6 @@ public class OmmMap extends ClickableWidget {
     private int renderAreaHeight = 0;
 
     private int zoom = 0;
-    private final int tileSize = 128;
     private double mapCenterX = 64;
     private double mapCenterY = 64;
     private double playerMapX = 64;
@@ -84,11 +85,13 @@ public class OmmMap extends ClickableWidget {
     public MethodInterface leftClickProcedure;
     public BooleanInterface blockZoomProcedure;
 
+    private Waypoint testWaypoint = new Waypoint(Identifier.of("openminemap", "waypoints/waypoint0.png"), 33.450764, -112.07305);
+
     private void initFields() {
         client = MinecraftClient.getInstance();
         window = client.getWindow();
         player = client.player;
-        mouse = client.mouse;
+        doWaypoints = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__WAYPOINTS));
     }
 
     public OmmMap(int x, int y, int width, int height) {
@@ -534,6 +537,10 @@ public class OmmMap extends ClickableWidget {
 
     }
 
+    private void drawWaypoint(DrawContext context) {
+
+    }
+
     private BufferedPlayer drawDirectionIndicator(DrawContext context, PlayerEntity playerDraw, boolean indicatorsOnly) {
         //Draws a direction indicator
         //May also return a BufferedPlayer if other players are to be drawn
@@ -775,6 +782,21 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
+        if (doWaypoints) {
+            context.drawTexture(
+                    testWaypoint.identifier,
+                    (int) (((double) renderAreaWidth / 2) - 4 + (testWaypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,
+                    (int) (((double) renderAreaHeight / 2) - 4 + (testWaypoint.getMapY(zoom) - mapCenterY)) + renderAreaY,
+                    9,
+                    9,
+                    0,
+                    0,
+                    9,
+                    9,
+                    9,
+                    9
+            );
+        }
 
     }
 

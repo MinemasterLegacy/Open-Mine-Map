@@ -314,16 +314,16 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
-        if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_W) {
+        if (keyCode == GLFW.GLFW_KEY_UP || client.options.forwardKey.matchesKey(keyCode, 0)) {
             mapCenterY -= change;
         }
-        if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_D) {
+        if (keyCode == GLFW.GLFW_KEY_RIGHT || client.options.rightKey.matchesKey(keyCode, 0)) {
             mapCenterX += change;
         }
-        if (keyCode == GLFW.GLFW_KEY_DOWN || keyCode == GLFW.GLFW_KEY_S) {
+        if (keyCode == GLFW.GLFW_KEY_DOWN || client.options.backKey.matchesKey(keyCode, 0)) {
             mapCenterY += change;
         }
-        if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_A) {
+        if (keyCode == GLFW.GLFW_KEY_LEFT || client.options.leftKey.matchesKey(keyCode, 0)) {
             mapCenterX -= change;
         }
 

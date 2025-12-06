@@ -4,8 +4,10 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -19,6 +21,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.util.*;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 
@@ -63,6 +66,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)),
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y))
     );
+    public static boolean renderWithChat = false;
+    private boolean chatToBeOpened = false;
+    private static boolean hudWasHidden = false;
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
@@ -312,6 +318,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             this.close();
             return true;
         }
+
+        if (mClient.options.chatKey.matchesKey(keyCode, 0)) {
+            chatToBeOpened = true;
+        }
+
         map.keyNavigate(keyCode, modifiers);
         return true;
     }
@@ -319,6 +330,19 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
+
+        if (chatToBeOpened) {
+            if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient
+                renderWithChat = true;
+                System.out.println(mClient.options.chatKey.isPressed());
+                System.out.println(mClient.options.chatKey.wasPressed());
+                mClient.setScreen(new ChatScreen(""));
+                map.setDraggable(false);
+                hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
+                MinecraftClient.getInstance().options.hudHidden = true;
+            }
+            chatToBeOpened = false;
+        }
 
         updateScreenDims(); //update screen dimension variables in case window has been resized
 
@@ -364,6 +388,31 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         rightClickLayer.drawWidget(context, this.textRenderer);
         webAppSelectLayer.drawWidget(context);
 
+
+    }
+
+    //used in the hud to render a 'fake' fsmap screen when chat is opened
+    public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+
+        if (!renderWithChat) return;
+
+        if (!(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
+            renderWithChat = false;
+            MinecraftClient.getInstance().setScreen(
+                    new FullscreenMapScreen()
+            );
+            map.setDraggable(true);
+            MinecraftClient.getInstance().options.hudHidden = FullscreenMapScreen.hudWasHidden;
+            return;
+        }
+
+        //context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x22FF0000);
+
+        map.setRenderSize(
+                MinecraftClient.getInstance().getWindow().getScaledWidth(),
+                MinecraftClient.getInstance().getWindow().getScaledHeight()
+        );
+        map.renderMap(context, null);
 
     }
 

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
@@ -34,6 +35,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         osmTileRequester.start();
 
         HudRenderCallback.EVENT.register(HudMap::render);
+        HudRenderCallback.EVENT.register(FullscreenMapScreen::render);
 
 /*
         newMapRenderer.setBackground(0x44000000);

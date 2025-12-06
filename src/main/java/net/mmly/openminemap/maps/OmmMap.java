@@ -36,7 +36,6 @@ public class OmmMap extends ClickableWidget {
 
     public final static int TILEMAXZOOM = 18;
     public final static int TILEMAXARTIFICIALZOOM = 24;
-    public static boolean doWaypoints;
     public static final int tileSize = 128;
 
     private boolean fieldsInitialized = false;
@@ -91,7 +90,6 @@ public class OmmMap extends ClickableWidget {
         client = MinecraftClient.getInstance();
         window = client.getWindow();
         player = client.player;
-        doWaypoints = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__WAYPOINTS));
     }
 
     public OmmMap(int x, int y, int width, int height) {
@@ -559,8 +557,8 @@ public class OmmMap extends ClickableWidget {
         double mapY = UnitConvert.latToMapY(geoCoords[0], zoom, tileSize);
 
         //calculate player offset
-        int mapCenterOffsetX = (int) (mapX - mapCenterX);
-        int mapCenterOffsetY = (int) (mapY - mapCenterY);
+        int mapCenterOffsetX = (int) Math.round(mapX - mapCenterX);
+        int mapCenterOffsetY = (int) Math.round(mapY - mapCenterY);
 
         //get player texture
         Identifier playerTexture = PlayersManager.playerSkinList.get(playerDraw.getUuid());
@@ -755,6 +753,8 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
+        BufferedPlayer self = null;
+
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
             if (followPlayer) {
                 DirectionIndicator.draw(
@@ -765,7 +765,7 @@ public class OmmMap extends ClickableWidget {
                         !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)
                 );
             } else {
-                drawDirectionIndicator(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF));
+                self = drawDirectionIndicator(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF));
             }
 
         }
@@ -774,15 +774,11 @@ public class OmmMap extends ClickableWidget {
             if (followPlayer) {
                 drawClientPlayerCentered(context);
             } else {
-                drawBufferedPlayer(context, new BufferedPlayer(
-                        (int) (UnitConvert.longToMapX(PlayerAttributes.getLongitude(), zoom, tileSize) - mapCenterX),
-                        (int) (UnitConvert.latToMapY(PlayerAttributes.getLatitude(), zoom, tileSize) - mapCenterY),
-                        PlayerAttributes.getIdentifier()
-                ));
+                drawBufferedPlayer(context, self);
             }
         }
 
-        if (doWaypoints) {
+        if (TileManager.doWaypoints) {
             context.drawTexture(
                     testWaypoint.identifier,
                     (int) (((double) renderAreaWidth / 2) - 4 + (testWaypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,

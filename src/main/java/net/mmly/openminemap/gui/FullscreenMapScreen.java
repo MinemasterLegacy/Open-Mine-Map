@@ -35,7 +35,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     protected static String mouseDisplayLat = "0.00000";
     private static final int buttonSize = 20;
     private static final int buttonMargin = 4;
-    private static final int numHotbarButtons = OmmMap.doWaypoints ? 7 : 6; //determines number of buttons expected for the bottom bar of the screen
+    private static final int numHotbarButtons = TileManager.doWaypoints ? 7 : 6; //determines number of buttons expected for the bottom bar of the screen
     private static int[][] buttonPositions = new int[2][numHotbarButtons];
     // modifiers used to offset the map so it can be moved relative to the screen
     // these modifiers should be scaled when the screen is zoomed in or zoomed out
@@ -263,7 +263,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                         getButtonTexture(ButtonFunction.EXIT, ButtonState.HOVER) :
                         getButtonTexture(ButtonFunction.EXIT, ButtonState.DEFAULT),
                 buttonPositions[0][5], buttonPositions[1][5], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        if (OmmMap.doWaypoints) {
+        if (TileManager.doWaypoints) {
             context.drawTexture( //waypoints
                     buttonlayers.get(ButtonFunction.WAYPOINTS).isHovered() ?
                             getButtonTexture(ButtonFunction.WAYPOINTS, ButtonState.HOVER) :

@@ -308,6 +308,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 256 && this.shouldCloseOnEsc()) {
+            this.close();
+            return true;
+        }
         map.keyNavigate(keyCode, modifiers);
         return true;
     }

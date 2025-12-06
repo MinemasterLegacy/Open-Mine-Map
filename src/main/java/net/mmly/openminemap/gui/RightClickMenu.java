@@ -21,11 +21,11 @@ import java.util.Objects;
 
 public class RightClickMenu extends ClickableWidget {
 
-    private static final int width = 95;
+    private int width = 0;
     // = 16 * number of menu options
-    private static final int height = 48;
-    private static int hoverOn = 0;
-    private static boolean useTp;
+    private int height = 48;
+    private int hoverOn = 0;
+    private boolean useTp;
     boolean enabled;
     public static boolean selectingSite = false;
     double clickX = 0;
@@ -33,12 +33,30 @@ public class RightClickMenu extends ClickableWidget {
     private final Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
     public int horizontalSide = 1;
     public int verticalSize = 1;
+    TextRenderer textRenderer;
     //private WebAppSelectLayer webSelect = null;
 
-    public RightClickMenu(int x, int y) {
-        super(x, y, width, height, Text.empty());
+    private String[] menuOptions = {
+            "Teleport Here",
+            "Copy Coordinates",
+            "Open In..."
+    };
+
+
+    public RightClickMenu(int x, int y, TextRenderer textRenderer) {
+        super(x, y, 0, 0, Text.empty());
         useTp = Objects.equals(ConfigFile.readParameter(ConfigOptions.RIGHT_CLICK_MENU_USES), "/tp");
         enabled = false;
+        this.textRenderer = textRenderer;
+
+        width = 16;
+        for (int i = 0; i < menuOptions.length; i++) {
+            width = Math.max(width, 8 + textRenderer.getWidth(menuOptions[i]));
+        }
+        this.setWidth(width);
+
+        height = Math.max(16 * menuOptions.length, 16);
+        this.setHeight(height);
 
     }
 
@@ -60,17 +78,20 @@ public class RightClickMenu extends ClickableWidget {
         if (!enabled) return;
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
 
+        for (int i = 0; i < menuOptions.length; i++) {
+            context.drawText(
+                    renderer,
+                    menuOptions[i],
+                    getX() + 4,
+                    getY() + 4 + (16 * i),
+                    hoverOn == i + 1 ?
+                            0xFFa8afff :
+                            0xFFFFFFFF,
+                    false
+            );
+        }
 
-        context.drawText(renderer, "Teleport Here", getX() + 4, getY() + 4, RightClickMenu.hoverOn == 1 ? 0xFFa8afff : 0xFFFFFFFF, false);
-        context.drawText(renderer, "Copy Coordinates", getX() + 4, getY() + 20, RightClickMenu.hoverOn == 2 ? 0xFFa8afff : 0xFFFFFFFF, false);
-        context.drawText(renderer, "Open In...", getX() + 4, getY() + 36, RightClickMenu.hoverOn == 3 || selectingSite ? 0xFFa8afff : 0xFFFFFFFF, false);
-
-        /*
-
-
-         */
         context.drawTexture(rightClickCursor, (int) clickX - 4, (int) clickY - 4, 0, 0, 9, 9, 9, 9);
-
 
     }
 
@@ -111,6 +132,9 @@ public class RightClickMenu extends ClickableWidget {
 
                 FullscreenMapScreen.webAppSelectLayer.setPosition(getX() + width + 4 + modX, getY() + modY);
                 return;
+            }
+            default: {
+                //should never occur, but it's here just in case (:
             }
         }
         FullscreenMapScreen.disableRightClickMenu();

@@ -42,7 +42,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     // Ex: zoom 0, range -128 - 127 | zoom 1, range -256 - 255 | zoom 2, range -512 - 511 | etc.
     MinecraftClient mClient = MinecraftClient.getInstance();
     Window window = mClient.getWindow();
-    private static RightClickMenu rightClickLayer = new RightClickMenu(0, 0);
+    private static RightClickMenu rightClickLayer;
     public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
     private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
@@ -202,7 +202,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
-        rightClickLayer = new RightClickMenu(0, 0);
+        rightClickLayer = new RightClickMenu(0, 0, this.textRenderer);
         this.addDrawableChild(rightClickLayer);
         webAppSelectLayer = new WebAppSelectLayer();
         this.addDrawableChild(webAppSelectLayer);

@@ -40,6 +40,18 @@ public class MapConfigScreen extends Screen {
         super(Text.of("OMM Map Config"));
     }
 
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 256 && this.shouldCloseOnEsc()) {
+            revertChanges();
+            MinecraftClient.getInstance().setScreen(
+                    new ConfigScreen()
+            );
+            return true;
+        }
+        return true;
+    }
+
     public static void updateResizePos() {
         rightResize.setPosition(HudMap.map.getRenderAreaX2() - 3, (int) (HudMap.map.getHeightMidpoint() - 10));
         leftResize.setPosition(HudMap.map.getRenderAreaX() - 4, (int) (HudMap.map.getHeightMidpoint() - 10));

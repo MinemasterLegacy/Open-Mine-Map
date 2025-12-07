@@ -1,32 +1,49 @@
 package net.mmly.openminemap.util;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.waypoint.ColorSliderWidget;
+import net.mmly.openminemap.waypoint.WaypointScreen;
+import net.mmly.openminemap.waypoint.WaypointStyle;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Waypoint {
 
     public double longitude;
     public double latitude;
     public Identifier identifier;
+    public double angle;
+    public String name;
 
     //mapxy here refer to the position at the lowest possible zoom level (18)
     private int mapX;
     private int mapY;
 
-    public Waypoint(Identifier identifier, int mapX, int mapY, int zoom) {
-        this.identifier = identifier;
-        this.mapX = (int) (mapX * Math.pow(2, 18 - zoom));
-        this.mapY = (int) (mapY * Math.pow(2, 18 - zoom));
-        this.latitude = UnitConvert.myToLat(mapY, zoom);
-        this.longitude = UnitConvert.mxToLong(mapX, zoom);
-    }
+    public Waypoint(String style, double latitude, double longitude, int colorHSV, double angle, String name) {
+        WaypointStyle sty;
+        try {
+            sty = WaypointStyle.valueOf(style);
+        } catch (IllegalArgumentException e) {
+            sty = WaypointStyle.DIAMOND;
+        }
+        identifier = getColoredIdentifier(Identifier.of("openminemap", "waypoints/"+sty.name().toLowerCase()+".png"), colorHSV);
 
-    public Waypoint(Identifier identifier, double latitude, double longitude) {
-        this.identifier = identifier;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.angle = angle;
+        this.name = name;
         this.mapX = (int) UnitConvert.longToMapX(longitude, 18, OmmMap.tileSize);
         this.mapY = (int) UnitConvert.latToMapY(latitude, 18, OmmMap.tileSize);
+
     }
 
     public int getMapX(int zoom) {
@@ -37,4 +54,35 @@ public class Waypoint {
         return (int) (mapY / Math.pow(2, 18 - zoom));
     }
 
+    private Identifier getColoredIdentifier(Identifier identifier, int colorHSV) {
+
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        int value = colorHSV & 0x0000FF;
+        int saturation = (colorHSV >> 8) & 0x0000FF;
+        int hue = (colorHSV >> 16) & 0x0000FF;
+
+        try {
+            BufferedImage image = ImageIO.read(client.getResourceManager().getResource(identifier).get().getInputStream());
+            image = WaypointScreen.colorize(image, (float) hue /256, (float) saturation /256, (float) value /256);
+
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", os);
+            InputStream is = new ByteArrayInputStream(os.toByteArray());
+            NativeImage nImage = NativeImage.read(is);
+
+            Identifier wayIdent = client.getTextureManager().registerDynamicTexture("osmwaypoint", new NativeImageBackedTexture(nImage));
+
+            is.close();
+            //nImage.close();
+            os.close();
+
+            return wayIdent;
+
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println("colorize fail");
+            return identifier;
+        }
+
+    }
 }

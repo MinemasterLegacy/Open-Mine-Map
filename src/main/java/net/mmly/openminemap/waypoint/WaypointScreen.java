@@ -74,13 +74,13 @@ public class WaypointScreen extends Screen {
             nImage.close();
             os.close();
 
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             System.out.println("colorize fail");
         }
 
     }
 
-    private static BufferedImage colorize(BufferedImage image, float hue, float sat, float bright) {
+    public static BufferedImage colorize(BufferedImage image, float hue, float sat, float bright) throws IllegalArgumentException {
 
         if (hue < 0 || hue > 1 || Float.isNaN(hue)) {
             throw new IllegalArgumentException(

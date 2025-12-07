@@ -749,6 +749,24 @@ public class OmmMap extends ClickableWidget {
         context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
         drawMap(context); //draw the map tiles + background
 
+        if (TileManager.doWaypoints) {
+            for (Waypoint waypoint : waypoints) {
+                context.drawTexture(
+                        waypoint.identifier,
+                        (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,
+                        (int) (((double) renderAreaHeight / 2) - 4 + (waypoint.getMapY(zoom) - mapCenterY)) + renderAreaY,
+                        9,
+                        9,
+                        0,
+                        0,
+                        9,
+                        9,
+                        9,
+                        9
+                );
+            }
+        }
+
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         //draw other players' direction indicators
         for (PlayerEntity player : PlayersManager.getNearPlayers()) {
@@ -796,26 +814,6 @@ public class OmmMap extends ClickableWidget {
         }
 
         context.disableScissor();
-
-        //TODO crop
-        //TODO render waypoints before players
-
-        if (TileManager.doWaypoints) {
-            for (Waypoint waypoint : waypoints)
-            context.drawTexture(
-                    waypoint.identifier,
-                    (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,
-                    (int) (((double) renderAreaHeight / 2) - 4 + (waypoint.getMapY(zoom) - mapCenterY)) + renderAreaY,
-                    9,
-                    9,
-                    0,
-                    0,
-                    9,
-                    9,
-                    9,
-                    9
-            );
-        }
 
     }
 

@@ -13,7 +13,7 @@ public class ColorSliderWidget extends ClickableWidget {
     private static Identifier drawTexture = Identifier.of("openminemap", "colorspectrum.png");
     private ColorSliderType type;
 
-    public static float hue = 0;
+    public static float hue = 0.5F;
     public static float saturation = 1;
     public static float value = 1;
 

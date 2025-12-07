@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.waypoint.WaypointStyle;
 
 import java.io.*;
 import java.util.Objects;
@@ -100,13 +101,13 @@ public class WaypointFile {
 
         int amount = 0;
         for (int i = 0; i < waypoints.length; i++) {
-            if (waypoints[i].world_name.equals(worldName) && worldType.name().equals(waypoints[i].world_type)) amount++;
+            if (waypoints[i].world_name.equals(worldName) && worldType.name().toLowerCase().equals(waypoints[i].world_type)) amount++;
         }
 
         Waypoint[] wps = new Waypoint[amount];
         int j = 0;
         for (int i = 0; i < waypoints.length; i++) {
-            if (waypoints[i].world_name.equals(worldName) && worldType.name().equals(waypoints[i].world_type)) {
+            if (waypoints[i].world_name.equals(worldName) && worldType.name().toLowerCase().equals(waypoints[i].world_type)) {
                 wps[j] = synthesizeWaypoint(waypoints[i]);
                 j++;
             }
@@ -117,9 +118,12 @@ public class WaypointFile {
 
     private static Waypoint synthesizeWaypoint(WaypointObject waypointObject) {
         return new Waypoint(
-                Identifier.of("openminemap", "waypoints/waypoint0.png"),
+                waypointObject.style,
                 waypointObject.latitude,
-                waypointObject.longitude
+                waypointObject.longitude,
+                waypointObject.color,
+                waypointObject.angle,
+                waypointObject.name
         );
     }
 

@@ -1,11 +1,15 @@
 package net.mmly.openminemap.waypoint;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.util.Waypoint;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -21,8 +25,10 @@ public class WaypointScreen extends Screen {
     private ColorSliderWidget hueSlider;
     private ColorSliderWidget saturationSlider;
     private ColorSliderWidget valueSlider;
+    private WaypointEntryWidget[] waypointEntries;
 
     private BufferedImage diamondWaypoint;
+    private static int midPoint = 0;
 
     public WaypointScreen() {
         super(Text.of("OpenMineMap Waypoints"));
@@ -40,17 +46,56 @@ public class WaypointScreen extends Screen {
         this.addDrawableChild(saturationSlider);
         this.addDrawableChild(valueSlider);
 
+        int y = 20;
+        int numEntries = OmmMap.getWaypoints().length;
+        waypointEntries = new WaypointEntryWidget[numEntries];
+        Waypoint[] waypoints = OmmMap.getWaypoints();
+
+        for (int i = 0; i < numEntries; i++) {
+            waypointEntries[i] = new WaypointEntryWidget(10, y, Text.of(""), waypoints[i], this.textRenderer);
+            this.addDrawableChild(waypointEntries[i]);
+            y += 25;
+        }
+
         try {
             diamondWaypoint = ImageIO.read(client.getResourceManager().getResource(Identifier.of("openminemap", "waypoints/diamond.png")).get().getInputStream());
         } catch (IOException e) {
             System.out.println("load error");
         }
 
+        updateWidgetPositions();
+
+    }
+
+    public static int getMidPoint() {
+        return midPoint;
+    }
+
+    private void updateWidgetPositions() {
+        midPoint = width / 2;
+
+        int creationAreaWidth = width - midPoint;
+
+        int sliderWidths = Math.min((creationAreaWidth / 5), 30);
+        float marginWidths = (float) (creationAreaWidth - (sliderWidths * 3)) / 4;
+
+        float x = midPoint + marginWidths;
+
+        hueSlider.setDimensionsAndPosition(sliderWidths, 120, (int) x, 20);
+        x += marginWidths + sliderWidths;
+        saturationSlider.setDimensionsAndPosition(sliderWidths, 120, (int) x, 20);
+        x += marginWidths + sliderWidths;
+        valueSlider.setDimensionsAndPosition(sliderWidths, 120, (int) x, 20);
+
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+
+        updateWidgetPositions();
+
+        context.drawVerticalLine(midPoint, 0, height, 0xFF808080);
 
         context.fill(140, 20, 160, 40, Color.HSBtoRGB(ColorSliderWidget.hue, ColorSliderWidget.saturation, ColorSliderWidget.value));
 
@@ -111,4 +156,11 @@ public class WaypointScreen extends Screen {
         return image;
     }
 
+    @Override
+    public void close() {
+        super.close();
+        MinecraftClient.getInstance().setScreen(
+                new FullscreenMapScreen()
+        );
+    }
 }

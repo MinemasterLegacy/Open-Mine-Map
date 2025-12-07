@@ -42,6 +42,7 @@ public class OmmMap extends ClickableWidget {
     public final static int TILEMAXZOOM = 18;
     public final static int TILEMAXARTIFICIALZOOM = 24;
     public static final int tileSize = 128;
+    public final static int WAYPOINTSIZE = 9;
 
     private boolean fieldsInitialized = false;
     private MinecraftClient client;
@@ -112,6 +113,10 @@ public class OmmMap extends ClickableWidget {
 
     public static void setWaypoints(Waypoint[] waypoints1) {
         waypoints = waypoints1;
+    }
+
+    public static Waypoint[] getWaypoints() {
+        return waypoints;
     }
 
     public void clampZoom() {
@@ -755,14 +760,14 @@ public class OmmMap extends ClickableWidget {
                         waypoint.identifier,
                         (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,
                         (int) (((double) renderAreaHeight / 2) - 4 + (waypoint.getMapY(zoom) - mapCenterY)) + renderAreaY,
-                        9,
-                        9,
+                        WAYPOINTSIZE,
+                        WAYPOINTSIZE,
                         0,
                         0,
-                        9,
-                        9,
-                        9,
-                        9
+                        WAYPOINTSIZE,
+                        WAYPOINTSIZE,
+                        WAYPOINTSIZE,
+                        WAYPOINTSIZE
                 );
             }
         }

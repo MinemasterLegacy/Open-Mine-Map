@@ -483,6 +483,7 @@ public class OmmMap extends ClickableWidget {
         int regionHeight = 8;
 
 
+        /*
         //crop leftward edge
         if (relativeX < renderAreaX) {
             int difference = renderAreaX - relativeX;
@@ -518,6 +519,8 @@ public class OmmMap extends ClickableWidget {
 
         if (regionWidth <= 0 || regionHeight <= 0) return;
 
+
+         */
 
         //draw player
 
@@ -625,6 +628,7 @@ public class OmmMap extends ClickableWidget {
         int width = tileSize;
         int height = tileSize;
 
+        /*
         //crop leftward edge
         if (relativeX < renderAreaX) {
             int difference = renderAreaX - relativeX;
@@ -657,7 +661,10 @@ public class OmmMap extends ClickableWidget {
             regionHeight -= difference;
         }
 
+
+
         if (regionWidth <= 0 || regionHeight <= 0) return;
+        */
 
         context.drawTexture(
                 tile.identifier,
@@ -739,12 +746,13 @@ public class OmmMap extends ClickableWidget {
         if (!fieldsInitialized) initFields();
         updateFields();
 
+        context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
         drawMap(context); //draw the map tiles + background
 
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         //draw other players' direction indicators
         for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-            if (player.getUuid().equals(player.getUuid())) continue; //self player should be drawn last so that it's on top, so don't draw it here
+            if (player.getUuid().equals(client.player.getUuid())) continue; //self player should be drawn last so that it's on top, so don't draw it here
             players.add(drawDirectionIndicator(
                     context,
                     player,
@@ -786,6 +794,8 @@ public class OmmMap extends ClickableWidget {
                 drawBufferedPlayer(context, self);
             }
         }
+
+        context.disableScissor();
 
         //TODO crop
         //TODO render waypoints before players

@@ -800,18 +800,6 @@ public class OmmMap extends ClickableWidget {
         //TODO crop
         //TODO render waypoints before players
 
-        try {
-            InputStream stream = client.getResourceManager().getResource(Identifier.of("openminemap", "waypoints/waypoint0.png")).get().getInputStream();
-            BufferedImage texture = ImageIO.read(stream);
-
-            Graphics2D g2d = texture.createGraphics();
-
-
-        } catch (IOException e) {
-
-        }
-
-
         if (TileManager.doWaypoints) {
             for (Waypoint waypoint : waypoints)
             context.drawTexture(

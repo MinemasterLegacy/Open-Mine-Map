@@ -1,9 +1,14 @@
 package net.mmly.openminemap;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
@@ -13,6 +18,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
+import net.mmly.openminemap.util.WaypointFile;
 
 import java.util.ArrayList;
 
@@ -37,14 +43,9 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         HudRenderCallback.EVENT.register(HudMap::render);
         HudRenderCallback.EVENT.register(FullscreenMapScreen::render);
 
-/*
-        newMapRenderer.setBackground(0x44000000);
-        newMapRenderer.zoomIn();
-        newMapRenderer.setArtificialZoom(true);
-        HudRenderCallback.EVENT.register(newMapRenderer::render);
+        ServerLifecycleEvents.SERVER_STARTED.register(WaypointFile::setWaypointsOfThisWorld);
 
- */
-
+        WaypointFile.load();
         TileUrlFile.establishUrls();
 
         TileManager.initializeConfigParameters();

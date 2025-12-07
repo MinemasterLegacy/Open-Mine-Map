@@ -27,7 +27,12 @@ import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
+import javax.imageio.ImageIO;
 import javax.swing.plaf.basic.BasicTreeUI;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -84,7 +89,7 @@ public class OmmMap extends ClickableWidget {
     public MethodInterface leftClickProcedure;
     public BooleanInterface blockZoomProcedure;
 
-    private Waypoint testWaypoint = new Waypoint(Identifier.of("openminemap", "waypoints/waypoint0.png"), 33.450764, -112.07305);
+    private static Waypoint[] waypoints;
 
     private void initFields() {
         client = MinecraftClient.getInstance();
@@ -103,6 +108,10 @@ public class OmmMap extends ClickableWidget {
         this.zoom = zoom;
         this.mapCenterX = mapCenterX;
         this.mapCenterY = mapCenterY;
+    }
+
+    public static void setWaypoints(Waypoint[] waypoints1) {
+        waypoints = waypoints1;
     }
 
     public void clampZoom() {
@@ -778,11 +787,27 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
+        //TODO crop
+        //TODO render waypoints before players
+
+        try {
+            InputStream stream = client.getResourceManager().getResource(Identifier.of("openminemap", "waypoints/waypoint0.png")).get().getInputStream();
+            BufferedImage texture = ImageIO.read(stream);
+
+            Graphics2D g2d = texture.createGraphics();
+
+
+        } catch (IOException e) {
+
+        }
+
+
         if (TileManager.doWaypoints) {
+            for (Waypoint waypoint : waypoints)
             context.drawTexture(
-                    testWaypoint.identifier,
-                    (int) (((double) renderAreaWidth / 2) - 4 + (testWaypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,
-                    (int) (((double) renderAreaHeight / 2) - 4 + (testWaypoint.getMapY(zoom) - mapCenterY)) + renderAreaY,
+                    waypoint.identifier,
+                    (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,
+                    (int) (((double) renderAreaHeight / 2) - 4 + (waypoint.getMapY(zoom) - mapCenterY)) + renderAreaY,
                     9,
                     9,
                     0,

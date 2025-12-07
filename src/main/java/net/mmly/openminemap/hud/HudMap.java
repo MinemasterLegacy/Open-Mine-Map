@@ -14,6 +14,8 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.Waypoint;
+import net.mmly.openminemap.util.WaypointFile;
 
 public class HudMap {
 

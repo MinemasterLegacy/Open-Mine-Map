@@ -12,6 +12,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.waypoint.WaypointScreen;
 
 public class ButtonLayer extends ClickableWidget {
 
@@ -68,7 +69,9 @@ public class ButtonLayer extends ClickableWidget {
                 MinecraftClient.getInstance().currentScreen.close();
                 break;
             case ButtonFunction.WAYPOINTS:
-                //waypoints
+                MinecraftClient.getInstance().setScreen(
+                        new WaypointScreen()
+                );
                 break;
             case ButtonFunction.CHECKMARK:
                 if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {

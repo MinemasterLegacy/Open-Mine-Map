@@ -352,6 +352,11 @@ public class TileManager {
         dyLoadedTiles.put(key, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
         //System.out.println("New Dynamic tile");
         if (key.equals(Arrays.toString(new int[] {0, 0, 0}))) themeColor = image.getRGB(3, 3);
+
+        is.close();
+        nImage.close();
+        os.close();
+
         return dyLoadedTiles.get(key);
     }
 
@@ -400,6 +405,10 @@ public class TileManager {
                 NativeImage nImage = NativeImage.read(is);
                 //register new dynamic texture and store it again to be referenced later
                 dyLoadedTiles.put(thisKey, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
+
+                os.close();
+                is.close();
+                nImage.close();
                 //System.out.println("New Dynamic tile");
                 return dyLoadedTiles.get(thisKey);
             }

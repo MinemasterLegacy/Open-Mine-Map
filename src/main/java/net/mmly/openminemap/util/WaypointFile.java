@@ -18,22 +18,23 @@ import java.util.Objects;
 public class WaypointFile {
 
     public static boolean loadWasFailed = false;
-    private static WaypointObject[] waypoints;
+    private static WaypointObject[] waypoints = new WaypointObject[0];
     private static final File waypointsFile = new File(TileManager.getRootFile() + "openminemap/waypoints.json");
+    private static WorldType worldType;
+    private static String worldName;
 
     public static void save() {
         Gson gson = new Gson();
 
-        try (FileReader reader = new FileReader(waypointsFile)) {
+        try {
 
             try {
-                //WorldCategoriesList categoriesList = gson.fromJson(reader, WorldCategoriesList.class);
-                //System.out.println("from wp: "+categoriesList.categories.length);
 
+                /*
                 WaypointObject waypoint = new WaypointObject(WorldType.SINGLEPLAYER, "pheenix", "abc", 10, 20, 0xFFFFFFFF, "diamond", 69.420);
                 WaypointObject w2 = new WaypointObject(WorldType.SINGLEPLAYER, "pheenix", "def", 40, 50, 0xFFFF0000, "diamond", 12.345);
-
                 WaypointObject[] waypoints = new WaypointObject[] {waypoint, w2};
+                 */
 
                 FileWriter writer = new FileWriter(waypointsFile);
 
@@ -45,12 +46,12 @@ public class WaypointFile {
                 System.out.println("write call success to "+waypointsFile.getAbsolutePath());
 
             } catch (JsonSyntaxException e) {
-                OpenMineMapClient.debugMessages.add("Waypoints file load failed: "+e.getMessage());
+                OpenMineMapClient.debugMessages.add("Waypoints file save failed: "+e.getMessage());
                 throw new WaypointFileFormatException();
             }
 
         } catch (IOException | WaypointFileFormatException e) {
-            System.out.println("save fail"); //TODO
+            System.out.println("Waypoints file save failed: "+e.getMessage());
         }
     }
 
@@ -64,6 +65,10 @@ public class WaypointFile {
         try (FileReader reader = new FileReader(file)) {
             try {
                 waypoints = gson.fromJson(reader, WaypointObject[].class);
+                if (waypoints == null) {
+                    waypoints = new WaypointObject[0];
+                    return;
+                }
                 return;
             } catch (JsonSyntaxException e) {
                 throw new WaypointFileFormatException();
@@ -78,9 +83,6 @@ public class WaypointFile {
     }
 
     public static void setWaypointsOfThisWorld(MinecraftServer minecraftServer) {
-
-        String worldName;
-        WorldType worldType;
 
         try {
             worldName = MinecraftClient.getInstance().getCurrentServerEntry().name;//gets the server name if multiplayer, otherwise will fail
@@ -116,6 +118,19 @@ public class WaypointFile {
         OmmMap.setWaypoints(wps);
     }
 
+    public static void addWaypoint(String style, double lat, double lon, int color, double angle, String name) {
+        WaypointObject[] outputList = new WaypointObject[waypoints.length + 1];
+
+        int i = 0;
+        for (WaypointObject way : waypoints) {
+            outputList[i] = way;
+            i++;
+        }
+
+        outputList[outputList.length-1] = new WaypointObject(worldType, worldName, name, lon, lat, color, style, angle);
+        waypoints = outputList;
+    }
+
     private static Waypoint synthesizeWaypoint(WaypointObject waypointObject) {
         return new Waypoint(
                 waypointObject.style,
@@ -128,7 +143,8 @@ public class WaypointFile {
     }
 
     private static void createDefaultFile() {
-        //TODO
+        waypoints = new WaypointObject[0];
+        save();
     }
 
 }

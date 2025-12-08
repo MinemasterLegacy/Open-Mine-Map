@@ -9,6 +9,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
@@ -43,9 +44,11 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         HudRenderCallback.EVENT.register(HudMap::render);
         HudRenderCallback.EVENT.register(FullscreenMapScreen::render);
 
-        ServerLifecycleEvents.SERVER_STARTED.register(WaypointFile::setWaypointsOfThisWorld);
+        if (Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__WAYPOINTS))) {
+            ServerLifecycleEvents.SERVER_STARTED.register(WaypointFile::setWaypointsOfThisWorld);
+            WaypointFile.load();
+        }
 
-        WaypointFile.load();
         TileUrlFile.establishUrls();
 
         TileManager.initializeConfigParameters();

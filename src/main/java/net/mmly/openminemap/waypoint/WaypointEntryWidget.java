@@ -12,6 +12,11 @@ public class WaypointEntryWidget extends ClickableWidget {
 
     Waypoint waypoint;
     TextRenderer renderer;
+    public int scrollOffset;
+
+    public void setScroll(int scroll) {
+        scrollOffset = scroll;
+    }
 
     public WaypointEntryWidget(int x, int y, Text message, Waypoint waypoint, TextRenderer textRenderer) {
         super(x, y, 0, 20, message);
@@ -22,13 +27,13 @@ public class WaypointEntryWidget extends ClickableWidget {
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 
-        context.enableScissor(0, 0, WaypointScreen.getMidPoint(), MinecraftClient.getInstance().getWindow().getScaledHeight());
+        context.enableScissor(0, 0, getX() + width - 1, MinecraftClient.getInstance().getWindow().getScaledHeight());
 
         setWidth(WaypointScreen.getMidPoint() - 20);
 
-        context.drawTexture(waypoint.identifier, getX() + 4, getY() + 4, 0, 0, 12, 12, 12, 12);
-        context.drawText(renderer, waypoint.name, getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2), 0xFFFFFFFF, true);
-        context.drawBorder(getX(), getY(), getWidth(), getHeight(), isFocused() ? 0xFFFFFFFF : 0xFF808080);
+        context.drawTexture(waypoint.identifier, getX() + 4, getY() + 4 - scrollOffset, 0, 0, 12, 12, 12, 12);
+        context.drawText(renderer, waypoint.name, getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
+        context.drawBorder(getX(), getY() - scrollOffset, getWidth(), getHeight(), isFocused() ? 0xFFFFFFFF : 0xFF808080);
 
         context.disableScissor();
     }

@@ -14,6 +14,7 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -39,7 +40,8 @@ public class RightClickMenu extends ClickableWidget {
     private String[] menuOptions = {
             "Teleport Here",
             "Copy Coordinates",
-            "Open In..."
+            "Open In...",
+            "Create Waypoint"
     };
 
 
@@ -132,6 +134,11 @@ public class RightClickMenu extends ClickableWidget {
 
                 FullscreenMapScreen.webAppSelectLayer.setPosition(getX() + width + 4 + modX, getY() + modY);
                 return;
+            }
+            case 4: {
+                MinecraftClient.getInstance().setScreen(
+                        new WaypointScreen(savedMouseLat, savedMouseLong)
+                );
             }
             default: {
                 //should never occur, but it's here just in case (:

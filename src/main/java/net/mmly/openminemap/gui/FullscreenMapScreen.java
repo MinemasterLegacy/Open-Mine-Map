@@ -334,8 +334,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (chatToBeOpened) {
             if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient
                 renderWithChat = true;
-                System.out.println(mClient.options.chatKey.isPressed());
-                System.out.println(mClient.options.chatKey.wasPressed());
                 mClient.setScreen(new ChatScreen(""));
                 map.setDraggable(false);
                 hudWasHidden = MinecraftClient.getInstance().options.hudHidden;

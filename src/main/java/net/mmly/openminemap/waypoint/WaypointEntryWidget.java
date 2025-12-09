@@ -4,8 +4,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 
 public class WaypointEntryWidget extends ClickableWidget {
@@ -13,6 +16,25 @@ public class WaypointEntryWidget extends ClickableWidget {
     Waypoint waypoint;
     TextRenderer renderer;
     public int scrollOffset;
+
+    private static final Identifier editId = Identifier.of("openminemap", "waypoints/gui/edit.png");
+    private static final Identifier pinOnId = Identifier.of("openminemap", "waypoints/gui/pinon.png");
+    private static final Identifier pinOffId = Identifier.of("openminemap", "waypoints/gui/pinoff.png");
+    private static final Identifier viewOnId = Identifier.of("openminemap", "waypoints/gui/viewon.png");
+    private static final Identifier viewOffId = Identifier.of("openminemap", "waypoints/gui/viewoff.png");
+
+    private static final int selectedColor = 0xFFFFFFFF;
+    private static final int idleColor = 0xFF808080;
+    private static final int hoverColor = 0xFFB0B0B0;
+
+    private boolean showWaypoint = true;
+    private boolean pinnedWaypoint = false;
+    private Selection selection = Selection.NONE;
+
+    private int mx = 0;
+    private int my = 0;
+
+    private static final String[] tooltipMessages = new String[] {"Edit Waypoint", "View Waypoint", "Pin Waypoint"};
 
     public void setScroll(int scroll) {
         scrollOffset = scroll;
@@ -24,22 +46,83 @@ public class WaypointEntryWidget extends ClickableWidget {
         this.renderer = textRenderer;
     }
 
+    private void setPinned(boolean pinned) {
+        this.pinnedWaypoint = pinned;
+        //TODO update everything else
+    }
+
+    private void setEnabled(boolean enabled) {
+        this.showWaypoint = enabled;
+        //TODO update everything else
+    }
+
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 
-        context.enableScissor(0, 0, getX() + width - 1, MinecraftClient.getInstance().getWindow().getScaledHeight());
+        mx = mouseX;
+        my = mouseY;
 
         setWidth(WaypointScreen.getMidPoint() - 20);
 
-        context.drawTexture(waypoint.identifier, getX() + 4, getY() + 4 - scrollOffset, 0, 0, 12, 12, 12, 12);
-        context.drawText(renderer, waypoint.name, getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
-        context.drawBorder(getX(), getY() - scrollOffset, getWidth(), getHeight(), isFocused() ? 0xFFFFFFFF : 0xFF808080);
+        int borderColor = isFocused() ? selectedColor : (isHovered() ? hoverColor : idleColor);
 
+        context.drawTexture(waypoint.identifier, getX() + 3, getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
+
+        int xMod = 0;
+        setTooltip(null);
+        selection = Selection.NONE;
+        for (Identifier i : new Identifier[]{editId, showWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
+            context.drawTexture(i, getX() + width - 17 - (xMod * 16), getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
+            if (mouseIsInArea(getX() + width - 17 - (xMod * 16), getY() + 3, 14, 14)) {
+                setTooltip(Tooltip.of(Text.of(tooltipMessages[xMod])));
+                selection = Selection.getById(xMod + 1);
+            }
+            xMod++;
+        }
+
+        context.enableScissor(0, 0, getX() + width - 52, MinecraftClient.getInstance().getWindow().getScaledHeight());
+        context.drawText(renderer, waypoint.name, getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
         context.disableScissor();
+
+        context.drawBorder(getX(), getY() - scrollOffset, getWidth(), getHeight(), borderColor);
+        context.drawVerticalLine(getX() + width - 52, getY() - scrollOffset, getY() + height - scrollOffset, borderColor);
+        context.drawVerticalLine(getX() + 19, getY() - scrollOffset, getY() + height - scrollOffset, borderColor);
+
     }
 
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY) {
+        if (selection == Selection.VIEW) {
+            setEnabled(!showWaypoint);
+            setPinned(false);
+        }
+        if (selection == Selection.PIN) {
+            setPinned(!pinnedWaypoint);
+        }
+    }
+
+    private boolean mouseIsInArea(int x, int y, int width, int height) {
+        return mx >= x && my >= y && mx <= x + width && my <= y + height;
+    }
+}
+
+enum Selection {
+    NONE,
+    EDIT,
+    VIEW,
+    PIN;
+
+    public static Selection getById(int i) {
+        return switch (i) {
+            case 1 -> EDIT;
+            case 2 -> VIEW;
+            case 3 -> PIN;
+            default -> NONE;
+        };
     }
 }

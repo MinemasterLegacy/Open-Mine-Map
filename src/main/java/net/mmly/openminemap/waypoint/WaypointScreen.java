@@ -169,7 +169,7 @@ public class WaypointScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         boolean b = super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-        if (!Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL))) verticalAmount *= 1;
+        if (!Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL))) verticalAmount *= -1;
 
         if (mouseX > midPoint) {
             int maxScroll = 200; //TODO determine based on total height of all widgets on the right

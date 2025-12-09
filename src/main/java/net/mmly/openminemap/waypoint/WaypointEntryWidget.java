@@ -8,8 +8,9 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.util.Waypoint;
+import net.mmly.openminemap.util.WaypointFile;
 
 public class WaypointEntryWidget extends ClickableWidget {
 
@@ -27,8 +28,8 @@ public class WaypointEntryWidget extends ClickableWidget {
     private static final int idleColor = 0xFF808080;
     private static final int hoverColor = 0xFFB0B0B0;
 
-    private boolean showWaypoint = true;
-    private boolean pinnedWaypoint = false;
+    private boolean visibleWaypoint;
+    private boolean pinnedWaypoint;
     private Selection selection = Selection.NONE;
 
     private int mx = 0;
@@ -40,20 +41,28 @@ public class WaypointEntryWidget extends ClickableWidget {
         scrollOffset = scroll;
     }
 
-    public WaypointEntryWidget(int x, int y, Text message, Waypoint waypoint, TextRenderer textRenderer) {
+    public WaypointEntryWidget(int x, int y, Text message, Waypoint waypoint, TextRenderer textRenderer, boolean pinned, boolean visible) {
         super(x, y, 0, 20, message);
         this.waypoint = waypoint;
         this.renderer = textRenderer;
+        this.visibleWaypoint = visible;
+        this.pinnedWaypoint = pinned;
     }
 
     private void setPinned(boolean pinned) {
-        this.pinnedWaypoint = pinned;
-        //TODO update everything else
+        if (WaypointFile.setWaypointPinned(waypoint.name, pinned)) {
+            this.pinnedWaypoint = pinned;
+        } else {
+            OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoint property change failed");
+        }
     }
 
-    private void setEnabled(boolean enabled) {
-        this.showWaypoint = enabled;
-        //TODO update everything else
+    private void setVisible(boolean visible) {
+        if (WaypointFile.setWaypointVisibility(waypoint.name, visible)) {
+            this.visibleWaypoint = visible;
+        } else {
+            OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoint property change failed");
+        }
     }
 
     @Override
@@ -71,7 +80,7 @@ public class WaypointEntryWidget extends ClickableWidget {
         int xMod = 0;
         setTooltip(null);
         selection = Selection.NONE;
-        for (Identifier i : new Identifier[]{editId, showWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
+        for (Identifier i : new Identifier[]{editId, visibleWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
             context.drawTexture(i, getX() + width - 17 - (xMod * 16), getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
             if (mouseIsInArea(getX() + width - 17 - (xMod * 16), getY() + 3, 14, 14)) {
                 setTooltip(Tooltip.of(Text.of(tooltipMessages[xMod])));
@@ -98,8 +107,7 @@ public class WaypointEntryWidget extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         if (selection == Selection.VIEW) {
-            setEnabled(!showWaypoint);
-            setPinned(false);
+            setVisible(!visibleWaypoint);
         }
         if (selection == Selection.PIN) {
             setPinned(!pinnedWaypoint);

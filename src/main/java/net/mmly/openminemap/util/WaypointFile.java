@@ -82,8 +82,7 @@ public class WaypointFile {
 
     }
 
-    public static void setWaypointsOfThisWorld(MinecraftServer minecraftServer) {
-
+    private static boolean establishWorld() {
         try {
             worldName = MinecraftClient.getInstance().getCurrentServerEntry().name;//gets the server name if multiplayer, otherwise will fail
             worldType = WorldType.MULTIPLAYER;
@@ -93,13 +92,29 @@ public class WaypointFile {
                 worldName = MinecraftClient.getInstance().getServer().getSavePath(WorldSavePath.ROOT).getParent().getFileName().toString();
                 worldType = WorldType.SINGLEPLAYER;
             } catch (NullPointerException ex) { //if both checks fail to product a name, load no waypoints and give an error in chat
-                OmmMap.setWaypoints(new Waypoint[0]);
-                OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoints failed to load: Unable to determine level identifier.");
-                return;
+                OpenMineMapClient.debugMessages.add("OpenMineMap: Unable to determine level identifier.");
+                return false;
             }
         }
 
         System.out.println("World Name resolved to \""+worldName+"\"");
+
+        return true;
+    }
+
+    //for the server lifecycle events to call
+    public static void setWaypointsOfThisWorld(MinecraftServer minecraftServer) {
+        setWaypointsOfThisWorld(true);
+    }
+
+    public static void setWaypointsOfThisWorld(boolean establishWorld) {
+
+        if (establishWorld) {
+            if (!establishWorld()) {
+                OmmMap.setWaypoints(new Waypoint[0]);
+                return;
+            }
+        }
 
         int amount = 0;
         for (int i = 0; i < waypoints.length; i++) {
@@ -118,7 +133,7 @@ public class WaypointFile {
         OmmMap.setWaypoints(wps);
     }
 
-    public static void addWaypoint(String style, double lat, double lon, int color, double angle, String name) {
+    public static void addWaypoint(String style, double lat, double lon, int color, double angle, String name, boolean pinned, boolean visible) {
         WaypointObject[] outputList = new WaypointObject[waypoints.length + 1];
 
         int i = 0;
@@ -127,7 +142,7 @@ public class WaypointFile {
             i++;
         }
 
-        outputList[outputList.length-1] = new WaypointObject(worldType, worldName, name, lon, lat, color, style, angle);
+        outputList[outputList.length-1] = new WaypointObject(worldType, worldName, name, lon, lat, color, style, angle, pinned, visible);
         waypoints = outputList;
     }
 
@@ -138,13 +153,43 @@ public class WaypointFile {
                 waypointObject.longitude,
                 waypointObject.color,
                 waypointObject.angle,
-                waypointObject.name
+                waypointObject.name,
+                waypointObject.pinned,
+                waypointObject.visible
         );
     }
 
     private static void createDefaultFile() {
         waypoints = new WaypointObject[0];
         save();
+    }
+
+    public static boolean setWaypointVisibility(String name, boolean visible) {
+        //will always be executed only on waypoints for the given world
+        //returns false is something failed, which should cause the entry widget to revert to the previous state and throw an error
+        for (WaypointObject waypoint : waypoints) {
+            if(isInThisWorld(waypoint) && waypoint.name.equals(name)) {
+                waypoint.visible = visible;
+                setWaypointsOfThisWorld(false);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean setWaypointPinned(String name, boolean pinned) {
+        for (WaypointObject waypoint : waypoints) {
+            if(isInThisWorld(waypoint) && waypoint.name.equals(name)) {
+                waypoint.pinned = pinned;
+                setWaypointsOfThisWorld(false);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isInThisWorld(WaypointObject waypointObject) {
+        return (waypointObject.world_type.equals(worldType.toString().toLowerCase()) && waypointObject.world_name.equals(worldName));
     }
 
 }
@@ -158,8 +203,10 @@ class WaypointObject {
     int color;
     String style;
     double angle;
+    boolean pinned;
+    boolean visible;
 
-    public WaypointObject(WorldType worldType, String worldName, String name, double longitude, double latitude, int argb, String style, double angle) {
+    public WaypointObject(WorldType worldType, String worldName, String name, double longitude, double latitude, int argb, String style, double angle, boolean pinned, boolean visible) {
         this.angle = angle;
         this.name = name;
         this.latitude = latitude;
@@ -168,6 +215,8 @@ class WaypointObject {
         this.color = argb;
         this.world_type = worldType.name().toLowerCase();
         this.world_name = worldName;
+        this.pinned = pinned;
+        this.visible = visible;
     }
 }
 

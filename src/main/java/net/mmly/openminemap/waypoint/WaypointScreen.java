@@ -13,6 +13,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
 
@@ -104,7 +105,7 @@ public class WaypointScreen extends Screen {
         }).build();
         this.addDrawableChild(createWaypointButton);
 
-        nameField = new WaypointParameterWidget(this.textRenderer, Text.of("New Waypoint"), true, WaypointValueInputType.STRING);
+        nameField = new WaypointParameterWidget(this.textRenderer, Text.of(initWithValues ? UnitConvert.floorToPlace(initLat, 7) + ", " + UnitConvert.floorToPlace(initLong, 7) : ""), true, WaypointValueInputType.STRING);
         nameField.setTooltip(Tooltip.of(Text.of("Name")));
         nameField.setMaxLength(200);
         this.addDrawableChild(nameField);
@@ -149,15 +150,15 @@ public class WaypointScreen extends Screen {
         Waypoint[] waypoints = OmmMap.getWaypoints();
 
         for (int i = 0; i < numEntries; i++) {
-            waypointEntries[i] = new WaypointEntryWidget(10, y, Text.of(""), waypoints[i], this.textRenderer);
+            waypointEntries[i] = new WaypointEntryWidget(10, y, Text.of(""), waypoints[i], this.textRenderer, waypoints[i].pinned, waypoints[i].visible);
             this.addDrawableChild(waypointEntries[i]);
             y += 25;
         }
     }
 
     public static void createWaypoint(String name, double lat, double lon, int color, WaypointStyle style) {
-        WaypointFile.addWaypoint(style.toString().toLowerCase(), lat, lon, color, -1, name);
-        WaypointFile.setWaypointsOfThisWorld(null);
+        WaypointFile.addWaypoint(style.toString().toLowerCase(), lat, lon, color, -1, name, false, true);
+        WaypointFile.setWaypointsOfThisWorld(false);
         WaypointScreen.getInstance().generateWaypointEntries();
         //Waypoint waypoint = new Waypoint(style.toString().toLowerCase(), lat, lon, color, Double.NaN, name);
     }

@@ -23,12 +23,14 @@ public class Waypoint {
     public Identifier identifier;
     public double angle;
     public String name;
+    public boolean pinned;
+    public boolean visible;
 
     //mapxy here refer to the position at the lowest possible zoom level (18)
     private int mapX;
     private int mapY;
 
-    public Waypoint(String style, double latitude, double longitude, int colorHSV, double angle, String name) {
+    public Waypoint(String style, double latitude, double longitude, int colorHSV, double angle, String name, boolean pinned, boolean visible) {
         WaypointStyle sty;
         try {
             sty = WaypointStyle.valueOf(style);
@@ -43,7 +45,8 @@ public class Waypoint {
         this.name = name;
         this.mapX = (int) UnitConvert.longToMapX(longitude, 18, OmmMap.tileSize);
         this.mapY = (int) UnitConvert.latToMapY(latitude, 18, OmmMap.tileSize);
-
+        this.pinned = pinned;
+        this.visible = visible;
     }
 
     public int getMapX(int zoom) {

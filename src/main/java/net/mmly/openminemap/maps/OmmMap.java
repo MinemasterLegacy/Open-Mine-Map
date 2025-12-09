@@ -756,6 +756,7 @@ public class OmmMap extends ClickableWidget {
 
         if (TileManager.doWaypoints) {
             for (Waypoint waypoint : waypoints) {
+                if (!waypoint.visible) continue;
                 context.drawTexture(
                         waypoint.identifier,
                         (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,

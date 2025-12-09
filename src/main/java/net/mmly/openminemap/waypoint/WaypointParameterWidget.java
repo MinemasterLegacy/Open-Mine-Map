@@ -4,12 +4,18 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.util.Waypoint;
 
 public class WaypointParameterWidget extends TextFieldWidget {
 
     boolean required;
     WaypointValueInputType type;
+
+    public WaypointParameterWidget(TextRenderer textRenderer, boolean required, WaypointValueInputType type) {
+        this(textRenderer, Text.of(""), required, type);
+    }
 
     public WaypointParameterWidget(TextRenderer textRenderer, Text text, boolean required, WaypointValueInputType type) {
         super(textRenderer, 20, 20, text);
@@ -39,6 +45,10 @@ public class WaypointParameterWidget extends TextFieldWidget {
                 if (Double.isNaN(Double.parseDouble(this.getText()))) return false;
             } catch (NumberFormatException e) {
                 return false;
+            }
+        } else { //is name
+            for (Waypoint waypoint : OmmMap.getWaypoints()) {
+                if (waypoint.name.equals(this.getText())) return false;
             }
         }
 

@@ -49,6 +49,7 @@ public class OmmMap extends ClickableWidget {
     private Window window;
     private ClientPlayerEntity player;
     private Mouse mouse;
+    private Waypoint hoveredWaypoint = null;
 
     private int renderAreaX = 0;
     private int renderAreaY = 0;
@@ -755,12 +756,27 @@ public class OmmMap extends ClickableWidget {
         drawMap(context); //draw the map tiles + background
 
         if (TileManager.doWaypoints) {
+            hoveredWaypoint = null;
             for (Waypoint waypoint : waypoints) {
+
                 if (!waypoint.visible) continue;
+
+                int x = (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX;
+                int y = (int) (((double) renderAreaHeight / 2) - 4 + (waypoint.getMapY(zoom) - mapCenterY)) + renderAreaY;
+
+                Identifier id;
+                if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
+                    hoveredWaypoint = waypoint;
+                    //TODO selection highlight identifier
+                    //TODO custom right click for waypoints
+                } else {
+                    id = waypoint.identifier;
+                }
+
                 context.drawTexture(
                         waypoint.identifier,
-                        (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX,
-                        (int) (((double) renderAreaHeight / 2) - 4 + (waypoint.getMapY(zoom) - mapCenterY)) + renderAreaY,
+                        x,
+                        y,
                         WAYPOINTSIZE,
                         WAYPOINTSIZE,
                         0,
@@ -770,6 +786,7 @@ public class OmmMap extends ClickableWidget {
                         WAYPOINTSIZE,
                         WAYPOINTSIZE
                 );
+
             }
         }
 

@@ -406,6 +406,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         //context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x22FF0000);
 
+        FullscreenMapScreen.instance.renderBackground(context, 0, 0, 0);
+
         map.setRenderSize(
                 MinecraftClient.getInstance().getWindow().getScaledWidth(),
                 MinecraftClient.getInstance().getWindow().getScaledHeight()

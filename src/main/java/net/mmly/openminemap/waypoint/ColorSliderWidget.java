@@ -13,9 +13,13 @@ public class ColorSliderWidget extends ClickableWidget {
     private static Identifier drawTexture = Identifier.of("openminemap", "colorspectrum.png");
     private ColorSliderType type;
 
-    public static float hue = 0.5F;
-    public static float saturation = 1;
-    public static float value = 1;
+    public static final float defaultHue = 0.614F;
+    public static final float defaultSaturation = 1;
+    public static final float defaultValue = 0.5098F;
+
+    public static float hue = defaultHue;
+    public static float saturation = defaultSaturation;
+    public static float value = defaultValue;
 
     public ColorSliderWidget(int x, int y, int width, int height, ColorSliderType type) {
         super(x, y, width, height, Text.of(""));
@@ -64,6 +68,19 @@ public class ColorSliderWidget extends ClickableWidget {
         int alpha = (argb >> 24) & 0x000000FF;
 
         return (alpha << 24) | (Math.abs(red-256) << 16) | (Math.abs(green-256) << 8) | Math.abs(blue-256);
+    }
+
+    public static void setColor(float hue, float saturation, float value) {
+        ColorSliderWidget.hue = hue;
+        ColorSliderWidget.saturation = saturation;
+        ColorSliderWidget.value = value;
+    }
+
+    public static void setColor(int hsb) {
+        ColorSliderWidget.hue = (float) ((hsb & 0xFF0000) >> 16) / 255;
+        ColorSliderWidget.saturation = (float) ((hsb & 0x00FF00) >> 8)  / 255;
+        ColorSliderWidget.value = (float )(hsb & 0x0000FF) / 255;
+        System.out.println(ColorSliderWidget.hue +"\t"+ ColorSliderWidget.saturation +"\t"+ ColorSliderWidget.value +"\t");
     }
 
 }

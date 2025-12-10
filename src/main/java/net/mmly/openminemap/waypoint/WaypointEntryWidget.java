@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.util.Waypoint;
@@ -27,6 +28,7 @@ public class WaypointEntryWidget extends ClickableWidget {
     private static final int selectedColor = 0xFFFFFFFF;
     private static final int idleColor = 0xFF808080;
     private static final int hoverColor = 0xFFB0B0B0;
+    private static final int editingColor = 0xFFFFFCA8;
 
     private boolean visibleWaypoint;
     private boolean pinnedWaypoint;
@@ -77,7 +79,7 @@ public class WaypointEntryWidget extends ClickableWidget {
 
         setWidth(WaypointScreen.getMidPoint() - 20);
 
-        int borderColor = isFocused() ? selectedColor : (isHovered() ? hoverColor : idleColor);
+        int borderColor = WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? editingColor : (isFocused() ? selectedColor : (isHovered() ? hoverColor : idleColor));
 
         context.drawTexture(waypoint.identifier, getX() + 3, getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
 
@@ -94,7 +96,7 @@ public class WaypointEntryWidget extends ClickableWidget {
         }
 
         context.enableScissor(0, 0, getX() + width - 52, MinecraftClient.getInstance().getWindow().getScaledHeight());
-        context.drawText(renderer, waypoint.name, getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
+        context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.literal("(Editing...)").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
         context.disableScissor();
 
         context.drawBorder(getX(), getY() - scrollOffset, getWidth(), getHeight(), borderColor);
@@ -117,7 +119,12 @@ public class WaypointEntryWidget extends ClickableWidget {
             setPinned(!pinnedWaypoint);
         }
         if (selection == Selection.EDIT) {
-            editThisWaypoint();
+            if (WaypointScreen.instance.editingWaypointName.equals(waypoint.name)) {
+                WaypointScreen.instance.exitEditMode();
+            } else {
+                editThisWaypoint();
+            }
+
         }
     }
 

@@ -36,8 +36,8 @@ public class WaypointParameterWidget extends TextFieldWidget {
     }
 
     public boolean valueIsValid() {
-        if (getText().isBlank()) {
-            return required;
+        if (getText().isBlank() && !required) {
+            return true;
         }
 
         if (type.isNumber()) {
@@ -47,10 +47,12 @@ public class WaypointParameterWidget extends TextFieldWidget {
                 return false;
             }
         } else if (!WaypointScreen.getInstance().inEditMode) { //is name
+            if (WaypointScreen.instance.editingWaypointName.equals(this.getText())) return true;
             for (Waypoint waypoint : OmmMap.getWaypoints()) {
-                if (waypoint.name.equals(this.getText())) return false;
+                if (waypoint.name.equals(this.getText()) || getText().isBlank()) return false;
             }
         }
+
 
         if (type.isCoordinate()) {
             double c = Double.parseDouble(this.getText());

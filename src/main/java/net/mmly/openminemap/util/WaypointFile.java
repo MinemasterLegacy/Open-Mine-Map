@@ -188,6 +188,19 @@ public class WaypointFile {
         return false;
     }
 
+    public static boolean overwriteWaypoint(String originalName, String newName, double lat, double lon, int color, double snapAngle, String type) {
+        int i = 0;
+        for (WaypointObject waypoint : waypoints) {
+            if(isInThisWorld(waypoint) && waypoint.name.equals(originalName)) {
+                waypoints[i] = new WaypointObject(worldType, worldName, newName, lon, lat, color, type, snapAngle, waypoint.pinned, waypoint.visible);
+                setWaypointsOfThisWorld(false);
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
     private static boolean isInThisWorld(WaypointObject waypointObject) {
         return (waypointObject.world_type.equals(worldType.toString().toLowerCase()) && waypointObject.world_name.equals(worldName));
     }

@@ -1,13 +1,13 @@
 package net.mmly.openminemap.waypoint;
 
 public enum WaypointValueInputType {
-    STRING,
+    NAME,
     LATITUDE,
     LONGITUDE,
-    ANGLE;
+    SNAP_ANGLE;
 
     public boolean isNumber() {
-        return !this.equals(STRING);
+        return !this.equals(NAME);
     }
 
     public boolean isCoordinate() {

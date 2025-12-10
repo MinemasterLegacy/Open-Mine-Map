@@ -3,6 +3,7 @@ package net.mmly.openminemap.waypoint;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
@@ -12,6 +13,7 @@ public class WaypointParameterWidget extends TextFieldWidget {
 
     boolean required;
     WaypointValueInputType type;
+    TextRenderer renderer;
 
     public WaypointParameterWidget(TextRenderer textRenderer, boolean required, WaypointValueInputType type) {
         this(textRenderer, Text.of(""), required, type);
@@ -23,6 +25,7 @@ public class WaypointParameterWidget extends TextFieldWidget {
         this.type = type;
         setText(text.getString());
         setCursorToStart(false);
+        this.renderer = textRenderer;
     }
 
     @Override
@@ -33,12 +36,22 @@ public class WaypointParameterWidget extends TextFieldWidget {
             context.drawBorder(getX(), getY(), width, height, 0xFFFF5555);
         }
 
+        String suggestion = type.toString().replace("_", " ").toLowerCase();
+        suggestion = suggestion.substring(0, 1).toUpperCase() + suggestion.substring(1);
+
+        if (getText().isBlank()) {
+            int textWidth = renderer.getWidth(suggestion);
+            context.drawTextWithShadow(renderer, suggestion, getX() + (width / 2) - (textWidth / 2), getY() + (height / 2) - (renderer.fontHeight / 2), 0xFF404040);
+        }
+
     }
 
     public boolean valueIsValid() {
         if (getText().isBlank() && !required) {
             return true;
         }
+
+        if (this.getText().isBlank() & !type.isNumber()) return false;
 
         if (type.isNumber()) {
             try {

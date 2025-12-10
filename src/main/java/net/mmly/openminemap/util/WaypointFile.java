@@ -188,6 +188,25 @@ public class WaypointFile {
         return false;
     }
 
+    public static boolean deleteWaypoint(String name) {
+        WaypointObject[] outputList = new WaypointObject[waypoints.length - 1];
+
+        int i = 0;
+        boolean found = false;
+
+        for (WaypointObject way : waypoints) {
+            if (way.name.equals(name) && !found) {
+                found = true;
+            } else {
+                outputList[i - (found ? 1 : 0)] = way;
+            }
+            i++;
+        }
+
+        waypoints = outputList;
+        return found;
+    }
+
     public static boolean overwriteWaypoint(String originalName, String newName, double lat, double lon, int color, double snapAngle, String type) {
         int i = 0;
         for (WaypointObject waypoint : waypoints) {

@@ -37,7 +37,7 @@ public class WaypointParameterWidget extends TextFieldWidget {
 
     public boolean valueIsValid() {
         if (getText().isBlank()) {
-            return !required;
+            return required;
         }
 
         if (type.isNumber()) {
@@ -46,7 +46,7 @@ public class WaypointParameterWidget extends TextFieldWidget {
             } catch (NumberFormatException e) {
                 return false;
             }
-        } else { //is name
+        } else if (!WaypointScreen.getInstance().inEditMode) { //is name
             for (Waypoint waypoint : OmmMap.getWaypoints()) {
                 if (waypoint.name.equals(this.getText())) return false;
             }

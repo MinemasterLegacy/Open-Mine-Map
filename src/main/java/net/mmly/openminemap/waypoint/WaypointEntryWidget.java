@@ -65,6 +65,10 @@ public class WaypointEntryWidget extends ClickableWidget {
         }
     }
 
+    private void editThisWaypoint() {
+        WaypointScreen.getInstance().enableEditMode(waypoint);
+    }
+
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 
@@ -112,11 +116,15 @@ public class WaypointEntryWidget extends ClickableWidget {
         if (selection == Selection.PIN) {
             setPinned(!pinnedWaypoint);
         }
+        if (selection == Selection.EDIT) {
+            editThisWaypoint();
+        }
     }
 
     private boolean mouseIsInArea(int x, int y, int width, int height) {
         return mx >= x && my >= y && mx <= x + width && my <= y + height;
     }
+
 }
 
 enum Selection {

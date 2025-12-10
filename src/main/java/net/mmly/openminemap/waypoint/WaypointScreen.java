@@ -8,6 +8,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
@@ -32,6 +33,7 @@ public class WaypointScreen extends Screen {
     private ColorSliderWidget valueSlider;
     private static WaypointEntryWidget[] waypointEntries = new WaypointEntryWidget[0];
     private ButtonWidget createWaypointButton;
+    private ButtonWidget saveWaypointButton;
 
     private WaypointParameterWidget nameField;
     private WaypointParameterWidget longitudeWidget;
@@ -49,6 +51,9 @@ public class WaypointScreen extends Screen {
     private static double initLat;
 
     private static boolean initWithValues = false;
+    boolean inEditMode = false;
+    Waypoint editingWaypoint = null;
+    String editingWaypointNAme = "";
 
     public static WaypointScreen getInstance() {
         return instance;
@@ -67,6 +72,34 @@ public class WaypointScreen extends Screen {
         initLat = lat;
     }
 
+    public void enableEditMode(Waypoint waypoint) {
+        editingWaypoint = waypoint;
+        editingWaypointNAme = waypoint.name;
+        inEditMode = true;
+        nameField.setText(waypoint.name);
+        latitudeWidget.setText(Double.toString(waypoint.latitude));
+        longitudeWidget.setText(Double.toString(waypoint.longitude));
+        if (waypoint.angle < 0) {
+            angleWidget.setText("");
+        } else {
+            angleWidget.setText(Double.toString(waypoint.angle));
+        }
+        remove(createWaypointButton);
+        addDrawableChild(saveWaypointButton);
+        //TODO add save button & delete button
+    }
+
+    public void exitEditMode() {
+        //TODO save waypoint elsewhere
+        inEditMode = false;
+        nameField.setText("");
+        latitudeWidget.setText("");
+        longitudeWidget.setText("");
+        angleWidget.setText("");
+        remove(saveWaypointButton);
+        addDrawableChild(createWaypointButton);
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -82,7 +115,6 @@ public class WaypointScreen extends Screen {
         generateWaypointEntries();
 
         createWaypointButton = ButtonWidget.builder(Text.of("Create Waypoint"), (buttonWidget) -> {
-
             if (!nameField.valueIsValid()) {
                 setFocused(nameField);
                 return;
@@ -95,15 +127,27 @@ public class WaypointScreen extends Screen {
                 setFocused(latitudeWidget);
                 return;
             }
+            if (!angleWidget.valueIsValid()) {
+                setFocused(angleWidget);
+                return;
+            }
 
             WaypointScreen.createWaypoint(
                     nameField.getText(),
                     Double.parseDouble(latitudeWidget.getText()),
                     Double.parseDouble(longitudeWidget.getText()),
                     getSelectedHSB(),
-                    WaypointStyle.DIAMOND); //TODO make style dynamic
+                    WaypointStyle.DIAMOND,
+                    Double.parseDouble(angleWidget.getText())
+                    );
+                     //TODO make style dynamic
         }).build();
         this.addDrawableChild(createWaypointButton);
+
+        saveWaypointButton = ButtonWidget.builder(Text.of("Save Waypoint"), (buttonWidget) -> {
+            //TODO
+            exitEditMode();
+        }).build();
 
         nameField = new WaypointParameterWidget(this.textRenderer, Text.of(initWithValues ? UnitConvert.floorToPlace(initLat, 7) + ", " + UnitConvert.floorToPlace(initLong, 7) : ""), true, WaypointValueInputType.STRING);
         nameField.setTooltip(Tooltip.of(Text.of("Name")));
@@ -118,15 +162,21 @@ public class WaypointScreen extends Screen {
         longitudeWidget.setTooltip(Tooltip.of(Text.of("Longitude")));
         this.addDrawableChild(longitudeWidget);
 
+        angleWidget = new WaypointParameterWidget(this.textRenderer, Text.of(""), false, WaypointValueInputType.ANGLE);
+        angleWidget.setTooltip(Tooltip.of(Text.of("Snap Angle")));
+        this.addDrawableChild(angleWidget);
+
         if (initWithValues) {
             nameField.setCursorToStart(false);
             nameField.setSelectionEnd(nameField.getText().length());
             nameField.setSelectionStart(0);
-
         }
+
+        initWithValues = false;
 
         updateWidgetPositions();
 
+        exitEditMode();
     }
 
     private int getSelectedHSB() {
@@ -156,7 +206,7 @@ public class WaypointScreen extends Screen {
         }
     }
 
-    public static void createWaypoint(String name, double lat, double lon, int color, WaypointStyle style) {
+    public static void createWaypoint(String name, double lat, double lon, int color, WaypointStyle style, double angle) {
         WaypointFile.addWaypoint(style.toString().toLowerCase(), lat, lon, color, -1, name, false, true);
         WaypointFile.setWaypointsOfThisWorld(false);
         WaypointScreen.getInstance().generateWaypointEntries();
@@ -207,8 +257,11 @@ public class WaypointScreen extends Screen {
         x += marginWidths + sliderWidths;
         valueSlider.setDimensionsAndPosition(sliderWidths, 120, (int) x, 20);
 
+        //TODO add right side scroll
         createWaypointButton.setDimensions(midPoint - 20 - 20 - 10 - 27, 20);
         createWaypointButton.setPosition(midPoint + 20 + 10 + 27, 160);
+        saveWaypointButton.setDimensions(midPoint - 20 - 20 - 10 - 27, 20);
+        saveWaypointButton.setPosition(midPoint + 20 + 10 + 27, 160);
 
         nameField.setWidth(midPoint - 40);
         nameField.setPosition(midPoint + 20, 190);
@@ -218,6 +271,9 @@ public class WaypointScreen extends Screen {
 
         latitudeWidget.setWidth(midPoint - 40);
         latitudeWidget.setPosition(midPoint + 20, 250);
+
+        angleWidget.setWidth(midPoint - 40);
+        angleWidget.setPosition(midPoint + 20, 280);
 
     }
 
@@ -229,6 +285,17 @@ public class WaypointScreen extends Screen {
 
         context.drawVerticalLine(midPoint, 0, height, 0xFF808080);
 
+
+        if (inEditMode) {
+            context.drawText(
+                    textRenderer,
+                    Text.literal("(Editing...)").formatted(Formatting.BOLD),
+                    midPoint + (midPoint / 2) - (textRenderer.getWidth(Text.literal("(Editing...)").formatted(Formatting.BOLD)) / 2),
+                    147,
+                0xFFFFFFFF,
+                    true
+            );
+        }
         //context.fill(140, 20, 160, 40, Color.HSBtoRGB(ColorSliderWidget.hue, ColorSliderWidget.saturation, ColorSliderWidget.value));
 
         //BufferedImage image = new BufferedImage(diamondWaypoint.getColorModel(), diamondWaypoint.getRaster(), diamondWaypoint.getColorModel().isAlphaPremultiplied(), null);

@@ -1,5 +1,6 @@
 package net.mmly.openminemap.util;
 
+import net.minecraft.server.MinecraftServer;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
 
@@ -83,6 +84,10 @@ public class ConfigFile {
         } else {
             return value;
         }
+    }
+
+    public static void writeOnClose(MinecraftServer minecraftServer) {
+        writeToFile();
     }
 
     public static boolean writeToFile() {

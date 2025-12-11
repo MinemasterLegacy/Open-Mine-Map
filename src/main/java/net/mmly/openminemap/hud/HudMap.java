@@ -64,8 +64,9 @@ public class HudMap {
         setSnapAngle();
 
         map.setFollowPlayer(true);
+        map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMapZoom(
-                Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM))
+                Integer.parseInt(ConfigFile.readParameter(ConfigOptions._HUD_LAST_ZOOM))
         );
 
         initialized = true;
@@ -73,6 +74,7 @@ public class HudMap {
 
     public static void zoomIn() {
         map.zoomIn();
+        ConfigFile.writeParameter(ConfigOptions._HUD_LAST_ZOOM, Integer.toString(map.getZoom()));
         /*
         if (TileManager.doArtificialZoom) {
             if (trueZoomLevel < 24) {
@@ -102,6 +104,7 @@ public class HudMap {
 
     public static void zoomOut() {
         map.zoomOut();
+        ConfigFile.writeParameter(ConfigOptions._HUD_LAST_ZOOM, Integer.toString(map.getZoom()));
         /*
         if (TileManager.doArtificialZoom) {
             if (trueZoomLevel > 0) {

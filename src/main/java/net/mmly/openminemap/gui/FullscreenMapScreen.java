@@ -198,6 +198,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        map.setMouseDown(false);
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
     protected void init() { //called when screen is being initialized
         instance = this;
 

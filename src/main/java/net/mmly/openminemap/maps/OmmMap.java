@@ -346,6 +346,10 @@ public class OmmMap extends ClickableWidget {
 
     }
 
+    public void setMouseDown(boolean mouseDown) {
+        this.mouseDown = mouseDown;
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { //left click

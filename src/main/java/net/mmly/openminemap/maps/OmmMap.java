@@ -553,6 +553,10 @@ public class OmmMap extends ClickableWidget {
 
     }
 
+    public Waypoint getHoveredWaypoint() {
+        return hoveredWaypoint;
+    }
+
     private void drawWaypoint(DrawContext context) {
 
     }
@@ -764,13 +768,10 @@ public class OmmMap extends ClickableWidget {
                 int x = (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX;
                 int y = (int) (((double) renderAreaHeight / 2) - 4 + (waypoint.getMapY(zoom) - mapCenterY)) + renderAreaY;
 
-                Identifier id;
                 if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
                     hoveredWaypoint = waypoint;
                     //TODO selection highlight identifier
                     //TODO custom right click for waypoints
-                } else {
-                    id = waypoint.identifier;
                 }
 
                 context.drawTexture(

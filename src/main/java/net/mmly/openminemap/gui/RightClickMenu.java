@@ -6,6 +6,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.WebIcon;
@@ -14,6 +15,7 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import java.awt.*;
@@ -22,12 +24,9 @@ import java.util.Objects;
 
 public class RightClickMenu extends ClickableWidget {
 
-    private int width = 0;
     // = 16 * number of menu options
-    private int height = 48;
     private int hoverOn = 0;
     private boolean useTp;
-    boolean enabled;
     public static boolean selectingSite = false;
     double clickX = 0;
     double clickY = 0;
@@ -36,29 +35,90 @@ public class RightClickMenu extends ClickableWidget {
     public int verticalSize = 1;
     TextRenderer textRenderer;
     //private WebAppSelectLayer webSelect = null;
+    public Waypoint selectedWaypoint;
+    private boolean firstOptionIsBold = false;
 
-    private String[] menuOptions = {
-            "Teleport Here",
-            "Copy Coordinates",
-            "Open In...",
-            "Create Waypoint"
+    private final String[] waypointMenuOptions = {
+        "Teleport Here",
+        "Copy Coordinates",
+        "Open In...",
+        "Edit Waypoint",
+        "Snap To Angle"
     };
+    private final String[] waypointMenuOptionMinusAngle = {
+        "Teleport Here",
+        "Copy Coordinates",
+        "Open In...",
+        "Edit Waypoint"
+    };
+    private final String[] pinnedWaypointOptions = {
+        "",
+        "Teleport To",
+        "Copy Coordinates",
+        "Open In...",
+        "Edit Waypoint",
+        "View On Map",
+        "Unpin",
+        "Snap To Angle",
+        "Set Snap Angle",
+    };
+    private final String[] pinnedWaypointOptionsMinusSnap = {
+        "",
+        "Teleport To",
+        "Copy Coordinates",
+        "Open In...",
+        "Edit Waypoint",
+        "View On Map",
+        "Unpin"
+    };
+    private final String[] defaultOptions = {
+        "Teleport Here",
+        "Copy Coordinates",
+        "Open In...",
+        "Create Waypoint"
+    };
+    private String[] menuOptions;
 
+    private RightClickMenuType displayType = RightClickMenuType.HIDDEN;
+
+    public void setDisplayType(RightClickMenuType type) {
+        this.displayType = type;
+        firstOptionIsBold = false;
+        switch (type) {
+            case RightClickMenuType.DEFAULT -> menuOptions = defaultOptions;
+            case RightClickMenuType.WAYPOINT -> {
+                this.selectedWaypoint = FullscreenMapScreen.map.getHoveredWaypoint();
+                if (selectedWaypoint.angle < 0) menuOptions = waypointMenuOptionMinusAngle;
+                else menuOptions = waypointMenuOptions;
+            }
+            case RightClickMenuType.PINNED_WAYPOINT -> {
+                this.selectedWaypoint = null; //TODO
+                if (selectedWaypoint.angle < 0) menuOptions = pinnedWaypointOptionsMinusSnap;
+                else menuOptions = pinnedWaypointOptions;
+                menuOptions[0] = selectedWaypoint.name;
+                firstOptionIsBold = true;
+            }
+        }
+
+        this.setHeight(Math.max(16 * menuOptions.length, 16));
+        width = 16;
+        for (int i = 0; i < menuOptions.length; i++) {
+            width = Math.max(width, 8 + textRenderer.getWidth(firstOptionIsBold && i == 0 ? Text.literal(menuOptions[i]).formatted(Formatting.BOLD) : Text.literal(menuOptions[i])));
+        }
+        this.setWidth(width);
+    }
+
+    public RightClickMenuType getDisplayType() {
+        return displayType;
+    }
 
     public RightClickMenu(int x, int y, TextRenderer textRenderer) {
         super(x, y, 0, 0, Text.empty());
         useTp = Objects.equals(ConfigFile.readParameter(ConfigOptions.RIGHT_CLICK_MENU_USES), "/tp");
-        enabled = false;
         this.textRenderer = textRenderer;
 
-        width = 16;
-        for (int i = 0; i < menuOptions.length; i++) {
-            width = Math.max(width, 8 + textRenderer.getWidth(menuOptions[i]));
-        }
-        this.setWidth(width);
-
-        height = Math.max(16 * menuOptions.length, 16);
-        this.setHeight(height);
+        this.menuOptions = defaultOptions;
+        this.setDisplayType(RightClickMenuType.HIDDEN);
 
     }
 
@@ -77,16 +137,16 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     public void drawWidget(DrawContext context, TextRenderer renderer) {
-        if (!enabled) return;
+        if (displayType == RightClickMenuType.HIDDEN) return;
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
 
         for (int i = 0; i < menuOptions.length; i++) {
             context.drawText(
                     renderer,
-                    menuOptions[i],
+                    firstOptionIsBold && i == 0 ? Text.literal(menuOptions[i]).formatted(Formatting.BOLD) : Text.literal(menuOptions[i]),
                     getX() + 4,
                     getY() + 4 + (16 * i),
-                    hoverOn == i + 1 ?
+                    hoverOn == i + 1 && !(firstOptionIsBold && i == 0) ?
                             0xFFa8afff :
                             0xFFFFFFFF,
                     false
@@ -99,7 +159,7 @@ public class RightClickMenu extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        switch (hoverOn) {
+        switch (hoverOn - (displayType == RightClickMenuType.PINNED_WAYPOINT ? 1 : 0)) {
             case 1: {
                 //MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll " + savedMouseLat + " " + savedMouseLong);
                 try { //can be used during development to use the /tp command instead of /tpll
@@ -136,15 +196,46 @@ public class RightClickMenu extends ClickableWidget {
                 return;
             }
             case 4: {
-                MinecraftClient.getInstance().setScreen(
-                        new WaypointScreen(savedMouseLat, savedMouseLong)
-                );
+                if (displayType == RightClickMenuType.DEFAULT) {
+                    MinecraftClient.getInstance().setScreen(
+                            new WaypointScreen(savedMouseLat, savedMouseLong)
+                    );
+                } else {
+                    //open the waypoint screen in edit mode
+                    MinecraftClient.getInstance().setScreen(
+                            new WaypointScreen(selectedWaypoint)
+                    );
+                }
             }
+            case 5: {
+                if (displayType == RightClickMenuType.WAYPOINT) {
+                    snapToWaypointAngle();
+                } else { //Pinned
+                    FullscreenMapScreen.map.setRenderPosition(
+                        selectedWaypoint.getMapX(FullscreenMapScreen.map.getZoom()),
+                        selectedWaypoint.getMapY(FullscreenMapScreen.map.getZoom())
+                    );
+                }
+            }
+            case 6: {
+                //TODO unpin
+            }
+            case 7: {
+                //TODO snap to angle
+            }
+            case 8: {
+                //TODO set snap angle
+            }
+
             default: {
                 //should never occur, but it's here just in case (:
             }
         }
         FullscreenMapScreen.disableRightClickMenu();
+    }
+
+    private void snapToWaypointAngle() {
+        //TODO
     }
 
     protected void setSavedMouseLatLong(double x, double y) {

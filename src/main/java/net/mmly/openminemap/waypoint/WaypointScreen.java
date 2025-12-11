@@ -53,8 +53,10 @@ public class WaypointScreen extends Screen {
 
     private static double initLong;
     private static double initLat;
-
     private static boolean initWithValues = false;
+    private static boolean initInEditMode = false;
+    private static Waypoint initEditWaypoint;
+
     public boolean inEditMode = false;
     Waypoint editingWaypoint = null;
     public String editingWaypointName = "";
@@ -86,6 +88,14 @@ public class WaypointScreen extends Screen {
         initWithValues = true;
         initLong = lon;
         initLat = lat;
+    }
+
+    //called by the right click menu to immediately enter edit mode
+    public WaypointScreen(Waypoint waypoint) {
+        super(Text.of("OpenMineMap Waypoints"));
+        instance = this;
+        initEditWaypoint = waypoint;
+        initInEditMode = true;
     }
 
     public void enableEditMode(Waypoint waypoint) {
@@ -186,12 +196,21 @@ public class WaypointScreen extends Screen {
             nameField.setSelectionStart(0);
         }
 
-        initWithValues = false;
-
         editingWaypoint = null;
         editingWaypointName = "";
         inEditMode = false;
         saveWaypointButton.visible = false;
+
+        if (initInEditMode) {
+            enableEditMode(initEditWaypoint);
+            latitudeWidget.setCursorToStart(false);
+            longitudeWidget.setCursorToStart(false);
+            angleWidget.setCursorToStart(false);
+            nameField.setCursorToStart(false);
+        }
+
+        initWithValues = false;
+        initInEditMode = false;
 
         updateWidgetPositions();
     }

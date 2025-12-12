@@ -22,6 +22,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     int mouseX = 0;
     int mouseY = 0;
     TextRenderer textRenderer;
+    public static int menuSelection = -1;
 
     public PinnedWaypointsLayer(int x, int y, int width, int margin, TextRenderer renderer) {
         super(x, y, width, width, Text.of(""));
@@ -43,6 +44,9 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         setHeight(Math.min(maxHeight, pinnedWaypoints.length * width));
 
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
+
+        if (FullscreenMapScreen.getRightClickMenuWaypoint() == null) menuSelection = -1;
+        if (menuSelection > -1 )context.drawBorder(getX() + margin - 1, getY() + margin - 1 + (menuSelection * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFCA8);
 
         if (isHovered()) {
             int selection = ((mouseY - getY()) / waypointHitboxSize);
@@ -83,9 +87,12 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         } else {
             FullscreenMapScreen.enableRightClickMenu(
                     getX() + width + 3,
-                    getY() + (selection * waypointHitboxSize) + ((double) waypointHitboxSize / 2) - ((double) textRenderer.fontHeight / 2) - 3,
+                    /*getY() + (selection * waypointHitboxSize) + ((double) waypointHitboxSize / 2) - ((double) textRenderer.fontHeight / 2) - 3,*/
+                    getY() + 3,
                     RightClickMenuType.PINNED_WAYPOINT
             );
+            menuSelection = selection;
+
         }
     }
 

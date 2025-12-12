@@ -159,6 +159,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         rightClickLayer.setDisplayType(RightClickMenuType.HIDDEN);
         rightClickLayer.setPosition(-500, 500);
         rightClickLayer.selectingSite = false;
+        PinnedWaypointsLayer.menuSelection = -1;
     }
 
     public static Waypoint getSelectedPinnedWaypoint() {
@@ -170,6 +171,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             disableRightClickMenu();
             return;
         }
+        PinnedWaypointsLayer.menuSelection = -1;
         rightClickLayer.setDisplayType(type);
         RightClickMenu.selectingSite = false;
         rightClickLayer.clickX = x;
@@ -222,6 +224,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     protected void init() { //called when screen is being initialized
         instance = this;
 
+        rightClickLayer = new RightClickMenu(-500, -500, this.textRenderer);
+        this.addDrawableChild(rightClickLayer);
+
         for (int i = 0; i < numHotbarButtons; i++) {
             buttonlayers.put(ButtonFunction.getEnumOf(i), new ButtonLayer(0, 0, buttonSize, buttonSize, ButtonFunction.getEnumOf(i)));
             this.addDrawableChild(buttonlayers.get(ButtonFunction.getEnumOf(i)));
@@ -230,8 +235,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
-        rightClickLayer = new RightClickMenu(-500, -500, this.textRenderer);
-        this.addDrawableChild(rightClickLayer);
         webAppSelectLayer = new WebAppSelectLayer();
         this.addDrawableChild(webAppSelectLayer);
 
@@ -253,7 +256,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.rightClickProcedure = FullscreenMapScreen::onRightClick;
         map.leftClickProcedure = FullscreenMapScreen::onLeftClick;
         map.blockZoomProcedure = FullscreenMapScreen::blockZoomOnZoom;
-
+        map.waypointClickedProcedure = FullscreenMapScreen::onRightClick;
 
 
     }

@@ -91,6 +91,7 @@ public class OmmMap extends ClickableWidget {
     public MethodInterface rightClickProcedure;
     public MethodInterface leftClickProcedure;
     public BooleanInterface blockZoomProcedure;
+    public MethodInterface waypointClickedProcedure;
 
     private static Waypoint[] waypoints;
 
@@ -352,6 +353,10 @@ public class OmmMap extends ClickableWidget {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (hoveredWaypoint != null) {
+            waypointClickedProcedure.execute();
+            return false;
+        }
         if (button == 0) { //left click
             mouseDown = true;
             mouseHoldX = mouseTileX;
@@ -776,8 +781,6 @@ public class OmmMap extends ClickableWidget {
 
                 if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
                     hoveredWaypoint = waypoint;
-                    //TODO selection highlight identifier
-                    //TODO custom right click for waypoints
                 }
 
                 context.drawTexture(

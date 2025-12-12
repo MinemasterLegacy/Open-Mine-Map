@@ -231,7 +231,7 @@ public class WaypointScreen extends Screen {
                 Double.parseDouble(instance.latitudeWidget.getText()),
                 Double.parseDouble(instance.longitudeWidget.getText()),
                 instance.getSelectedHSB(),
-                instance.angleWidget.getText().isBlank() ? -1 : Double.parseDouble(instance.angleWidget.getText()),
+                instance.angleWidget.getText().isBlank() ? -1 : positiseAngle(Double.parseDouble(instance.angleWidget.getText())),
                 instance.styleSelection.toString().toLowerCase()
         )) {
             instance.generateWaypointEntries(entryListScroll);
@@ -280,7 +280,7 @@ public class WaypointScreen extends Screen {
     }
 
     public static void createWaypoint(String name, double lat, double lon, int color, WaypointStyle style, double angle) {
-        WaypointFile.addWaypoint(style.toString().toLowerCase(), lat, lon, color, -1 /*TODO*/, name, false, true);
+        WaypointFile.addWaypoint(style.toString().toLowerCase(), lat, lon, color, positiseAngle(Double.parseDouble(instance.angleWidget.getText())), name, false, true);
         WaypointFile.setWaypointsOfThisWorld(false);
         WaypointScreen.getInstance().generateWaypointEntries();
         //Waypoint waypoint = new Waypoint(style.toString().toLowerCase(), lat, lon, color, Double.NaN, name);
@@ -407,6 +407,10 @@ public class WaypointScreen extends Screen {
 
         context.disableScissor();
 
+    }
+
+    private static double positiseAngle(double angle) {
+        return (angle % 360 + 360) % 360;
     }
 
     private static void drawColorizedImage(DrawContext context, Identifier identifier, int x, int y, int width, int height) {

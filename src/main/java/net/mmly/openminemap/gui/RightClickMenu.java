@@ -43,13 +43,15 @@ public class RightClickMenu extends ClickableWidget {
     private boolean firstOptionIsBold = false;
 
     private final String[] waypointMenuOptions = {
+        "",
         "Teleport Here",
         "Copy Coordinates",
         "Open In...",
         "Edit Waypoint",
-        "Snap To Angle"
+        "Set Snap Angle"
     };
     private final String[] waypointMenuOptionMinusAngle = {
+        "",
         "Teleport Here",
         "Copy Coordinates",
         "Open In...",
@@ -63,8 +65,7 @@ public class RightClickMenu extends ClickableWidget {
         "Edit Waypoint",
         "View On Map",
         "Unpin",
-        "Snap To Angle",
-        "Set Snap Angle",
+        "Set Snap Angle"
     };
     private final String[] pinnedWaypointOptionsMinusSnap = {
         "",
@@ -94,6 +95,8 @@ public class RightClickMenu extends ClickableWidget {
                 this.selectedWaypoint = FullscreenMapScreen.map.getHoveredWaypoint();
                 if (selectedWaypoint.angle < 0) menuOptions = waypointMenuOptionMinusAngle;
                 else menuOptions = waypointMenuOptions;
+                menuOptions[0] = selectedWaypoint.name;
+                firstOptionIsBold = true;
             }
             case RightClickMenuType.PINNED_WAYPOINT -> {
                 this.selectedWaypoint = FullscreenMapScreen.getSelectedPinnedWaypoint();
@@ -163,7 +166,7 @@ public class RightClickMenu extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        switch (hoverOn - (displayType == RightClickMenuType.PINNED_WAYPOINT ? 1 : 0)) {
+        switch (hoverOn - (displayType != RightClickMenuType.DEFAULT ? 1 : 0)) { //accounts for the extra name field
             case 1: {
                 //MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll " + savedMouseLat + " " + savedMouseLong);
                 try { //can be used during development to use the /tp command instead of /tpll
@@ -214,7 +217,7 @@ public class RightClickMenu extends ClickableWidget {
             }
             case 5: {
                 if (displayType == RightClickMenuType.WAYPOINT) {
-                    snapToWaypointAngle();
+                    setSnapAngle();
                 } else { //Pinned
                     FullscreenMapScreen.map.setMapPosition(
                         selectedWaypoint.getMapX(FullscreenMapScreen.map.getZoom()),
@@ -227,15 +230,12 @@ public class RightClickMenu extends ClickableWidget {
                 if (!WaypointFile.setWaypointPinned(selectedWaypoint.name, false)) {
                     OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoint property change failed");
                 }
+                break;
             }
             case 7: {
-               snapToWaypointAngle();
+                setSnapAngle();
+                break;
             }
-            case 8: {
-                ConfigFile.writeParameter(ConfigOptions.SNAP_ANGLE, Double.toString(-selectedWaypoint.angle));
-                HudMap.setSnapAngle();
-            }
-
             default: {
                 //should never occur, but it's here just in case (:
             }
@@ -243,8 +243,13 @@ public class RightClickMenu extends ClickableWidget {
         FullscreenMapScreen.disableRightClickMenu();
     }
 
+    private void setSnapAngle() {
+        ConfigFile.writeParameter(ConfigOptions.SNAP_ANGLE, Double.toString(selectedWaypoint.angle));
+        HudMap.setSnapAngle();
+    }
+
     private void snapToWaypointAngle() {
-        KeyInputHandler.snapToAngle(selectedWaypoint.angle);
+        KeyInputHandler.snapToAngle(-selectedWaypoint.angle);
     }
 
     protected void setSavedMouseLatLong(double x, double y) {

@@ -153,10 +153,16 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return rightClickLayer.getDisplayType();
     }
 
+    public static Waypoint getRightClickMenuWaypoint() {return rightClickLayer.selectedWaypoint;}
+
     public static void disableRightClickMenu() {
         rightClickLayer.setDisplayType(RightClickMenuType.HIDDEN);
         rightClickLayer.setPosition(-500, 500);
         rightClickLayer.selectingSite = false;
+    }
+
+    public static Waypoint getSelectedPinnedWaypoint() {
+        return pinnedWaypointsLayer.getSelectedWaypoint();
     }
 
     public static void enableRightClickMenu(double x, double y, RightClickMenuType type) {
@@ -169,16 +175,20 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         rightClickLayer.clickX = x;
         rightClickLayer.clickY = y;
         rightClickLayer.setPosition((int) x, (int) y);
-        rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
-        if (type == RightClickMenuType.PINNED_WAYPOINT) return;
-        if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
-            rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
-            rightClickLayer.horizontalSide = -1;
-        } else rightClickLayer.horizontalSide = 1;
-        if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
-            rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
-            rightClickLayer.verticalSize = -1;
-        } else rightClickLayer.verticalSize = 1;
+        if (type == RightClickMenuType.PINNED_WAYPOINT) {
+            rightClickLayer.setSavedMouseLatLong(pinnedWaypointsLayer.getSelectedWaypoint().longitude, pinnedWaypointsLayer.getSelectedWaypoint().latitude);
+        } else {
+            rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
+            if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
+                rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
+                rightClickLayer.horizontalSide = -1;
+            } else rightClickLayer.horizontalSide = 1;
+            if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
+                rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
+                rightClickLayer.verticalSize = -1;
+            } else rightClickLayer.verticalSize = 1;
+        }
+
     }
 
     private static Identifier getButtonTexture(ButtonFunction buttonFunction, ButtonState buttonState) {
@@ -220,7 +230,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
-        rightClickLayer = new RightClickMenu(0, 0, this.textRenderer);
+        rightClickLayer = new RightClickMenu(-500, -500, this.textRenderer);
         this.addDrawableChild(rightClickLayer);
         webAppSelectLayer = new WebAppSelectLayer();
         this.addDrawableChild(webAppSelectLayer);

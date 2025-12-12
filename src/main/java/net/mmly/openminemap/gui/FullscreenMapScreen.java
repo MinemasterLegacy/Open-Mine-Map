@@ -51,6 +51,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
+    private static PinnedWaypointsLayer pinnedWaypointsLayer;
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][numHotbarButtons];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
     String playerDisplayLon = "0.00000";
@@ -202,6 +203,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        map.setMouseDown(false);
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
     protected void init() { //called when screen is being initialized
         instance = this;
 
@@ -227,12 +234,17 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         updateTileSet();
 
+        pinnedWaypointsLayer = new PinnedWaypointsLayer(0, 0, 20, 2, this.textRenderer);
+        this.addDrawableChild(pinnedWaypointsLayer);
+
         this.addDrawableChild(map); //added last so it's checked last for clicking
 
         map.setDraggable(true);
         map.rightClickProcedure = FullscreenMapScreen::onRightClick;
         map.leftClickProcedure = FullscreenMapScreen::onLeftClick;
         map.blockZoomProcedure = FullscreenMapScreen::blockZoomOnZoom;
+
+
 
     }
 
@@ -383,6 +395,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.fill(0, windowScaledHeight - 32 - attributionOffset, 55 + (playerDisplayLon.length() * 6) + (playerDisplayLat.length() * 6), windowScaledHeight - 16 - attributionOffset, 0x88000000);
         context.drawText(this.textRenderer, "Player: " + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
+        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset);
+
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);
         bugReportLayer.drawWidget(context, this.textRenderer);
@@ -391,6 +405,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         rightClickLayer.drawWidget(context, this.textRenderer);
         webAppSelectLayer.drawWidget(context);
 
+        pinnedWaypointsLayer.drawWidget(context);
 
     }
 

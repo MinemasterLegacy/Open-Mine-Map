@@ -49,6 +49,8 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
             WaypointFile.load();
         }
 
+        ServerLifecycleEvents.SERVER_STOPPING.register(ConfigFile::writeOnClose);
+
         TileUrlFile.establishUrls();
 
         TileManager.initializeConfigParameters();

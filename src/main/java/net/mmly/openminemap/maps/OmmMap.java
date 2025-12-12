@@ -18,6 +18,7 @@ import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.PinnedWaypointsLayer;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
@@ -114,6 +115,7 @@ public class OmmMap extends ClickableWidget {
 
     public static void setWaypoints(Waypoint[] waypoints1) {
         waypoints = waypoints1;
+        PinnedWaypointsLayer.updatePinnedWaypoints();
     }
 
     public static Waypoint[] getWaypoints() {
@@ -342,6 +344,10 @@ public class OmmMap extends ClickableWidget {
             mapCenterX -= change;
         }
 
+    }
+
+    public void setMouseDown(boolean mouseDown) {
+        this.mouseDown = mouseDown;
     }
 
     @Override

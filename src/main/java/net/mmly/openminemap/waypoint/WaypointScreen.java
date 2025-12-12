@@ -280,7 +280,7 @@ public class WaypointScreen extends Screen {
     }
 
     public static void createWaypoint(String name, double lat, double lon, int color, WaypointStyle style, double angle) {
-        WaypointFile.addWaypoint(style.toString().toLowerCase(), lat, lon, color, -1, name, false, true);
+        WaypointFile.addWaypoint(style.toString().toLowerCase(), lat, lon, color, -1 /*TODO*/, name, false, true);
         WaypointFile.setWaypointsOfThisWorld(false);
         WaypointScreen.getInstance().generateWaypointEntries();
         //Waypoint waypoint = new Waypoint(style.toString().toLowerCase(), lat, lon, color, Double.NaN, name);

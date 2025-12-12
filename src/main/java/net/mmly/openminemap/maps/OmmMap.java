@@ -43,7 +43,7 @@ public class OmmMap extends ClickableWidget {
     public final static int TILEMAXZOOM = 18;
     public final static int TILEMAXARTIFICIALZOOM = 24;
     public static final int tileSize = 128;
-    public final static int WAYPOINTSIZE = 9;
+    public final static int WAYPOINTSIZE = 8;
 
     private boolean fieldsInitialized = false;
     private MinecraftClient client;

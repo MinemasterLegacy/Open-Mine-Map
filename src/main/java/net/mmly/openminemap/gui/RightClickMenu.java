@@ -8,14 +8,18 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.WebIcon;
+import net.mmly.openminemap.event.KeyInputHandler;
+import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
+import net.mmly.openminemap.util.WaypointFile;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import java.awt.*;
@@ -92,7 +96,7 @@ public class RightClickMenu extends ClickableWidget {
                 else menuOptions = waypointMenuOptions;
             }
             case RightClickMenuType.PINNED_WAYPOINT -> {
-                this.selectedWaypoint = null; //TODO
+                this.selectedWaypoint = FullscreenMapScreen.getSelectedPinnedWaypoint();
                 if (selectedWaypoint.angle < 0) menuOptions = pinnedWaypointOptionsMinusSnap;
                 else menuOptions = pinnedWaypointOptions;
                 menuOptions[0] = selectedWaypoint.name;
@@ -153,7 +157,7 @@ public class RightClickMenu extends ClickableWidget {
             );
         }
 
-        context.drawTexture(rightClickCursor, (int) clickX - 4, (int) clickY - 4, 0, 0, 9, 9, 9, 9);
+        if (displayType != RightClickMenuType.PINNED_WAYPOINT) context.drawTexture(rightClickCursor, (int) clickX - 4, (int) clickY - 4, 0, 0, 9, 9, 9, 9);
 
     }
 
@@ -206,25 +210,30 @@ public class RightClickMenu extends ClickableWidget {
                             new WaypointScreen(selectedWaypoint)
                     );
                 }
+                break;
             }
             case 5: {
                 if (displayType == RightClickMenuType.WAYPOINT) {
                     snapToWaypointAngle();
                 } else { //Pinned
-                    FullscreenMapScreen.map.setRenderPosition(
+                    FullscreenMapScreen.map.setMapPosition(
                         selectedWaypoint.getMapX(FullscreenMapScreen.map.getZoom()),
                         selectedWaypoint.getMapY(FullscreenMapScreen.map.getZoom())
                     );
                 }
+                break;
             }
             case 6: {
-                //TODO unpin
+                if (!WaypointFile.setWaypointPinned(selectedWaypoint.name, false)) {
+                    OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoint property change failed");
+                }
             }
             case 7: {
-                //TODO snap to angle
+               snapToWaypointAngle();
             }
             case 8: {
-                //TODO set snap angle
+                ConfigFile.writeParameter(ConfigOptions.SNAP_ANGLE, Double.toString(-selectedWaypoint.angle));
+                HudMap.setSnapAngle();
             }
 
             default: {
@@ -235,7 +244,7 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     private void snapToWaypointAngle() {
-        //TODO
+        KeyInputHandler.snapToAngle(selectedWaypoint.angle);
     }
 
     protected void setSavedMouseLatLong(double x, double y) {

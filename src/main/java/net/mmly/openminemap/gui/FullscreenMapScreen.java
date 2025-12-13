@@ -257,7 +257,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.leftClickProcedure = FullscreenMapScreen::onLeftClick;
         map.blockZoomProcedure = FullscreenMapScreen::blockZoomOnZoom;
         map.waypointClickedProcedure = FullscreenMapScreen::onRightClick;
-
+        map.setTextRenderer(this.textRenderer);
+        map.doPlayerTooltipNames(true);
 
     }
 

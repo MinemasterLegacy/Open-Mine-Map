@@ -1,5 +1,6 @@
 package net.mmly.openminemap.util;
 
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class BufferedPlayer {
@@ -7,6 +8,7 @@ public class BufferedPlayer {
     public int offsetY;
     public Identifier texture;
     public double y = Double.NaN;
+    public Text name;
 
     public int upCrop;
     public int downCrop;
@@ -19,16 +21,8 @@ public class BufferedPlayer {
         this.texture = texture;
     }
 
-    public BufferedPlayer(int offsetX, int offsetY, Identifier texture, double y) {
+    public BufferedPlayer(int offsetX, int offsetY, Identifier texture, double y, Text name) {
         this(offsetX, offsetY, texture);
         this.y = y;
-    }
-
-    public BufferedPlayer(int offsetX, int offsetY, Identifier texture, double y, int upCrop, int downCrop, int leftCrop, int rightCrop) {
-        this(offsetX, offsetY, texture, y);
-        this.upCrop = upCrop;
-        this.downCrop = downCrop;
-        this.leftCrop = leftCrop;
-        this.rightCrop = rightCrop;
     }
 }

@@ -2,6 +2,7 @@ package net.mmly.openminemap.maps;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -50,7 +51,12 @@ public class OmmMap extends ClickableWidget {
     private Window window;
     private ClientPlayerEntity player;
     private Mouse mouse;
+    private TextRenderer textRenderer;
+
     private Waypoint hoveredWaypoint = null;
+    private int hoveredPlayerX = -1;
+    private int hoveredPlayerY = -1;
+    private Text hoveredPlayerName = Text.of("");
 
     private int renderAreaX = 0;
     private int renderAreaY = 0;
@@ -83,6 +89,7 @@ public class OmmMap extends ClickableWidget {
     private boolean cropMapTiles = true;
     private boolean cropPlayers = true;
     private boolean draggable = false;
+    private boolean tooltipPlayerNames = false;
 
     private boolean followPlayer = false;
     private boolean mouseDown = false;
@@ -143,6 +150,10 @@ public class OmmMap extends ClickableWidget {
                 zoomOut();
             }
         }
+    }
+
+    public void doPlayerTooltipNames(boolean doTTNs) {
+        this.tooltipPlayerNames = doTTNs;
     }
 
     public void setDraggable(boolean draggable) {
@@ -444,6 +455,10 @@ public class OmmMap extends ClickableWidget {
 
     }
 
+    public void setTextRenderer(TextRenderer textRenderer) {
+        this.textRenderer = textRenderer;
+    }
+
     @Override
     public void playDownSound(SoundManager soundManager) {
         // play no sound
@@ -499,52 +514,16 @@ public class OmmMap extends ClickableWidget {
         int regionWidth = 8;
         int regionHeight = 8;
 
-
-        /*
-        //crop leftward edge
-        if (relativeX < renderAreaX) {
-            int difference = renderAreaX - relativeX;
-            relativeX += difference;
-            width -= difference;
-            u += difference;
-            regionWidth -= difference;
-        }
-
-
-        //crop upward edge
-        if (relativeY < renderAreaY) {
-            int difference = renderAreaY - relativeY;
-            relativeY += difference;
-            height -= difference;
-            v += difference;
-            regionHeight -= difference;
-        }
-
-        //crop rightward edge
-        if (relativeX + width > renderAreaX2) {
-            int difference = (relativeX + width) - renderAreaX2;
-            width -= difference;
-            regionWidth -= difference;
-        }
-
-        //crop downward edge
-        if (relativeY + height > renderAreaY2) {
-            int difference = (relativeY + height) - renderAreaY2;
-            height -= difference;
-            regionHeight -= difference;
-        }
-
-        if (regionWidth <= 0 || regionHeight <= 0) return;
-
-
-         */
-
-        //draw player
-
         //context.fill(relativeX, relativeY, relativeX + 8, relativeY + 8, 0xFF000000);
 
         context.drawTexture(bufferedPlayer.texture, relativeX, relativeY, width, height, u, v, regionWidth, regionHeight, 64, 64);
         context.drawTexture(bufferedPlayer.texture, relativeX, relativeY, width, height, u + 32, v, regionWidth, regionHeight, 64, 64);
+
+        if (tooltipPlayerNames && mouseX > relativeX && mouseY < relativeY && mouseX < relativeX + width && mouseY < relativeY + height) {
+            hoveredPlayerX = relativeX;
+            hoveredPlayerY = relativeY;
+            hoveredPlayerName = bufferedPlayer.name;
+        }
 
         //do altitude shading if enabled, return early if not enabled
         if (!Objects.equals("on", ConfigFile.readParameter(ConfigOptions.ALTITUDE_SHADING)) || Double.isNaN(bufferedPlayer.y)) return;
@@ -562,14 +541,12 @@ public class OmmMap extends ClickableWidget {
             );
         }
 
+
+
     }
 
     public Waypoint getHoveredWaypoint() {
         return hoveredWaypoint;
-    }
-
-    private void drawWaypoint(DrawContext context) {
-
     }
 
     private BufferedPlayer drawDirectionIndicator(DrawContext context, PlayerEntity playerDraw, boolean indicatorsOnly) {
@@ -610,7 +587,7 @@ public class OmmMap extends ClickableWidget {
                     indicatorsOnly
             );
 
-        return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, player.getY());
+        return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, player.getY(), player.getStyledDisplayName());
     }
 
     private int roundTowardsZero(double num) {
@@ -648,44 +625,6 @@ public class OmmMap extends ClickableWidget {
         int regionHeight = tileSize;
         int width = tileSize;
         int height = tileSize;
-
-        /*
-        //crop leftward edge
-        if (relativeX < renderAreaX) {
-            int difference = renderAreaX - relativeX;
-            relativeX += difference;
-            width -= difference;
-            u += difference;
-            regionWidth -= difference;
-        }
-
-        //crop upward edge
-        if (relativeY < renderAreaY) {
-            int difference = renderAreaY - relativeY;
-            relativeY += difference;
-            height -= difference;
-            v += difference;
-            regionHeight -= difference;
-        }
-
-        //crop rightward edge
-        if (relativeX + width > renderAreaX2) {
-            int difference = (relativeX + width) - renderAreaX2;
-            width -= difference;
-            regionWidth -= difference;
-        }
-
-        //crop downward edge
-        if (relativeY + height > renderAreaY2) {
-            int difference = (relativeY + height) - renderAreaY2;
-            height -= difference;
-            regionHeight -= difference;
-        }
-
-
-
-        if (regionWidth <= 0 || regionHeight <= 0) return;
-        */
 
         context.drawTexture(
                 tile.identifier,
@@ -762,6 +701,14 @@ public class OmmMap extends ClickableWidget {
         );
     }
 
+    private void drawHoveredPlayerText(DrawContext context) {
+        int textWidth = textRenderer.getWidth(hoveredPlayerName);
+        int centerX = hoveredPlayerX + 4;
+
+        context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + 10, 0xFFFFFFFF,true);
+        //TODO background
+    }
+
     public void renderMap(DrawContext context, RenderTickCounter renderTickCounter) {
 
         if (!fieldsInitialized) initFields();
@@ -800,6 +747,8 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
+        hoveredPlayerName = Text.of("");
+
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         //draw other players' direction indicators
         for (PlayerEntity player : PlayersManager.getNearPlayers()) {
@@ -821,6 +770,7 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
+        drawHoveredPlayerText(context);
         BufferedPlayer self = null;
 
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {

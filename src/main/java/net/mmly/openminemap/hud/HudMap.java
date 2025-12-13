@@ -68,6 +68,8 @@ public class HudMap {
         map.setMapZoom(
                 Integer.parseInt(ConfigFile.readParameter(ConfigOptions._HUD_LAST_ZOOM))
         );
+        map.setTextRenderer(MinecraftClient.getInstance().textRenderer);
+        map.doPlayerTooltipNames(true);
 
         initialized = true;
     }

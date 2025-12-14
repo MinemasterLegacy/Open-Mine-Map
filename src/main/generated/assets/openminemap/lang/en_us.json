@@ -1,0 +1,11 @@
+{
+  "omm.config.category.general": "General",
+  "omm.config.gui.exit-without-saving": "Exit without Saving",
+  "omm.config.gui.save-and-exit": "Save and Exit",
+  "omm.config.option.artificial-zoom": "Artificial Zoom",
+  "omm.config.option.configure-hud": "Configure HUD...",
+  "omm.config.option.players": "Players",
+  "omm.config.tooltip.artificial-zoom": "Artificial Zoom allows for higher zoom levels than normal (+6 levels) by oversizing the smallest tile size.",
+  "omm.config.tooltip.configure-hud": "Change positioning and size of HUD elements",
+  "omm.osm-attribution": "© {OpenStreetMap Contributors}"
+}

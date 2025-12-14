@@ -2,6 +2,7 @@ package net.mmly.openminemap.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.TileUrlErrorType;
@@ -16,7 +17,7 @@ public class TileUrlFile {
 
     public static boolean loadWasFailed = false;
     public static boolean urlWasReset = false;
-    public static final String osmAttribution = "© {OpenStreetMap Contributors}";
+    public static String osmAttribution;
     public static final String osmAttributionUrl = "https://openstreetmap.org/copyright";
 
     private static TileUrl[] tileUrls;
@@ -46,6 +47,10 @@ public class TileUrlFile {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public static void initOsmAttribution() {
+        osmAttribution = Text.translatable("omm.osm-attribution").getString();
     }
 
     static String debugStart = "OpenMineMap Tile Urls";

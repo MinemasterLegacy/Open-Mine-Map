@@ -28,6 +28,7 @@ public class AttributionLayer extends ClickableWidget {
         super(x, y, width, height, Text.empty());
         String split = " | ";
         if (TileUrlFile.getCurrentUrl().attribution.equals("")) split = "";
+        TileUrlFile.initOsmAttribution();
         attributionString = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentUrl().attribution).toCharArray();
         attribution = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentUrl().attribution).replaceAll("\\{", "").replaceAll("}", "");
         selectionZones = new int[(attributionString.length - attribution.length() / 2)][2];

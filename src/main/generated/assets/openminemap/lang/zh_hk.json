@@ -1,0 +1,11 @@
+{
+  "omm.config.category.general": "一般",
+  "omm.config.gui.exit-without-saving": "不儲存並退出",
+  "omm.config.gui.save-and-exit": "儲存並退出",
+  "omm.config.option.artificial-zoom": "人工變焦",
+  "omm.config.option.configure-hud": "設定 HUD...",
+  "omm.config.option.players": "玩家",
+  "omm.config.tooltip.artificial-zoom": "人工變焦可提供比正常更高的縮放等級（+6 等級），透過放大最小圖塊尺寸。",
+  "omm.config.tooltip.configure-hud": "變更 HUD 元素的位置與大小",
+  "omm.osm-attribution": "© {開放街圖貢獻者}"
+}

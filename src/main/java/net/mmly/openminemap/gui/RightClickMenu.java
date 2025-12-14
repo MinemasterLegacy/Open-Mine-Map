@@ -160,7 +160,7 @@ public class RightClickMenu extends ClickableWidget {
             );
         }
 
-        if (displayType != RightClickMenuType.PINNED_WAYPOINT) context.drawTexture(rightClickCursor, (int) clickX - 4, (int) clickY - 4, 0, 0, 9, 9, 9, 9);
+        if (displayType == RightClickMenuType.DEFAULT) context.drawTexture(rightClickCursor, (int) clickX - 4, (int) clickY - 4, 0, 0, 9, 9, 9, 9);
 
     }
 

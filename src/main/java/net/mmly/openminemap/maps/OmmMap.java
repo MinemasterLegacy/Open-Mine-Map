@@ -519,7 +519,7 @@ public class OmmMap extends ClickableWidget {
         context.drawTexture(bufferedPlayer.texture, relativeX, relativeY, width, height, u, v, regionWidth, regionHeight, 64, 64);
         context.drawTexture(bufferedPlayer.texture, relativeX, relativeY, width, height, u + 32, v, regionWidth, regionHeight, 64, 64);
 
-        if (tooltipPlayerNames && mouseX > relativeX && mouseY < relativeY && mouseX < relativeX + width && mouseY < relativeY + height) {
+        if (tooltipPlayerNames && mouseX >= relativeX && mouseY >= relativeY && mouseX < relativeX + width && mouseY < relativeY + height) {
             hoveredPlayerX = relativeX;
             hoveredPlayerY = relativeY;
             hoveredPlayerName = bufferedPlayer.name;
@@ -702,11 +702,12 @@ public class OmmMap extends ClickableWidget {
     }
 
     private void drawHoveredPlayerText(DrawContext context) {
+
         int textWidth = textRenderer.getWidth(hoveredPlayerName);
         int centerX = hoveredPlayerX + 4;
 
-        context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + 10, 0xFFFFFFFF,true);
-        //TODO background
+        context.fill(centerX - (textWidth/2) - 2, hoveredPlayerY + 10, centerX + (textWidth/2) + 2, hoveredPlayerY + 10 + textRenderer.fontHeight + 4, 0x80000000);
+        context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + 13, 0xFFFFFFFF,false);
     }
 
     public void renderMap(DrawContext context, RenderTickCounter renderTickCounter) {
@@ -747,7 +748,7 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
-        hoveredPlayerName = Text.of("");
+        hoveredPlayerY = -250;
 
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         //draw other players' direction indicators
@@ -770,8 +771,8 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
-        drawHoveredPlayerText(context);
         BufferedPlayer self = null;
+        drawHoveredPlayerText(context);
 
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
             if (followPlayer) {

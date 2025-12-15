@@ -24,5 +24,6 @@ public class BufferedPlayer {
     public BufferedPlayer(int offsetX, int offsetY, Identifier texture, double y, Text name) {
         this(offsetX, offsetY, texture);
         this.y = y;
+        this.name = name;
     }
 }

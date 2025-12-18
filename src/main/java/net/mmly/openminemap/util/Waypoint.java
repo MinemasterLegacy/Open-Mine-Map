@@ -53,11 +53,11 @@ public class Waypoint {
         this.style = style;
     }
 
-    public int getMapX(int zoom) {
+    public int getMapX(double zoom) {
         return (int) (mapX / Math.pow(2, 18 - zoom));
     }
 
-    public int getMapY(int zoom) {
+    public int getMapY(double zoom) {
         return (int) (mapY / Math.pow(2, 18 - zoom));
     }
 

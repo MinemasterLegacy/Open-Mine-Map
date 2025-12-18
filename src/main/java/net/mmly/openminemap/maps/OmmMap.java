@@ -14,6 +14,7 @@ import net.minecraft.client.util.Window;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Unit;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.event.KeyInputHandler;
@@ -41,9 +42,9 @@ import java.util.function.Consumer;
 
 public class OmmMap extends ClickableWidget {
 
-    public final static int TILEMAXZOOM = 18;
-    public final static int TILEMAXARTIFICIALZOOM = 24;
-    public static final int tileSize = 128;
+    public final static double TILEMAXZOOM = 18;
+    public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
+    public static int tileSize = 128;
     public final static int WAYPOINTSIZE = 8;
 
     private boolean fieldsInitialized = false;
@@ -65,7 +66,7 @@ public class OmmMap extends ClickableWidget {
     private int renderAreaWidth = 0;
     private int renderAreaHeight = 0;
 
-    private int zoom = 0;
+    private double zoom = 0;
     private double mapCenterX = 64;
     private double mapCenterY = 64;
     private double playerMapX = 64;
@@ -81,7 +82,7 @@ public class OmmMap extends ClickableWidget {
     private double mouseHoldY = 64;
     private double mouseHoldX = 64;
 
-    private int maxZoom = 18;
+    private double maxZoom = TILEMAXZOOM;
     private int backgroundColor = 0x00000000;
     private int tintColor = 0x00000000;
 
@@ -114,7 +115,7 @@ public class OmmMap extends ClickableWidget {
 
     }
 
-    public OmmMap(int x, int y, int width, int height, int zoom, double mapCenterX, double mapCenterY) {
+    public OmmMap(int x, int y, int width, int height, double zoom, double mapCenterX, double mapCenterY) {
         this(x, y, width, height);
         this.zoom = zoom;
         this.mapCenterX = mapCenterX;
@@ -131,8 +132,8 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void clampZoom() {
-        while (zoom > TILEMAXZOOM) {
-            zoomOut();
+        if (zoom > TILEMAXARTIFICIALZOOM) {
+            zoomOut(TILEMAXARTIFICIALZOOM - zoom);
         }
     }
 
@@ -140,16 +141,17 @@ public class OmmMap extends ClickableWidget {
         this.mapCenterX = x;
         this.mapCenterY = y;
     }
-    public void setMapZoom(int zoom) {
-        if (zoom > this.zoom) {
-            while (zoom > this.zoom) {
-                zoomIn();
-            }
-        } else if (zoom < this.zoom) {
-            while (zoom < this.zoom) {
-                zoomOut();
-            }
+    public void setMapZoom(int zoom1) {
+        if (zoom > zoom1) {
+            zoomOut(zoom - zoom1);
         }
+        if (zoom < zoom1) {
+            zoomIn(zoom1 - zoom);
+        }
+    }
+
+    public int getTileSize() {
+        return tileSize;
     }
 
     public void doPlayerTooltipNames(boolean doTTNs) {
@@ -193,14 +195,22 @@ public class OmmMap extends ClickableWidget {
         );
     }
 
+    public double getMaxZoom() {
+        return maxZoom;
+    }
+
     public double getMapCenterX() {
         return mapCenterX;
     }
     public double getMapCenterY() {
         return mapCenterY;
     }
-    public int getZoom() {
+
+    public double getZoom() {
         return zoom;
+    }
+    public int getTileZoom() {
+        return (int) Math.round(zoom);
     }
 
     public void setRenderAreaX(int x) {
@@ -298,10 +308,10 @@ public class OmmMap extends ClickableWidget {
         return mouseTileY;
     }
     public double getMouseLat() {
-        return UnitConvert.myToLat(mouseTileY, zoom);
+        return UnitConvert.myToLat(mouseTileY, zoom, tileSize);
     }
     public double getMouseLong() {
-        return UnitConvert.mxToLong(mouseTileX, zoom);
+        return UnitConvert.mxToLong(mouseTileX, zoom, tileSize);
     }
 
     public void setFollowPlayer(boolean followPlayer) {
@@ -325,6 +335,7 @@ public class OmmMap extends ClickableWidget {
         mapCenterY = 64;
         mapCenterX = 64;
         zoom = 0;
+        tileSize = 128;
     }
 
     public void keyNavigate(int keyCode, int modifiers) {
@@ -410,49 +421,66 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void zoomIn() {
-        if (zoom + 1 > maxZoom) return;
-        else {
-            zoom++;
-            mapCenterX *= 2;
-            mapCenterY *= 2;
-        }
+        zoomIn(1);
     }
     public void zoomOut() {
-        if (zoom - 1 < 0) return;
-        else {
-            zoom--;
-            mapCenterX /= 2;
-            mapCenterY /= 2;
-        }
+        zoomOut(1);
     }
 
-    public void mouseZoomIn() {
+    public void zoomIn(double amount) {
+        if (zoom + amount > maxZoom) amount = maxZoom - zoom; //change the total zoom amount if it is more than the max
+        double originalZoom = zoom;
+        zoom += amount; //change the zoom level
+        normalizeZoom(originalZoom); //normalize the zoom level
+    }
+    public void zoomOut(double amount) {
+        if (zoom - amount < 0) amount = zoom;
+        double originalZoom = zoom;
+        zoom -= amount;
+        normalizeZoom(originalZoom);
+    }
+
+    public void mouseZoomIn() { //TODO
         if (blockZoomProcedure.evaluate()) return;
         updateFields();
 
         if (zoom >= (doArtificialZoom ? TILEMAXARTIFICIALZOOM : TILEMAXZOOM)) return;
 
         if (!followPlayer) {
-            mapCenterX -= (mapCenterX - mouseTileX) / 2;
-            mapCenterY -= (mapCenterY - mouseTileY) / 2;
+            //mapCenterX -= (mapCenterX - mouseTileX) / 2;
+            //mapCenterY -= (mapCenterY - mouseTileY) / 2;
         }
 
-        zoomIn();
+        zoomIn(0.2);
 
     }
-    public void mouseZoomOut() {
+    public void mouseZoomOut() { //TODO
         if (blockZoomProcedure.evaluate()) return;
         updateFields();
 
         if (zoom <= 0) return;
 
         if (!followPlayer) {
-            mapCenterX += (mapCenterX - mouseTileX);
-            mapCenterY += (mapCenterY - mouseTileY);
+           // mapCenterX += (mapCenterX - mouseTileX);
+            //mapCenterY += (mapCenterY - mouseTileY);
         }
 
-        zoomOut();
+        zoomOut(0.2);
 
+    }
+
+    private static final double log10of2 = Math.log10(2);
+    private static final double log10of128 = Math.log10(128);
+    private void normalizeZoom(double originalZoom) {
+        //https://www.desmos.com/calculator/6nlrz2hv5z
+        int oldMapSize = tileSize * (int) Math.pow(2, Math.round(originalZoom));
+        tileSize = (int) Math.floor(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
+        int totalMapSize = (int) (tileSize * Math.pow(2, Math.round(zoom))); //determine total map size (tile size * num of tiles)
+        double zoom1 = (Math.log10(totalMapSize) - log10of128) / log10of2; //get the desired zoom level of the current map
+        zoom = (double) Math.round(zoom1 * 100) / 100; //set zoom to the desired zoom level
+        mapCenterX *= ((double) totalMapSize / oldMapSize);
+        mapCenterY *= ((double) totalMapSize / oldMapSize);
+        updateFields();
     }
 
     public void setTextRenderer(TextRenderer textRenderer) {
@@ -469,7 +497,7 @@ public class OmmMap extends ClickableWidget {
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);
 
-        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, zoom, renderAreaWidth, renderAreaHeight, tileSize);
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight);
         for (DrawableMapTile[] column : tiles) {
             for (DrawableMapTile tile : column) {
                 drawTile(context, tile);
@@ -609,16 +637,17 @@ public class OmmMap extends ClickableWidget {
         int u = tileSize * tile.subSectionX;
         int v = tileSize * tile.subSectionY;
 
+        //System.out.println(tile.subSectionSize);
         //calculate scale multiplier, will be a power of 2
-        int scaleMultiplier = tileSize / tile.subSectionSize;
+        double scaleMultiplier = tileSize / tile.subSectionSize;
 
         // texture width doubles for every offset of zoom level:
         // 0 zoom tile for zoom 0 : scaleMult = 1
         // 0 zoom tile for zoom 1 : scaleMult = 2
         // 0 zoom tile for zoom 2 : scaleMult = 4
         // etc.
-        int textureWidth = tileSize * scaleMultiplier;
-        int textureHeight = tileSize * scaleMultiplier;
+        int textureWidth = (int) (tileSize * scaleMultiplier);
+        int textureHeight = (int) (tileSize * scaleMultiplier);
 
         // define region + normal width and height to be modified momentarily (if needed)
         int regionWidth = tileSize;
@@ -640,7 +669,7 @@ public class OmmMap extends ClickableWidget {
                 textureHeight
         );
 
-        //context.drawBorder(relativeX, relativeY, width, height, 0xFF000000);
+        context.drawBorder(relativeX, relativeY, width, height, 0xFF000000);
     }
 
     private void updateFields() {
@@ -724,8 +753,9 @@ public class OmmMap extends ClickableWidget {
 
                 if (!waypoint.visible) continue;
 
-                int x = (int) (((double) renderAreaWidth / 2) - 4 + (waypoint.getMapX(zoom) - mapCenterX)) + renderAreaX;
-                int y = (int) (((double) renderAreaHeight / 2) - 4 + (waypoint.getMapY(zoom) - mapCenterY)) + renderAreaY;
+
+                int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
+                int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
 
                 if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
                     hoveredWaypoint = waypoint;

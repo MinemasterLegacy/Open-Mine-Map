@@ -63,7 +63,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             0,
             640,
             480,
-            Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM)),
+            Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM)),
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)),
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y))
     );
@@ -87,7 +87,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     @Override
     public void close() {
         disableRightClickMenu();
-        ConfigFile.writeParameter(ConfigOptions._FS_LAST_ZOOM, Integer.toString(map.getZoom()));
+        ConfigFile.writeParameter(ConfigOptions._FS_LAST_ZOOM, Double.toString(map.getZoom()));
         ConfigFile.writeParameter(ConfigOptions._FS_LAST_X, Double.toString(map.getMapCenterX()));
         ConfigFile.writeParameter(ConfigOptions._FS_LAST_Y, Double.toString(map.getMapCenterY()));
         ConfigFile.writeToFile();
@@ -122,11 +122,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     static protected void zoomIn() {
-        map.zoomIn();
+        map.zoomIn(); //TODO add parameters & modifier keys
     }
 
     static protected void zoomOut() {
-        map.zoomOut();
+        map.zoomOut(); //TODO add parameters & modifier keys
     }
 
     static protected void resetMap() {
@@ -265,7 +265,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static void drawButtons(DrawContext context) {
         //draws the buttons
         context.drawTexture( //zoom in
-                map.getZoom() < (TileManager.doArtificialZoom ? OmmMap.TILEMAXARTIFICIALZOOM : OmmMap.TILEMAXZOOM) ?
+                map.getZoom() < map.getMaxZoom() ?
                         (buttonlayers.get(ButtonFunction.ZOOMIN).isHovered() ?
                                 getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.HOVER) :
                                 getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.DEFAULT)) :

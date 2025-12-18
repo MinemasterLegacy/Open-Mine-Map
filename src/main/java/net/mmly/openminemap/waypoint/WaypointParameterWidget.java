@@ -66,11 +66,10 @@ public class WaypointParameterWidget extends TextFieldWidget {
             }
         }
 
-
         if (type.isCoordinate()) {
             double c = Double.parseDouble(this.getText());
-            if (type == WaypointValueInputType.LATITUDE && Math.abs(c) > UnitConvert.myToLat(0, 0)) return false;
-            if (type == WaypointValueInputType.LONGITUDE && Math.abs(c) > UnitConvert.mxToLong(128, 0)) return false;
+            if (type == WaypointValueInputType.LATITUDE && Math.abs(c) > 85.05112) return false;
+            if (type == WaypointValueInputType.LONGITUDE && Math.abs(c) > 180) return false;
         }
 
         return true;

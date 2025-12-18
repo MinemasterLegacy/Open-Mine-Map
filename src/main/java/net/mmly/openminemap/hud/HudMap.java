@@ -75,63 +75,13 @@ public class HudMap {
     }
 
     public static void zoomIn() {
-        map.zoomIn();
-        ConfigFile.writeParameter(ConfigOptions._HUD_LAST_ZOOM, Integer.toString(map.getZoom()));
-        /*
-        if (TileManager.doArtificialZoom) {
-            if (trueZoomLevel < 24) {
-                trueZoomLevel++;
-                zoomLevel = Math.min(18, trueZoomLevel);
-                mapTilePosX *= 2;
-                mapTilePosY *= 2;
-                writeZoom();
-            } else {
-                zoomLevel = 18;
-                trueZoomLevel = 24;
-            }
-        } else {
-            if (trueZoomLevel < 18) {
-                zoomLevel++;
-                trueZoomLevel++;
-                mapTilePosX *= 2;
-                mapTilePosY *= 2;
-                writeZoom();
-            } else {
-                zoomLevel = 18;
-                trueZoomLevel = 18;
-            }
-        }
-        */
+        map.zoomIn(1);
+        ConfigFile.writeParameter(ConfigOptions._HUD_LAST_ZOOM, Double.toString(map.getZoom()));
     }
 
     public static void zoomOut() {
-        map.zoomOut();
-        ConfigFile.writeParameter(ConfigOptions._HUD_LAST_ZOOM, Integer.toString(map.getZoom()));
-        /*
-        if (TileManager.doArtificialZoom) {
-            if (trueZoomLevel > 0) {
-                trueZoomLevel--;
-                zoomLevel = Math.min(18, trueZoomLevel);
-                mapTilePosX = (float) mapTilePosX / 2;
-                mapTilePosY = (float) mapTilePosY / 2;
-                writeZoom();
-            } else {
-                zoomLevel = 0;
-                trueZoomLevel = 0;
-            }
-        } else {
-            if (trueZoomLevel > 0) {
-                zoomLevel--;
-                trueZoomLevel--;
-                mapTilePosX = (float) mapTilePosX / 2;
-                mapTilePosY = (float) mapTilePosY / 2;
-                writeZoom();
-            } else {
-                zoomLevel = 0;
-                trueZoomLevel = 0;
-            }
-        }
-        */
+        map.zoomOut(1);
+        ConfigFile.writeParameter(ConfigOptions._HUD_LAST_ZOOM, Double.toString(map.getZoom()));
     }
 
     public static void toggleRendering() {

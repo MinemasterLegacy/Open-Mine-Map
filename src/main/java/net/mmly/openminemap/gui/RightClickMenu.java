@@ -220,8 +220,8 @@ public class RightClickMenu extends ClickableWidget {
                     setSnapAngle();
                 } else { //Pinned
                     FullscreenMapScreen.map.setMapPosition(
-                        selectedWaypoint.getMapX(FullscreenMapScreen.map.getZoom()),
-                        selectedWaypoint.getMapY(FullscreenMapScreen.map.getZoom())
+                            UnitConvert.longToMapX(selectedWaypoint.longitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize()),
+                            UnitConvert.latToMapY(selectedWaypoint.latitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize())
                     );
                 }
                 break;

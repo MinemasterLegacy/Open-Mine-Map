@@ -28,6 +28,7 @@ public class ConfigFile {
             "local", //ShowPlayers
             "local", //ShowDirectionIndicators
             "on", //AltitudeShading
+            "0.4", //ZoomStrength
 
             "true", //hudtoggle
             "true", //hudenabled

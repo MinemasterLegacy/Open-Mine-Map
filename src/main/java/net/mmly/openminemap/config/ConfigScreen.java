@@ -5,6 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.util.Window;
@@ -51,6 +52,7 @@ public class ConfigScreen extends Screen {
     public static TextFieldWidget snapAngleWidget;
     ChoiceButtonWidget rightClickMeuUsesOption;
     ChoiceButtonWidget reverseScrollOption;
+    ChoiceSliderWidget zoomStrengthWidget;
 
     TextWidget overlayLabel;
     ChoiceSliderWidget playerShowSlider;
@@ -60,7 +62,16 @@ public class ConfigScreen extends Screen {
     TextWidget urlLabel;
     public static TextFieldWidget customUrlWidget;
     private static UrlChoiceWidget definedUrlWidget;
-
+    private final String[] zoomStrengthLevels = new String[] {
+            "0.05", "0.1", "0.15", "0.2", "0.25",
+            "0.3", "0.35", "0.4", "0.45", "0.5",
+            "0.55", "0.6", "0.65", "0.7", "0.75",
+            "0.8", "0.85", "0.9", "0.95", "1.0",
+            "1.05", "1.1", "1.15", "1.2", "1.25",
+            "1.3", "1.35", "1.4", "1.45", "1.5",
+            "1.55", "1.6", "1.65", "1.7", "1.75",
+            "1.8", "1.85", "1.9", "1.95", "2"
+    }; // I know this is a lazy solution, but it's also the easiest (:
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -123,6 +134,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget.setY(snapAngleWidget.getY() + change);
         rightClickMeuUsesOption.getButtonWidget().setY(rightClickMeuUsesOption.getButtonWidget().getY() + change);
         reverseScrollOption.getButtonWidget().setY(reverseScrollOption.getButtonWidget().getY() + change);
+        zoomStrengthWidget.setY(zoomStrengthWidget.getY() + change);
         overlayLabel.setY(overlayLabel.getY() + change);
         playerShowSlider.setY(playerShowSlider.getY() + change);
         directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
@@ -205,6 +217,9 @@ public class ConfigScreen extends Screen {
         reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
         this.addDrawableChild(reverseScrollOption.getButtonWidget());
 
+        zoomStrengthWidget = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Zoom Strength"), Text.of("The amount zoom changes for each zoom input"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
+        this.addDrawableChild(zoomStrengthWidget);
+
         overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("Overlays"), this.textRenderer);
         this.addDrawableChild(overlayLabel);
 
@@ -265,6 +280,7 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption.writeParameterToFile();
         artificialZoomOption.writeParameterToFile();
         reverseScrollOption.writeParameterToFile();
+        zoomStrengthWidget.writeParameterToFile();
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
         altitudeShadingOption.writeParameterToFile();

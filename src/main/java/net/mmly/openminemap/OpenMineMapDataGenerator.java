@@ -13,8 +13,9 @@ public class OpenMineMapDataGenerator implements DataGeneratorEntrypoint {
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(OmmEnglishLanguageProvider::new);
+        pack.addProvider(OmmTraditionalTaiwaneseChineseLanguageProvider::new);
+        pack.addProvider(OmmTraditionalHongKongChineseLanguageProvider::new);
         pack.addProvider(OmmSimplifiedChineseLanguageProvider::new);
-        pack.addProvider(OmmTraditionalChineseLanguageProvider::new);
 	}
 }
 
@@ -38,21 +39,9 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
     }
 }
 
-class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
-    protected OmmSimplifiedChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
-        super(dataOutput, "zh_cn", registryLookup);
-    }
-
-    // ----- SIMPLIFIED CHINESE -----
-    @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
-        translationBuilder.add("omm.osm-attribution", "© {OpenStreetMap 贡献者}");
-    }
-}
-
-class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvider {
-    protected OmmTraditionalChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
-        super(dataOutput, "zh_hk", registryLookup);
+abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvider {
+    protected OmmTraditionalChineseLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, languageCode, registryLookup);
     }
 
     // ----- TRADITIONAL CHINESE -----
@@ -67,5 +56,28 @@ class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.gui.save-and-exit", "儲存並退出");
         translationBuilder.add("omm.config.gui.exit-without-saving", "不儲存並退出");
         translationBuilder.add("omm.config.option.players", "玩家");
+    }
+}
+
+class OmmTraditionalHongKongChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {
+    protected OmmTraditionalHongKongChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "zh_hk", registryLookup);
+    }
+}
+class OmmTraditionalTaiwaneseChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {
+    protected OmmTraditionalTaiwaneseChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "zh_tw", registryLookup);
+    }
+}
+
+class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
+    protected OmmSimplifiedChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "zh_cn", registryLookup);
+    }
+    // ----- SIMPLIFIED CHINESE -----
+
+    @Override
+    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+        translationBuilder.add("omm.osm-attribution", "© {OpenStreetMap 贡献者}");
     }
 }

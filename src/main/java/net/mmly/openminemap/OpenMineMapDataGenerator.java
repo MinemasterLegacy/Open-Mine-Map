@@ -119,6 +119,100 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
     }
 }
 
+class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
+    protected OmmSimplifiedChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "zh_cn", registryLookup);
+    }
+    // ----- SIMPLIFIED CHINESE -----
+
+    @Override
+    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+        translationBuilder.add("omm.config.option.artificial-zoom", "人工缩放");
+        translationBuilder.add("omm.config.tooltip.artificial-zoom", "通过人为手段放大图块，使可用的缩放等级突破正常范围（可再多 6 级）。");
+        translationBuilder.add("omm.osm-attribution", "© {OpenStreetMap 贡献者}");
+        translationBuilder.add("omm.config.option.configure-hud", "配置小地图...");
+        translationBuilder.add("omm.config.tooltip.configure-hud", "变更小地图元素的位置与大小");
+        translationBuilder.add("omm.config.category.general", "一般");
+        translationBuilder.add("omm.config.gui.save-and-exit", "保存并退出");
+        translationBuilder.add("omm.config.gui.exit-without-saving", "不保存并退出");
+        translationBuilder.add("omm.config.option.players", "玩家");
+        translationBuilder.add("omm.config.category.overlays", "覆盖物");
+        translationBuilder.add("omm.config.tooltip.players", "在所有地图上显示玩家");
+        translationBuilder.add("omm.config.tooltip.reverse-scroll", "反转鼠标滚轮缩放地图的方向。");
+        translationBuilder.add("omm.config.option.reverse-scroll", "反转滚轮");
+        translationBuilder.add("omm.config.option.zoom-strength", "缩放强度");
+        translationBuilder.add("omm.config.tooltip.zoom-strength", "每次执行缩放时的缩放变化幅度");
+        translationBuilder.add("omm.config.option.snap-angle", "吸附角");
+        translationBuilder.add("omm.config.tooltip.snap-angle", "设置一个可通过快捷键吸附的角度，用于辅助绘制直线。（使用 Minecraft 中的角度）");
+        translationBuilder.add("omm.config.option.rcm-uses", "传送指令");
+        translationBuilder.add("omm.config.tooltip.rcm-uses", "全屏地图的右键菜单中用来传送的指令。");
+        translationBuilder.add("omm.config.option.directions", "朝向");
+        translationBuilder.add("omm.config.tooltip.directions", "在所有地图上显示玩家朝向");
+        translationBuilder.add("omm.config.option.altitude-shading", "高度着色");
+        translationBuilder.add("omm.config.tooltip.altitude-shading", "其他玩家在你上方时会呈现白色，在你下方时则呈现黑色。");
+        translationBuilder.add("omm.config.category.tile-source", "图块资源");
+        translationBuilder.add("omm.fullscreen.mouse-coordinates-label", "鼠标：");
+        translationBuilder.add("omm.fullscreen.player-coordinates-label", "玩家：");
+        translationBuilder.add("omm.config.gui.previous-source", "上一个资源");
+        translationBuilder.add("omm.config.gui.next-source", "下一个资源");
+        translationBuilder.add("omm.config.gui.reset-to-default", "重设为默认值");
+        translationBuilder.add("omm.waypoints.delete-tooltip", "常驻");
+        translationBuilder.add("omm.text.name", "名称");
+        translationBuilder.add("omm.text.latitude", "纬度");
+        translationBuilder.add("omm.text.longitude", "经度");
+        translationBuilder.add("omm.waypoints.button.create", "创建路标");
+        translationBuilder.add("omm.waypoints.button.save", "保存路标");
+        translationBuilder.add("omm.waypoints.button.delete", "删除路标");
+        translationBuilder.add("omm.waypoints.button.edit", "编辑路标");
+        translationBuilder.add("omm.waypoints.button.view", "查看路标");
+        translationBuilder.add("omm.waypoints.button.pin", "标记路标");
+        translationBuilder.add("omm.fullscreen.hud-toggle.name", "小地图总开关");
+        translationBuilder.add("omm.fullscreen.hud-toggle.description", "停用时无法以快捷键开启小地图");
+        translationBuilder.add("omm.fullscreen.hud-toggle.enabled", "目前已启用");
+        translationBuilder.add("omm.fullscreen.hud-toggle.disabled", "目前已停用");
+        translationBuilder.add("omm.hud.out-of-bounds", "超出范围");
+        translationBuilder.add("omm.error.tile-url.start", "OpenMineMap 图块网址");
+        translationBuilder.add("omm.error.tile-source-json-formatting", "格式不正确。");
+        translationBuilder.add("omm.error.blank-tile-url", "检测到空白的图块网址。这可能是文件格式不正确造成的。");
+        translationBuilder.add("omm.error.blank-field", "有一个以上的必要栏位为空。");
+        translationBuilder.add("omm.error.source-link-invalid", "\"source_url\" 不是有效连结。");
+        translationBuilder.add("omm.error.attribution-link-invalid", "\"attribution_links\" 中有一个以上的无效连结。");
+        translationBuilder.add("omm.error.source-bracket-placement", "\"source_url\" 的括号位置不正确。");
+        translationBuilder.add("omm.error.attribution-bracket-placement", "\"attribution\" 的括号位置不正确。");
+        translationBuilder.add("omm.error.link-number-mismatch", "\"attribution_links\" 列表与 \"attribution\" 字串中的连结数量不匹配。");
+        translationBuilder.add("omm.error.field-missing-x", "\"source_url\" 缺少 {x}。");
+        translationBuilder.add("omm.error.field-missing-y", "\"source_url\" 缺少 {y}。");
+        translationBuilder.add("omm.error.field-missing-zoom", "\"source_url\" 缺少 {z}。");
+        translationBuilder.add("omm.key.open-fullscreen-map", "开启全屏地图");
+        translationBuilder.add("omm.key.zoom-in", "放大（小地图）");
+        translationBuilder.add("omm.key.zoom-out", "缩小（小地图）");
+        translationBuilder.add("omm.key.toggle-map", "地图开关（小地图）");
+        translationBuilder.add("omm.key.copy-coordinates", "复制坐标到剪贴板");
+        translationBuilder.add("omm.key.snap-angle", "吸附到该角");
+        translationBuilder.add("omm.key.execute.error.snap-angle", "发生错误。");
+        translationBuilder.add("omm.key.execute.snap-angle", "吸附！");
+        translationBuilder.add("omm.key.execute.error.out-of-bounds", "你似乎已超出投影范围。请回到现实范围再试一次。");
+        translationBuilder.add("omm.key.execute.copy-coordinates", "坐标已复制到剪贴板");
+        translationBuilder.add("omm.key.execute.error.copy-coordinates", "执行时发生错误。");
+        translationBuilder.add("omm.fullscreen.report-bugs", "回报错误");
+        translationBuilder.add("omm.config.gui.omm-wiki", "OpenMineMap 维基");
+        translationBuilder.add("omm.error.incomplete-coordinates", "发生错误。你可能输入了不完整的坐标。");
+        translationBuilder.add("omm.error.formatted-coordinates", "发生错误。你可能输入了格式不正确的坐标。");
+        translationBuilder.add("omm.error.invalid-or-out-of-bounds", "发生错误。你可能输入了无效或超出范围的坐标。");
+        translationBuilder.add("omm.error.out-of-bounds", "发生错误。你可能输入了超出范围的坐标。");
+        translationBuilder.add("omm.error.player-out-of-bounds", "解析坐标时发生错误；你尝试传送的玩家可能位于投影范围之外。");
+        translationBuilder.add("omm.error.cannot-find-player-start", "无法在已渲染区域内找到玩家「");
+        translationBuilder.add("omm.error.cannot-find-player-end", "」。");
+        translationBuilder.add("omm.error.waypoint-property-failiure", "OpenMineMap：路标属性修改失败");
+        translationBuilder.add("omm.error.waypoint-delete-failed", "OpenMineMap：路标删除失败");
+        translationBuilder.add("omm.config.state.on", "开启");
+        translationBuilder.add("omm.config.state.off", "关闭");
+        translationBuilder.add("omm.config.state.none", "无");
+        translationBuilder.add("omm.config.state.self", "自身");
+        translationBuilder.add("omm.config.state.local", "附近");
+    }
+}
+
 abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvider {
     protected OmmTraditionalChineseLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
@@ -221,17 +315,5 @@ class OmmTraditionalHongKongChineseLanguageProvider extends OmmTraditionalChines
 class OmmTraditionalTaiwaneseChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {
     protected OmmTraditionalTaiwaneseChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
         super(dataOutput, "zh_tw", registryLookup);
-    }
-}
-
-class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
-    protected OmmSimplifiedChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
-        super(dataOutput, "zh_cn", registryLookup);
-    }
-    // ----- SIMPLIFIED CHINESE -----
-
-    @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
-        translationBuilder.add("omm.osm-attribution", "© {OpenStreetMap 贡献者}");
     }
 }

@@ -743,36 +743,36 @@ public class OmmMap extends ClickableWidget {
         drawMap(context); //draw the map tiles + background
 
         //draw waypoints
-        if (TileManager.doWaypoints) {
-            hoveredWaypoint = null;
-            for (Waypoint waypoint : waypoints) {
 
-                if (!waypoint.visible) continue;
+        hoveredWaypoint = null;
+        for (Waypoint waypoint : waypoints) {
+
+            if (!waypoint.visible) continue;
 
 
-                int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
-                int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
+            int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
+            int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
 
-                if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
-                    hoveredWaypoint = waypoint;
-                }
-
-                context.drawTexture(
-                        waypoint.identifier,
-                        x,
-                        y,
-                        WAYPOINTSIZE,
-                        WAYPOINTSIZE,
-                        0,
-                        0,
-                        WAYPOINTSIZE,
-                        WAYPOINTSIZE,
-                        WAYPOINTSIZE,
-                        WAYPOINTSIZE
-                );
-
+            if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
+                hoveredWaypoint = waypoint;
             }
+
+            context.drawTexture(
+                    waypoint.identifier,
+                    x,
+                    y,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE,
+                    0,
+                    0,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE
+            );
+
         }
+
 
         hoveredPlayerY = -250;
 

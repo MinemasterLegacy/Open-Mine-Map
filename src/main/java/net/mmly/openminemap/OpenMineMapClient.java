@@ -45,10 +45,9 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         HudRenderCallback.EVENT.register(HudMap::render);
         HudRenderCallback.EVENT.register(FullscreenMapScreen::render);
 
-        if (Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__WAYPOINTS))) {
-            ServerLifecycleEvents.SERVER_STARTED.register(WaypointFile::setWaypointsOfThisWorld);
-            WaypointFile.load();
-        }
+        ServerLifecycleEvents.SERVER_STARTED.register(WaypointFile::setWaypointsOfThisWorld);
+        WaypointFile.load();
+
 
         ServerLifecycleEvents.SERVER_STARTING.register(TileUrlFile::addApplicableErrors);
         ServerLifecycleEvents.SERVER_STOPPING.register(ConfigFile::writeOnClose);

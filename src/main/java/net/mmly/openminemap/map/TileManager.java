@@ -29,7 +29,6 @@ public class TileManager {
     public static int hudTileScaledSize = 128; //should only be a power of 2 (was 64 in v1.0.0)
     public static boolean doArtificialZoom;
     public static boolean doReverseScroll;
-    public static boolean doWaypoints;
     public static double mouseZoomStrength;
     public static OverlayVisibility showPlayers;
     public static OverlayVisibility showDirectionIndicators;
@@ -423,7 +422,6 @@ public class TileManager {
         doReverseScroll = ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on");
         showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
         showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));
-        doWaypoints = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__WAYPOINTS));
     }
 
 }

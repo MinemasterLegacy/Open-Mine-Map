@@ -220,7 +220,7 @@ public class WaypointScreen extends Screen {
             WaypointFile.setWaypointsOfThisWorld(false);
             instance.generateWaypointEntries(Math.max(entryListScroll - 25, 0));
         } else {
-            OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoint delete failed");
+            OpenMineMapClient.debugMessages.add(Text.translatable("OpenMineMap: Waypoint delete failed").getString());
         }
     }
 
@@ -236,7 +236,7 @@ public class WaypointScreen extends Screen {
         )) {
             instance.generateWaypointEntries(entryListScroll);
         } else {
-            OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoint property change failed");
+            OpenMineMapClient.debugMessages.add(Text.translatable("omm.error.waypoint-property-failiure").getString());
         }
     }
 

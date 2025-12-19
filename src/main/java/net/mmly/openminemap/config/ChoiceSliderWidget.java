@@ -26,11 +26,9 @@ public class ChoiceSliderWidget extends SliderWidget {
 
     @Override
     protected void updateMessage() {
-        this.setMessage(Text.of(message.getString() + ": " + options[selection]));
+        this.setMessage(Text.of(message.getString() + ": " + getTranslatedOption(options[selection])));
         //System.out.println(message.getString() + ": " + options[selection]);
     }
-
-
 
     private int getSelectedOption() {
         String selectedOption = ConfigFile.readParameter(configOption);
@@ -38,6 +36,11 @@ public class ChoiceSliderWidget extends SliderWidget {
             if (selectedOption.equalsIgnoreCase(options[i])) return i;
         }
         return 0;
+    }
+
+    private static String getTranslatedOption(String option) {
+        if (option.contains(".")) return option; //if a decimal number
+        return Text.translatable("omm.config.state."+(option.toLowerCase())).getString();
     }
 
     @Override

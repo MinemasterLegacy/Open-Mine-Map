@@ -27,6 +27,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
     public static OmmMap newMapRenderer = new OmmMap(50, 50, 200, 140);
+    public static final String MODVERSION = "1.4.0";
 
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
@@ -49,6 +50,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
             WaypointFile.load();
         }
 
+        ServerLifecycleEvents.SERVER_STARTING.register(TileUrlFile::addApplicableErrors);
         ServerLifecycleEvents.SERVER_STOPPING.register(ConfigFile::writeOnClose);
 
         TileUrlFile.establishUrls();

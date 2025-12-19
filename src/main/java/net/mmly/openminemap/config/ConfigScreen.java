@@ -11,6 +11,7 @@ import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
@@ -70,7 +71,7 @@ public class ConfigScreen extends Screen {
             "1.05", "1.1", "1.15", "1.2", "1.25",
             "1.3", "1.35", "1.4", "1.45", "1.5",
             "1.55", "1.6", "1.65", "1.7", "1.75",
-            "1.8", "1.85", "1.9", "1.95", "2"
+            "1.8", "1.85", "1.9", "1.95", "2.0"
     }; // I know this is a lazy solution, but it's also the easiest (:
 
     /*
@@ -186,7 +187,7 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.4.0"), this.textRenderer);
+        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), this.textRenderer);
         versionLabel.alignRight();
         this.addDrawableChild(versionLabel);
 
@@ -211,7 +212,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")));
         this.addDrawableChild(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.rcm-uses"), Text.translatable("oom.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.rcm-uses"), Text.translatable("omm.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
         this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
 
         reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.reverse-scroll"), Text.translatable("omm.config.tooltip.reverse-scroll"), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);

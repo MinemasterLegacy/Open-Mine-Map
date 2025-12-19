@@ -674,7 +674,7 @@ public class OmmMap extends ClickableWidget {
             mapCenterY = mouseHoldY + (mapCenterY - mouseTileY);
         }
 
-        if (followPlayer) {
+        if (followPlayer && PlayerAttributes.positionIsValid()) {
             mapCenterX = UnitConvert.longToMapX(PlayerAttributes.getLongitude(), zoom, tileSize);
             mapCenterY = UnitConvert.latToMapY(PlayerAttributes.getLatitude(), zoom, tileSize);
         }
@@ -742,6 +742,7 @@ public class OmmMap extends ClickableWidget {
         context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
         drawMap(context); //draw the map tiles + background
 
+        //draw waypoints
         if (TileManager.doWaypoints) {
             hoveredWaypoint = null;
             for (Waypoint waypoint : waypoints) {
@@ -789,6 +790,7 @@ public class OmmMap extends ClickableWidget {
             );
         }
 
+        //draw other players
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
             for (BufferedPlayer bufferedPlayer : players) {
                 if (player == null) continue;
@@ -814,11 +816,11 @@ public class OmmMap extends ClickableWidget {
 
         }
 
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF) && self != null) {
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
             if (followPlayer) {
                 drawClientPlayerCentered(context);
             } else {
-                drawBufferedPlayer(context, self);
+                if (self != null) drawBufferedPlayer(context, self);
             }
         }
 

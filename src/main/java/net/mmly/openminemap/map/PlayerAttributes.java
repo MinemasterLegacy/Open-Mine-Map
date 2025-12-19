@@ -36,7 +36,8 @@ public class PlayerAttributes {
                 longitude = c[1];
                 latitude = c[0];
                 altitude = minecraftClient.player.getY();
-                isValidPosition = true;
+                if (!Double.isNaN(longitude) && !Double.isNaN(latitude)) isValidPosition = true;
+                else isValidPosition = false;
             }
             return;
         } catch (CoordinateValueError ignored) {}

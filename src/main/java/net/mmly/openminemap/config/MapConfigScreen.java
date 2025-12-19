@@ -35,6 +35,8 @@ public class MapConfigScreen extends Screen {
     private static Identifier[] saveIdentifiers;
     private static Identifier[] resetConfigIdentifiers;
     private static Window window;
+    private static int windowWidth = 640;
+    private static int windowHeight = 480;
 
     protected MapConfigScreen() {
         super(Text.of("OMM Map Config"));
@@ -91,6 +93,8 @@ public class MapConfigScreen extends Screen {
 
     private void updateScreenDims() {
         window = MinecraftClient.getInstance().getWindow();
+        windowWidth = window.getScaledWidth();
+        windowHeight = window.getScaledHeight();
     }
 
     @Override
@@ -99,7 +103,7 @@ public class MapConfigScreen extends Screen {
 
         if (!HudMap.hudEnabled) HudMap.toggleEnabled();
         if (!HudMap.renderHud) HudMap.toggleRendering();
-        window = MinecraftClient.getInstance().getWindow();
+        updateScreenDims();
 
         saveIdentifiers = new Identifier[] {
                 Identifier.of("openminemap", "buttons/vanilla/default/check.png"),
@@ -161,13 +165,13 @@ public class MapConfigScreen extends Screen {
         compassLeftResize.drawWidget(context);
         compassRightResize.drawWidget(context);
 
-        saveButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10));
+        saveButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10));
         context.drawTexture(saveButton.isHovered() ? saveIdentifiers[1] : saveIdentifiers[0], saveButton.getX(), saveButton.getY(), 0, 0, 20, 20, 20, 20);
 
-        exitButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10 + 24));
+        exitButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 + 24));
         context.drawTexture(exitButton.isHovered() ? exitIdentifiers[1] : exitIdentifiers[0], exitButton.getX(), exitButton.getY(), 0, 0, 20, 20, 20, 20);
 
-        resetConfigButton.setPosition((int) (UnitConvert.pixelToScaledCoords(window.getWidth()) / 2 - 10), (int) (UnitConvert.pixelToScaledCoords(window.getHeight()) / 2 - 10 - 24));
+        resetConfigButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 - 24));
         context.drawTexture(resetConfigButton.isHovered() ? resetConfigIdentifiers[1] : resetConfigIdentifiers[0], resetConfigButton.getX(), resetConfigButton.getY(), 0, 0, 20, 20, 20, 20);
 
 

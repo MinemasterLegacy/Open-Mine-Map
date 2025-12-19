@@ -10,6 +10,7 @@ import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.waypoint.WaypointScreen;
@@ -45,7 +46,7 @@ public class ButtonLayer extends ClickableWidget {
                 FullscreenMapScreen.resetMap();
                 break;
             case ButtonFunction.FOLLOW: //follow
-                FullscreenMapScreen.followPlayer();
+                if (PlayerAttributes.positionIsValid()) FullscreenMapScreen.followPlayer();
                 break;
             case ButtonFunction.CONFIG: //config
                 MinecraftClient.getInstance().setScreen(
@@ -105,7 +106,8 @@ public class ButtonLayer extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
+    @Override
     public boolean isHovered() {
-        return this.isMouseOver(UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getX()), UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getY()));
+        return super.isHovered();
     }
 }

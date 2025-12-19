@@ -374,6 +374,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
 
         updateScreenDims(); //update screen dimension variables in case window has been resized
+        PlayerAttributes.updatePlayerAttributes(mClient);
 
         if (map.mouseIsOutOfBounds()) {
             mouseDisplayLat = "-.-";
@@ -389,6 +390,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         } else {
             playerDisplayLon = "-.-";
             playerDisplayLat = "-.-";
+            map.setFollowPlayer(false);
         }
 
         updateWidgetPositions(textRenderer); //update the positions of button and text field widgets in case window has been resized
@@ -396,8 +398,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMouseZoomStrength(TileManager.mouseZoomStrength);
         map.renderMap(context, null);
-
-        PlayerAttributes.updatePlayerAttributes(mClient);
 
         drawButtons(context);
 

@@ -66,7 +66,7 @@ public class HudMap {
         map.setFollowPlayer(true);
         map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMapZoom(
-                Integer.parseInt(ConfigFile.readParameter(ConfigOptions._HUD_LAST_ZOOM))
+                Double.parseDouble(ConfigFile.readParameter(ConfigOptions._HUD_LAST_ZOOM))
         );
         map.setTextRenderer(MinecraftClient.getInstance().textRenderer);
         map.doPlayerTooltipNames(true);

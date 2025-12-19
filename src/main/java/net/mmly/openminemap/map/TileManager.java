@@ -30,6 +30,7 @@ public class TileManager {
     public static boolean doArtificialZoom;
     public static boolean doReverseScroll;
     public static boolean doWaypoints;
+    public static double mouseZoomStrength;
     public static OverlayVisibility showPlayers;
     public static OverlayVisibility showDirectionIndicators;
     public static int themeColor = 0xFF808080;
@@ -418,6 +419,7 @@ public class TileManager {
 
     public static void initializeConfigParameters() {
         doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
+        mouseZoomStrength = Double.parseDouble(ConfigFile.readParameter(ConfigOptions.ZOOM_STRENGTH));
         doReverseScroll = ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on");
         showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
         showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));

@@ -44,7 +44,7 @@ public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;
     public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
-    public static int tileSize = 128;
+    public int tileSize = 128;
     public final static int WAYPOINTSIZE = 8;
 
     private boolean fieldsInitialized = false;
@@ -67,6 +67,7 @@ public class OmmMap extends ClickableWidget {
     private int renderAreaHeight = 0;
 
     private double zoom = 0;
+    private double mouseZoomStrength;
     private double mapCenterX = 64;
     private double mapCenterY = 64;
     private double playerMapX = 64;
@@ -141,7 +142,7 @@ public class OmmMap extends ClickableWidget {
         this.mapCenterX = x;
         this.mapCenterY = y;
     }
-    public void setMapZoom(int zoom1) {
+    public void setMapZoom(double zoom1) {
         if (zoom > zoom1) {
             zoomOut(zoom - zoom1);
         }
@@ -174,6 +175,9 @@ public class OmmMap extends ClickableWidget {
             maxZoom = TILEMAXZOOM;
             clampZoom();
         }
+    }
+    public void setMouseZoomStrength(double mouseZoomStrength) {
+        this.mouseZoomStrength = mouseZoomStrength;
     }
 
     public void setWidthFromRight(int widthFromX, int minValue) {
@@ -420,53 +424,44 @@ public class OmmMap extends ClickableWidget {
         return mouseIsOutOfBounds;
     }
 
-    public void zoomIn() {
-        zoomIn(1);
+    public void zoomIn(double amount) {
+        zoomIn(amount, false);
     }
-    public void zoomOut() {
-        zoomOut(1);
+    public void zoomOut(double amount) {
+        zoomOut(amount, false);
     }
 
-    public void zoomIn(double amount) {
+    public void zoomIn(double amount, boolean withMouse) {
         if (zoom + amount > maxZoom) amount = maxZoom - zoom; //change the total zoom amount if it is more than the max
         double originalZoom = zoom;
+        if (!followPlayer && withMouse && amount != 0) {
+            mapCenterX -= (mapCenterX - mouseTileX) * ((Math.pow(2, amount) - 1) / Math.pow(2, amount));
+            mapCenterY -= (mapCenterY - mouseTileY) * ((Math.pow(2, amount) - 1) / Math.pow(2, amount));
+        }
         zoom += amount; //change the zoom level
         normalizeZoom(originalZoom); //normalize the zoom level
     }
-    public void zoomOut(double amount) {
+    public void zoomOut(double amount, boolean withMouse) {
         if (zoom - amount < 0) amount = zoom;
         double originalZoom = zoom;
+        if (!followPlayer && withMouse && amount != 0) {
+            mapCenterX += (mapCenterX - mouseTileX) * (Math.pow(2, amount) - 1);
+            mapCenterY += (mapCenterY - mouseTileY) * (Math.pow(2, amount) - 1);
+        }
         zoom -= amount;
         normalizeZoom(originalZoom);
     }
 
-    public void mouseZoomIn() { //TODO
+    public void mouseZoomIn() {
         if (blockZoomProcedure.evaluate()) return;
         updateFields();
-
-        if (zoom >= (doArtificialZoom ? TILEMAXARTIFICIALZOOM : TILEMAXZOOM)) return;
-
-        if (!followPlayer) {
-            //mapCenterX -= (mapCenterX - mouseTileX) / 2;
-            //mapCenterY -= (mapCenterY - mouseTileY) / 2;
-        }
-
-        zoomIn(0.2);
+        zoomIn(mouseZoomStrength, true);
 
     }
-    public void mouseZoomOut() { //TODO
+    public void mouseZoomOut() {
         if (blockZoomProcedure.evaluate()) return;
         updateFields();
-
-        if (zoom <= 0) return;
-
-        if (!followPlayer) {
-           // mapCenterX += (mapCenterX - mouseTileX);
-            //mapCenterY += (mapCenterY - mouseTileY);
-        }
-
-        zoomOut(0.2);
-
+        zoomOut(mouseZoomStrength, true);
     }
 
     private static final double log10of2 = Math.log10(2);
@@ -669,7 +664,7 @@ public class OmmMap extends ClickableWidget {
                 textureHeight
         );
 
-        context.drawBorder(relativeX, relativeY, width, height, 0xFF000000);
+        //context.drawBorder(relativeX, relativeY, width, height, 0xFF000000);
     }
 
     private void updateFields() {
@@ -685,6 +680,7 @@ public class OmmMap extends ClickableWidget {
         }
 
         //update player map position
+        if (!fieldsInitialized) initFields();
         PlayerAttributes.updatePlayerAttributes(client);
         if (!PlayerAttributes.positionIsValid()) {
             playerMapX = -9999;
@@ -698,10 +694,10 @@ public class OmmMap extends ClickableWidget {
             mapCenterX = 0;
         if (mapCenterY < 0) 
             mapCenterY = 0;
-        if (mapCenterX > tileSize * Math.pow(2, zoom))
-            mapCenterX = tileSize * Math.pow(2, zoom);
-        if (mapCenterY > tileSize * Math.pow(2, zoom))
-            mapCenterY = tileSize * Math.pow(2, zoom);
+        if (mapCenterX > tileSize * Math.pow(2, Math.round(zoom)))
+            mapCenterX = tileSize * Math.pow(2, Math.round(zoom));
+        if (mapCenterY > tileSize * Math.pow(2, Math.round(zoom)))
+            mapCenterY = tileSize * Math.pow(2, Math.round(zoom));
 
         mouseTileX = mapCenterX + mouseX - ((double) renderAreaWidth / 2);
         mouseTileY = mapCenterY + mouseY - ((double) renderAreaHeight / 2);
@@ -741,7 +737,6 @@ public class OmmMap extends ClickableWidget {
 
     public void renderMap(DrawContext context, RenderTickCounter renderTickCounter) {
 
-        if (!fieldsInitialized) initFields();
         updateFields();
 
         context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);

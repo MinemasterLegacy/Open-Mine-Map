@@ -29,8 +29,6 @@ public class Waypoint {
     public int color;
 
     //mapxy here refer to the position at the lowest possible zoom level (18)
-    private int mapX;
-    private int mapY;
 
     public Waypoint(String style, double latitude, double longitude, int colorHSV, double angle, String name, boolean pinned, boolean visible) {
         WaypointStyle sty;
@@ -45,20 +43,10 @@ public class Waypoint {
         this.latitude = latitude;
         this.angle = angle;
         this.name = name;
-        this.mapX = (int) UnitConvert.longToMapX(longitude, 18, OmmMap.tileSize);
-        this.mapY = (int) UnitConvert.latToMapY(latitude, 18, OmmMap.tileSize);
         this.pinned = pinned;
         this.visible = visible;
         this.color = colorHSV;
         this.style = style;
-    }
-
-    public int getMapX(double zoom) {
-        return (int) (mapX / Math.pow(2, 18 - zoom));
-    }
-
-    public int getMapY(double zoom) {
-        return (int) (mapY / Math.pow(2, 18 - zoom));
     }
 
     private Identifier getColoredIdentifier(Identifier identifier, int colorHSV) {

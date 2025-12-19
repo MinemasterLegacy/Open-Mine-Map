@@ -122,11 +122,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     static protected void zoomIn() {
-        map.zoomIn(); //TODO add parameters & modifier keys
+        map.zoomIn(1);
     }
 
     static protected void zoomOut() {
-        map.zoomOut(); //TODO add parameters & modifier keys
+        map.zoomOut(1);
     }
 
     static protected void resetMap() {
@@ -394,6 +394,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         updateWidgetPositions(textRenderer); //update the positions of button and text field widgets in case window has been resized
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
+        map.setMouseZoomStrength(TileManager.mouseZoomStrength);
         map.renderMap(context, null);
 
         PlayerAttributes.updatePlayerAttributes(mClient);

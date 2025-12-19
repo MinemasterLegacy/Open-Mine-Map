@@ -96,8 +96,8 @@ class SelectArrow extends ClickableWidget {
         arrowSelected = Identifier.of("openminemap", "arrowselect/"+direction+"selected.png");
         this.direction = direction;
         this.choiceWidget = choiceWidget;
-        if (direction == ArrowDirection.up) setTooltip(Tooltip.of(Text.of("Previous Source")));
-        if (direction == ArrowDirection.down) setTooltip(Tooltip.of(Text.of("Next Source")));
+        if (direction == ArrowDirection.up) setTooltip(Tooltip.of(Text.translatable("omm.config.gui.previous-source")));
+        if (direction == ArrowDirection.down) setTooltip(Tooltip.of(Text.translatable("omm.config.gui.next-source")));
     }
 
     @Override

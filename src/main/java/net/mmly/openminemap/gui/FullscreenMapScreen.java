@@ -312,7 +312,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static void updateWidgetPositions(TextRenderer textRenderer) {
         //if attribution would overlay the coordinate display
         //coordinate sample is meant to simulate the longest possible case so movement doesn't occur when the mouse is moved
-        if (attributionLayer.getWidth() + textRenderer.getWidth("Mouse: -99.99999°, -999.99999°") + 8 > windowScaledWidth) {
+        if (attributionLayer.getWidth() + textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + "-99.99999°, -999.99999°") + 8 > windowScaledWidth) {
             attributionOffset = attributionLayer.getHeight();
         } else {
             attributionOffset = 0;
@@ -323,7 +323,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         int buttonX = shelfX;
         int buttonY = windowScaledHeight - (buttonSize + 20);
 
-        if (textRenderer.getWidth("Player: -99.99999°, -999.99999°") + 8 > shelfX) {
+        if (textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + "-99.99999°, -999.99999°") + 8 > shelfX) {
             buttonY -= attributionOffset != 0 ? 32 : 16;
         }
 
@@ -406,9 +406,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         //draws the Mouse and player coordinates text fields
         context.fill(0, windowScaledHeight - 16 - attributionOffset, 53 + (mouseDisplayLong.length() * 6) + (mouseDisplayLat.length() * 6), windowScaledHeight - attributionOffset, 0x88000000);
-        context.drawText(this.textRenderer, "Mouse: " + mouseDisplayLat + "°, " + mouseDisplayLong + "°", 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, 0xFFFFFFFF, true);
+        context.drawText(this.textRenderer, Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°", 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, 0xFFFFFFFF, true);
         context.fill(0, windowScaledHeight - 32 - attributionOffset, 55 + (playerDisplayLon.length() * 6) + (playerDisplayLat.length() * 6), windowScaledHeight - 16 - attributionOffset, 0x88000000);
-        context.drawText(this.textRenderer, "Player: " + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
+        context.drawText(this.textRenderer, Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
         pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset);
 

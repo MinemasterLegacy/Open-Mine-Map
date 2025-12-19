@@ -36,7 +36,7 @@ public class WaypointParameterWidget extends TextFieldWidget {
             context.drawBorder(getX(), getY(), width, height, 0xFFFF5555);
         }
 
-        String suggestion = type.toString().replace("_", " ").toLowerCase();
+        String suggestion = type.getTranslatedString().replace("_", " ").toLowerCase();
         suggestion = suggestion.substring(0, 1).toUpperCase() + suggestion.substring(1);
 
         if (getText().isBlank()) {

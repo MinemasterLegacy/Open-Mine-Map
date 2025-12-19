@@ -144,7 +144,7 @@ public class WaypointScreen extends Screen {
 
         generateWaypointEntries();
 
-        createWaypointButton = ButtonWidget.builder(Text.of("Create Waypoint"), (buttonWidget) -> {
+        createWaypointButton = ButtonWidget.builder(Text.translatable("omm.waypoints.button.create"), (buttonWidget) -> {
             if (!fieldsAreValid()) return;
             WaypointScreen.createWaypoint(
                     nameField.getText(),
@@ -157,14 +157,14 @@ public class WaypointScreen extends Screen {
         }).build();
         this.addDrawableChild(createWaypointButton);
 
-        saveWaypointButton = ButtonWidget.builder(Text.of("Save Waypoint"), (buttonWidget) -> {
+        saveWaypointButton = ButtonWidget.builder(Text.translatable("omm.waypoints.button.save"), (buttonWidget) -> {
             if (!fieldsAreValid()) return;
             WaypointScreen.saveEditingWaypoint();
             exitEditMode();
         }).build();
         this.addDrawableChild(saveWaypointButton);
 
-        deleteWaypointButton = ButtonWidget.builder(Text.of("Delete Waypoint"), (buttonWidget) -> {
+        deleteWaypointButton = ButtonWidget.builder(Text.translatable("omm.waypoints.button.delete"), (buttonWidget) -> {
             if (!WaypointScreen.instance.inEditMode) return;
             WaypointScreen.deleteEditingWaypoint();
             exitEditMode();
@@ -370,7 +370,7 @@ public class WaypointScreen extends Screen {
         context.drawVerticalLine(midPoint, 0, height, 0xFF808080);
 
         deleteWaypointButton.active = inEditMode;
-        deleteWaypointButton.setTooltip(inEditMode ? Tooltip.of(Text.of("Permanent.")) : null);
+        deleteWaypointButton.setTooltip(inEditMode ? Tooltip.of(Text.translatable("omm.waypoints.delete-tooltip")) : null);
 
         if ((inEditMode && saveWaypointButton.isHovered()) || (!inEditMode && createWaypointButton.isHovered())) {
             if (nameField.valueIsValid() && longitudeWidget.valueIsValid() && latitudeWidget.valueIsValid() && angleWidget.valueIsValid()) {

@@ -37,7 +37,11 @@ public class WaypointEntryWidget extends ClickableWidget {
     private int mx = 0;
     private int my = 0;
 
-    private static final String[] tooltipMessages = new String[] {"Edit Waypoint", "View Waypoint", "Pin Waypoint"};
+    private static final Text[] tooltipMessages = new Text[] {
+            Text.translatable("omm.waypoints.button.edit"),
+            Text.translatable("omm.waypoints.button.view"),
+            Text.translatable("omm.waypoints.button.pin"),
+    };
 
     public void setScroll(int scroll) {
         scrollOffset = scroll;
@@ -89,7 +93,7 @@ public class WaypointEntryWidget extends ClickableWidget {
         for (Identifier i : new Identifier[]{editId, visibleWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
             context.drawTexture(i, getX() + width - 17 - (xMod * 16), getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
             if (mouseIsInArea(getX() + width - 17 - (xMod * 16), getY() + 3, 14, 14)) {
-                setTooltip(Tooltip.of(Text.of(tooltipMessages[xMod])));
+                setTooltip(Tooltip.of(tooltipMessages[xMod]));
                 selection = Selection.getById(xMod + 1);
             }
             xMod++;

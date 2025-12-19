@@ -135,11 +135,15 @@ public class HudMap {
 
         if (Double.isNaN(PlayerAttributes.getLongitude())) {//if the player is out of bounds this will be NaN. all other rendering is skipped due to this
             //draw error message and exit
-            MutableText text = Text.literal("Out Of Bounds").formatted(Formatting.ITALIC);
+            Text text = Text.translatable("omm.hud.out-of-bounds").formatted(Formatting.ITALIC);
             //context.fill(hudMapX + 2, hudMapY + 2, hudMapY + 74, hudMapY + 10, 0xFFFFFFFF);
             context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0, TileManager.themeColor);
             context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0, 0x10000000);
-            context.drawText(MinecraftClient.getInstance().textRenderer, text, map.getRenderAreaWidth() > 73 ? (map.getRenderAreaX() + map.getRenderAreaX2()) / 2 - 37: map.getRenderAreaX(), map.getRenderAreaHeight() > 9 ? (map.getRenderAreaY() + map.getRenderAreaY2()) / 2 - 5 : map.getRenderAreaY(), 0xFFcccccc, true);
+            context.drawText(
+                    MinecraftClient.getInstance().textRenderer, text,
+                    map.getRenderAreaX() + (map.getRenderAreaWidth() / 2) - (MinecraftClient.getInstance().textRenderer.getWidth(text) / 2),
+                    map.getRenderAreaY() + (map.getRenderAreaHeight() / 2) - (MinecraftClient.getInstance().textRenderer.fontHeight / 2),
+                    0xFFcccccc, true);
             return;
         }
 

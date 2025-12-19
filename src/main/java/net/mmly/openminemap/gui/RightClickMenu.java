@@ -59,7 +59,7 @@ public class RightClickMenu extends ClickableWidget {
     };
     private final String[] pinnedWaypointOptions = {
         "",
-        "Teleport To",
+        "Teleport Here",
         "Copy Coordinates",
         "Open In...",
         "Edit Waypoint",
@@ -69,7 +69,7 @@ public class RightClickMenu extends ClickableWidget {
     };
     private final String[] pinnedWaypointOptionsMinusSnap = {
         "",
-        "Teleport To",
+        "Teleport Here",
         "Copy Coordinates",
         "Open In...",
         "Edit Waypoint",

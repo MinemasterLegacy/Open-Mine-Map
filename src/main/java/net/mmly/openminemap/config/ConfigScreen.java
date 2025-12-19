@@ -205,34 +205,34 @@ public class ConfigScreen extends Screen {
         artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.artificial-zoom")));
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
 
-        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.of("Snap Angle"), 0);
+        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.translatable("omm.config.option.snap-angle"), 0);
         snapAngleWidget.setMaxLength(50);
         snapAngleWidget.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
-        snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
+        snapAngleWidget.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")));
         this.addDrawableChild(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("RCM Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.rcm-uses"), Text.translatable("oom.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
         this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
 
-        reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
+        reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.reverse-scroll"), Text.translatable("omm.config.tooltip.reverse-scroll"), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
         this.addDrawableChild(reverseScrollOption.getButtonWidget());
 
-        zoomStrengthWidget = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Zoom Strength"), Text.of("The amount zoom changes for each zoom input"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
+        zoomStrengthWidget = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.zoom-strength"), Text.translatable("omm.config.tooltip.zoom-strength"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
         this.addDrawableChild(zoomStrengthWidget);
 
-        overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("Overlays"), this.textRenderer);
+        overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addDrawableChild(overlayLabel);
 
-        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.players"), Text.of("Show Players on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
+        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.players"), Text.translatable("omm.config.tooltip.players"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
         this.addDrawableChild(playerShowSlider);
 
-        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Directions"), Text.of("Show Direction Indicators on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
+        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.directions"), Text.translatable("omm.config.tooltip.directions"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
         this.addDrawableChild(directionIndicatorShowSlider);
 
-        altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Altitude Shading"),  Text.of("Shade other players white when they are above you and black when they are below you."), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
+        altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.altitude-shading"),  Text.translatable("omm.config.tooltip.altitude-shading"), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
         this.addDrawableChild(altitudeShadingOption.getButtonWidget());
 
-        urlLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("Tile Source"), this.textRenderer);
+        urlLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.tile-source"), this.textRenderer);
         this.addDrawableChild(urlLabel);
 
         /*

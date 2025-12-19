@@ -814,7 +814,7 @@ public class OmmMap extends ClickableWidget {
 
         }
 
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
+        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF) && self != null) {
             if (followPlayer) {
                 drawClientPlayerCentered(context);
             } else {

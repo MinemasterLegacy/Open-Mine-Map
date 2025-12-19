@@ -405,10 +405,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawTexture(toggleHudMapButtonLayer.isHovered() ? showIdentifiers[1][buttonStyle] : showIdentifiers[0][buttonStyle], toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         //draws the Mouse and player coordinates text fields
-        context.fill(0, windowScaledHeight - 16 - attributionOffset, 53 + (mouseDisplayLong.length() * 6) + (mouseDisplayLat.length() * 6), windowScaledHeight - attributionOffset, 0x88000000);
-        context.drawText(this.textRenderer, Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°", 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, 0xFFFFFFFF, true);
-        context.fill(0, windowScaledHeight - 32 - attributionOffset, 55 + (playerDisplayLon.length() * 6) + (playerDisplayLat.length() * 6), windowScaledHeight - 16 - attributionOffset, 0x88000000);
-        context.drawText(this.textRenderer, Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°", 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
+        String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";
+        String playerLabelText = Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°";
+        context.fill(0, windowScaledHeight - 16 - attributionOffset, 8 + textRenderer.getWidth(mouseLabelText), windowScaledHeight - attributionOffset, 0x88000000);
+        context.drawText(this.textRenderer, mouseLabelText, 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, 0xFFFFFFFF, true);
+        context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, 0x88000000);
+        context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
         pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset);
 

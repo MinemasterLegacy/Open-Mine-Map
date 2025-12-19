@@ -123,13 +123,13 @@ public class HudMap {
             OpenMineMapClient.debugMessages.removeFirst();
         }
 
+        if (!initialized) initialize(context); //initialize hudmap if not done already
+
         if ((!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) && !(MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
 
         if (TileManager.themeColor == 0xFF808080) TileManager.loadTopTile();
 
         playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
-
-        if (!initialized) initialize(context); //initialize hudmap if not done already
 
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw
         direction = Direction.calcDymaxionAngleDifference(); //the difference between mc yaw and geo yaw

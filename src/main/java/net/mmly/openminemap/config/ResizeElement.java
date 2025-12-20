@@ -1,14 +1,18 @@
 package net.mmly.openminemap.config;
 
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ResizeDirection;
 import net.mmly.openminemap.enums.ResizePlane;
 import net.mmly.openminemap.hud.HudMap;
 
 public class ResizeElement extends ClickableWidget {
+
+    Identifier texture;
     ResizeDirection direction;
     ResizePlane plane;
     /*
@@ -26,12 +30,22 @@ public class ResizeElement extends ClickableWidget {
     double moveRemainder;
 
     //for parameter direction - up:0 right:1 down:2 left:3
-    public ResizeElement(int x, int y, int width, int height, ResizeDirection direction) {
-        super(x, y, width, height, Text.empty());
+    public ResizeElement(int x, int y, ResizeDirection direction) {
+        super(x, y, 0, 0, Text.empty());
         this.direction = direction;
 
-        if (direction == ResizeDirection.UP_MAP || direction == ResizeDirection.DOWN_MAP) plane = ResizePlane.VERTICAL;
-        else plane = ResizePlane.HORIZONTAL;
+        if (direction == ResizeDirection.UP_MAP || direction == ResizeDirection.DOWN_MAP) {
+            plane = ResizePlane.VERTICAL;
+            texture = Identifier.of("openminemap", "resizevertical.png");
+            setWidth(20);
+            setHeight(7);
+        } else {
+            plane = ResizePlane.HORIZONTAL;
+            texture = Identifier.of("openminemap", "resizehorizontal.png");
+            setWidth(7);
+            setHeight(20);
+        }
+
     }
 
     @Override
@@ -48,19 +62,12 @@ public class ResizeElement extends ClickableWidget {
             switch (direction) {
                 case ResizeDirection.RIGHT_MAP: {
                     int change = (int) (deltaX + moveRemainder);
-                    if (HudMap.hudMapWidth + change < HudMap.MIN_SIZE) HudMap.hudMapWidth = HudMap.MIN_SIZE;
-                    else HudMap.hudMapWidth += change;
+                    HudMap.map.setWidthFromRight(HudMap.map.getRenderAreaWidth() + change, HudMap.MIN_SIZE);
                     MapConfigScreen.updateResizePos();
                     break;
                 } case ResizeDirection.LEFT_MAP: {
                     int change = (int) (deltaX + moveRemainder);
-                    if (HudMap.hudMapWidth - change < HudMap.MIN_SIZE) {
-                        HudMap.hudMapX = HudMap.hudMapX2 - HudMap.MIN_SIZE;
-                        HudMap.hudMapWidth = HudMap.MIN_SIZE;
-                    } else {
-                        HudMap.hudMapX += change;
-                        HudMap.hudMapWidth -= change;
-                    }
+                    HudMap.map.setWidthFromLeft(HudMap.map.getRenderAreaWidth() - change, HudMap.MIN_SIZE);
                     MapConfigScreen.updateResizePos();
                     break;
                 } case ResizeDirection.LEFT_COMPASS: {
@@ -87,25 +94,22 @@ public class ResizeElement extends ClickableWidget {
             switch (direction) {
                 case ResizeDirection.UP_MAP: {
                     int change = (int) (deltaY + moveRemainder);
-                    if (HudMap.hudMapHeight - change < HudMap.MIN_SIZE) {
-                        HudMap.hudMapY = HudMap.hudMapY2 - HudMap.MIN_SIZE;
-                        HudMap.hudMapHeight = HudMap.MIN_SIZE;
-                    } else {
-                        HudMap.hudMapY += change;
-                        HudMap.hudMapHeight -= change;
-                    }
+                    HudMap.map.setHeightFromTop(HudMap.map.getRenderAreaHeight() - change, HudMap.MIN_SIZE);
                     MapConfigScreen.updateResizePos();
                     break;
                 } case ResizeDirection.DOWN_MAP: {
                     int change = (int) (deltaY + moveRemainder);
-                    if (HudMap.hudMapHeight + change < HudMap.MIN_SIZE) HudMap.hudMapHeight = HudMap.MIN_SIZE;
-                    else HudMap.hudMapHeight += change;
+                    HudMap.map.setHeightFromBottom(HudMap.map.getRenderAreaHeight() + change, HudMap.MIN_SIZE);
                     MapConfigScreen.updateResizePos();
                     break;
                 }
             }
             moveRemainder = (deltaY + moveRemainder) % 1;
         }
+    }
+
+    public void drawWidget(DrawContext context) {
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, texture, getX(), getY(), 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
     }
 
     /*

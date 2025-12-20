@@ -7,6 +7,7 @@ public enum OverlayVisibility {
     NONE;
 
     public static int getNumericIdOf(OverlayVisibility v) {
+        if (v == null) return 0;
         return switch (v) {
             case ALL -> 3;
             case LOCAL -> 2;

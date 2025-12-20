@@ -16,6 +16,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SHOW_PLAYERS,
     SHOW_DIRECTION_INDICATORS,
     ALTITUDE_SHADING,
+    ZOOM_STRENGTH,
 
     _HUD_TOGGLE,
     _HUD_ENABLED,
@@ -43,6 +44,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case SHOW_PLAYERS: return "ShowPlayers";
             case SHOW_DIRECTION_INDICATORS: return "ShowDirectionIndicators";
             case ALTITUDE_SHADING: return "AltitudeShading";
+            case ZOOM_STRENGTH: return "ZoomStrength";
 
             case _HUD_TOGGLE: return "§hudtoggle";
             case _HUD_ENABLED: return "§hudenabled";
@@ -73,6 +75,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case "ShowPlayers": return SHOW_PLAYERS;
             case "ShowDirectionIndicators": return SHOW_DIRECTION_INDICATORS;
             case "AltitudeShading": return ALTITUDE_SHADING;
+            case "ZoomStrength": return ZOOM_STRENGTH;
 
             case "§hudtoggle": return _HUD_TOGGLE;
             case "§hudenabled": return _HUD_ENABLED;

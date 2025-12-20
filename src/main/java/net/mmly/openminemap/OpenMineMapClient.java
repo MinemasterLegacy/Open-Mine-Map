@@ -1,26 +1,33 @@
 package net.mmly.openminemap;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.minecraft.util.Identifier;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.ServerCommandSource;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
+import net.mmly.openminemap.util.WaypointFile;
 
 import java.util.ArrayList;
 
 public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
-
+    public static OmmMap newMapRenderer = new OmmMap(50, 50, 200, 140);
+    public static final String MODVERSION = "1.5.0";
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
 
@@ -38,8 +45,18 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         osmTileRequester.start();
 
         HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, HUD_MAP_LAYER, HudMap::render));
+        HudRenderCallback.EVENT.register(FullscreenMapScreen::render); //TODO
+
+        //ClientLoginConnectionEvents.INIT.register(WaypointFile::setWaypointsOfThisWorld);
+        WaypointFile.load();
+
+        ClientLoginConnectionEvents.INIT.register(TileUrlFile::addApplicableErrors);
+        ClientLoginConnectionEvents.DISCONNECT.register(ConfigFile::writeOnClose);
+        ClientLoginConnectionEvents.INIT.register(HudMap::deinitialize);
 
         TileUrlFile.establishUrls();
+
+        TileManager.initializeConfigParameters();
 
         //Tpll.lonLatToMcCoords(-112.07151142039129, 33.45512716304792);
         //test t = new test();

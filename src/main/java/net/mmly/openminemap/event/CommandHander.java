@@ -57,7 +57,7 @@ public class CommandHander {
 
         String[] coords = context.getArgument("latitude longitude [altitude]", CoordinateValue.class).value.split(" ");
         if (coords.length < 2) {
-            context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered incomplete coordinates.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.incomplete-coordinates").formatted(Formatting.RED).formatted(Formatting.ITALIC));
             return 0;
         }
         String lat = coords[0];
@@ -68,7 +68,7 @@ public class CommandHander {
 
         double[] convertedCoords = UnitConvert.toDecimalDegrees(lat, lon);
         if (convertedCoords == null) {
-            context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered coordinates with invalid formatting.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(Formatting.RED).formatted(Formatting.ITALIC));
             return 0;
         }
         /*
@@ -85,7 +85,7 @@ public class CommandHander {
             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+String.format("%.7f", coordsToTp[0])+" "+altitude+" "+String.format("%.7f", coordsToTp[1]));
             return 1;
         } catch (CoordinateValueError e) {
-            context.getSource().sendFeedback(Text.literal("An error occurred. You many have entered coordinates that are invalid or out of bounds.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.invalid-or-out-of-bounds").formatted(Formatting.RED).formatted(Formatting.ITALIC));
             return 0;
         }
 
@@ -111,20 +111,20 @@ public class CommandHander {
                 }
             }
         } catch (NumberFormatException error) {
-            context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered coordinates with invalid formatting.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(Formatting.RED).formatted(Formatting.ITALIC));
             return 0;
         }
 
         try {
             double[] coordsToTp = Projection.to_geo(xyz[0], xyz[2]);
             if (Double.isNaN(coordsToTp[0])) {
-                context.getSource().sendFeedback(Text.literal("An error occurred. You likely entered coordinates that are out of bounds.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+                context.getSource().sendFeedback(Text.translatable("omm.error.out-of-bounds").formatted(Formatting.RED).formatted(Formatting.ITALIC));
                 return 0;
             }
             player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", coordsToTp[0])+" "+String.format("%.7f", coordsToTp[1])+" "+xyz[1]);
             return 1;
         } catch (CoordinateValueError e) {
-            context.getSource().sendFeedback(Text.literal("An error occurred. You many have entered coordinates that are invalid or out of bounds.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.invalid-or-out-of-bounds").formatted(Formatting.RED).formatted(Formatting.ITALIC));
             return 0;
         }
     }
@@ -144,12 +144,16 @@ public class CommandHander {
                 System.out.println("NullPointerException thrown for /tpllto");
                 return 0;
             } catch (CoordinateValueError e) {
-                context.getSource().sendFeedback(Text.of("Error parsing coordinates; The player you are trying to teleport to may be out of bounds of the projection."));
+                context.getSource().sendFeedback(Text.translatable("omm.error.player-out-of-bounds"));
                 return 0;
             }
         }
 
-        context.getSource().sendFeedback(Text.literal("Could not find player \""+desiredPlayer+"\" within rendered area.").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+        context.getSource().sendFeedback(Text.literal(
+                Text.translatable("omm.error.cannot-find-player-start").getString()
+                    +desiredPlayer+
+                    Text.translatable("omm.error.cannot-find-player-end").getString()
+        ).formatted(Formatting.RED).formatted(Formatting.ITALIC));
 
         return 1;
     }

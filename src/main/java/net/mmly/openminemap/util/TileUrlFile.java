@@ -2,12 +2,18 @@ package net.mmly.openminemap.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.TileUrlErrorType;
 import net.mmly.openminemap.map.TileManager;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,8 +22,11 @@ public class TileUrlFile {
 
     public static boolean loadWasFailed = false;
     public static boolean urlWasReset = false;
-    public static final String osmAttribution = "© {OpenStreetMap Contributors}";
+    public static String osmAttribution;
     public static final String osmAttributionUrl = "https://openstreetmap.org/copyright";
+
+    private static TileUrlErrorType loadError = TileUrlErrorType.NO_ERROR;
+    private static TileUrl errorUrl;
 
     private static TileUrl[] tileUrls;
     private static final TileUrl defaultUrl = new TileUrl(
@@ -48,29 +57,39 @@ public class TileUrlFile {
         }
     }
 
-    static String debugStart = "OpenMineMap Tile Urls";
-    protected static String getDebugMessage(TileUrlErrorType errorType, TileUrl url) {
-        String name;
-        if (url == null) {
-            name = ": ";
-        } else if (url.name == null)  {
-            name = ": ";
-        } else name = " - Error Parsing Tile Source " + url.name + ": ";
-        if (errorType == TileUrlErrorType.NO_ERROR) return null;
-        return debugStart + name + switch (errorType) {
-            case MALFORMED_JSON_FILE -> "tileSources.json is formatted incorrectly.";
-            case NULL_TILE_URL -> "Blank TileUrl detected. This may be due to invalid file formatting.";
-            case NULL_VALUE -> "At least one required field is blank.";
-            case MALFORMED_SOURCE_URL -> "Source Url is not a valid link.";
-            case MALFORMED_ATTRIBUTION_LINK -> "At least one Attribution Link is not a valid link.";
-            case INVALID_SOURCE_URL_BRACKET_PLACEMENT -> "Bracket placement for Source Url is invalid.";
-            case INVALID_ATTRIBUTION_BRACKET_PLACEMENT -> "Bracket placement for Attribution is invalid.";
-            case MISMATCHED_ATTRIBUTION_LINKS -> "Mismatched number of links between Attribution Links list and Attribution string.";
-            case MISSING_X_POSITION_FIELD -> "Source Url is missing an X field.";
-            case MISSING_Y_POSITION_FIELD -> "Source Url is missing a Y field.";
-            case MISSING_ZOOM_FIELD -> "Source Url is missing a zoom field.";
-            default -> throw new IllegalStateException("Unexpected value: " + errorType);
-        };
+    public static void initOsmAttribution() {
+        osmAttribution = Text.translatable("omm.osm-attribution").getString();
+    }
+
+    private static void setError(TileUrlErrorType errorType, TileUrl url) {
+        loadError = errorType;
+        errorUrl = url;
+    }
+
+    public static void addApplicableErrors(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
+        Text debugStart = Text.translatable("omm.error.tile-url.start");
+        if (loadError != TileUrlErrorType.NO_ERROR) {
+            String name;
+            if (errorUrl == null) {
+                name = ": ";
+            } else if (errorUrl.name == null)  {
+                name = ": ";
+            } else name = " - Error Parsing Tile Source " + errorUrl.name + ": ";
+            OpenMineMapClient.debugMessages.add(debugStart.getString() + name + switch (loadError) {
+                case MALFORMED_JSON_FILE -> Text.translatable("omm.error.tile-source-json-formatting").getString();
+                case NULL_TILE_URL -> Text.translatable("omm.error.blank-tile-url").getString();
+                case NULL_VALUE -> Text.translatable("omm.error.blank-field").getString();
+                case MALFORMED_SOURCE_URL -> Text.translatable("omm.error.source-link-invalid").getString();
+                case MALFORMED_ATTRIBUTION_LINK -> Text.translatable("omm.error.attribution-link-invalid").getString();
+                case INVALID_SOURCE_URL_BRACKET_PLACEMENT -> Text.translatable("omm.error.source-bracket-placement").getString();
+                case INVALID_ATTRIBUTION_BRACKET_PLACEMENT -> Text.translatable("omm.error.attribution-bracket-placement").getString();
+                case MISMATCHED_ATTRIBUTION_LINKS -> Text.translatable("omm.error.link-number-mismatch").getString();
+                case MISSING_X_POSITION_FIELD -> Text.translatable("omm.error.field-missing-x").getString();
+                case MISSING_Y_POSITION_FIELD -> Text.translatable("omm.error.field-missing-y").getString();
+                case MISSING_ZOOM_FIELD -> Text.translatable("omm.error.field-missing-zoom").getString();
+                default -> throw new IllegalStateException("Unexpected value: " + loadError);
+            });
+        }
     }
 
     public static void establishUrls() {
@@ -84,25 +103,12 @@ public class TileUrlFile {
             try {
                 tileUrlGroup = gson.fromJson(reader, TileUrlGroup.class);
             } catch (JsonSyntaxException e) {
-                OpenMineMapClient.debugMessages.add(getDebugMessage(TileUrlErrorType.MALFORMED_JSON_FILE, null));
+                setError(TileUrlErrorType.MALFORMED_JSON_FILE, null);
                 throw new TileUrlFileFormatException();
             }
-            /*
-            System.out.println(defaultUrl.name);
-            System.out.println(defaultUrl.source_url);
-            System.out.println(defaultUrl.attribution);
-            System.out.println(Arrays.toString(defaultUrl.attribution_links));
 
-            for (TileUrl tileUrl : tileUrlGroup.sources) {
-                System.out.println(tileUrl.name);
-                System.out.println(tileUrl.source_url);
-                System.out.println(tileUrl.attribution);
-                System.out.println(Arrays.toString(tileUrl.attribution_links));
-            }
-
-             */
             if (tileUrlGroup == null) {
-                OpenMineMapClient.debugMessages.add(getDebugMessage(TileUrlErrorType.NULL_TILE_URL, null));
+                setError(TileUrlErrorType.NULL_TILE_URL, null);
                 throw new TileUrlFileFormatException();
             }
 
@@ -112,7 +118,7 @@ public class TileUrlFile {
             for (int i = 0; i < tileUrlGroup.sources.length; i++) {
                 isValid = checkValidityOf(tileUrlGroup.sources[i]);
                 if (isValid == TileUrlErrorType.NO_ERROR) tileUrls[i + 1] = tileUrlGroup.sources[i];
-                else OpenMineMapClient.debugMessages.add(getDebugMessage(isValid, tileUrlGroup.sources[i]));
+                else setError(isValid, tileUrlGroup.sources[i]);
             }
 
             String setUrl = ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL);

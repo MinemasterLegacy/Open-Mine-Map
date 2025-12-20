@@ -10,8 +10,9 @@ import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.waypoint.WaypointScreen;
 
 public class ButtonLayer extends ClickableWidget {
 
@@ -44,7 +45,7 @@ public class ButtonLayer extends ClickableWidget {
                 FullscreenMapScreen.resetMap();
                 break;
             case ButtonFunction.FOLLOW: //follow
-                FullscreenMapScreen.followPlayer();
+                if (PlayerAttributes.positionIsValid()) FullscreenMapScreen.followPlayer();
                 break;
             case ButtonFunction.CONFIG: //config
                 MinecraftClient.getInstance().setScreen(
@@ -68,7 +69,9 @@ public class ButtonLayer extends ClickableWidget {
                 MinecraftClient.getInstance().currentScreen.close();
                 break;
             case ButtonFunction.WAYPOINTS:
-                //waypoints
+                MinecraftClient.getInstance().setScreen(
+                        new WaypointScreen()
+                );
                 break;
             case ButtonFunction.CHECKMARK:
                 if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {
@@ -85,10 +88,12 @@ public class ButtonLayer extends ClickableWidget {
                 MinecraftClient.getInstance().setScreen(null);
                 break;
             case ButtonFunction.RESET_CONFIG:
-                HudMap.hudMapX = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_X));
-                HudMap.hudMapY = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_Y));
-                HudMap.hudMapWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_WIDTH));
-                HudMap.hudMapHeight = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_HEIGHT));
+                HudMap.map.setRenderPositionAndSize(
+                        Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_X)),
+                        Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_Y)),
+                        Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_WIDTH)),
+                        Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_HEIGHT))
+                );
                 HudMap.hudCompassX = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_X));
                 HudMap.hudCompassY = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_Y));
                 HudMap.hudCompassWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_WIDTH));
@@ -100,7 +105,8 @@ public class ButtonLayer extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
+    @Override
     public boolean isHovered() {
-        return this.isMouseOver(UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getX()), UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getY()));
+        return super.isHovered();
     }
 }

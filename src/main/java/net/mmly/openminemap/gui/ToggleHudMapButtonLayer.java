@@ -32,7 +32,13 @@ public class ToggleHudMapButtonLayer extends ClickableWidget {
     }
 
     private void setOwnTooltip() {
-        this.setTooltip(Tooltip.of(Text.of("Toggle Hud Elements\nDominant over the toggle keybind\nCurrently "+(Boolean.toString(HudMap.hudEnabled).equals("true") ? "Enabled" : "Disabled"))));
+        this.setTooltip(Tooltip.of(Text.of(
+          Text.translatable("omm.fullscreen.hud-toggle.name").getString() +
+                "\n" +
+                Text.translatable("omm.fullscreen.hud-toggle.description").getString() +
+                "\n" +
+                (HudMap.hudEnabled ? Text.translatable("omm.fullscreen.hud-toggle.enabled").getString() : Text.translatable("omm.fullscreen.hud-toggle.disabled").getString())
+        )));
     }
 
     public boolean isHovered() {

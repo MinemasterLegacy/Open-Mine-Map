@@ -15,23 +15,28 @@ public class RepositionElement extends ClickableWidget {
     public RepositionElement(RepositionType type) {
         super(0, 0, 0, 0, Text.empty());
         this.type = type; //0 is for map, 1 is for compass
-        if (type == RepositionType.MAP) {
-            this.setDimensionsAndPosition(HudMap.hudMapWidth, HudMap.hudMapHeight, HudMap.hudMapX, HudMap.hudMapY);
-        } else if (type == RepositionType.COMPASS) {
-            this.setDimensionsAndPosition(HudMap.hudCompassWidth, 16, HudMap.hudCompassX, HudMap.hudCompassY);
-        }
+        updateDimensionsAndPosition();
     }
 
     double subDeltaX = 0;
     double subDeltaY = 0;
 
-    @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    private void updateDimensionsAndPosition() {
         if (type == RepositionType.MAP) {
-            this.setDimensionsAndPosition(HudMap.hudMapWidth, HudMap.hudMapHeight, HudMap.hudMapX, HudMap.hudMapY);
+            this.setDimensionsAndPosition(
+                    HudMap.map.getRenderAreaWidth(),
+                    HudMap.map.getRenderAreaHeight(),
+                    HudMap.map.getRenderAreaX(),
+                    HudMap.map.getRenderAreaY()
+            );
         } else if (type == RepositionType.COMPASS) {
             this.setDimensionsAndPosition(HudMap.hudCompassWidth, 16, HudMap.hudCompassX, HudMap.hudCompassY);
         }
+    }
+
+    @Override
+    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        updateDimensionsAndPosition();
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x00000000);
     }
 
@@ -43,8 +48,11 @@ public class RepositionElement extends ClickableWidget {
         subDeltaX += offsetX;
         subDeltaY += offsetY;
         if (type == RepositionType.MAP) {
-            HudMap.hudMapX += (int) subDeltaX;
-            HudMap.hudMapY += (int) subDeltaY;
+            HudMap.map.setPosition(
+                    HudMap.map.getRenderAreaX() + (int) subDeltaX,
+                    HudMap.map.getRenderAreaY() + (int) subDeltaY
+
+            );
         } else if (type == RepositionType.COMPASS) {
             HudMap.hudCompassX += (int) subDeltaX;
             HudMap.hudCompassY += (int) subDeltaY;

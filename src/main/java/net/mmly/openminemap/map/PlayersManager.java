@@ -21,6 +21,7 @@ public class PlayersManager {
 
     //MinecraftClient.getInstance().world.getPlayers()
     public static List<PlayerEntity> getNearPlayers() {
+        updatePlayerSkinList();
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<PlayerEntity> l = MinecraftClient.getInstance().world.getEntitiesByType(EntityType.PLAYER, new Box(
                 player.getBlockX() + 128,

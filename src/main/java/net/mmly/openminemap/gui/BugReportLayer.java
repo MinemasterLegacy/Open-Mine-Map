@@ -5,6 +5,7 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -26,12 +27,14 @@ public class BugReportLayer extends ClickableWidget {
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
-        context.fill(windowScaledWidth - 70, windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
+        MutableText text = Text.translatable("omm.fullscreen.report-bugs");
+        int textWidth = textRenderer.getWidth(text);
+        context.fill(windowScaledWidth - (textWidth + 10), windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
         context.drawText(textRenderer,
                 isHovered() ?
-                        Text.literal("Report Bugs").formatted(Formatting.UNDERLINE) :
-                        Text.literal("Report Bugs"),
-                windowScaledWidth - 65,
+                        text.formatted(Formatting.UNDERLINE) :
+                        text,
+                windowScaledWidth - (textWidth + 5),
                 windowScaledHeight + 7 - textRenderer.fontHeight - 10 - 16,
                 0xFF0B9207,
                 true);

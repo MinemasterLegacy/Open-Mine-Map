@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.*;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMap;
@@ -16,13 +16,13 @@ import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyInputHandler {
-    public static final KeyBinding.Category KEY_CATEGORY_OPENMINEMAP = KeyBinding.Category.create(Identifier.of("openminemap", "keycategory")); //"key.category.osmMap.osmMapCategory";
-    public static final String KEY_FULLSCREEN_OSM_MAP = "Open Fullscreen Map"; //"key.osmMap.fullscreenOsmMap";
-    public static final String KEY_ZOOMIN_HUD_OSM_MAP = "Zoom In (HUD)";
-    public static final String KEY_ZOOMOUT_HUD_OSM_MAP = "Zoom Out (HUD)";
-    public static final String KEY_TOGGLE_HUD_OSM_MAP = "Toggle Map (HUD)";
-    public static final String KEY_COPY_COORDINATES = "Copy Coordinates to Clipboard";
-    public static final String KEY_SNAP_ANGLE = "Snap to Angle";
+    public static final KeyBinding.Category KEY_CATEGORY_OPENMINEMAP = KeyBinding.Category.create(Identifier.of("openminemap", "omm.category.openminemap")); //"key.category.osmMap.osmMapCategory";
+    public static final String KEY_FULLSCREEN_OSM_MAP = "omm.key.open-fullscreen-map"; //"key.osmMap.fullscreenOsmMap";
+    public static final String KEY_ZOOMIN_HUD_OSM_MAP = "omm.key.zoom-in";
+    public static final String KEY_ZOOMOUT_HUD_OSM_MAP = "omm.key.zoom-out";
+    public static final String KEY_TOGGLE_HUD_OSM_MAP = "omm.key.toggle-map";
+    public static final String KEY_COPY_COORDINATES = "omm.key.copy-coordinates";
+    public static final String KEY_SNAP_ANGLE = "omm.key.snap-angle";
 
     //objects for all custom keybindings
     private static KeyBinding openFullscreenOsmMapKey;
@@ -116,12 +116,16 @@ public class KeyInputHandler {
     }
 
     public static void snapToAngle() {
+        snapToAngle(HudMap.snapAngle);
+    }
+
+    public static void snapToAngle(double angle) {
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
         PlayerAttributes.updatePlayerAttributes(minecraftClient);
         //int cardinalDirection = minecraftClient.player.getFacing().getHorizontal();//0 is south, 1 is west, 2 is north, 3 is east
         double facing = (Math.round(PlayerAttributes.yaw));
         facing += (360 * (facing < 0 ? 1 : 0));
-        double snapAngle = -HudMap.snapAngle; //range: [0, 90]
+        double snapAngle = -angle; //range: [0, 90]
         //System.out.println(snapAngle);
         while (Math.abs(facing - snapAngle) >=45 && snapAngle <= 360) {
             snapAngle += 90;
@@ -129,12 +133,12 @@ public class KeyInputHandler {
 
         //System.out.println(snapAngle);
         if (minecraftClient.player == null) {
-            minecraftClient.player.sendMessage(Text.literal("An error occurred.")
+            minecraftClient.player.sendMessage(Text.translatable("omm.key.execute.error.snap-angle")
                     .formatted(Formatting.RED)
                     .formatted(Formatting.ITALIC), false);
         } else {
             minecraftClient.player.setYaw((float) snapAngle);
-            minecraftClient.player.sendMessage(Text.literal("Snap!")
+            minecraftClient.player.sendMessage(Text.translatable("omm.key.execute.snap-angle")
                     .formatted(Formatting.GRAY)
                     .formatted(Formatting.ITALIC), false);
         }
@@ -155,20 +159,20 @@ public class KeyInputHandler {
                             .formatted(Formatting.BOLD), false);
                     stopIt = 0;
                 } else {
-                    minecraftClient.player.sendMessage(Text.literal("Seems like you're outside the bounds of the projection. Please re-enter into reality and try again.")
+                    minecraftClient.player.sendMessage(Text.translatable("omm.key.execute.error.out-of-bounds")
                             .formatted(Formatting.GRAY)
                             .formatted(Formatting.ITALIC), false);
                 }
 
             } else {
                 MinecraftClient.getInstance().keyboard.setClipboard(UnitConvert.floorToPlace(PlayerAttributes.latitude, 7) + " " + UnitConvert.floorToPlace(PlayerAttributes.longitude, 7));
-                minecraftClient.player.sendMessage(Text.literal("Coordinates copied to clipboard")
+                minecraftClient.player.sendMessage(Text.translatable("omm.key.execute.copy-coordinates")
                         .formatted(Formatting.GRAY)
                         .formatted(Formatting.ITALIC), false);
             }
         } catch (Exception e) {
             try {
-                minecraftClient.player.sendMessage(Text.literal("There was an error while doing that. Most likely a skill issue though.")
+                minecraftClient.player.sendMessage(Text.translatable("omm.key.execute.error.copy-coordinates")
                         .formatted(Formatting.RED)
                         //.formatted(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/say e"))));
                         .formatted(Formatting.ITALIC), false);

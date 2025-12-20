@@ -21,6 +21,7 @@ public class PlayersManager {
 
     //MinecraftClient.getInstance().world.getPlayers()
     public static List<PlayerEntity> getNearPlayers() {
+        updatePlayerSkinList();
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<PlayerEntity> l = MinecraftClient.getInstance().world.getEntitiesByType(EntityType.PLAYER, new Box(
                 player.getBlockX() + 128,
@@ -33,7 +34,7 @@ public class PlayersManager {
         return l;
     }
 
-    public static void updatePlayerSkinList() {
+    private static void updatePlayerSkinList() {
         Collection<PlayerListEntry> pCollection = MinecraftClient.getInstance().player.networkHandler.getPlayerList(); //im pretty sure this doesn't send network requests :pray:
         List<PlayerListEntry> pList = pCollection.stream().toList();
         HashMap<UUID, Identifier> map = new HashMap<>();

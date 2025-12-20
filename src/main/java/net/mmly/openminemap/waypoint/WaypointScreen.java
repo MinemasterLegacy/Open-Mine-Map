@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Supplier;
 
 public class WaypointScreen extends Screen {
 
@@ -431,7 +432,7 @@ public class WaypointScreen extends Screen {
             NativeImage nImage = NativeImage.read(is);
 
             Identifier wayIdent = Identifier.of("openminemap", "waypoint-s-shaded-"+pathInt);
-            MinecraftClient.getInstance().getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(nImage));
+            MinecraftClient.getInstance().getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(new nameSupplier(), nImage));
             pathInt++;
             context.drawTexture(RenderLayer::getGuiTextured, wayIdent, x, y, 0, 0, width, height, width, height);
 
@@ -482,5 +483,12 @@ public class WaypointScreen extends Screen {
                 new FullscreenMapScreen()
         );
         WaypointFile.save();
+    }
+}
+
+class nameSupplier implements Supplier<String> {
+    @Override
+    public String get() {
+        return "osmTileName";
     }
 }

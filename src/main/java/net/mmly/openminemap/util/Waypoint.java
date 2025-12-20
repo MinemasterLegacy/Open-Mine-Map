@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Supplier;
 
 public class Waypoint {
 
@@ -66,7 +67,7 @@ public class Waypoint {
             NativeImage nImage = NativeImage.read(is);
 
             Identifier wayIdent = Identifier.of("openminemap", "waypoint-shaded-"+ pathInt);
-            client.getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(nImage));
+            client.getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(new nameSupplier(), nImage));
             pathInt++;
 
             is.close();
@@ -79,5 +80,12 @@ public class Waypoint {
             return identifier;
         }
 
+    }
+}
+
+class nameSupplier implements Supplier<String> {
+    @Override
+    public String get() {
+        return "osmTileName";
     }
 }

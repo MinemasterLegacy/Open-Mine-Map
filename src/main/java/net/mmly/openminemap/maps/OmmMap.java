@@ -7,6 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.Window;
@@ -529,8 +530,8 @@ public class OmmMap extends ClickableWidget {
 
         //context.fill(relativeX, relativeY, relativeX + 8, relativeY + 8, 0xFF000000);
 
-        context.drawTexture(bufferedPlayer.texture, relativeX, relativeY, width, height, u, v, regionWidth, regionHeight, 64, 64);
-        context.drawTexture(bufferedPlayer.texture, relativeX, relativeY, width, height, u + 32, v, regionWidth, regionHeight, 64, 64);
+        context.drawTexture(RenderLayer::getGuiTextured, bufferedPlayer.texture, relativeX, relativeY, u, v, width, height, regionWidth, regionHeight, 64, 64);
+        context.drawTexture(RenderLayer::getGuiTextured, bufferedPlayer.texture, relativeX, relativeY, u + 32, v, width, height, regionWidth, regionHeight, 64, 64);
 
         if (tooltipPlayerNames && mouseX >= relativeX && mouseY >= relativeY && mouseX < relativeX + width && mouseY < relativeY + height) {
             hoveredPlayerX = relativeX;
@@ -641,13 +642,14 @@ public class OmmMap extends ClickableWidget {
         int height = tileSize;
 
         context.drawTexture(
+                RenderLayer::getGuiTextured,
                 tile.identifier,
                 relativeX,
                 relativeY,
-                width,
-                height,
                 u,
                 v,
+                width,
+                height,
                 regionWidth,
                 regionHeight,
                 textureWidth,
@@ -697,6 +699,7 @@ public class OmmMap extends ClickableWidget {
 
     private void drawClientPlayerCentered(DrawContext context) {
         context.drawTexture(
+                RenderLayer::getGuiTextured,
                 PlayerAttributes.getIdentifier(),
                 renderAreaX + (renderAreaWidth / 2) - 4,
                 renderAreaY + (renderAreaHeight / 2) - 4,
@@ -706,11 +709,12 @@ public class OmmMap extends ClickableWidget {
                 64, 64
         );
         context.drawTexture(
+                RenderLayer::getGuiTextured,
                 PlayerAttributes.getIdentifier(),
                 renderAreaX + (renderAreaWidth / 2) - 4,
                 renderAreaY + (renderAreaHeight / 2) - 4,
-                8, 8,
                 40, 8,
+                8, 8,
                 8, 8,
                 64, 64
         );
@@ -748,13 +752,14 @@ public class OmmMap extends ClickableWidget {
             }
 
             context.drawTexture(
+                    RenderLayer::getGuiTextured,
                     waypoint.identifier,
                     x,
                     y,
-                    WAYPOINTSIZE,
-                    WAYPOINTSIZE,
                     0,
                     0,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE,
                     WAYPOINTSIZE,
                     WAYPOINTSIZE,
                     WAYPOINTSIZE,

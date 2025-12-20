@@ -30,6 +30,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
     public static final String MODVERSION = "1.5.0";
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
+    private static final Identifier HUD_MAP_LAYER_FS = Identifier.of("openminemap", "hud-example-layer-fs");
 
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
@@ -45,7 +46,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         osmTileRequester.start();
 
         HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, HUD_MAP_LAYER, HudMap::render));
-        HudRenderCallback.EVENT.register(FullscreenMapScreen::render); //TODO
+        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, HUD_MAP_LAYER_FS, FullscreenMapScreen::render));
 
         //ClientLoginConnectionEvents.INIT.register(WaypointFile::setWaypointsOfThisWorld);
         WaypointFile.load();

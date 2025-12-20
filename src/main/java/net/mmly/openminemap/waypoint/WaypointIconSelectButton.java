@@ -3,6 +3,7 @@ package net.mmly.openminemap.waypoint;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -21,9 +22,9 @@ public class WaypointIconSelectButton extends ClickableWidget {
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         if (isHovered()) {
-            context.drawTexture(Identifier.of("openminemap", "arrowselect/"+type+"selected.png"), getX(), getY(), 0, 0, width, height, 7, 11);
+            context.drawTexture(RenderLayer::getGuiTextured, Identifier.of("openminemap", "arrowselect/"+type+"selected.png"), getX(), getY(), 0, 0, width, height, 7, 11);
         } else {
-            context.drawTexture(Identifier.of("openminemap", "arrowselect/"+type+".png"), getX(), getY(), 0, 0, width, height, 7, 11);
+            context.drawTexture(RenderLayer::getGuiTextured, Identifier.of("openminemap", "arrowselect/"+type+".png"), getX(), getY(), 0, 0, width, height, 7, 11);
         }
     }
 

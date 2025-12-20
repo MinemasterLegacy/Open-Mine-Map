@@ -4,6 +4,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.Waypoint;
@@ -58,7 +59,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
         int y = getY();
         for (Waypoint waypoint : pinnedWaypoints) {
-            context.drawTexture(waypoint.identifier, getX() + margin, getY() + margin + y, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
+            context.drawTexture(RenderLayer::getGuiTextured, waypoint.identifier, getX() + margin, getY() + margin + y, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
             y += waypointHitboxSize;
         }
     }

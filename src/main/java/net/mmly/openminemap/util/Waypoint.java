@@ -25,6 +25,7 @@ public class Waypoint {
     public boolean pinned;
     public boolean visible;
     public int color;
+    private static int pathInt = 0;
 
     //mapxy here refer to the position at the lowest possible zoom level (18)
 
@@ -64,7 +65,9 @@ public class Waypoint {
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             NativeImage nImage = NativeImage.read(is);
 
-            Identifier wayIdent = client.getTextureManager().registerDynamicTexture("osmwaypoint", new NativeImageBackedTexture(nImage));
+            Identifier wayIdent = Identifier.of("openminemap", "waypoint-shaded-"+ pathInt);
+            client.getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(nImage));
+            pathInt++;
 
             is.close();
             //nImage.close();

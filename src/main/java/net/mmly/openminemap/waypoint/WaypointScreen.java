@@ -5,6 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
@@ -27,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class WaypointScreen extends Screen {
+
+    private static int pathInt = 0;
 
     private ColorSliderWidget hueSlider;
     private ColorSliderWidget saturationSlider;
@@ -363,6 +366,12 @@ public class WaypointScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
+        while (pathInt > -1) {
+            MinecraftClient.getInstance().getTextureManager().destroyTexture(Identifier.of("openminemap", "waypoint-s-shaded-"+pathInt));
+            pathInt--;
+        }
+        pathInt = 0;
+
         updateWidgetPositions();
 
         context.drawVerticalLine(midPoint, 0, height, 0xFF808080);
@@ -421,16 +430,17 @@ public class WaypointScreen extends Screen {
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             NativeImage nImage = NativeImage.read(is);
 
-            Identifier wayIdent = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("osmwaypoint", new NativeImageBackedTexture(nImage));
-            context.drawTexture(wayIdent, x, y, 0, 0, width, height, width, height);
-            MinecraftClient.getInstance().getTextureManager().destroyTexture(wayIdent);
+            Identifier wayIdent = Identifier.of("openminemap", "waypoint-s-shaded-"+pathInt);
+            MinecraftClient.getInstance().getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(nImage));
+            pathInt++;
+            context.drawTexture(RenderLayer::getGuiTextured, wayIdent, x, y, 0, 0, width, height, width, height);
 
             is.close();
             nImage.close();
             os.close();
 
         } catch (IOException | IllegalArgumentException e) {
-            context.drawTexture(identifier, x, y, 0, 0, width, height, width, height);
+            context.drawTexture(RenderLayer::getGuiTextured, identifier, x, y, 0, 0, width, height, width, height);
         }
     }
 

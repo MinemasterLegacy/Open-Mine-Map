@@ -21,7 +21,7 @@ public class ChoiceButtonWidget extends ButtonWidget {
         this.configOption = configOption;
         selection = getSelectedOption();
 
-        buttonWidget = ButtonWidget.builder(Text.of(message.getString() + ": " + this.options[selection]),
+        buttonWidget = ButtonWidget.builder(Text.of(message.getString() + ": " + getTranslatedOption(this.options[selection])),
             this::cycleOption
         ).dimensions(x, y, 120, 20).build();
         buttonWidget.setTooltip(Tooltip.of(tooltip));
@@ -35,10 +35,15 @@ public class ChoiceButtonWidget extends ButtonWidget {
         return 0;
     }
 
+    private static String getTranslatedOption(String option) {
+        if (option.contains("/")) option = option.substring(1);
+        return Text.translatable("omm.config.state."+(option.toLowerCase())).getString();
+    }
+
     private void cycleOption(ButtonWidget buttonWidget) {
         selection++;
         if (selection > options.length - 1) selection = 0;
-        buttonWidget.setMessage(Text.of(message.getString() + ": " + options[selection]));
+        buttonWidget.setMessage(Text.of(message.getString() + ": " + getTranslatedOption(options[selection])));
     }
 
     protected ButtonWidget getButtonWidget() {

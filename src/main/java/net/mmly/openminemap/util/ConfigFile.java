@@ -1,5 +1,7 @@
 package net.mmly.openminemap.util;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
 
@@ -27,6 +29,7 @@ public class ConfigFile {
             "local", //ShowPlayers
             "local", //ShowDirectionIndicators
             "on", //AltitudeShading
+            "0.4", //ZoomStrength
 
             "true", //hudtoggle
             "true", //hudenabled
@@ -82,6 +85,10 @@ public class ConfigFile {
         } else {
             return value;
         }
+    }
+
+    public static void writeOnClose(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
+        writeToFile();
     }
 
     public static boolean writeToFile() {

@@ -368,7 +368,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 mClient.setScreen(new ChatScreen(""));
                 map.setDraggable(false);
                 hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
-                MinecraftClient.getInstance().options.hudHidden = true;
+                MinecraftClient.getInstance().options.hudHidden = false;
             }
             chatToBeOpened = false;
         }

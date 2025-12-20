@@ -16,7 +16,14 @@ public class OpenMineMapDataGenerator implements DataGeneratorEntrypoint {
         pack.addProvider(OmmTraditionalTaiwaneseChineseLanguageProvider::new);
         pack.addProvider(OmmTraditionalHongKongChineseLanguageProvider::new);
         pack.addProvider(OmmSimplifiedChineseLanguageProvider::new);
-	}
+        pack.addProvider(OmmArgentinianSpanishLanguageProvider::new);
+        pack.addProvider(OmmChileanSpanishLanguageProvider::new);
+        pack.addProvider(OmmEcuadorianSpanishLanguageProvider::new);
+        pack.addProvider(OmmEuropeanSpanishLanguageProvider::new);
+        pack.addProvider(OmmMexicanSpanishLanguageProvider::new);
+        pack.addProvider(OmmUruguayanSpanishLanguageProvider::new);
+        pack.addProvider(OmmVenezuelanSpanishLanguageProvider::new);
+    }
 }
 
 class OmmEnglishLanguageProvider extends FabricLanguageProvider {
@@ -116,6 +123,136 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.state.none", "None");
         translationBuilder.add("omm.config.state.self", "Self");
         translationBuilder.add("omm.config.state.local", "Local");
+    }
+}
+
+abstract class OmmSpanishLanguageProvider extends FabricLanguageProvider {
+    protected OmmSpanishLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, languageCode, registryLookup);
+    }
+
+    // ----- SPANISH -----
+    @Override
+    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+        translationBuilder.add("omm.config.option.artificial-zoom", "Zoom artificial");
+        translationBuilder.add("omm.config.tooltip.artificial-zoom", "El zoom artificial permite niveles de zoom más altos de lo normal (+6 niveles) aumentando el tamaño del tile más pequeño.");
+        translationBuilder.add("omm.osm-attribution", "© {Colaboradores de OpenStreetMap}");
+        translationBuilder.add("omm.config.option.configure-hud", "Configurar HUD...");
+        translationBuilder.add("omm.config.tooltip.configure-hud", "Cambiar la posición y tamaño de los elementos del HUD");
+        translationBuilder.add("omm.config.category.general", "General");
+        translationBuilder.add("omm.config.gui.save-and-exit", "Guardar y Salir");
+        translationBuilder.add("omm.config.gui.exit-without-saving", "Salir sin guardar");
+        translationBuilder.add("omm.config.option.players", "Jugadores");
+        translationBuilder.add("omm.config.category.overlays", "Capas");
+        translationBuilder.add("omm.config.tooltip.players", "Mostrar jugadores en todos los mapas");
+        translationBuilder.add("omm.config.tooltip.reverse-scroll", "Invertir la rueda del mouse.");
+        translationBuilder.add("omm.config.option.reverse-scroll", "Invertir desplazamiento");
+        translationBuilder.add("omm.config.option.zoom-strength", "Intensidad del zoom");
+        translationBuilder.add("omm.config.tooltip.zoom-strength", "La cantidad que cambia el zoom con cada acción de acercar o alejar.");
+        translationBuilder.add("omm.config.option.snap-angle", "Ajustar el ángulo");
+        translationBuilder.add("omm.config.tooltip.snap-angle", "Configura un ángulo al que se puede ajustar usando una tecla. Puede ayudar a crear líneas rectas (usa ángulos de Minecraft).");
+        translationBuilder.add("omm.config.option.rcm-uses", "Usos del RCM");
+        translationBuilder.add("omm.config.tooltip.rcm-uses", "El comando que se utilizará para teletransportarse al utilizar el menú de clic derecho en pantalla completa.");
+        translationBuilder.add("omm.config.option.directions", "Direcciones");
+        translationBuilder.add("omm.config.tooltip.directions", "Mostrar indicadores de dirección en todos los mapas");
+        translationBuilder.add("omm.config.option.altitude-shading", "Sombreado de altitud");
+        translationBuilder.add("omm.config.tooltip.altitude-shading", "Sombrea a otros jugadores de blanco cuando están por encima de ti y de negro cuando están por debajo.");
+        translationBuilder.add("omm.config.category.tile-source", "Fuente de mapas");
+        translationBuilder.add("omm.fullscreen.mouse-coordinates-label", "Mouse: ");
+        translationBuilder.add("omm.fullscreen.player-coordinates-label", "Jugador: ");
+        translationBuilder.add("omm.config.gui.previous-source", "Mapa anterior");
+        translationBuilder.add("omm.config.gui.next-source", "Siguiente mapa");
+        translationBuilder.add("omm.config.gui.reset-to-default", "Restablecer valores predeterminados");
+        translationBuilder.add("omm.waypoints.delete-tooltip", "Permanente");
+        translationBuilder.add("omm.text.name", "Nombre");
+        translationBuilder.add("omm.text.latitude", "Latitud");
+        translationBuilder.add("omm.text.longitude", "Longitud");
+        translationBuilder.add("omm.waypoints.button.create", "Crear un Waypoint");
+        translationBuilder.add("omm.waypoints.button.save", "Guardar Waypoint");
+        translationBuilder.add("omm.waypoints.button.delete", "Eliminar Waypoint");
+        translationBuilder.add("omm.waypoints.button.edit", "Editar Waypoint");
+        translationBuilder.add("omm.waypoints.button.view", "Ver Waypoint");
+        translationBuilder.add("omm.waypoints.button.pin", "Fijar Waypoint");
+        translationBuilder.add("omm.fullscreen.hud-toggle.name", "Alternar elementos del HUD");
+        translationBuilder.add("omm.fullscreen.hud-toggle.description", "Tiene prioridad sobre la tecla de alternar");
+        translationBuilder.add("omm.fullscreen.hud-toggle.enabled", "Actualmente activado");
+        translationBuilder.add("omm.fullscreen.hud-toggle.disabled", "Actualmente desactivado");
+        translationBuilder.add("omm.hud.out-of-bounds", "Fuera del límite");
+        translationBuilder.add("omm.error.tile-url.start", "OpenMineMap Tile Urls");
+        translationBuilder.add("omm.error.tile-source-json-formatting", "<tileSources.json> no tiene un formato válido.");
+        translationBuilder.add("omm.error.blank-tile-url", "Se detectó una URL de tiles vacía. Esto puede deberse a un formato de archivo inválido.");
+        translationBuilder.add("omm.error.blank-field", "Al menos un campo obligatorio está vacío.");
+        translationBuilder.add("omm.error.source-link-invalid", "La URL de la fuente no es un enlace válido.");
+        translationBuilder.add("omm.error.attribution-link-invalid", "Al menos un enlace de atribución no es válido.");
+        translationBuilder.add("omm.error.source-bracket-placement", "La colocación de corchetes para la URL de la fuente no es válida.");
+        translationBuilder.add("omm.error.attribution-bracket-placement", "La colocación de corchetes para la atribución no es válida.");
+        translationBuilder.add("omm.error.link-number-mismatch", "El número de enlaces no coincide entre la lista de enlaces de atribución y el texto de atribución.");
+        translationBuilder.add("omm.error.field-missing-x", "A la URL de la fuente le falta el campo X.");
+        translationBuilder.add("omm.error.field-missing-y", "A la URL de la fuente le falta el campo Y.");
+        translationBuilder.add("omm.error.field-missing-zoom", "A la URL de la fuente le falta el campo de zoom.");
+        translationBuilder.add("omm.key.open-fullscreen-map", "Abrir mapa en pantalla completa");
+        translationBuilder.add("omm.key.zoom-in", "Acercar (HUD)");
+        translationBuilder.add("omm.key.zoom-out", "Alejar (HUD)");
+        translationBuilder.add("omm.key.toggle-map", "Alternar Mapa (HUD)");
+        translationBuilder.add("omm.key.copy-coordinates", "Copiar Coordenadas al Portapapeles");
+        translationBuilder.add("omm.key.snap-angle", "Ajustar el ángulo");
+        translationBuilder.add("omm.key.execute.error.snap-angle", "Ocurrió un error.");
+        translationBuilder.add("omm.key.execute.snap-angle", "Ajustado!");
+        translationBuilder.add("omm.key.execute.error.out-of-bounds", "Parece que estás fuera de los límites de la proyección. Vuelve a una zona válida e inténtalo de nuevo.");
+        translationBuilder.add("omm.key.execute.copy-coordinates", "Coordenadas copiadas al portapapeles");
+        translationBuilder.add("omm.key.execute.error.copy-coordinates", "Ocurrió un error al realizar la acción");
+        translationBuilder.add("omm.fullscreen.report-bugs", "Reportar Bugs");
+        translationBuilder.add("omm.config.gui.omm-wiki", "OpenMineMap Wiki");
+        translationBuilder.add("omm.error.incomplete-coordinates", "Ocurrió un error. Es probable que hayas ingresado coordenadas incompletas.");
+        translationBuilder.add("omm.error.formatted-coordinates", "Ocurrió un error. Es probable que hayas ingresado coordenadas con un formato inválido.");
+        translationBuilder.add("omm.error.invalid-or-out-of-bounds", "Ocurrió un error. Puede que hayas ingresado coordenadas inválidas o fuera de los límites.");
+        translationBuilder.add("omm.error.out-of-bounds", "Ocurrió un error. Es probable que hayas ingresado coordenadas fuera de los límites.");
+        translationBuilder.add("omm.error.player-out-of-bounds", "Error al procesar las coordenadas; el jugador al que intentas teletransportarte puede estar fuera de los límites de la proyección.");
+        translationBuilder.add("omm.error.cannot-find-player-start", "No se pudo encontrar al jugador ");
+        translationBuilder.add("omm.error.cannot-find-player-end", " dentro del área renderizada.");
+        translationBuilder.add("omm.error.waypoint-property-failiure", "OpenMineMap: Ocurrió un error en el cambio de propiedad del Waypoint");
+        translationBuilder.add("omm.error.waypoint-delete-failed", "OpenMineMap: Ocurrió un error al eliminar el Waypoint");
+        translationBuilder.add("omm.config.state.on", "Activado");
+        translationBuilder.add("omm.config.state.off", "Desactivado");
+        translationBuilder.add("omm.config.state.none", "Ninguno");
+        translationBuilder.add("omm.config.state.self", "Uno mismo");
+        translationBuilder.add("omm.config.state.local", "Local");
+    }
+}
+
+class OmmArgentinianSpanishLanguageProvider extends OmmSpanishLanguageProvider {
+    protected OmmArgentinianSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "es_ar", registryLookup);
+    }
+}
+class OmmChileanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
+    protected OmmChileanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "es_cl", registryLookup);
+    }
+}
+class OmmEcuadorianSpanishLanguageProvider extends OmmSpanishLanguageProvider {
+    protected OmmEcuadorianSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "es_ec", registryLookup);
+    }
+}
+class OmmEuropeanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
+    protected OmmEuropeanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "es_es", registryLookup);
+    }
+}
+class OmmMexicanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
+    protected OmmMexicanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "es_mx", registryLookup);
+    }
+}
+class OmmUruguayanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
+    protected OmmUruguayanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "es_uy", registryLookup);
+    }
+}
+class OmmVenezuelanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
+    protected OmmVenezuelanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "es_ve", registryLookup);
     }
 }
 

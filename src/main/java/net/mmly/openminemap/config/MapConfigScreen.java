@@ -14,7 +14,6 @@ import net.mmly.openminemap.enums.ResizeDirection;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.UnitConvert;
 
 public class MapConfigScreen extends Screen {
 

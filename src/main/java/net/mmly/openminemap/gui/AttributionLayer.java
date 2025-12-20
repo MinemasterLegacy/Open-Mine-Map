@@ -10,9 +10,6 @@ import net.minecraft.util.Formatting;
 import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.UnitConvert;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 import static net.mmly.openminemap.gui.FullscreenMapScreen.windowScaledHeight;
 import static net.mmly.openminemap.gui.FullscreenMapScreen.windowScaledWidth;
 

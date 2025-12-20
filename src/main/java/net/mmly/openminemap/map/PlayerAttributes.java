@@ -2,8 +2,6 @@ package net.mmly.openminemap.map;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
-import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;

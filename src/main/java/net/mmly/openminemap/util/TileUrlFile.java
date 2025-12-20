@@ -4,14 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.TileUrlErrorType;
 import net.mmly.openminemap.map.TileManager;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;

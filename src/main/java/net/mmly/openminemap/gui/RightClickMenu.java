@@ -10,7 +10,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
-import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayersManager;
@@ -23,7 +22,6 @@ import net.mmly.openminemap.util.WaypointFile;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import java.awt.*;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class RightClickMenu extends ClickableWidget {

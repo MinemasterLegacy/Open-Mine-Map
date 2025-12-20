@@ -9,7 +9,6 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.Waypoint;
 
 import java.awt.*;
-import java.util.Objects;
 
 public class PinnedWaypointsLayer extends ClickableWidget {
 

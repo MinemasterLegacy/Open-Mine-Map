@@ -3,8 +3,7 @@ package net.mmly.openminemap.hud;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
-import net.minecraft.client.render.*;
-import net.minecraft.text.MutableText;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -16,7 +15,6 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
 
 public class HudMap {
@@ -63,7 +61,6 @@ public class HudMap {
 
     public static void initialize(DrawContext context) {
         //TileManager.initializeConfigParameters();
-        System.out.println("initialize hudmap");
         setSnapAngle();
 
         map.setFollowPlayer(true);

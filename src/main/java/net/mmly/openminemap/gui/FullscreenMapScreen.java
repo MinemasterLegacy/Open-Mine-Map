@@ -19,9 +19,9 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.projection.CoordinateValueError;
-import net.mmly.openminemap.util.*;
-import org.lwjgl.glfw.GLFW;
+import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.util.Waypoint;
 
 import java.util.HashMap;
 

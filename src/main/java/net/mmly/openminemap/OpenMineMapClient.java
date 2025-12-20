@@ -1,20 +1,10 @@
 package net.mmly.openminemap;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
@@ -74,10 +64,6 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
          */
 
-    }
-
-    private static void e(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
-        System.out.println("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
 }
 

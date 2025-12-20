@@ -3,10 +3,8 @@ package net.mmly.openminemap.waypoint;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 
 public class WaypointParameterWidget extends TextFieldWidget {

@@ -4,8 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
-import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.waypoint.ColorSliderWidget;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 import net.mmly.openminemap.waypoint.WaypointStyle;
 
@@ -75,7 +73,6 @@ public class Waypoint {
             return wayIdent;
 
         } catch (IOException | IllegalArgumentException e) {
-            System.out.println("colorize fail");
             return identifier;
         }
 

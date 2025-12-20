@@ -4,18 +4,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
-import net.minecraft.world.World;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.waypoint.WaypointStyle;
 
-import java.io.*;
-import java.util.Objects;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class WaypointFile {
 
@@ -107,7 +104,6 @@ public class WaypointFile {
     //for the server lifecycle events to call
     public static void setWaypointsOfThisWorld(ClientLoginNetworkHandler c, MinecraftClient minecraftClient) {
         setWaypointsOfThisWorld(true);
-        System.out.println("init way");
     }
 
     public static void setWaypointsOfThisWorld(boolean establishWorld) {

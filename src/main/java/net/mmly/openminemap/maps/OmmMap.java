@@ -7,19 +7,15 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.Window;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Unit;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
-import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.DirectionIndicator;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -30,15 +26,8 @@ import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
-import javax.imageio.ImageIO;
-import javax.swing.plaf.basic.BasicTreeUI;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public class OmmMap extends ClickableWidget {
 

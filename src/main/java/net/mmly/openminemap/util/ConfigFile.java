@@ -2,7 +2,6 @@ package net.mmly.openminemap.util;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
-import net.minecraft.server.MinecraftServer;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
 

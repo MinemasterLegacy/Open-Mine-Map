@@ -12,7 +12,6 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
 public class ButtonLayer extends ClickableWidget {

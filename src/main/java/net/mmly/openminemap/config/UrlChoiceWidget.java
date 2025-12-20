@@ -1,6 +1,5 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -13,7 +12,6 @@ import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
 public class UrlChoiceWidget extends TextFieldWidget {
@@ -97,8 +95,8 @@ class SelectArrow extends ClickableWidget {
         arrowSelected = Identifier.of("openminemap", "arrowselect/"+direction+"selected.png");
         this.direction = direction;
         this.choiceWidget = choiceWidget;
-        if (direction == ArrowDirection.up) setTooltip(Tooltip.of(Text.of("Previous Source")));
-        if (direction == ArrowDirection.down) setTooltip(Tooltip.of(Text.of("Next Source")));
+        if (direction == ArrowDirection.up) setTooltip(Tooltip.of(Text.translatable("omm.config.gui.previous-source")));
+        if (direction == ArrowDirection.down) setTooltip(Tooltip.of(Text.translatable("omm.config.gui.next-source")));
     }
 
     @Override

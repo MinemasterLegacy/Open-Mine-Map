@@ -13,6 +13,7 @@ import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;

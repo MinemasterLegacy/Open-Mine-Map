@@ -1,5 +1,5 @@
 {
-  "omm.category.openminemap": "OpenMineMap",
+  "key.category.openminemap.keycategory": "OpenMineMap",
   "omm.config.category.general": "General",
   "omm.config.category.overlays": "Overlays",
   "omm.config.category.tile-source": "Tile Source",

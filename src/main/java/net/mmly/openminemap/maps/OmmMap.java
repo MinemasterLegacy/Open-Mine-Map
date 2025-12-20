@@ -4,9 +4,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
@@ -350,16 +352,16 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
-        if (keyCode == GLFW.GLFW_KEY_UP || client.options.forwardKey.matchesKey(keyCode, 0)) {
+        if (keyCode == GLFW.GLFW_KEY_UP || client.options.forwardKey.matchesKey(new KeyInput(keyCode, 0, 0))) {
             mapCenterY -= change;
         }
-        if (keyCode == GLFW.GLFW_KEY_RIGHT || client.options.rightKey.matchesKey(keyCode, 0)) {
+        if (keyCode == GLFW.GLFW_KEY_RIGHT || client.options.rightKey.matchesKey(new KeyInput(keyCode, 0, 0))) {
             mapCenterX += change;
         }
-        if (keyCode == GLFW.GLFW_KEY_DOWN || client.options.backKey.matchesKey(keyCode, 0)) {
+        if (keyCode == GLFW.GLFW_KEY_DOWN || client.options.backKey.matchesKey(new KeyInput(keyCode, 0, 0))) {
             mapCenterY += change;
         }
-        if (keyCode == GLFW.GLFW_KEY_LEFT || client.options.leftKey.matchesKey(keyCode, 0)) {
+        if (keyCode == GLFW.GLFW_KEY_LEFT || client.options.leftKey.matchesKey(new KeyInput(keyCode, 0, 0))) {
             mapCenterX -= change;
         }
 
@@ -370,18 +372,18 @@ public class OmmMap extends ClickableWidget {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(Click click, boolean doubled) {
         if (hoveredWaypoint != null) {
             waypointClickedProcedure.execute();
             return false;
         }
-        if (button == 0) { //left click
+        if (click.button() == 0) { //left click
             mouseDown = true;
             mouseHoldX = mouseTileX;
             mouseHoldY = mouseTileY;
             leftClickProcedure.execute();
         }
-        if (button == 1) { //right click
+        if (click.button() == 1) { //right click
             rightClickProcedure.execute();
         }
         followPlayer = false;
@@ -389,7 +391,7 @@ public class OmmMap extends ClickableWidget {
     }
 
     @Override
-    public void onRelease(double mouseX, double mouseY) {
+    public void onRelease(Click click) {
         mouseDown = false;
     }
 

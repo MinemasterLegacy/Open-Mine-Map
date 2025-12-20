@@ -5,6 +5,7 @@ import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -43,8 +44,8 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256 && this.shouldCloseOnEsc()) {
+    public boolean keyPressed(KeyInput input) {
+        if (input.getKeycode() == 256 && this.shouldCloseOnEsc()) {
             revertChanges();
             MinecraftClient.getInstance().setScreen(
                     new ConfigScreen()

@@ -3,6 +3,7 @@ package net.mmly.openminemap.waypoint;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -105,10 +106,18 @@ public class WaypointEntryWidget extends ClickableWidget {
         context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.literal("(Editing...)").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
         context.disableScissor();
 
-        context.drawBorder(getX(), getY() - scrollOffset, getWidth(), getHeight(), borderColor);
+        drawBorder(context, getX(), getY() - scrollOffset, getWidth(), getHeight(), borderColor);
         context.drawVerticalLine(getX() + width - 52, getY() - scrollOffset, getY() + height - scrollOffset, borderColor);
         context.drawVerticalLine(getX() + 19, getY() - scrollOffset, getY() + height - scrollOffset, borderColor);
 
+    }
+
+    private static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
+        //temporary method for 21.9. Can be replaced with context.drawBorder(...) in 1.21.8-, and context.submitOutline(...) in 1.21.10+
+        context.fill(x, y, x + width, y + 1, color);
+        context.fill(x, y + height - 1, x + width, y + height, color);
+        context.fill(x, y + 1, x + 1, y + height - 1, color);
+        context.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
     }
 
     @Override
@@ -117,7 +126,7 @@ public class WaypointEntryWidget extends ClickableWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public void onClick(Click click, boolean doubled) {
         if (selection == Selection.VIEW) {
             setVisible(!visibleWaypoint);
         }

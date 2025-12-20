@@ -1,6 +1,7 @@
 package net.mmly.openminemap.waypoint;
 
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -46,20 +47,28 @@ public class ColorSliderWidget extends ClickableWidget {
         }
     }
 
+    private static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
+        //temporary method for 21.9. Can be replaced with context.drawBorder(...) in 1.21.8-, and context.submitOutline(...) in 1.21.10+
+        context.fill(x, y, x + width, y + 1, color);
+        context.fill(x, y + height - 1, x + width, y + height, color);
+        context.fill(x, y + 1, x + 1, y + height - 1, color);
+        context.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
+    }
+
     private void drawSelectionBox(DrawContext context, float channel) {
-        context.drawBorder(getX() - 1, (int) (getY() - 1 + ((height-1) * channel)), width + 2, 3, 0xFF888888);
+        drawBorder(context, getX() - 1, (int) (getY() - 1 + ((height-1) * channel)), width + 2, 3, 0xFF888888);
     }
 
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     @Override
-    protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
-        super.onDrag(mouseX, mouseY, deltaX, deltaY);
+    protected void onDrag(Click click, double offsetX, double offsetY) {
+        super.onDrag(click, offsetX, offsetY);
         switch (type) {
-            case HUE -> hue = Math.clamp((float) (mouseY - getY()) / (height-1), 0, 1);
-            case SATURATION -> saturation = Math.clamp((float) (mouseY - getY()) / (height-1), 0, 1);
-            case VALUE -> value = Math.clamp((float) (mouseY - getY()) / (height-1), 0, 1);
+            case HUE -> hue = Math.clamp((float) (click.y() - getY()) / (height-1), 0, 1);
+            case SATURATION -> saturation = Math.clamp((float) (click.y() - getY()) / (height-1), 0, 1);
+            case VALUE -> value = Math.clamp((float) (click.y() - getY()) / (height-1), 0, 1);
         }
     }
 

@@ -16,7 +16,7 @@ import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyInputHandler {
-    public static final KeyBinding.Category KEY_CATEGORY_OPENMINEMAP = KeyBinding.Category.create(Identifier.of("openminemap", "omm.category.openminemap")); //"key.category.osmMap.osmMapCategory";
+    public static final KeyBinding.Category KEY_CATEGORY_OPENMINEMAP = KeyBinding.Category.create(Identifier.of("openminemap", "keycategory")); //"key.category.osmMap.osmMapCategory";
     public static final String KEY_FULLSCREEN_OSM_MAP = "omm.key.open-fullscreen-map"; //"key.osmMap.fullscreenOsmMap";
     public static final String KEY_ZOOMIN_HUD_OSM_MAP = "omm.key.zoom-in";
     public static final String KEY_ZOOMOUT_HUD_OSM_MAP = "omm.key.zoom-out";

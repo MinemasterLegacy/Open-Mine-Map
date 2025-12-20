@@ -4,10 +4,12 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
@@ -216,9 +218,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(Click click) {
         map.setMouseDown(false);
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(click);
     }
 
     @Override
@@ -343,17 +345,17 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256 && this.shouldCloseOnEsc()) {
+    public boolean keyPressed(KeyInput input) {
+        if (input.getKeycode() == 256 && this.shouldCloseOnEsc()) {
             this.close();
             return true;
         }
 
-        if (mClient.options.chatKey.matchesKey(keyCode, 0)) {
+        if (mClient.options.chatKey.matchesKey(input)) {
             chatToBeOpened = true;
         }
 
-        map.keyNavigate(keyCode, modifiers);
+        map.keyNavigate(input.getKeycode(), input.modifiers());
         return true;
     }
 
@@ -364,7 +366,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (chatToBeOpened) {
             if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient
                 renderWithChat = true;
-                mClient.setScreen(new ChatScreen(""));
+                mClient.setScreen(new ChatScreen("", false));
                 map.setDraggable(false);
                 hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
                 MinecraftClient.getInstance().options.hudHidden = false;

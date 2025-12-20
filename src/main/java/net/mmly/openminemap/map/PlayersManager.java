@@ -34,7 +34,7 @@ public class PlayersManager {
         return l;
     }
 
-    private static void updatePlayerSkinList() {
+    public static void updatePlayerSkinList() {
         Collection<PlayerListEntry> pCollection = MinecraftClient.getInstance().player.networkHandler.getPlayerList(); //im pretty sure this doesn't send network requests :pray:
         List<PlayerListEntry> pList = pCollection.stream().toList();
         HashMap<UUID, Identifier> map = new HashMap<>();

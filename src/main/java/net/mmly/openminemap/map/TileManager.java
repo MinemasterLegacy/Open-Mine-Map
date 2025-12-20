@@ -30,6 +30,7 @@ public class TileManager {
     public static int hudTileScaledSize = 128; //should only be a power of 2 (was 64 in v1.0.0)
     public static boolean doArtificialZoom;
     public static boolean doReverseScroll;
+    public static double mouseZoomStrength;
     public static OverlayVisibility showPlayers;
     public static OverlayVisibility showDirectionIndicators;
     public static int themeColor = 0xFF808080;
@@ -59,34 +60,28 @@ public class TileManager {
     private static int leftMostX;
     private static int topMostY;
 
-    public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int windowWidth, int windowHeight, int tileRenderSize) {
+    public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int tileRenderSize, int renderAreaWidth, int renderAreaHeight) {
         /*  mapTileXY: the map coorinates of the center of the screen | map coordinate range is 128 * 2^(zoom+1)
          *  mapZoom: the zoom level of the map
          *  windowHeightXY: [scaled] height and width of window
          *  tileRenderSize: the size of each tile, usually 128 but can change with artificial zoom */
 
-        int leftBorder = (-windowWidth / 2) + mapPosX;
-        int rightBorder = (windowWidth / 2) - mapPosX;
-        int topBorder = (-windowHeight / 2) + mapPosY;
-        int bottomBorder = (windowHeight / 2) - mapPosY;
+        int leftBorder = (-renderAreaWidth / 2) + mapPosX;
+        int rightBorder = (renderAreaWidth / 2) - mapPosX;
+        int topBorder = (-renderAreaHeight / 2) + mapPosY;
+        int bottomBorder = (renderAreaHeight / 2) - mapPosY;
 
         int firstTileX = (int) Math.floor((double) leftBorder / tileRenderSize);
         int firstTileY = (int) Math.floor((double) topBorder / tileRenderSize);
 
-        int tileCountX = (int) Math.ceil((double) windowWidth / tileRenderSize) + 1;
-        int tileCountY = (int) Math.ceil((double) windowHeight / tileRenderSize) + 1;
+        int tileCountX = (int) Math.ceil((double) renderAreaWidth / tileRenderSize) + 1;
+        int tileCountY = (int) Math.ceil((double) renderAreaHeight / tileRenderSize) + 1;
 
         DrawableMapTile[][] tiles = new DrawableMapTile[tileCountX][tileCountY];
         for (int j = 0; j < tileCountX; j++) {
             for (int k = 0; k < tileCountY; k++) {
                 tiles[j][k] = /*new DrawableMapTile(*/
-                        getDrawableTile(firstTileX + j, firstTileY + k, mapZoom, tileRenderSize)/*.identifier,
-                        (firstTileX + j) * tileRenderSize,
-                        (firstTileY + k) * tileRenderSize,
-                        mapZoom,
-                        1,
-                        1
-                )*/;
+                        getDrawableTile(firstTileX + j, firstTileY + k, mapZoom, tileRenderSize);
             }
         }
 
@@ -317,7 +312,7 @@ public class TileManager {
                         tileRenderSize,
                         subX,
                         subY,
-                        tileRenderSize / (int) Math.pow(2, mapZoom - zoomToTry)
+                        tileRenderSize / Math.pow(2, mapZoom - zoomToTry)
                 );
             } else {
                 return new DrawableMapTile(
@@ -353,6 +348,11 @@ public class TileManager {
         dyLoadedTiles.put(key, Identifier.of("osmtile", zoom+"-"+x+"-"+y));
         //System.out.println("New Dynamic tile");
         if (key.equals(Arrays.toString(new int[] {0, 0, 0}))) themeColor = image.getRGB(3, 3);
+
+        is.close();
+        nImage.close();
+        os.close();
+
         return dyLoadedTiles.get(key);
     }
 
@@ -403,6 +403,9 @@ public class TileManager {
                 mc.getTextureManager().registerTexture(Identifier.of("osmtile", zoom+"-"+x+"-"+y), new NativeImageBackedTexture(new nameSupplier(), nImage));
                 dyLoadedTiles.put(thisKey, Identifier.of("osmtile", zoom+"-"+x+"-"+y));
                 //System.out.println("New Dynamic tile");
+                os.close();
+                is.close();
+                nImage.close();
                 return dyLoadedTiles.get(thisKey);
             }
 
@@ -417,6 +420,7 @@ public class TileManager {
 
     public static void initializeConfigParameters() {
         doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
+        mouseZoomStrength = Double.parseDouble(ConfigFile.readParameter(ConfigOptions.ZOOM_STRENGTH));
         doReverseScroll = ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on");
         showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
         showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));

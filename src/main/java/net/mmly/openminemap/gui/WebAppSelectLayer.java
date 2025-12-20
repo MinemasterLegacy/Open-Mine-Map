@@ -6,7 +6,6 @@ import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
@@ -16,7 +15,6 @@ import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.map.TileManager;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.HashMap;
 
 public class WebAppSelectLayer extends ClickableWidget {
@@ -75,7 +73,7 @@ public class WebAppSelectLayer extends ClickableWidget {
         super.onClick(mouseX, mouseY);
         float lat = RightClickMenu.savedMouseLat;
         float lon = RightClickMenu.savedMouseLong;
-        int zoom = FullscreenMapScreen.zoomLevel;
+        int zoom = FullscreenMapScreen.map.getTileZoom();
         switch (selection) {
             case 0: {
                 openUrl("https://google.com/maps/@"+lat+","+lon+","+Math.max(2, zoom)+"z", false);
@@ -134,7 +132,7 @@ public class WebAppSelectLayer extends ClickableWidget {
                                 "\t\t\t<altitude>0</altitude>\n" +
                                 "\t\t\t<heading>-11.42103893546798</heading>\n" +
                                 "\t\t\t<tilt>0</tilt>\n" +
-                                "\t\t\t<range>"+zoomToMetersAbove(FullscreenMapScreen.zoomLevel)+"</range>\n" +
+                                "\t\t\t<range>"+zoomToMetersAbove(FullscreenMapScreen.map.getTileZoom())+"</range>\n" +
                                 "\t\t\t<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>\n" +
                                 "\t\t</LookAt>\n" +
                                 "\t\t<Point>\n" +

@@ -12,6 +12,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
@@ -53,6 +54,7 @@ public class ConfigScreen extends Screen {
     public static TextFieldWidget snapAngleWidget;
     ChoiceButtonWidget rightClickMeuUsesOption;
     ChoiceButtonWidget reverseScrollOption;
+    ChoiceSliderWidget zoomStrengthWidget;
 
     TextWidget overlayLabel;
     ChoiceSliderWidget playerShowSlider;
@@ -62,7 +64,16 @@ public class ConfigScreen extends Screen {
     TextWidget urlLabel;
     public static TextFieldWidget customUrlWidget;
     private static UrlChoiceWidget definedUrlWidget;
-
+    private final String[] zoomStrengthLevels = new String[] {
+            "0.05", "0.1", "0.15", "0.2", "0.25",
+            "0.3", "0.35", "0.4", "0.45", "0.5",
+            "0.55", "0.6", "0.65", "0.7", "0.75",
+            "0.8", "0.85", "0.9", "0.95", "1.0",
+            "1.05", "1.1", "1.15", "1.2", "1.25",
+            "1.3", "1.35", "1.4", "1.45", "1.5",
+            "1.55", "1.6", "1.65", "1.7", "1.75",
+            "1.8", "1.85", "1.9", "1.95", "2.0"
+    }; // I know this is a lazy solution, but it's also the easiest (:
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -116,37 +127,6 @@ public class ConfigScreen extends Screen {
         }
     }
 
-    static protected String trueFalseToOnOff(boolean t) {
-        if (t) {
-            return "On";
-        } else {
-            return "Off";
-        }
-    }
-
-    static protected boolean onOffToTrueFalse(String t) {
-        return t.equals("On");
-    }
-
-    protected void toggleArtificialZoom() {
-        doArtificialZoom = !doArtificialZoom;
-        //System.out.println(toggleArtificialZoomButton.getX());
-        toggleArtificialZoomButton.visible = false;
-        toggleArtificialZoomButton = newToggleArtificialZoomButton();
-        this.addDrawableChild(toggleArtificialZoomButton);
-    }
-
-    protected ButtonWidget newToggleArtificialZoomButton() {
-        ButtonWidget b = ButtonWidget.builder(Text.of("Artificial Zoom: " + trueFalseToOnOff(doArtificialZoom)), (btn) -> {
-            toggleArtificialZoom();
-        })
-                .dimensions(20, getNextOptionSlot(), 120, 20).build();
-        b.setTooltip(Tooltip.of(Text.of(
-                "Artificial Zoom allows for higher zoom levels than normal (+6 levels) by oversizing the smallest tile size."
-        )));
-        return b;
-    }
-
     private void updateScrollPositions(int change) {
         currentScroll -= change;
         generalLabel.setY(generalLabel.getY() + change);
@@ -156,6 +136,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget.setY(snapAngleWidget.getY() + change);
         rightClickMeuUsesOption.getButtonWidget().setY(rightClickMeuUsesOption.getButtonWidget().getY() + change);
         reverseScrollOption.getButtonWidget().setY(reverseScrollOption.getButtonWidget().getY() + change);
+        zoomStrengthWidget.setY(zoomStrengthWidget.getY() + change);
         overlayLabel.setY(overlayLabel.getY() + change);
         playerShowSlider.setY(playerShowSlider.getY() + change);
         directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
@@ -202,55 +183,58 @@ public class ConfigScreen extends Screen {
 
         exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.EXIT);
         checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.CHECKMARK);
-        exitButtonLayer.setTooltip(Tooltip.of(Text.of("Exit without Saving")));
-        checkButtonLayer.setTooltip(Tooltip.of(Text.of("Save and Exit")));
+        exitButtonLayer.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.exit-without-saving")));
+        checkButtonLayer.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.save-and-exit")));
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v1.4.0"), this.textRenderer);
+        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), this.textRenderer);
         versionLabel.alignRight();
         this.addDrawableChild(versionLabel);
 
-        configHud = ButtonWidget.builder(Text.of("Configure HUD..."), (btn) -> {
+        configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
         }).dimensions(20, getNextOptionSlot(), 120, 20).build();
-        configHud.setTooltip(Tooltip.of(Text.of("Change positioning and size of HUD elements.")));
+        configHud.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.configure-hud")));
         this.addDrawableChild(configHud);
 
-        generalLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("General"), this.textRenderer);
+        generalLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.general"), this.textRenderer);
         this.addDrawableChild(generalLabel);
 
         doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
-        artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Artificial Zoom"), Text.of(""), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
-        artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.of("Adds further zoom levels beyond what OpenStreetMap provides")));
+        artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.artificial-zoom"), Text.of(""), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
+        artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.artificial-zoom")));
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
 
-        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.of("Snap Angle"), 0);
+        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.translatable("omm.config.option.snap-angle"), 0);
         snapAngleWidget.setMaxLength(50);
         snapAngleWidget.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
-        snapAngleWidget.setTooltip(Tooltip.of(Text.of("Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)")));
+        snapAngleWidget.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")));
         this.addDrawableChild(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("RCM Uses"), Text.of("The command that will be used to teleport when using the Fullscreen Right Click Menu."), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.rcm-uses"), Text.translatable("omm.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
         this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
 
-        reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Reverse Scroll"), Text.of("Reverse the scroll wheel."), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
+        reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.reverse-scroll"), Text.translatable("omm.config.tooltip.reverse-scroll"), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
         this.addDrawableChild(reverseScrollOption.getButtonWidget());
 
-        overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("Overlays"), this.textRenderer);
+        zoomStrengthWidget = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.zoom-strength"), Text.translatable("omm.config.tooltip.zoom-strength"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
+        this.addDrawableChild(zoomStrengthWidget);
+
+        overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addDrawableChild(overlayLabel);
 
-        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Players"), Text.of("Show Players on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
+        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.players"), Text.translatable("omm.config.tooltip.players"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
         this.addDrawableChild(playerShowSlider);
 
-        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.of("Directions"), Text.of("Show Direction Indicators on all maps"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
+        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.directions"), Text.translatable("omm.config.tooltip.directions"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
         this.addDrawableChild(directionIndicatorShowSlider);
 
-        altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.of("Altitude Shading"),  Text.of("Shade other players white when they are above you and black when they are below you."), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
+        altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.altitude-shading"),  Text.translatable("omm.config.tooltip.altitude-shading"), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
         this.addDrawableChild(altitudeShadingOption.getButtonWidget());
 
-        urlLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.of("Tile Source"), this.textRenderer);
+        urlLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.tile-source"), this.textRenderer);
         this.addDrawableChild(urlLabel);
 
         /*
@@ -298,6 +282,7 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption.writeParameterToFile();
         artificialZoomOption.writeParameterToFile();
         reverseScrollOption.writeParameterToFile();
+        zoomStrengthWidget.writeParameterToFile();
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
         altitudeShadingOption.writeParameterToFile();

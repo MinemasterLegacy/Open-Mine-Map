@@ -37,8 +37,3 @@ public class WaypointIconSelectButton extends ClickableWidget {
 
     }
 }
-
-enum Direction {
-    LEFT,
-    RIGHT
-}

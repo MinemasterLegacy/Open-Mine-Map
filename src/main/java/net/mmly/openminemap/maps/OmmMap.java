@@ -121,6 +121,7 @@ public class OmmMap extends ClickableWidget {
         this.zoom = zoom;
         this.mapCenterX = mapCenterX;
         this.mapCenterY = mapCenterY;
+        this.tileSize = (int) Math.floor(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
     }
 
     public static void setWaypoints(Waypoint[] waypoints1) {

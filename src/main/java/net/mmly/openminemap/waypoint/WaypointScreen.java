@@ -65,12 +65,10 @@ public class WaypointScreen extends Screen {
 
     private static final Identifier[] styleIdentifiers = new Identifier[] {
             Identifier.of("openminemap", "waypoints/diamond.png"),
-            Identifier.of("openminemap", "waypoints/x.png"),
             Identifier.of("openminemap", "waypoints/star.png"),
             Identifier.of("openminemap", "waypoints/house.png"),
             Identifier.of("openminemap", "waypoints/city.png"),
-            Identifier.of("openminemap", "waypoints/cross.png"),
-            Identifier.of("openminemap", "waypoints/plane.png")
+            Identifier.of("openminemap", "waypoints/cross.png")
     };
 
     public static WaypointScreen getInstance() {

@@ -1,5 +1,6 @@
 package net.mmly.openminemap.waypoint;
 
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -31,7 +32,7 @@ public class ColorSliderWidget extends ClickableWidget {
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         switch (type) {
             case HUE -> {
-                context.drawTexture(RenderLayer::getGuiTextured, drawTexture, getX(), getY(), 0, 0, width, height, width, height);
+                context.drawTexture(RenderPipelines.GUI_TEXTURED, drawTexture, getX(), getY(), 0, 0, width, height, width, height);
                 drawSelectionBox(context, hue);
             }
             case SATURATION -> {

@@ -2,6 +2,7 @@ package net.mmly.openminemap.waypoint;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -86,13 +87,13 @@ public class WaypointEntryWidget extends ClickableWidget {
 
         int borderColor = WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? editingColor : (isFocused() ? selectedColor : (isHovered() ? hoverColor : idleColor));
 
-        context.drawTexture(RenderLayer::getGuiTextured, waypoint.identifier, getX() + 3, getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, waypoint.identifier, getX() + 3, getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
 
         int xMod = 0;
         setTooltip(null);
         selection = Selection.NONE;
         for (Identifier i : new Identifier[]{editId, visibleWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
-            context.drawTexture(RenderLayer::getGuiTextured, i, getX() + width - 17 - (xMod * 16), getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, i, getX() + width - 17 - (xMod * 16), getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
             if (mouseIsInArea(getX() + width - 17 - (xMod * 16), getY() + 3, 14, 14)) {
                 setTooltip(Tooltip.of(tooltipMessages[xMod]));
                 selection = Selection.getById(xMod + 1);

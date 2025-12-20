@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -109,7 +110,7 @@ public class ResizeElement extends ClickableWidget {
     }
 
     public void drawWidget(DrawContext context) {
-        context.drawTexture(RenderLayer::getGuiTextured, texture, getX(), getY(), 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, texture, getX(), getY(), 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
     }
 
     /*

@@ -1,6 +1,7 @@
 package net.mmly.openminemap.waypoint;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -434,14 +435,14 @@ public class WaypointScreen extends Screen {
             Identifier wayIdent = Identifier.of("openminemap", "waypoint-s-shaded-"+pathInt);
             MinecraftClient.getInstance().getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(new nameSupplier(), nImage));
             pathInt++;
-            context.drawTexture(RenderLayer::getGuiTextured, wayIdent, x, y, 0, 0, width, height, width, height);
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, wayIdent, x, y, 0, 0, width, height, width, height);
 
             is.close();
             nImage.close();
             os.close();
 
         } catch (IOException | IllegalArgumentException e) {
-            context.drawTexture(RenderLayer::getGuiTextured, identifier, x, y, 0, 0, width, height, width, height);
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, identifier, x, y, 0, 0, width, height, width, height);
         }
     }
 

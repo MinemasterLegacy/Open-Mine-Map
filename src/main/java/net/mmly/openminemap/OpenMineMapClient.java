@@ -1,11 +1,16 @@
 package net.mmly.openminemap;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -45,12 +50,12 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         HudRenderCallback.EVENT.register(HudMap::render);
         HudRenderCallback.EVENT.register(FullscreenMapScreen::render);
 
-        ServerLifecycleEvents.SERVER_STARTED.register(WaypointFile::setWaypointsOfThisWorld);
+        //ClientLoginConnectionEvents.INIT.register(WaypointFile::setWaypointsOfThisWorld);
         WaypointFile.load();
 
-
-        ServerLifecycleEvents.SERVER_STARTING.register(TileUrlFile::addApplicableErrors);
-        ServerLifecycleEvents.SERVER_STOPPING.register(ConfigFile::writeOnClose);
+        ClientLoginConnectionEvents.INIT.register(TileUrlFile::addApplicableErrors);
+        ClientLoginConnectionEvents.DISCONNECT.register(ConfigFile::writeOnClose);
+        ClientLoginConnectionEvents.INIT.register(HudMap::deinitialize);
 
         TileUrlFile.establishUrls();
 
@@ -69,6 +74,10 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
          */
 
+    }
+
+    private static void e(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
+        System.out.println("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
 }
 

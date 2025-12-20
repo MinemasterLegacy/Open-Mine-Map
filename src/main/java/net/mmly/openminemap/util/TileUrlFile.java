@@ -2,6 +2,8 @@ package net.mmly.openminemap.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
@@ -62,7 +64,7 @@ public class TileUrlFile {
         errorUrl = url;
     }
 
-    public static void addApplicableErrors(MinecraftServer minecraftServer) {
+    public static void addApplicableErrors(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
         Text debugStart = Text.translatable("omm.error.tile-url.start");
         if (loadError != TileUrlErrorType.NO_ERROR) {
             String name;

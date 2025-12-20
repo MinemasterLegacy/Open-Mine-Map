@@ -3,6 +3,8 @@ package net.mmly.openminemap.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
@@ -84,7 +86,7 @@ public class WaypointFile {
 
     private static boolean establishWorld() {
         try {
-            worldName = MinecraftClient.getInstance().getCurrentServerEntry().name;//gets the server name if multiplayer, otherwise will fail
+            worldName = MinecraftClient.getInstance().getCurrentServerEntry().name; //gets the server name if multiplayer, otherwise will fail
             worldType = WorldType.MULTIPLAYER;
         } catch (NullPointerException e) { //if fails, that must mean the world is singleplayer
             try {
@@ -103,8 +105,9 @@ public class WaypointFile {
     }
 
     //for the server lifecycle events to call
-    public static void setWaypointsOfThisWorld(MinecraftServer minecraftServer) {
+    public static void setWaypointsOfThisWorld(ClientLoginNetworkHandler c, MinecraftClient minecraftClient) {
         setWaypointsOfThisWorld(true);
+        System.out.println("init way");
     }
 
     public static void setWaypointsOfThisWorld(boolean establishWorld) {

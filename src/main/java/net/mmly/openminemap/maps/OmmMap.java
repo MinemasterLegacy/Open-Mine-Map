@@ -720,7 +720,7 @@ public class OmmMap extends ClickableWidget {
                 renderAreaX + (renderAreaWidth / 2) - 4,
                 renderAreaY + (renderAreaHeight / 2) - 4,
                 8, 8,
-                32, 8,
+                40, 8,
                 8, 8,
                 64, 64
         );

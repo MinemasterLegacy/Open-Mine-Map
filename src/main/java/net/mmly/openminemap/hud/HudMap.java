@@ -2,6 +2,7 @@ package net.mmly.openminemap.hud;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.render.*;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -62,6 +63,7 @@ public class HudMap {
 
     public static void initialize(DrawContext context) {
         //TileManager.initializeConfigParameters();
+        System.out.println("initialize hudmap");
         setSnapAngle();
 
         map.setFollowPlayer(true);
@@ -73,6 +75,7 @@ public class HudMap {
         map.doPlayerTooltipNames(false);
 
         initialized = true;
+        WaypointFile.setWaypointsOfThisWorld(true);
     }
 
     public static void zoomIn() {
@@ -165,5 +168,10 @@ public class HudMap {
 
     }
 
+    public static void deinitialize(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
+        initialized = false;
+        System.out.println("deinitialize hudmap");
+
+    }
 }
 

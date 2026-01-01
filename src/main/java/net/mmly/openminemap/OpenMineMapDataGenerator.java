@@ -123,6 +123,19 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.state.none", "None");
         translationBuilder.add("omm.config.state.self", "Self");
         translationBuilder.add("omm.config.state.local", "Local");
+        translationBuilder.add("omm.config.option.hover-names", "Hover Names");
+        translationBuilder.add("omm.config.tooltip.hover-names", "Show player names when hovering the mouse over players in the fullscreen map");
+        translationBuilder.add("omm.waypoints.editing", "(Editing...)");
+        translationBuilder.add("omm.config.tooltip.tile-source", "Set a custom URL for tiles to be loaded from. Click for more information.");
+        translationBuilder.add("omm.rcm.teleport-here", "Teleport Here");
+        translationBuilder.add("omm.rcm.copy-coordinates", "Copy Coordinates");
+        translationBuilder.add("omm.rcm.open-in", "Open In...");
+        translationBuilder.add("omm.rcm.edit-waypoint", "Edit Waypoint");
+        translationBuilder.add("omm.rcm.set-snap-angle", "Set Snap Angle");
+        translationBuilder.add("omm.rcm.view-on-map", "View On Map");
+        translationBuilder.add("omm.rcm.unpin", "Unpin");
+        translationBuilder.add("omm.rcm.create-waypoint", "Create Waypoint");
+        translationBuilder.add("omm.error.tile-url.parse", "Error Parsing Tile Source");
     }
 }
 

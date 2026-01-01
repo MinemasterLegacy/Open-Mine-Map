@@ -600,7 +600,7 @@ public class OmmMap extends ClickableWidget {
                     indicatorsOnly
             );
 
-        return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, player.getY(), player.getStyledDisplayName());
+        return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
     }
 
     private int roundTowardsZero(double num) {

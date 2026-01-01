@@ -230,6 +230,19 @@ abstract class OmmSpanishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.state.none", "Ninguno");
         translationBuilder.add("omm.config.state.self", "Uno mismo");
         translationBuilder.add("omm.config.state.local", "Local");
+        translationBuilder.add("omm.config.option.hover-names", "Nombres al pasar el cursor");
+        translationBuilder.add("omm.config.tooltip.hover-names", "Mostrar los nombres de los jugadores al pasar el cursor sobre ellos en el mapa de pantalla completa.");
+        translationBuilder.add("omm.waypoints.editing", "(Editando...)");
+        translationBuilder.add("omm.config.tooltip.tile-source", "Configura una URL personalizada para cargar los tiles. Haz clic para mas información");
+        translationBuilder.add("omm.rcm.teleport-here", "Teletransportarse Aquí");
+        translationBuilder.add("omm.rcm.copy-coordinates", "Copiar Coordenadas");
+        translationBuilder.add("omm.rcm.open-in", "Abrir En...");
+        translationBuilder.add("omm.rcm.edit-waypoint", "Editar Waypoint");
+        translationBuilder.add("omm.rcm.set-snap-angle", "Configurar ángulo de ajuste");
+        translationBuilder.add("omm.rcm.view-on-map", "Ver en el mapa");
+        translationBuilder.add("omm.rcm.unpin", "Quitar Waypoint fijado");
+        translationBuilder.add("omm.rcm.create-waypoint", "Crear un Waypoint");
+        translationBuilder.add("omm.error.tile-url.parse", "Error al procesar la fuente de mapas");
     }
 }
 
@@ -273,8 +286,8 @@ class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
     protected OmmSimplifiedChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
         super(dataOutput, "zh_cn", registryLookup);
     }
-    // ----- SIMPLIFIED CHINESE -----
 
+    // ----- SIMPLIFIED CHINESE -----
     @Override
     public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "人工缩放");

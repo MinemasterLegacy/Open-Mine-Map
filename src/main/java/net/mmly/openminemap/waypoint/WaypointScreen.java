@@ -12,6 +12,7 @@ import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
@@ -291,7 +292,7 @@ public class WaypointScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         boolean b = super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-        if (!Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL))) verticalAmount *= -1;
+        if (!TileManager.doReverseScroll) verticalAmount *= -1;
 
         if (mouseX > midPoint) {
             int maxScroll = Math.max(390 - MinecraftClient.getInstance().getWindow().getScaledHeight(), 0);

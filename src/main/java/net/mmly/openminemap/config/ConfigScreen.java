@@ -32,7 +32,6 @@ public class ConfigScreen extends Screen {
     public static int windowScaledHeight;
     public static int windowScaledWidth;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
-    protected static boolean doArtificialZoom;
 
     int nextOptionSlot;
     int totalOptions;
@@ -150,7 +149,7 @@ public class ConfigScreen extends Screen {
         boolean b = super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
         maxScroll = Math.max(scrollRange - windowScaledHeight, 0);
         //System.out.println(verticalAmount);
-        if (ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on")) verticalAmount *= -1;
+        if (TileManager.doReverseScroll) verticalAmount *= -1;
         if (verticalAmount < 0) { //down
             if (currentScroll + SCROLLSPEED < maxScroll) {
                 updateScrollPositions(-SCROLLSPEED);
@@ -202,7 +201,6 @@ public class ConfigScreen extends Screen {
         generalLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.general"), this.textRenderer);
         this.addDrawableChild(generalLabel);
 
-        doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
         artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.artificial-zoom"), Text.of(""), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
         artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.artificial-zoom")));
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
@@ -290,7 +288,7 @@ public class ConfigScreen extends Screen {
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
         altitudeShadingOption.writeParameterToFile();
-        if (!Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM))) {
+        if (!ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on")) {
             FullscreenMapScreen.clampZoom();
             HudMap.clampZoom();
         }

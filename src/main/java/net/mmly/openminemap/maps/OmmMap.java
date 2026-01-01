@@ -789,7 +789,7 @@ public class OmmMap extends ClickableWidget {
         }
 
         BufferedPlayer self = null;
-        drawHoveredPlayerText(context);
+        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("on")) drawHoveredPlayerText(context);
 
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
             if (followPlayer) {

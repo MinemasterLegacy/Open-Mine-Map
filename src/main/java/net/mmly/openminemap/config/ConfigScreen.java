@@ -53,6 +53,7 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget rightClickMeuUsesOption;
     ChoiceButtonWidget reverseScrollOption;
     ChoiceSliderWidget zoomStrengthWidget;
+    ChoiceButtonWidget hoverNamesOption;
 
     TextWidget overlayLabel;
     ChoiceSliderWidget playerShowSlider;
@@ -135,6 +136,7 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption.getButtonWidget().setY(rightClickMeuUsesOption.getButtonWidget().getY() + change);
         reverseScrollOption.getButtonWidget().setY(reverseScrollOption.getButtonWidget().getY() + change);
         zoomStrengthWidget.setY(zoomStrengthWidget.getY() + change);
+        hoverNamesOption.getButtonWidget().setY(hoverNamesOption.getButtonWidget().getY() + change);
         overlayLabel.setY(overlayLabel.getY() + change);
         playerShowSlider.setY(playerShowSlider.getY() + change);
         directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
@@ -220,6 +222,9 @@ public class ConfigScreen extends Screen {
         zoomStrengthWidget = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.zoom-strength"), Text.translatable("omm.config.tooltip.zoom-strength"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
         this.addDrawableChild(zoomStrengthWidget);
 
+        hoverNamesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.hover-names"), Text.translatable("omm.config.tooltip.hover-names"), new String[] {"Off", "On"}, ConfigOptions.HOVER_NAMES);
+        this.addDrawableChild(hoverNamesOption.getButtonWidget());
+
         overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addDrawableChild(overlayLabel);
 
@@ -281,6 +286,7 @@ public class ConfigScreen extends Screen {
         artificialZoomOption.writeParameterToFile();
         reverseScrollOption.writeParameterToFile();
         zoomStrengthWidget.writeParameterToFile();
+        hoverNamesOption.writeParameterToFile();
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
         altitudeShadingOption.writeParameterToFile();

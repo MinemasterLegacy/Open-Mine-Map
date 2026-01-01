@@ -30,6 +30,7 @@ public class ConfigFile {
             "local", //ShowDirectionIndicators
             "on", //AltitudeShading
             "0.4", //ZoomStrength
+            "on", //HoverNames
 
             "true", //hudtoggle
             "true", //hudenabled

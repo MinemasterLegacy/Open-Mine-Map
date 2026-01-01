@@ -166,7 +166,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return pinnedWaypointsLayer.getSelectedWaypoint();
     }
 
-    public static void enableRightClickMenu(double x, double y, RightClickMenuType type) {
+    public static void enableRightClickMenu(double x, double y, RightClickMenuType type, Waypoint waypoint) {
         if (type == RightClickMenuType.HIDDEN) {
             disableRightClickMenu();
             return;
@@ -177,14 +177,21 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         rightClickLayer.clickX = x;
         rightClickLayer.clickY = y;
         rightClickLayer.setPosition((int) x, (int) y);
+
         if (type == RightClickMenuType.PINNED_WAYPOINT) {
-            rightClickLayer.setSavedMouseLatLong(pinnedWaypointsLayer.getSelectedWaypoint().longitude, pinnedWaypointsLayer.getSelectedWaypoint().latitude);
+            rightClickLayer.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
         } else {
-            rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
+            if (type == RightClickMenuType.WAYPOINT) {
+                rightClickLayer.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
+            } else {
+                rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
+            }
+
             if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
                 rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
                 rightClickLayer.horizontalSide = -1;
             } else rightClickLayer.horizontalSide = 1;
+
             if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
                 rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
                 rightClickLayer.verticalSize = -1;
@@ -203,8 +210,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     private static void onRightClick() {
         if (!map.mouseIsOutOfBounds()) { //checks if mouse is positioned on the map (this variable will be "-.-" if it isn't)
-            if (map.getHoveredWaypoint() != null) enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.WAYPOINT);
-            else enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.DEFAULT);
+            if (map.getHoveredWaypoint() != null) enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.WAYPOINT, map.getHoveredWaypoint());
+            else enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.DEFAULT, null);
         } else {
             disableRightClickMenu();
         }

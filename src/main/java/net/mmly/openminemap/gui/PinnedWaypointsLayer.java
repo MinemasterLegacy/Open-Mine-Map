@@ -88,7 +88,8 @@ public class PinnedWaypointsLayer extends ClickableWidget {
                     getX() + width + 3,
                     /*getY() + (selection * waypointHitboxSize) + ((double) waypointHitboxSize / 2) - ((double) textRenderer.fontHeight / 2) - 3,*/
                     getY() + 3,
-                    RightClickMenuType.PINNED_WAYPOINT
+                    RightClickMenuType.PINNED_WAYPOINT,
+                    getSelectedWaypoint()
             );
             menuSelection = selection;
 

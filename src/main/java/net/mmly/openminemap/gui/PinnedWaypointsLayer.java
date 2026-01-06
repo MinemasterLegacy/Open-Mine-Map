@@ -14,7 +14,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
     int waypointRenderSize; // how big the waypoints look
     int waypointHitboxSize;
-    int visibleWaypoints = 0;
+    int visibleWaypointCount = 0;
     int maxHeight;
     int margin;
     private static Waypoint[] pinnedWaypoints;
@@ -35,7 +35,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
     public void setRoundedHeight(int height1) {
         maxHeight = height1 - (height1 % waypointHitboxSize);
-        visibleWaypoints = height1 / waypointHitboxSize;
+        visibleWaypointCount = height1 / waypointHitboxSize;
     }
 
     public void drawWidget(DrawContext context) {
@@ -57,10 +57,18 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         }
 
         int y = getY();
+
+        for (int i = 0; i < Math.min(pinnedWaypoints.length, visibleWaypointCount); i++) {
+            context.drawTexture(pinnedWaypoints[i].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
+        }
+
+        /*
         for (Waypoint waypoint : pinnedWaypoints) {
             context.drawTexture(waypoint.identifier, getX() + margin, getY() + margin + y, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
             y += waypointHitboxSize;
         }
+
+         */
     }
 
     private int RGBof(int HSB) {

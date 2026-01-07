@@ -23,6 +23,10 @@ public class OpenMineMapDataGenerator implements DataGeneratorEntrypoint {
         pack.addProvider(OmmMexicanSpanishLanguageProvider::new);
         pack.addProvider(OmmUruguayanSpanishLanguageProvider::new);
         pack.addProvider(OmmVenezuelanSpanishLanguageProvider::new);
+        pack.addProvider(OmmEuropeanFrenchLanguageProvider::new);
+        pack.addProvider(OmmCanadianFrenchLanguageProvider::new);
+        pack.addProvider(OmmModernRussianLanguageProvider::new);
+        pack.addProvider(OmmPreRevolutionaryRussianLanguageProvider::new);
     }
 }
 
@@ -373,6 +377,19 @@ class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.state.none", "无");
         translationBuilder.add("omm.config.state.self", "自身");
         translationBuilder.add("omm.config.state.local", "附近");
+        translationBuilder.add("omm.config.option.hover-names", "悬停名称");
+        translationBuilder.add("omm.config.tooltip.hover-names", "在全屏地图上将鼠标悬停在玩家身上时显示玩家名称");
+        translationBuilder.add("omm.waypoints.editing", "（编辑…）");
+        translationBuilder.add("omm.config.tooltip.tile-source", "设置欲加载图块的网址。点击了解更多信息。");
+        translationBuilder.add("omm.rcm.teleport-here", "传送至此");
+        translationBuilder.add("omm.rcm.copy-coordinates", "复制坐标");
+        translationBuilder.add("omm.rcm.open-in", "打开于...");
+        translationBuilder.add("omm.rcm.edit-waypoint", "编辑路标");
+        translationBuilder.add("omm.rcm.set-snap-angle", "设置吸附角");
+        translationBuilder.add("omm.rcm.view-on-map", "在地图上查看");
+        translationBuilder.add("omm.rcm.unpin", "取消标记");
+        translationBuilder.add("omm.rcm.create-waypoint", "创建路标");
+        translationBuilder.add("omm.error.tile-url.parse", "解析图砖来源错误");
     }
 }
 
@@ -384,11 +401,11 @@ abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvi
     // ----- TRADITIONAL CHINESE -----
     @Override
     public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
-        translationBuilder.add("omm.config.option.artificial-zoom", "人工變焦");
-        translationBuilder.add("omm.config.tooltip.artificial-zoom", "人工變焦可提供比正常更高的縮放等級（+6 等級），透過放大最小圖塊尺寸。");
+        translationBuilder.add("omm.config.option.artificial-zoom", "人工縮放");
+        translationBuilder.add("omm.config.tooltip.artificial-zoom", "透過人為手段放大圖磚，使可用的縮放等級突破正常範圍（可再多 6 級）。");
         translationBuilder.add("omm.osm-attribution", "© {開放街圖貢獻者}");
-        translationBuilder.add("omm.config.option.configure-hud", "設定 HUD...");
-        translationBuilder.add("omm.config.tooltip.configure-hud", "變更 HUD 元素的位置與大小");
+        translationBuilder.add("omm.config.option.configure-hud", "配置小地圖...");
+        translationBuilder.add("omm.config.tooltip.configure-hud", "變更小地圖元素的位置與大小");
         translationBuilder.add("omm.config.category.general", "一般");
         translationBuilder.add("omm.config.gui.save-and-exit", "儲存並退出");
         translationBuilder.add("omm.config.gui.exit-without-saving", "不儲存並退出");
@@ -467,6 +484,19 @@ abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvi
         translationBuilder.add("omm.config.state.none", "無");
         translationBuilder.add("omm.config.state.self", "自身");
         translationBuilder.add("omm.config.state.local", "附近");
+        translationBuilder.add("omm.config.option.hover-names", "懸停名稱");
+        translationBuilder.add("omm.config.tooltip.hover-names", "在全螢幕地圖上將滑鼠懸停在玩家身上時顯示玩家名稱");
+        translationBuilder.add("omm.waypoints.editing", "（編輯...）");
+        translationBuilder.add("omm.config.tooltip.tile-source", "設定欲載入圖磚的網址。點擊了解更多資訊。");
+        translationBuilder.add("omm.rcm.teleport-here", "傳送至此");
+        translationBuilder.add("omm.rcm.copy-coordinates", "複製座標");
+        translationBuilder.add("omm.rcm.open-in", "開啟於...");
+        translationBuilder.add("omm.rcm.edit-waypoint", "編輯路標");
+        translationBuilder.add("omm.rcm.set-snap-angle", "設定吸附角");
+        translationBuilder.add("omm.rcm.view-on-map", "在地圖上查看");
+        translationBuilder.add("omm.rcm.unpin", "取消標記");
+        translationBuilder.add("omm.rcm.create-waypoint", "建立路標");
+        translationBuilder.add("omm.error.tile-url.parse", "解析圖磚來源錯誤");
     }
 }
 
@@ -478,5 +508,49 @@ class OmmTraditionalHongKongChineseLanguageProvider extends OmmTraditionalChines
 class OmmTraditionalTaiwaneseChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {
     protected OmmTraditionalTaiwaneseChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
         super(dataOutput, "zh_tw", registryLookup);
+    }
+}
+
+abstract class OmmFrenchLanguageProvider extends FabricLanguageProvider {
+    protected OmmFrenchLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, languageCode, registryLookup);
+    }
+
+    @Override
+    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+        //TODO
+    }
+}
+
+class OmmEuropeanFrenchLanguageProvider extends OmmFrenchLanguageProvider {
+    protected OmmEuropeanFrenchLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "fr_fr", registryLookup);
+    }
+}
+class OmmCanadianFrenchLanguageProvider extends OmmFrenchLanguageProvider {
+    protected OmmCanadianFrenchLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "fr_ca", registryLookup);
+    }
+}
+
+abstract class OmmRussianLanguageProvider extends FabricLanguageProvider {
+    protected OmmRussianLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, languageCode, registryLookup);
+    }
+
+    @Override
+    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+        //TODO
+    }
+}
+
+class OmmModernRussianLanguageProvider extends OmmRussianLanguageProvider {
+    protected OmmModernRussianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "ru_ru", registryLookup);
+    }
+}
+class OmmPreRevolutionaryRussianLanguageProvider extends OmmRussianLanguageProvider {
+    protected OmmPreRevolutionaryRussianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "rpr", registryLookup);
     }
 }

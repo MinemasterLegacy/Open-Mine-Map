@@ -601,19 +601,19 @@ abstract class OmmFrenchLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.state.none", "Aucun");
         translationBuilder.add("omm.config.state.self", "Soi-même");
         translationBuilder.add("omm.config.state.local", "Local");
-        //translationBuilder.add("omm.config.option.hover-names", "懸停名稱");
-        //translationBuilder.add("omm.config.tooltip.hover-names", "在全螢幕地圖上將滑鼠懸停在玩家身上時顯示玩家名稱");
-        //translationBuilder.add("omm.waypoints.editing", "（編輯...）");
-        //translationBuilder.add("omm.config.tooltip.tile-source", "設定欲載入圖磚的網址。點擊了解更多資訊。");
-        //translationBuilder.add("omm.rcm.teleport-here", "傳送至此");
-        //translationBuilder.add("omm.rcm.copy-coordinates", "複製座標");
-        //translationBuilder.add("omm.rcm.open-in", "開啟於...");
-        //translationBuilder.add("omm.rcm.edit-waypoint", "編輯路標");
-        //translationBuilder.add("omm.rcm.set-snap-angle", "設定吸附角");
-        //translationBuilder.add("omm.rcm.view-on-map", "在地圖上查看");
-        //translationBuilder.add("omm.rcm.unpin", "取消標記");
-        //translationBuilder.add("omm.rcm.create-waypoint", "建立路標");
-        //translationBuilder.add("omm.error.tile-url.parse", "解析圖磚來源錯誤");
+        translationBuilder.add("omm.config.option.hover-names", "Afficher les noms au survol");
+        translationBuilder.add("omm.config.tooltip.hover-names", "Afficher les noms des joueurs au survol de la souris sur les joueurs dans la carte en plein écran");
+        translationBuilder.add("omm.waypoints.editing", "(Édition en cours...)");
+        translationBuilder.add("omm.config.tooltip.tile-source", "Définir une URL personnalisée pour charger les tuiles. Cliquez pour plus d'informations.");
+        translationBuilder.add("omm.rcm.teleport-here", "Se téléporter ici");
+        translationBuilder.add("omm.rcm.copy-coordinates", "Copier les coordonnées");
+        translationBuilder.add("omm.rcm.open-in", "Ouvrir dans...");
+        translationBuilder.add("omm.rcm.edit-waypoint", "Modifier le point de repère");
+        translationBuilder.add("omm.rcm.set-snap-angle", "Définir l'angle d'accrochage");
+        translationBuilder.add("omm.rcm.view-on-map", "Voir sur la carte");
+        translationBuilder.add("omm.rcm.unpin", "Détacher");
+        translationBuilder.add("omm.rcm.create-waypoint", "Créer un point de repère");
+        translationBuilder.add("omm.error.tile-url.parse", "Erreur lors de l'analyse de la source de tuiles");
     }
 }
 
@@ -718,19 +718,19 @@ abstract class OmmRussianLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.state.none", "Нет");
         translationBuilder.add("omm.config.state.self", "Себя");
         translationBuilder.add("omm.config.state.local", "Локально");
-        //translationBuilder.add("omm.config.option.hover-names", "悬停名称");
-        //translationBuilder.add("omm.config.tooltip.hover-names", "在全屏地图上将鼠标悬停在玩家身上时显示玩家名称");
-        //translationBuilder.add("omm.waypoints.editing", "（编辑…）");
-        //translationBuilder.add("omm.config.tooltip.tile-source", "设置欲加载图块的网址。点击了解更多信息。");
-        //translationBuilder.add("omm.rcm.teleport-here", "传送至此");
-        //translationBuilder.add("omm.rcm.copy-coordinates", "复制坐标");
-        //translationBuilder.add("omm.rcm.open-in", "打开于...");
-        //translationBuilder.add("omm.rcm.edit-waypoint", "编辑路标");
-        //translationBuilder.add("omm.rcm.set-snap-angle", "设置吸附角");
-        //translationBuilder.add("omm.rcm.view-on-map", "在地图上查看");
-        //translationBuilder.add("omm.rcm.unpin", "取消标记");
-        //translationBuilder.add("omm.rcm.create-waypoint", "创建路标");
-        //translationBuilder.add("omm.error.tile-url.parse", "解析图砖来源错误");
+        translationBuilder.add("omm.config.option.hover-names", "Показывать имена при наведении");
+        translationBuilder.add("omm.config.tooltip.hover-names", "Показывать имена игроков при наведении мыши на игроков на полноэкранной карте");
+        translationBuilder.add("omm.waypoints.editing", "(Редактируется...)");
+        translationBuilder.add("omm.config.tooltip.tile-source", "Установите пользовательский URL для загрузки плиток. Нажмите для получения дополнительной информации.");
+        translationBuilder.add("omm.rcm.teleport-here", "Телепортироваться сюда");
+        translationBuilder.add("omm.rcm.copy-coordinates", "Скопировать координаты");
+        translationBuilder.add("omm.rcm.open-in", "Открыть в...");
+        translationBuilder.add("omm.rcm.edit-waypoint", "Редактировать точку");
+        translationBuilder.add("omm.rcm.set-snap-angle", "Установить угол привязки");
+        translationBuilder.add("omm.rcm.view-on-map", "Показать на карте");
+        translationBuilder.add("omm.rcm.unpin", "Открепить");
+        translationBuilder.add("omm.rcm.create-waypoint", "Создать точку");
+        translationBuilder.add("omm.error.tile-url.parse", "Ошибка разбора источника плиток");
     }
 }
 

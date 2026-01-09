@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
-    public static final String MODVERSION = "1.5.0";
+    public static final String MODVERSION = "1.5.1";
 
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called

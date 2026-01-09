@@ -67,7 +67,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)),
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y))
     );
-    public static boolean renderWithChat = false;
+    public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
     private static boolean hudWasHidden = false;
 
@@ -133,7 +133,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.resetMap();
     }
 
-    public static void openLinkScreen(String link, Screen returnScreen) {
+    public static void openLinkScreen(String link, Screen returnScreen, boolean toggleAltScreenMap) {
         MinecraftClient.getInstance().setScreen(
                 new ConfirmLinkScreen(new BooleanConsumer() {
                     @Override
@@ -147,6 +147,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 }, link, true)
 
         );
+        if (toggleAltScreenMap) toggleAltScreenMap(true);
     }
 
     public static RightClickMenuType getRightClickMenuType() {
@@ -363,13 +364,25 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return true;
     }
 
+    private static void toggleAltScreenMap(boolean state) {
+        renderAltMap = state;
+        map.setDraggable(!state);
+        if (state == true) {
+            hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
+            MinecraftClient.getInstance().options.hudHidden = true;
+        } else {
+            MinecraftClient.getInstance().options.hudHidden = hudWasHidden;
+        }
+
+    }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
 
         if (chatToBeOpened) {
             if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient
-                renderWithChat = true;
+                renderAltMap = true;
                 mClient.setScreen(new ChatScreen(""));
                 map.setDraggable(false);
                 hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
@@ -434,10 +447,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     //used in the hud to render a 'fake' fsmap screen when chat is opened
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
 
-        if (!renderWithChat) return;
+        if (!renderAltMap) return;
 
-        if (!(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
-            renderWithChat = false;
+        if (!(MinecraftClient.getInstance().currentScreen instanceof ChatScreen || MinecraftClient.getInstance().currentScreen instanceof ConfirmLinkScreen)) {
+            renderAltMap = false;
             MinecraftClient.getInstance().setScreen(
                     new FullscreenMapScreen()
             );

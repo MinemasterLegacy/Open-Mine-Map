@@ -61,7 +61,7 @@ public class UrlChoiceWidget extends TextFieldWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Configuration#tile-source", ConfigScreen.getInstance());
+        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Configuration#tile-source", ConfigScreen.getInstance(), false);
     }
 
     @Override

@@ -44,6 +44,6 @@ public class BugReportLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         //FullscreenMapScreen.openBugReportScreen();
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new FullscreenMapScreen());
+        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new FullscreenMapScreen(), true);
     }
 }

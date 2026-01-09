@@ -102,6 +102,6 @@ public class AttributionLayer extends ClickableWidget {
         String link;
         if (selection == 0) link = TileUrlFile.osmAttributionUrl;
         else link = TileUrlFile.getCurrentUrl().attribution_links[selection - 1];
-        FullscreenMapScreen.openLinkScreen(link, new FullscreenMapScreen());
+        FullscreenMapScreen.openLinkScreen(link, new FullscreenMapScreen(), true);
     }
 }

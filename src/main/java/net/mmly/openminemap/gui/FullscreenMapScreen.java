@@ -24,6 +24,7 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 
@@ -53,6 +54,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
+    private static SearchButtonLayer searchButtonLayer;
+    private static SearchBoxLayer searchBoxLayer;
     private static PinnedWaypointsLayer pinnedWaypointsLayer;
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][numHotbarButtons];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
@@ -69,7 +72,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)),
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y))
     );
-    public static boolean renderWithChat = false;
+    public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
     private static boolean hudWasHidden = false;
 
@@ -135,7 +138,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.resetMap();
     }
 
-    public static void openLinkScreen(String link, Screen returnScreen) {
+    public static void openLinkScreen(String link, Screen returnScreen, boolean toggleAltScreenMap) {
         MinecraftClient.getInstance().setScreen(
                 new ConfirmLinkScreen(new BooleanConsumer() {
                     @Override
@@ -149,6 +152,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 }, link, true)
 
         );
+        if (toggleAltScreenMap) toggleAltScreenMap(true);
     }
 
     public static RightClickMenuType getRightClickMenuType() {
@@ -168,7 +172,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return pinnedWaypointsLayer.getSelectedWaypoint();
     }
 
-    public static void enableRightClickMenu(double x, double y, RightClickMenuType type) {
+    public static void enableRightClickMenu(double x, double y, RightClickMenuType type, Waypoint waypoint) {
         if (type == RightClickMenuType.HIDDEN) {
             disableRightClickMenu();
             return;
@@ -179,14 +183,21 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         rightClickLayer.clickX = x;
         rightClickLayer.clickY = y;
         rightClickLayer.setPosition((int) x, (int) y);
+
         if (type == RightClickMenuType.PINNED_WAYPOINT) {
-            rightClickLayer.setSavedMouseLatLong(pinnedWaypointsLayer.getSelectedWaypoint().longitude, pinnedWaypointsLayer.getSelectedWaypoint().latitude);
+            rightClickLayer.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
         } else {
-            rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
+            if (type == RightClickMenuType.WAYPOINT) {
+                rightClickLayer.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
+            } else {
+                rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
+            }
+
             if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
                 rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
                 rightClickLayer.horizontalSide = -1;
             } else rightClickLayer.horizontalSide = 1;
+
             if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
                 rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
                 rightClickLayer.verticalSize = -1;
@@ -201,15 +212,26 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     private static void onLeftClick() {
         disableRightClickMenu();
+        //searchBoxLayer.setFocused(false);
     }
 
     private static void onRightClick() {
         if (!map.mouseIsOutOfBounds()) { //checks if mouse is positioned on the map (this variable will be "-.-" if it isn't)
-            if (map.getHoveredWaypoint() != null) enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.WAYPOINT);
-            else enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.DEFAULT);
+            if (map.getHoveredWaypoint() != null) enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.WAYPOINT, map.getHoveredWaypoint());
+            else enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.DEFAULT, null);
         } else {
             disableRightClickMenu();
         }
+    }
+
+    public static void toggleSearchMenu(boolean toggle) {
+        //pinnedWaypointsLayer.visible = !toggle;
+        //searchBoxLayer.visible = toggle;
+    }
+
+    public static boolean getSearchMenuState() {
+        //return searchBoxLayer.visible;
+        return false;
     }
 
     private static boolean blockZoomOnZoom() {
@@ -236,6 +258,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
+        //searchButtonLayer = new SearchButtonLayer(3, 3);
+        //this.addDrawableChild(searchButtonLayer);
+        //searchBoxLayer = new SearchBoxLayer(this.textRenderer, 26, 3);
+        //this.addDrawableChild(searchBoxLayer);
 
         webAppSelectLayer = new WebAppSelectLayer();
         this.addDrawableChild(webAppSelectLayer);
@@ -249,7 +275,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         updateTileSet();
 
-        pinnedWaypointsLayer = new PinnedWaypointsLayer(0, 0, 20, 2, this.textRenderer);
+        pinnedWaypointsLayer = new PinnedWaypointsLayer(0, /*26*/0, 20, 2, this.textRenderer);
         this.addDrawableChild(pinnedWaypointsLayer);
 
         this.addDrawableChild(map); //added last so it's checked last for clicking
@@ -261,6 +287,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.waypointClickedProcedure = FullscreenMapScreen::onRightClick;
         map.setTextRenderer(this.textRenderer);
         map.doPlayerTooltipNames(true);
+
+        toggleSearchMenu(false);
 
     }
 
@@ -350,12 +378,30 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             return true;
         }
 
+        if (false /*searchBoxLayer.isFocused()*/) {
+            if (keyCode == 256 || keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN) return true;
+            return super.keyPressed(keyCode, scanCode, modifiers);
+        }
+
         if (mClient.options.chatKey.matchesKey(keyCode, 0)) {
             chatToBeOpened = true;
         }
 
         map.keyNavigate(keyCode, modifiers);
+
         return true;
+    }
+
+    private static void toggleAltScreenMap(boolean state) {
+        renderAltMap = state;
+        map.setDraggable(!state);
+        if (state == true) {
+            hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
+            MinecraftClient.getInstance().options.hudHidden = true;
+        } else {
+            MinecraftClient.getInstance().options.hudHidden = hudWasHidden;
+        }
+
     }
 
     @Override
@@ -364,7 +410,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         if (chatToBeOpened) {
             if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient
-                renderWithChat = true;
+                renderAltMap = true;
                 mClient.setScreen(new ChatScreen(""));
                 map.setDraggable(false);
                 hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
@@ -412,7 +458,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, 0x88000000);
         context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
-        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset);
+        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset /*- pinnedWaypointsLayer.getY()*/);
 
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);
@@ -423,16 +469,17 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         webAppSelectLayer.drawWidget(context);
 
         pinnedWaypointsLayer.drawWidget(context);
-
+        //searchButtonLayer.drawWidget(context);
+        //searchBoxLayer.drawWidget(context);
     }
 
     //used in the hud to render a 'fake' fsmap screen when chat is opened
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
 
-        if (!renderWithChat) return;
+        if (!renderAltMap) return;
 
-        if (!(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
-            renderWithChat = false;
+        if (!(MinecraftClient.getInstance().currentScreen instanceof ChatScreen || MinecraftClient.getInstance().currentScreen instanceof ConfirmLinkScreen)) {
+            renderAltMap = false;
             MinecraftClient.getInstance().setScreen(
                     new FullscreenMapScreen()
             );

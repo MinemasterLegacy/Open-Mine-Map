@@ -28,7 +28,7 @@ public class UrlChoiceWidget extends TextFieldWidget {
         this.setUneditableColor(14737632);
         upArrowWidget = new SelectArrow(ArrowDirection.up, this);
         downArrowWidget = new SelectArrow(ArrowDirection.down, this);
-        this.setTooltip(Tooltip.of(Text.of("Set a custom URL for tiles to be loaded from. Click for more information.")));
+        this.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.tile-source")));
         refreshText();
         this.currentUrlId = TileUrlFile.getCurrentUrlId();
     }
@@ -62,7 +62,7 @@ public class UrlChoiceWidget extends TextFieldWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Configuration#tile-source", ConfigScreen.getInstance());
+        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Configuration#tile-source", ConfigScreen.getInstance(), false);
     }
 
     @Override

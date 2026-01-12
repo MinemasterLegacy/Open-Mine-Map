@@ -1,5 +1,6 @@
 package net.mmly.openminemap.event;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -17,9 +18,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.map.PlayersManager;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.util.Waypoint;
+import net.mmly.openminemap.util.WaypointFile;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -42,8 +46,26 @@ public class CommandHander {
                             .then(ClientCommandManager.argument("player name", CoordinateArgumentType.coordinateArgumentType())
                             .suggests(new TplltoSuggestionProvider())
                             .executes(CommandHander::tpllto)))
+                    .then(ClientCommandManager.literal("warp")
+                            .then(ClientCommandManager.argument("warp", CoordinateArgumentType.coordinateArgumentType())
+                            .suggests(new WarpSuggestionProvider())
+                            .executes(CommandHander::warp)))
         );});
         //registerCommands();
+    }
+
+    private static int warp(CommandContext<FabricClientCommandSource> context) {
+
+        String warp = context.getArgument("warp", CoordinateValue.class).value;
+
+        for (Waypoint waypoint : OmmMap.getWaypoints()) {
+            if (waypoint.name.equals(warp)) {
+                MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+waypoint.latitude+" "+waypoint.longitude);
+                return 1;
+            }
+        }
+        MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.key.execute.error.snap-angle").formatted(Formatting.RED).formatted(Formatting.ITALIC), false);
+        return 0;
     }
 
     private static int tpllwtp(CommandContext<FabricClientCommandSource> context) {
@@ -168,6 +190,21 @@ class TplltoSuggestionProvider implements SuggestionProvider<FabricClientCommand
             String name = knownPlayer.getName().getString();
             if (name.equals(MinecraftClient.getInstance().player.getName().getString())) continue;
             builder.suggest(name);
+        }
+        return builder.buildFuture();
+    }
+}
+
+class WarpSuggestionProvider implements SuggestionProvider<FabricClientCommandSource> {
+
+    @Override
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
+
+        String existing = context.getInput().substring(10);
+
+        for (Waypoint waypoint : OmmMap.getWaypoints()) {
+            if (!(waypoint.name.startsWith(existing))) continue;
+            builder.suggest(waypoint.name);
         }
         return builder.buildFuture();
     }

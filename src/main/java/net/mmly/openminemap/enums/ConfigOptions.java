@@ -17,6 +17,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SHOW_DIRECTION_INDICATORS,
     ALTITUDE_SHADING,
     ZOOM_STRENGTH,
+    HOVER_NAMES,
 
     _HUD_TOGGLE,
     _HUD_ENABLED,
@@ -45,6 +46,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case SHOW_DIRECTION_INDICATORS: return "ShowDirectionIndicators";
             case ALTITUDE_SHADING: return "AltitudeShading";
             case ZOOM_STRENGTH: return "ZoomStrength";
+            case HOVER_NAMES: return "HoverNames";
 
             case _HUD_TOGGLE: return "§hudtoggle";
             case _HUD_ENABLED: return "§hudenabled";
@@ -76,6 +78,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case "ShowDirectionIndicators": return SHOW_DIRECTION_INDICATORS;
             case "AltitudeShading": return ALTITUDE_SHADING;
             case "ZoomStrength": return ZOOM_STRENGTH;
+            case "HoverNames": return HOVER_NAMES;
 
             case "§hudtoggle": return _HUD_TOGGLE;
             case "§hudenabled": return _HUD_ENABLED;

@@ -64,7 +64,7 @@ public class CommandHander {
                 return 1;
             }
         }
-        MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.key.execute.error.snap-angle").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+        MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.key.execute.error.snap-angle").formatted(Formatting.RED).formatted(Formatting.ITALIC), false);
         return 0;
     }
 

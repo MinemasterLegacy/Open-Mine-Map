@@ -3,6 +3,7 @@ package net.mmly.openminemap.gui;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -13,6 +14,7 @@ public class SearchButtonLayer extends ClickableWidget {
 
     public void drawWidget(DrawContext context) {
         context.drawTexture(
+                RenderLayer::getGuiTextured,
                 isHovered() ?
                         Identifier.of("openminemap", "buttons/vanilla/hover/search.png") :
                         Identifier.of("openminemap", "buttons/vanilla/default/search.png"),

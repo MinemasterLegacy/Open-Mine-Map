@@ -61,7 +61,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         int y = getY();
 
         for (int i = 0; i < Math.min(pinnedWaypoints.length, visibleWaypointCount); i++) {
-            context.drawTexture(pinnedWaypoints[i].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
+            context.drawTexture(RenderLayer::getGuiTextured, pinnedWaypoints[i].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
         }
 
         /*

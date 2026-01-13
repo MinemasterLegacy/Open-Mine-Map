@@ -44,6 +44,6 @@ public class WikiLinkLayer extends ClickableWidget {
     @Override
     public void onClick(Click click, boolean doubled) {
         //FullscreenMapScreen.openBugReportScreen();
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", ConfigScreen.getInstance());
+        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", ConfigScreen.getInstance(), false);
     }
 }

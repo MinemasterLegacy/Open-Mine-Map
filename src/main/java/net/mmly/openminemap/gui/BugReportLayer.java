@@ -30,6 +30,8 @@ public class BugReportLayer extends ClickableWidget {
         MutableText text = Text.translatable("omm.fullscreen.report-bugs");
         int textWidth = textRenderer.getWidth(text);
         context.fill(windowScaledWidth - (textWidth + 10), windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
+        setX(windowScaledWidth - (textWidth + 10));
+        setWidth(windowScaledWidth - getX());
         context.drawText(textRenderer,
                 isHovered() ?
                         text.formatted(Formatting.UNDERLINE) :
@@ -43,6 +45,6 @@ public class BugReportLayer extends ClickableWidget {
     @Override
     public void onClick(Click click, boolean doubled) {
         //FullscreenMapScreen.openBugReportScreen();
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new FullscreenMapScreen());
+        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new FullscreenMapScreen(), true);
     }
 }

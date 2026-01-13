@@ -33,7 +33,6 @@ public class ConfigScreen extends Screen {
     public static int windowScaledHeight;
     public static int windowScaledWidth;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
-    protected static boolean doArtificialZoom;
 
     int nextOptionSlot;
     int totalOptions;
@@ -54,6 +53,7 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget rightClickMeuUsesOption;
     ChoiceButtonWidget reverseScrollOption;
     ChoiceSliderWidget zoomStrengthWidget;
+    ChoiceButtonWidget hoverNamesOption;
 
     TextWidget overlayLabel;
     ChoiceSliderWidget playerShowSlider;
@@ -136,6 +136,7 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption.getButtonWidget().setY(rightClickMeuUsesOption.getButtonWidget().getY() + change);
         reverseScrollOption.getButtonWidget().setY(reverseScrollOption.getButtonWidget().getY() + change);
         zoomStrengthWidget.setY(zoomStrengthWidget.getY() + change);
+        hoverNamesOption.getButtonWidget().setY(hoverNamesOption.getButtonWidget().getY() + change);
         overlayLabel.setY(overlayLabel.getY() + change);
         playerShowSlider.setY(playerShowSlider.getY() + change);
         directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
@@ -149,7 +150,7 @@ public class ConfigScreen extends Screen {
         boolean b = super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
         maxScroll = Math.max(scrollRange - windowScaledHeight, 0);
         //System.out.println(verticalAmount);
-        if (ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on")) verticalAmount *= -1;
+        if (TileManager.doReverseScroll) verticalAmount *= -1;
         if (verticalAmount < 0) { //down
             if (currentScroll + SCROLLSPEED < maxScroll) {
                 updateScrollPositions(-SCROLLSPEED);
@@ -202,7 +203,6 @@ public class ConfigScreen extends Screen {
         generalLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.general"), this.textRenderer);
         this.addDrawableChild(generalLabel);
 
-        doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
         artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.artificial-zoom"), Text.of(""), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
         artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.artificial-zoom")));
         this.addDrawableChild(artificialZoomOption.getButtonWidget());
@@ -221,6 +221,9 @@ public class ConfigScreen extends Screen {
 
         zoomStrengthWidget = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.zoom-strength"), Text.translatable("omm.config.tooltip.zoom-strength"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
         this.addDrawableChild(zoomStrengthWidget);
+
+        hoverNamesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.hover-names"), Text.translatable("omm.config.tooltip.hover-names"), new String[] {"Off", "On"}, ConfigOptions.HOVER_NAMES);
+        this.addDrawableChild(hoverNamesOption.getButtonWidget());
 
         overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addDrawableChild(overlayLabel);
@@ -283,10 +286,11 @@ public class ConfigScreen extends Screen {
         artificialZoomOption.writeParameterToFile();
         reverseScrollOption.writeParameterToFile();
         zoomStrengthWidget.writeParameterToFile();
+        hoverNamesOption.writeParameterToFile();
         playerShowSlider.writeParameterToFile();
         directionIndicatorShowSlider.writeParameterToFile();
         altitudeShadingOption.writeParameterToFile();
-        if (!Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM))) {
+        if (!ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on")) {
             FullscreenMapScreen.clampZoom();
             HudMap.clampZoom();
         }

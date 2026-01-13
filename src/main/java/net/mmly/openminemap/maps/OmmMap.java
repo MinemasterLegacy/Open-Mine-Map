@@ -601,7 +601,7 @@ public class OmmMap extends ClickableWidget {
                     indicatorsOnly
             );
 
-        return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, player.getY(), player.getStyledDisplayName());
+        return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
     }
 
     private int roundTowardsZero(double num) {
@@ -794,7 +794,7 @@ public class OmmMap extends ClickableWidget {
         }
 
         BufferedPlayer self = null;
-        drawHoveredPlayerText(context);
+        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("on")) drawHoveredPlayerText(context);
 
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
             if (followPlayer) {

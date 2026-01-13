@@ -74,7 +74,7 @@ public class TileUrlFile {
                 name = ": ";
             } else if (errorUrl.name == null)  {
                 name = ": ";
-            } else name = " - Error Parsing Tile Source " + errorUrl.name + ": ";
+            } else name = " - " + Text.translatable("omm.error.tile-url.parse").getString() +" "+ errorUrl.name + ": ";
             OpenMineMapClient.debugMessages.add(debugStart.getString() + name + switch (loadError) {
                 case MALFORMED_JSON_FILE -> Text.translatable("omm.error.tile-source-json-formatting").getString();
                 case NULL_TILE_URL -> Text.translatable("omm.error.blank-tile-url").getString();

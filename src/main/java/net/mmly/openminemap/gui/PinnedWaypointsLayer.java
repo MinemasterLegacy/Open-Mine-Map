@@ -17,7 +17,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
     int waypointRenderSize; // how big the waypoints look
     int waypointHitboxSize;
-    int visibleWaypoints = 0;
+    int visibleWaypointCount = 0;
     int maxHeight;
     int margin;
     private static Waypoint[] pinnedWaypoints;
@@ -38,7 +38,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
     public void setRoundedHeight(int height1) {
         maxHeight = height1 - (height1 % waypointHitboxSize);
-        visibleWaypoints = height1 / waypointHitboxSize;
+        visibleWaypointCount = height1 / waypointHitboxSize;
     }
 
     private static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
@@ -51,6 +51,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
     public void drawWidget(DrawContext context) {
 
+        //if (!visible) return;
         setHeight(Math.min(maxHeight, pinnedWaypoints.length * width));
 
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
@@ -68,10 +69,18 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         }
 
         int y = getY();
+
+        for (int i = 0; i < Math.min(pinnedWaypoints.length, visibleWaypointCount); i++) {
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, pinnedWaypoints[i].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
+        }
+
+        /*
         for (Waypoint waypoint : pinnedWaypoints) {
             context.drawTexture(RenderPipelines.GUI_TEXTURED, waypoint.identifier, getX() + margin, getY() + margin + y, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
             y += waypointHitboxSize;
         }
+
+         */
     }
 
     private int RGBof(int HSB) {
@@ -99,7 +108,8 @@ public class PinnedWaypointsLayer extends ClickableWidget {
                     getX() + width + 3,
                     /*getY() + (selection * waypointHitboxSize) + ((double) waypointHitboxSize / 2) - ((double) textRenderer.fontHeight / 2) - 3,*/
                     getY() + 3,
-                    RightClickMenuType.PINNED_WAYPOINT
+                    RightClickMenuType.PINNED_WAYPOINT,
+                    getSelectedWaypoint()
             );
             menuSelection = selection;
 

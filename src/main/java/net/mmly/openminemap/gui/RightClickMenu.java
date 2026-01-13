@@ -44,64 +44,99 @@ public class RightClickMenu extends ClickableWidget {
 
     private final String[] waypointMenuOptions = {
         "",
-        "Teleport Here",
-        "Copy Coordinates",
-        "Open In...",
-        "Edit Waypoint",
-        "Set Snap Angle"
+        "omm.rcm.teleport-here",
+        "omm.rcm.copy-coordinates",
+        "omm.rcm.open-in",
+        "omm.rcm.edit-waypoint",
+        "omm.rcm.set-snap-angle"
     };
     private final String[] waypointMenuOptionMinusAngle = {
         "",
-        "Teleport Here",
-        "Copy Coordinates",
-        "Open In...",
-        "Edit Waypoint"
+        "omm.rcm.teleport-here",
+        "omm.rcm.copy-coordinates",
+        "omm.rcm.open-in",
+        "omm.rcm.edit-waypoint"
     };
     private final String[] pinnedWaypointOptions = {
         "",
-        "Teleport Here",
-        "Copy Coordinates",
-        "Open In...",
-        "Edit Waypoint",
-        "View On Map",
-        "Unpin",
-        "Set Snap Angle"
+        "omm.rcm.teleport-here",
+        "omm.rcm.copy-coordinates",
+        "omm.rcm.open-in",
+        "omm.rcm.edit-waypoint",
+        "omm.rcm.view-on-map",
+        "omm.rcm.unpin",
+        "omm.rcm.set-snap-angle"
     };
     private final String[] pinnedWaypointOptionsMinusSnap = {
         "",
-        "Teleport Here",
-        "Copy Coordinates",
-        "Open In...",
-        "Edit Waypoint",
-        "View On Map",
-        "Unpin"
+        "omm.rcm.teleport-here",
+        "omm.rcm.copy-coordinates",
+        "omm.rcm.open-in",
+        "omm.rcm.edit-waypoint",
+        "omm.rcm.view-on-map",
+        "omm.rcm.unpin"
     };
     private final String[] defaultOptions = {
-        "Teleport Here",
-        "Copy Coordinates",
-        "Open In...",
-        "Create Waypoint"
+        "omm.rcm.teleport-here",
+        "omm.rcm.copy-coordinates",
+        "omm.rcm.open-in",
+        "omm.rcm.create-waypoint"
     };
     private String[] menuOptions;
 
     private RightClickMenuType displayType = RightClickMenuType.HIDDEN;
 
+    private String[] getMenuOptions(RightClickMenuType type) {
+        return getMenuOptions(type, false);
+    }
+
+    private String[] getMenuOptions(RightClickMenuType type, boolean withSnapAngle) {
+        if (type == RightClickMenuType.HIDDEN) type = RightClickMenuType.DEFAULT; //fallback
+
+        String[] options = new String[switch (type) {
+            case HIDDEN -> 0; //will never happen
+            case DEFAULT -> 4;
+            case WAYPOINT -> 5 + (withSnapAngle ? 1 : 0);
+            case PINNED_WAYPOINT -> 7 + (withSnapAngle ? 1 : 0);
+        }];
+        options[0] = "";
+
+        String[] translatableOptionsPreset = new String[0];
+        if (type == RightClickMenuType.DEFAULT) {
+            translatableOptionsPreset = defaultOptions;
+        }
+        if (type == RightClickMenuType.WAYPOINT) {
+            if (withSnapAngle) translatableOptionsPreset = waypointMenuOptions;
+            else translatableOptionsPreset = waypointMenuOptionMinusAngle;
+        }
+        if (type == RightClickMenuType.PINNED_WAYPOINT) {
+            if (withSnapAngle) translatableOptionsPreset = pinnedWaypointOptions;
+            else translatableOptionsPreset = pinnedWaypointOptionsMinusSnap;
+        }
+
+        for (int i = translatableOptionsPreset[0].equals("") ? 1 : 0; i < translatableOptionsPreset.length; i++) {
+            options[i] = Text.translatable(translatableOptionsPreset[i]).getString();
+        }
+
+        return options;
+    }
+
     public void setDisplayType(RightClickMenuType type) {
         this.displayType = type;
         firstOptionIsBold = false;
         switch (type) {
-            case RightClickMenuType.DEFAULT -> menuOptions = defaultOptions;
+            case RightClickMenuType.DEFAULT -> menuOptions = getMenuOptions(RightClickMenuType.DEFAULT);
             case RightClickMenuType.WAYPOINT -> {
                 this.selectedWaypoint = FullscreenMapScreen.map.getHoveredWaypoint();
-                if (selectedWaypoint.angle < 0) menuOptions = waypointMenuOptionMinusAngle;
-                else menuOptions = waypointMenuOptions;
+                if (selectedWaypoint.angle < 0) menuOptions = getMenuOptions(RightClickMenuType.WAYPOINT, false);
+                else menuOptions = getMenuOptions(RightClickMenuType.WAYPOINT, true);
                 menuOptions[0] = selectedWaypoint.name;
                 firstOptionIsBold = true;
             }
             case RightClickMenuType.PINNED_WAYPOINT -> {
                 this.selectedWaypoint = FullscreenMapScreen.getSelectedPinnedWaypoint();
-                if (selectedWaypoint.angle < 0) menuOptions = pinnedWaypointOptionsMinusSnap;
-                else menuOptions = pinnedWaypointOptions;
+                if (selectedWaypoint.angle < 0) menuOptions = getMenuOptions(RightClickMenuType.PINNED_WAYPOINT, false);
+                else menuOptions = getMenuOptions(RightClickMenuType.PINNED_WAYPOINT, true);
                 menuOptions[0] = selectedWaypoint.name;
                 firstOptionIsBold = true;
             }
@@ -124,7 +159,7 @@ public class RightClickMenu extends ClickableWidget {
         useTp = Objects.equals(ConfigFile.readParameter(ConfigOptions.RIGHT_CLICK_MENU_USES), "/tp");
         this.textRenderer = textRenderer;
 
-        this.menuOptions = defaultOptions;
+        this.menuOptions = getMenuOptions(RightClickMenuType.DEFAULT);
         this.setDisplayType(RightClickMenuType.HIDDEN);
 
     }

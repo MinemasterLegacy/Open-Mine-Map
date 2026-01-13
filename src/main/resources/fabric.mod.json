@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "openminemap",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"name": "OpenMineMap",
 	"description": "A map mod made for the BuildTheEarth project that integrates an interactable world map into the game.",
 	"authors": [
@@ -11,7 +11,9 @@
         "Loafeon_",
         "ellie_4559",
         "OpenStreetMap (Map Data)",
-        "Longhi (Translations)"
+        "Longhi (Translations)",
+        "Deivid (Translations)",
+        "MaxLananas (Translations)"
     ],
     "translators": [
     ],

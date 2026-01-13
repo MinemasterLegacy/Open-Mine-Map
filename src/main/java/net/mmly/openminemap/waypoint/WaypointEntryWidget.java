@@ -102,7 +102,7 @@ public class WaypointEntryWidget extends ClickableWidget {
         }
 
         context.enableScissor(0, 0, getX() + width - 52, MinecraftClient.getInstance().getWindow().getScaledHeight());
-        context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.literal("(Editing...)").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
+        context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.translatable("omm.waypoints.editing").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
         context.disableScissor();
 
         context.drawBorder(getX(), getY() - scrollOffset, getWidth(), getHeight(), borderColor);

@@ -1,14 +1,12 @@
-package net.mmly.openminemap.util;
-
-import net.mmly.openminemap.enums.SearchResultType;
+package net.mmly.openminemap.search;
 
 public class SearchResult {
 
-    SearchResultType resultType;
-    double longitude;
-    double latitude;
-    String name;
-    String context;
+    public SearchResultType resultType;
+    public double longitude;
+    public double latitude;
+    public String name;
+    public String context;
 
     public SearchResult(SearchResultType type, double latitude, double longitude, String name, String context) {
         this(type, latitude, longitude, name);

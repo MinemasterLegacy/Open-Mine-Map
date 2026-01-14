@@ -1,10 +1,11 @@
-package net.mmly.openminemap.gui;
+package net.mmly.openminemap.search;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
 
 public class SearchButtonLayer extends ClickableWidget {
     public SearchButtonLayer(int x, int y) {
@@ -15,7 +16,9 @@ public class SearchButtonLayer extends ClickableWidget {
         context.drawTexture(
                 isHovered() ?
                         Identifier.of("openminemap", "buttons/vanilla/hover/search.png") :
-                        Identifier.of("openminemap", "buttons/vanilla/default/search.png"),
+                        (FullscreenMapScreen.getSearchMenuState() ?
+                                Identifier.of("openminemap", "buttons/vanilla/locked/search.png") :
+                                Identifier.of("openminemap", "buttons/vanilla/default/search.png")),
                 getX(),
                 getY(),
                 0,

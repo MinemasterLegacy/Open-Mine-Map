@@ -60,7 +60,14 @@ public class UnitConvert {
             To: (decimal degrees w/ negatives instead of direction)
                 #.#       #.#
          */
-        if (lon.length() < 3 || lat.length() < 3) return null;
+        if (lon.length() < 3 || lat.length() < 3) {
+            try {
+                return new double[] {Double.parseDouble(lat), Double.parseDouble(lon)};
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        };
+
         lat = lat.trim().toUpperCase();
         lon = lon.trim().toUpperCase();
         String testSuffix = lat.substring(lat.length()-3);

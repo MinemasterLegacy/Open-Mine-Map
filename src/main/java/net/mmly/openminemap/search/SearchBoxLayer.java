@@ -21,9 +21,10 @@ public class SearchBoxLayer extends TextFieldWidget {
     private static SearchResult[] searchResults = new SearchResult[7]; //not sure about length yet, may need to be longer or be a more advanced array type (ex. arraylist)
     private static int scroll = 0;
     private static String previousText = "";
+    private static int numResults;
 
     public SearchBoxLayer(TextRenderer textRenderer, int x, int y) {
-        super(textRenderer, x, y, 200, 20, Text.of(""));
+        super(textRenderer, x, y, 250, 20, Text.of(""));
         this.setEditable(true);
     }
 
@@ -44,42 +45,40 @@ public class SearchBoxLayer extends TextFieldWidget {
         for (int i = 0; i < FullscreenMapScreen.searchResultLayers.length; i++) {
             FullscreenMapScreen.searchResultLayers[i].setResult(null);
         }
-    }
-
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        setEditable(true);
-        return super.keyPressed(keyCode, scanCode, modifiers);
-    }
-
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
-        System.out.println("click");
+        numResults = 0;
     }
 
     private void addSearchResult(SearchResult result) {
         for (int i = 0; i < searchResults.length; i++) {
             if (searchResults[i] == null) {
                 searchResults[i] = result;
+                numResults++;
                 return;
             }
         }
+
+        if (result.resultType == SearchResultType.SEARCH) {
+            searchResults[searchResults.length-1] = result;
+        }
+
     }
 
-    private SearchResult[] getSearchHistory() {
+    private static SearchResult[] getSearchHistory() {
         //TODO
-        return new SearchResult[0];
+        return new SearchResult[] {
+                new SearchResult(SearchResultType.PLAYER, 40, 40, true, "Player301", "Distance: 31m")
+        };
     }
 
     public void recalculateResults() {
         clearSearchResults();
 
-        //if nothing has been typed yet, show reent search history
+        //if nothing has been typed yet, show recent search history
         if (this.getText().isBlank()) {
             for (SearchResult result : getSearchHistory()) {
                 addSearchResult(result);
             }
+            updateResultElements();
             return;
         }
 
@@ -92,6 +91,7 @@ public class SearchBoxLayer extends TextFieldWidget {
                         SearchResultType.COORDINATES,
                         coordinateAttempt[0],
                         coordinateAttempt[1],
+                        false,
                         UnitConvert.floorToPlace(coordinateAttempt[0], 7) + ", " + UnitConvert.floorToPlace(coordinateAttempt[1], 7)
                 ));
             }
@@ -105,8 +105,8 @@ public class SearchBoxLayer extends TextFieldWidget {
                         SearchResultType.WAYPOINT,
                         waypoint.latitude,
                         waypoint.longitude,
-                        waypoint.name,
-                        UnitConvert.floorToPlace(waypoint.latitude, 7) + ", " + UnitConvert.floorToPlace(waypoint.longitude, 7)
+                        false,
+                        waypoint.name
                 ));
             }
         }
@@ -114,17 +114,26 @@ public class SearchBoxLayer extends TextFieldWidget {
         //If the search text is a player, add them
         for (PlayerEntity player : PlayersManager.getNearPlayers()) {
             try {
-                if (player.getDisplayName().contains(Text.of(this.getText())) && player != MinecraftClient.getInstance().player) {
+                if (player.getDisplayName().getString().toLowerCase().contains(getText().toLowerCase()) && player != MinecraftClient.getInstance().player) {
                     double[] latLong = Projection.to_geo(player.getX(), player.getZ());
                     addSearchResult(new SearchResult(
                             SearchResultType.PLAYER,
                             latLong[0],
                             latLong[1],
+                            false,
                             player.getDisplayName().getString(),
                             ((int) player.distanceTo(MinecraftClient.getInstance().player)) + " blocks away")); //TODO use geo distance instead of mc distance
                 }
             } catch (NullPointerException | CoordinateValueError ignored) {}
         }
+
+        for (SearchResult result : getSearchHistory()) {
+            if (result.name.toLowerCase().contains(getText().toLowerCase())) {
+                addSearchResult(result);
+            }
+        }
+
+        addSearchResult(new SearchResult(SearchResultType.SEARCH, 0, 0, false,"Search Places", "Powered by Nominatim"));
 
         //check history for any matching results and add them
         //TODO
@@ -137,10 +146,18 @@ public class SearchBoxLayer extends TextFieldWidget {
         }
 
         //set result widgets
+        updateResultElements();
+
+    }
+
+    private static void updateResultElements() {
         for (int i = 0; i < FullscreenMapScreen.searchResultLayers.length; i++) {
             FullscreenMapScreen.searchResultLayers[i].setResult(searchResults[i]);
         }
+    }
 
+    public static int getNumResults() {
+        return numResults;
     }
 
 }

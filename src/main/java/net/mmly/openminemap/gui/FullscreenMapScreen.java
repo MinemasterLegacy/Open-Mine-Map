@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -215,6 +216,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static void onLeftClick() {
         disableRightClickMenu();
         searchBoxLayer.setFocused(false);
+        toggleSearchMenu(false);
     }
 
     private static void onRightClick() {
@@ -224,6 +226,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         } else {
             disableRightClickMenu();
         }
+        toggleSearchMenu(false);
     }
 
     public static void toggleSearchMenu(boolean toggle) {
@@ -231,11 +234,17 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         searchBoxLayer.visible = toggle;
         if (toggle) {
             FullscreenMapScreen.getInstance().setFocused(searchBoxLayer);
+            searchBoxLayer.recalculateResults();
         }
     }
 
     public static boolean getSearchMenuState() {
         return searchBoxLayer.visible;
+    }
+
+    public void jumpToSearchBox(int keyCode, int scanCode, int modifiers) {
+        setFocused(searchBoxLayer);
+        searchBoxLayer.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private static boolean blockZoomOnZoom() {
@@ -264,7 +273,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         this.addDrawableChild(toggleHudMapButtonLayer);
 
         for (int i = 0; i < 7; i++) {
-            searchResultLayers[i] = new SearchResultLayer(26, 23 + (i * 20), 200, i);
+            searchResultLayers[i] = new SearchResultLayer(26, 23 + (i * 20), 250, i);
             this.addDrawableChild(searchResultLayers[i]);
         }
 
@@ -381,16 +390,45 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
     }
 
+    private void arrowNavigateSearch(int code) {
+        int change;
+        if (code == GLFW.GLFW_KEY_DOWN) change = 1;
+        else if (code == GLFW.GLFW_KEY_UP) change = -1;
+        else return;
+
+        int numResults = SearchBoxLayer.getNumResults();
+
+        Element[] searchElements = new Element[numResults + 1];
+        searchElements[0] = searchBoxLayer;
+        System.arraycopy(searchResultLayers, 0, searchElements, 1, numResults);
+
+        for (int i = 0; i < searchElements.length; i++) {
+            if (searchElements[i].isFocused()) {
+                setFocused(searchElements[Math.clamp(i + change, 0, searchElements.length - 1)]);
+                return;
+            }
+        }
+
+    }
+
+    public boolean searchElementsFocused() {
+        return (getFocused() instanceof SearchBoxLayer || getFocused() instanceof SearchResultLayer || getFocused() instanceof SearchButtonLayer) && searchBoxLayer.visible;
+    }
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256 && this.shouldCloseOnEsc()) {
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             this.close();
             return true;
         }
 
-        if (searchBoxLayer.isFocused()) {
-            if (keyCode == 256 || keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN) return true;
-            return super.keyPressed(keyCode, scanCode, modifiers);
+        if (searchElementsFocused()) {
+            if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN) {
+                arrowNavigateSearch(keyCode);
+                return true;
+            } else {
+                return super.keyPressed(keyCode, scanCode, modifiers);
+            }
         }
 
         if (mClient.options.chatKey.matchesKey(keyCode, 0)) {

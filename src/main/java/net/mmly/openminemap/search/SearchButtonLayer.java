@@ -41,6 +41,12 @@ public class SearchButtonLayer extends ClickableWidget {
     }
 
     @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        FullscreenMapScreen.getInstance().jumpToSearchBox(keyCode, scanCode, modifiers);
+        return true;
+    }
+
+    @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
     }

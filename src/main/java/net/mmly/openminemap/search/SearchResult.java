@@ -6,18 +6,41 @@ public class SearchResult {
     public double longitude;
     public double latitude;
     public String name;
-    public String context;
+    public String context = "";
+    public double zoom = -1;
+    public boolean hsitoric;
+    public double[] bounds = null;
 
-    public SearchResult(SearchResultType type, double latitude, double longitude, String name, String context) {
-        this(type, latitude, longitude, name);
+    public SearchResult(SearchResultType type, double latitude, double longitude, boolean historic, String name, String context, double[] bounds) {
+        this(type, latitude, longitude, historic, name, context);
+        this.bounds = bounds;
+    }
+
+    public SearchResult(SearchResultType type, double latitude, double longitude, boolean historic, String name, double[] bounds) {
+        this(type, latitude, longitude, historic, name);
+        this.bounds = bounds;
+    }
+
+    public SearchResult(SearchResultType type, double latitude, double longitude, boolean historic, String name, String context) {
+        this(type, latitude, longitude, historic, name);
         this.context = context;
     }
 
-    public SearchResult(SearchResultType type, double latitude, double longitude, String name) {
+    public SearchResult(SearchResultType type, double latitude, double longitude, boolean historic, String name, double zoom) {
+        this(type, latitude, longitude, historic, name);
+        this.zoom = zoom;
+    }
+
+    public SearchResult(SearchResultType type, double latitude, double longitude, boolean historic, String name, String context, double zoom) {
+        this(type, latitude, longitude, historic, name, context);
+        this.zoom = zoom;
+    }
+
+    public SearchResult(SearchResultType type, double latitude, double longitude, boolean historic, String name) {
         this.resultType = type;
         this.latitude = latitude;
         this.longitude = longitude;
         this.name = name;
-        this.context = "";
+        this.hsitoric = historic;
     }
 }

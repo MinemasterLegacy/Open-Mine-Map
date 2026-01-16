@@ -133,6 +133,7 @@ public class OmmMap extends ClickableWidget {
         this.mapCenterY = y;
     }
     public void setMapZoom(double zoom1) {
+        zoom1 = Math.clamp(zoom1, 0, maxZoom);
         if (zoom > zoom1) {
             zoomOut(zoom - zoom1);
         }

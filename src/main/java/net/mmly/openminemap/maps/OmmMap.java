@@ -784,7 +784,7 @@ public class OmmMap extends ClickableWidget {
         //draw other players
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
             for (BufferedPlayer bufferedPlayer : players) {
-                if (player == null) continue;
+                if (bufferedPlayer == null) continue;
                 drawBufferedPlayer(context, bufferedPlayer);
             }
         }

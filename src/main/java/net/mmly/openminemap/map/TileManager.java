@@ -59,11 +59,14 @@ public class TileManager {
     private static int leftMostX;
     private static int topMostY;
 
-    public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int tileRenderSize, int renderAreaWidth, int renderAreaHeight) {
+    public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int tileRenderSize, int renderAreaWidth, int renderAreaHeight, boolean isHudMap) {
         /*  mapTileXY: the map coorinates of the center of the screen | map coordinate range is 128 * 2^(zoom+1)
          *  mapZoom: the zoom level of the map
          *  windowHeightXY: [scaled] height and width of window
          *  tileRenderSize: the size of each tile, usually 128 but can change with artificial zoom */
+
+        RequestManager.setMapCenter(mapPosX, mapPosY, isHudMap);
+        RequestManager.resetCandidate();
 
         int leftBorder = (-renderAreaWidth / 2) + mapPosX;
         int rightBorder = (renderAreaWidth / 2) - mapPosX;
@@ -80,10 +83,11 @@ public class TileManager {
         for (int j = 0; j < tileCountX; j++) {
             for (int k = 0; k < tileCountY; k++) {
                 tiles[j][k] = /*new DrawableMapTile(*/
-                        getDrawableTile(firstTileX + j, firstTileY + k, mapZoom, tileRenderSize);
+                        getDrawableTile(firstTileX + j, firstTileY + k, mapZoom, tileRenderSize, isHudMap);
             }
         }
 
+        RequestManager.pushRequest(isHudMap);
         return tiles;
     }
 
@@ -210,10 +214,10 @@ public class TileManager {
     }
 
     public static void loadTopTile() {
-        getDrawableTile(0, 0, 0, 128);
+        getDrawableTile(0, 0, 0, 128, true);
     }
 
-    private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize) {
+    private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize, boolean isHudMap) {
         //tileXY do not refer to their pixel positions, they refer to their tile grid positions
         try {
             String thisKey = Arrays.toString(new int[] {mapZoom, tileX, tileY});
@@ -244,7 +248,8 @@ public class TileManager {
                 );
             } catch (IIOException e) {
                 //else, request image from osm. Tile will be loaded eventually, but
-                RequestManager.trySetRequest(tileX, tileY, mapZoom);
+                //RequestManager.trySetRequest(tileX, tileY, mapZoom);
+                RequestManager.consider(tileX, tileY, mapZoom, tileRenderSize, isHudMap);
             }
 
             int zoomToTry = mapZoom - 1;

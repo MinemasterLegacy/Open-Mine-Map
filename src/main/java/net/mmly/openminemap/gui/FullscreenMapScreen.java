@@ -491,7 +491,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMouseZoomStrength(TileManager.mouseZoomStrength);
-        map.renderMap(context, null);
+        map.renderMap(context, null, false);
 
         drawButtons(context);
 
@@ -548,7 +548,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 MinecraftClient.getInstance().getWindow().getScaledWidth(),
                 MinecraftClient.getInstance().getWindow().getScaledHeight()
         );
-        map.renderMap(context, null);
+        map.renderMap(context, null, false);
 
     }
 

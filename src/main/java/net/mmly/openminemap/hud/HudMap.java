@@ -11,6 +11,7 @@ import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
@@ -118,11 +119,15 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+        //method is called every frame, so a couple of things are included here that need to run every frame
         while (!OpenMineMapClient.debugMessages.isEmpty()) {
             if (OpenMineMapClient.debugMessages.getFirst() != null) MinecraftClient.getInstance().player.sendMessage(Text.literal(OpenMineMapClient.debugMessages.getFirst()).formatted(Formatting.RED));
             OpenMineMapClient.debugMessages.removeFirst();
         }
 
+        RequestManager.setMapType(MinecraftClient.getInstance().currentScreen == null);
+
+        //now do actuall hudmap stuff
         if (!initialized) initialize(context); //initialize hudmap if not done already
 
         if ((!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) && !(MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
@@ -156,7 +161,7 @@ public class HudMap {
         }
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
-        map.renderMap(context, null);
+        map.renderMap(context, null, true);
 
         //0xD9D9D9
         if (!Double.isNaN(direction)) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)

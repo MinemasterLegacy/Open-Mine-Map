@@ -478,12 +478,12 @@ public class OmmMap extends ClickableWidget {
         // play no sound
     }
 
-    private void drawMap(DrawContext context) {
+    private void drawMap(DrawContext context, boolean isHudMap) {
 
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);
 
-        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight);
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight, isHudMap);
         for (DrawableMapTile[] column : tiles) {
             for (DrawableMapTile tile : column) {
                 drawTile(context, tile);
@@ -726,12 +726,12 @@ public class OmmMap extends ClickableWidget {
         context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + 13, 0xFFFFFFFF,false);
     }
 
-    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter) {
+    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
 
         updateFields();
 
         context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
-        drawMap(context); //draw the map tiles + background
+        drawMap(context, isHudMap); //draw the map tiles + background
 
         //draw waypoints
 

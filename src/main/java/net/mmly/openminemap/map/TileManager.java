@@ -87,36 +87,6 @@ public class TileManager {
         return tiles;
     }
 
-    //a method used to provide data used to render every tile that needs to be on the screen
-    public static Identifier[][] getRangeOfTiles(int x, int y, int zoom, int windowWidth, int windowHeight, int scaledSize) {
-
-        //x = 0 , bnx = -960
-        //x = 200, bnx = -760
-        int borderNegX = (-windowWidth / 2) + x;
-        int borderX = (windowWidth / 2) - x;
-        int borderNegY = (-windowHeight / 2) + y;
-        int borderY = (windowHeight / 2) - y;
-
-        leftMostX = (int) Math.floor((double) borderNegX / scaledSize); //tile x id of leftmost (negative-most) tile
-        topMostY = (int) Math.floor((double) borderNegY / scaledSize); //tile y id of topmost (negative-most) tile
-
-
-        //leftMostX = (int) Math.floor((borderNegX + Math.pow(2, zoom + 7)) / 256); //tile x id of leftmost (negative-most) tile
-        //topMostY = (int) Math.floor((borderNegY + Math.pow(2, zoom + 7)) / 256); //tile y id of topmost (negative-most) tile
-
-        int horzTileCount = (int) Math.ceil((double) windowWidth / scaledSize) + 1;
-        int vertTileCount = (int) Math.ceil((double) windowHeight / scaledSize) + 1;
-
-        Identifier[][] identifiers = new Identifier[horzTileCount][vertTileCount];
-        for (int j = 0; j < horzTileCount; j++) {
-            for (int k = 0; k < vertTileCount; k++) {
-                identifiers[j][k] = getOsmTile(leftMostX + j, topMostY + k, zoom);
-            }
-        }
-
-        return identifiers;
-    }
-
     public static boolean isTileOutOfBounds(int x, int y, int zoom) { //checks if a given tile is out of bounds
         return (x < 0 || y < 0 || x > Math.pow(2, zoom) - 1 || y > Math.pow(2, zoom) - 1);
     }
@@ -352,68 +322,6 @@ public class TileManager {
         os.close();
 
         return dyLoadedTiles.get(key);
-    }
-
-    public static Identifier getOsmTile(int x, int y, int zoom) { //get an osm map tile. It should be retrievd from cache if it is cached and retreived from the web otherwise
-        try {
-            /*
-            osm tile url format: http://[abc].tile.openstreetmap.org/zoom/x/y.png
-             - [abc]: either "a", "b", or "c" (there are 3 subdomains)
-             - zoom: integer 0 through 18, inclusive
-             - x: x position (not longitude) of tile. range is 0 through ((zoom+1)^2)-1, inclusive
-             - y: y position (not latitude) of tile. range is 0 through ((zoom+1)^2)-1, inclusive
-            more info:
-            https://stackoverflow.com/questions/3238611/how-can-i-get-tile-count-tile-x-tile-y-details-without-specifying-zoom-level/3238960#3238960
-            https://stackoverflow.com/questions/17434226/fetch-openstreetmap-image-for-specified-latitude-longitude
-             */
-
-            String thisKey = Arrays.toString(new int[] {zoom, x, y});
-            if (dyLoadedTiles.containsKey(thisKey)) {
-                return dyLoadedTiles.get(thisKey);
-            }
-
-            //System.out.println("x = "+x+", eq = "+(Math.pow(2.0, zoom) - 1));
-            if (isTileOutOfBounds(x, y, zoom)) { //if tile is out of bounds of the possible tile spaces
-                return getBlankIdentifier();
-            }
-
-            BufferedImage osmTile;
-            try { //if image is found in cache
-                osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+cacheName+"/"+zoom+"/"+x+"-"+y+".png")); //get an image from /run/openminemap;
-            } catch (IIOException e) { //else, request image from osm
-                //System.out.println("Requesting OSM Tile...");
-                //osmTile = RequestManager.tileGetRequest(x, y, zoom, type);
-                RequestManager.trySetRequest(x, y, zoom);
-                return getLoadingIdentifier();
-            }
-
-            if (osmTile == null) { //if file was not found AND tileGetRequest failed
-                return getErrorIdentifier();
-            }
-
-            if (!dyLoadedTiles.containsKey(thisKey)) {
-                //convert to NaitiveImage
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                ImageIO.write(osmTile, "png", os);
-                InputStream is = new ByteArrayInputStream(os.toByteArray());
-                NativeImage nImage = NativeImage.read(is);
-                //register new dynamic texture and store it again to be referenced later
-                dyLoadedTiles.put(thisKey, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
-
-                os.close();
-                is.close();
-                nImage.close();
-                //System.out.println("New Dynamic tile");
-                return dyLoadedTiles.get(thisKey);
-            }
-
-            return getErrorIdentifier();
-
-        } catch (Exception e) {
-            System.out.println("Error while getting tile: " + e);
-            e.printStackTrace();
-            return TileManager.getErrorIdentifier();
-        }
     }
 
     public static void initializeConfigParameters() {

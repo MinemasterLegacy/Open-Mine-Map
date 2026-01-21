@@ -252,7 +252,7 @@ public class TileManager {
     private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize, boolean isHudMap) {
         //tileXY do not refer to their pixel positions, they refer to their tile grid positions
         try {
-            String thisKey = Arrays.toString(new int[] {mapZoom, tileX, tileY});
+            String thisKey = getKey(mapZoom, tileX, tileY);
 
             //if tile is out of bounds of the possible tile spaces
             if (isTileOutOfBounds(tileX, tileY, mapZoom)) return new DrawableMapTile(
@@ -299,7 +299,7 @@ public class TileManager {
                 zoomToTry -= 1;
                 xToTry /= 2;
                 yToTry /= 2;
-                keyToTry = Arrays.toString(new int[] {zoomToTry, xToTry, yToTry});
+                keyToTry = getKey(zoomToTry, xToTry, yToTry);
             }
 
             if (foundTile && mapZoom - zoomToTry < 8) {
@@ -337,34 +337,23 @@ public class TileManager {
         }
     }
 
+    private static String getKey(int mapZoom, int tileX, int tileY) {
+        return Arrays.toString(new int[] {mapZoom, tileX, tileY});
+    }
+
     private static void registerDynamicIdentifier(int tileX, int tileY, int tileZoom, String cacheName, String thisKey) throws IOException {
+        RequestableTile tile = new RequestableTile(tileX, tileY, tileZoom, 0);
+        thisKey = getKey(tile.zoom, tile.x, tile.y);
         if (dyLoadedTiles.containsKey(thisKey)) return;
-        File f = new File(getRootFile() + "openminemap/"+cacheName+"/"+tileZoom+"/"+tileX+"-"+tileY+".png");
+
+        File f = new File(getRootFile() + "openminemap/"+cacheName+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png");
         if (f.exists()) {
             System.out.println("Loading Tile: " + thisKey);
-            tileLoadQueue.addLast(new LoadableTile(tileX, tileY, tileZoom, cacheName, thisKey));
+            tileLoadQueue.addLast(new LoadableTile(tile.x, tile.y, tile.zoom, cacheName, thisKey));
             dyLoadedTiles.put(thisKey, getLoadingIdentifier());
         } else if (tileZoom <= 18) {
             throw new IOException();
         }
-    }
-
-    private static Identifier registerDynamicIdentifier(BufferedImage image, String key) throws IOException {
-        //convert to NaitiveImage
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", os);
-        InputStream is = new ByteArrayInputStream(os.toByteArray());
-        NativeImage nImage = NativeImage.read(is);
-        //register new dynamic texture and store it again to be referenced later
-        dyLoadedTiles.put(key, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
-        //System.out.println("New Dynamic tile");
-        if (key.equals(Arrays.toString(new int[] {0, 0, 0}))) themeColor = image.getRGB(3, 3);
-
-        is.close();
-        nImage.close();
-        os.close();
-
-        return dyLoadedTiles.get(key);
     }
 
     public static void initializeConfigParameters() {

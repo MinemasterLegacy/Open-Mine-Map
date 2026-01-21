@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class TileManager {
 
@@ -35,6 +36,8 @@ public class TileManager {
     public static int themeColor = 0xFF808080;
     public static boolean oldFilesDetected = false;
     public static String cacheName;
+    static LinkedList<LoadableTile> tileLoadQueue = new LinkedList<>();
+    static LinkedList<RegisterableTile> tileRegisteringQueue = new LinkedList<>();
 
     public static String getRootFile() { //returns directory of .minecraft (or equivalent folder)
         return System.getProperty("user.dir") + File.separator;
@@ -62,8 +65,8 @@ public class TileManager {
     private static void registerQueue() {
         //System.out.println("Register Queue:"+TileLoaderManager.tileRegisteringQueue.size());
         //System.out.println("Dy Length: "+dyLoadedTiles.size());
-        for (int i = 0; i < TileLoaderManager.tileRegisteringQueue.size(); i++) {
-            RegisterableTile tile = TileLoaderManager.tileRegisteringQueue.getFirst();
+        for (int i = 0; i < tileRegisteringQueue.size(); i++) {
+            RegisterableTile tile = tileRegisteringQueue.getFirst();
             try {
 
                 NativeImage nImage = NativeImage.read(tile.image);
@@ -77,7 +80,7 @@ public class TileManager {
             } catch (IOException ignored) {
 
             } finally {
-                TileLoaderManager.tileRegisteringQueue.removeFirst();
+                tileRegisteringQueue.removeFirst();
             }
 
         }
@@ -113,9 +116,9 @@ public class TileManager {
         }
 
         RequestManager.pushRequest(isHudMap);
-        if (!TileLoaderManager.tileLoadQueue.isEmpty()) {
-            new TileLoader(TileLoaderManager.tileLoadQueue.toArray(new LoadableTile[0])).start();
-            TileLoaderManager.tileLoadQueue.clear();
+        if (!tileLoadQueue.isEmpty()) {
+            new TileLoader(tileLoadQueue.toArray(new LoadableTile[0])).start();
+            tileLoadQueue.clear();
         }
         return tiles;
     }
@@ -243,8 +246,7 @@ public class TileManager {
     }
 
     public static void loadTopTile() {
-        //TODO
-        //getDrawableTile(0, 0, 0, 128, true);
+        getDrawableTile(0, 0, 0, 128, true);
     }
 
     private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize, boolean isHudMap) {
@@ -274,7 +276,7 @@ public class TileManager {
             try {
                 registerDynamicIdentifier(tileX, tileY, mapZoom, cacheName, thisKey);
             //else, request image from osm. Tile will be loaded eventually; for now check higher scales
-            } catch (IIOException e) {
+            } catch (IOException e) {
 
                 //RequestManager.trySetRequest(tileX, tileY, mapZoom);
                 RequestManager.consider(tileX, tileY, mapZoom, tileRenderSize, isHudMap);
@@ -337,7 +339,7 @@ public class TileManager {
         if (dyLoadedTiles.containsKey(thisKey)) return;
         File f = new File(getRootFile() + "openminemap/"+cacheName+"/"+tileZoom+"/"+tileX+"-"+tileY+".png");
         if (f.exists()) {
-            TileLoaderManager.tileLoadQueue.addLast(new LoadableTile(tileX, tileY, tileZoom, cacheName, thisKey));
+            tileLoadQueue.addLast(new LoadableTile(tileX, tileY, tileZoom, cacheName, thisKey));
             dyLoadedTiles.put(thisKey, getLoadingIdentifier());
         } else if (tileZoom <= 18) {
             throw new IOException();

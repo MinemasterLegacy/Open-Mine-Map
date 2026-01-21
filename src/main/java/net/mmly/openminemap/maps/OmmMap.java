@@ -604,17 +604,27 @@ public class OmmMap extends ClickableWidget {
         return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
     }
 
-    private int roundTowardsZero(double num) {
+    private static int roundTowardsZero(double num) {
         return num < 0 ?
                 (int) Math.ceil(num) :
                 (int) num;
     }
 
+    //Given a pair of map-relative coordinates, returns a pair of the equivalent coordinates relative to the window (coordinates to be passed to context.draw methods)
+    private int getWindowRelativeX(double mapX, int textureOffset) {
+        return roundTowardsZero(mapX) + renderAreaX - textureOffset + (int) (((double) renderAreaWidth / 2) - mapCenterX);
+    }
+
+    private int getWindowRelativeY(double mapY, int textureOffset) {
+        return roundTowardsZero(mapY) + renderAreaY - textureOffset + (int) (((double) renderAreaHeight / 2) - mapCenterY);
+    }
+
     private void drawTile(DrawContext context, DrawableMapTile tile) {
 
         //offset the tiles so that the map is centered on the render area
-        int relativeX = (roundTowardsZero(tile.x) + renderAreaX + (int) (((double) renderAreaWidth / 2) - mapCenterX));
-        int relativeY = (roundTowardsZero(tile.y) + renderAreaY + (int) (((double) renderAreaHeight / 2) - mapCenterY));
+        int relativeX = getWindowRelativeX(tile.x, 0);
+        int relativeY = getWindowRelativeY(tile.y, 0);
+        //int relativeY = (roundTowardsZero(tile.y) + renderAreaY + (int) (((double) renderAreaHeight / 2) - mapCenterY));
 
         //if out of bounds in the positive (right/down) direction, return
         if (relativeX > renderAreaX2 || relativeY > renderAreaY2) return;
@@ -740,9 +750,10 @@ public class OmmMap extends ClickableWidget {
 
             if (!waypoint.visible) continue;
 
-
-            int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
-            int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
+            int x = getWindowRelativeX(UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize), 4);
+            int y = getWindowRelativeY(UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize), 4);
+            //int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
+            //int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
 
             if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
                 hoveredWaypoint = waypoint;

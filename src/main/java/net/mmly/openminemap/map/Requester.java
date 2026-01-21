@@ -2,6 +2,7 @@ package net.mmly.openminemap.map;
 
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
 
@@ -29,11 +30,12 @@ public class Requester extends Thread {
         if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled for this session.");
         while (true) {
             if (RequestManager.pendingRequest != null) {
-                this.tileGetRequest(RequestManager.pendingRequest[0], RequestManager.pendingRequest[1], RequestManager.pendingRequest[2], TileUrlFile.getCurrentUrl().source_url);
+                LoadableTile request = RequestManager.pendingRequest;
+                this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url);
                 requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;
-                    failedRequests.add(new int[]{RequestManager.pendingRequest[0], RequestManager.pendingRequest[1], RequestManager.pendingRequest[2]});
+                    failedRequests.add(new int[]{request.x, request.y, request.zoom});
                 }
                 //System.out.println("Tile request");
             }
@@ -44,6 +46,15 @@ public class Requester extends Thread {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    SearchResult[] searchResultRequest() {
+        //TODO
+        return null;
+    }
+
+    void staticDataFileRequest() {
+        //TODO
     }
 
     BufferedImage tileGetRequest(int x, int y, int zoom, String urlPattern) {

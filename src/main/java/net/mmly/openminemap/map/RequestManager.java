@@ -21,7 +21,9 @@ public class RequestManager {
 
     public static void consider(int x, int y, int zoom, int tileRenderSize, boolean isHudMap) {
         if (!(hudMapIsPrimary == isHudMap)) return;
-        int proximityScore = (int) Math.sqrt(Math.pow(mapCenterX - ((x + 0.5) * tileRenderSize) , 2) + Math.pow(mapCenterY - ((y + 0.5) * tileRenderSize) , 2));
+        int proximityScore;
+        if (x == 0 && y == 0 && zoom == 0) proximityScore = 0;
+        else proximityScore = (int) Math.sqrt(Math.pow(mapCenterX - ((x + 0.5) * tileRenderSize) , 2) + Math.pow(mapCenterY - ((y + 0.5) * tileRenderSize) , 2));
         if (candidateRequest == null) {
             candidateRequest = new RequestableTile(x, y, zoom, proximityScore);
             return;

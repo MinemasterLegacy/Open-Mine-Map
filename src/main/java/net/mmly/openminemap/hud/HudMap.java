@@ -129,10 +129,9 @@ public class HudMap {
 
         //now do actuall hudmap stuff
         if (!initialized) initialize(context); //initialize hudmap if not done already
+        if (TileManager.themeColor == 0xFF808080) TileManager.loadTopTile();
 
         if ((!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) && !(MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
-
-        if (TileManager.themeColor == 0xFF808080) TileManager.loadTopTile();
 
         playerIdentifier = MinecraftClient.getInstance().player.getSkinTextures().texture();
 

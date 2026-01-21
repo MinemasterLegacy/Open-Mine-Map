@@ -68,7 +68,7 @@ public class TileManager {
         for (int i = 0; i < tileRegisteringQueue.size(); i++) {
             RegisterableTile tile = tileRegisteringQueue.getFirst();
             try {
-
+                System.out.println("Registering Tile: " + tile.key);
                 NativeImage nImage = NativeImage.read(tile.image);
                 //register new dynamic texture and store it again to be referenced later
                 dyLoadedTiles.remove(tile.key);
@@ -162,7 +162,7 @@ public class TileManager {
     }
 
     public static void setCacheDir() {
-        purgeOldFiles();
+        //purgeOldFiles();
         cacheName = TileUrlFile.getCurrentUrl().name;
         try { // create or open the base openminemap file for caching
             File cacheDirectory = new File(TileManager.getRootFile() + "openminemap/"+cacheName+"/");
@@ -246,7 +246,7 @@ public class TileManager {
     }
 
     public static void loadTopTile() {
-        getDrawableTile(0, 0, 0, 128, true);
+        getDrawableTile(0, 0, 0, 128, RequestManager.hudMapIsPrimary);
     }
 
     private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize, boolean isHudMap) {
@@ -291,8 +291,10 @@ public class TileManager {
             //if a higher tile is loaded
             while (zoomToTry >= 0) {
                 if (dyLoadedTiles.containsKey(keyToTry)) {
-                    foundTile = true;
-                    break;
+                    if (!dyLoadedTiles.get(keyToTry).equals(getLoadingIdentifier())) {
+                        foundTile = true;
+                        break;
+                    }
                 }
                 zoomToTry -= 1;
                 xToTry /= 2;
@@ -339,6 +341,7 @@ public class TileManager {
         if (dyLoadedTiles.containsKey(thisKey)) return;
         File f = new File(getRootFile() + "openminemap/"+cacheName+"/"+tileZoom+"/"+tileX+"-"+tileY+".png");
         if (f.exists()) {
+            System.out.println("Loading Tile: " + thisKey);
             tileLoadQueue.addLast(new LoadableTile(tileX, tileY, tileZoom, cacheName, thisKey));
             dyLoadedTiles.put(thisKey, getLoadingIdentifier());
         } else if (tileZoom <= 18) {

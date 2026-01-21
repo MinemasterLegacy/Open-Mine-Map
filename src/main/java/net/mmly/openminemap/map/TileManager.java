@@ -24,7 +24,7 @@ import java.util.HashMap;
 public class TileManager {
 
     private static MinecraftClient mc = MinecraftClient.getInstance();
-    private static HashMap<String, Identifier> dyLoadedTiles = new HashMap<>();
+    protected static HashMap<String, Identifier> dyLoadedTiles = new HashMap<>();
     public static int tileScaledSize = 128; //should only be a power of 2
     public static int hudTileScaledSize = 128; //should only be a power of 2 (was 64 in v1.0.0)
     public static boolean doArtificialZoom;
@@ -59,12 +59,37 @@ public class TileManager {
     private static int leftMostX;
     private static int topMostY;
 
+    private static void registerQueue() {
+        //System.out.println("Register Queue:"+TileLoaderManager.tileRegisteringQueue.size());
+        //System.out.println("Dy Length: "+dyLoadedTiles.size());
+        for (int i = 0; i < TileLoaderManager.tileRegisteringQueue.size(); i++) {
+            RegisterableTile tile = TileLoaderManager.tileRegisteringQueue.getFirst();
+            try {
+
+                NativeImage nImage = NativeImage.read(tile.image);
+                //register new dynamic texture and store it again to be referenced later
+                dyLoadedTiles.remove(tile.key);
+                dyLoadedTiles.put(tile.key, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
+                //System.out.println("New Dynamic tile");
+
+                tile.image.close();
+                nImage.close();
+            } catch (IOException ignored) {
+
+            } finally {
+                TileLoaderManager.tileRegisteringQueue.removeFirst();
+            }
+
+        }
+    }
+
     public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int tileRenderSize, int renderAreaWidth, int renderAreaHeight, boolean isHudMap) {
         /*  mapTileXY: the map coorinates of the center of the screen | map coordinate range is 128 * 2^(zoom+1)
          *  mapZoom: the zoom level of the map
          *  windowHeightXY: [scaled] height and width of window
          *  tileRenderSize: the size of each tile, usually 128 but can change with artificial zoom */
 
+        registerQueue();
         RequestManager.setMapCenter(mapPosX, mapPosY, isHudMap);
         RequestManager.resetCandidate();
 
@@ -88,6 +113,10 @@ public class TileManager {
         }
 
         RequestManager.pushRequest(isHudMap);
+        if (!TileLoaderManager.tileLoadQueue.isEmpty()) {
+            new TileLoader(TileLoaderManager.tileLoadQueue.toArray(new LoadableTile[0])).start();
+            TileLoaderManager.tileLoadQueue.clear();
+        }
         return tiles;
     }
 
@@ -214,7 +243,8 @@ public class TileManager {
     }
 
     public static void loadTopTile() {
-        getDrawableTile(0, 0, 0, 128, true);
+        //TODO
+        //getDrawableTile(0, 0, 0, 128, true);
     }
 
     private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize, boolean isHudMap) {
@@ -222,32 +252,30 @@ public class TileManager {
         try {
             String thisKey = Arrays.toString(new int[] {mapZoom, tileX, tileY});
 
-            if (isTileOutOfBounds(tileX, tileY, mapZoom)) return new DrawableMapTile( //if tile is out of bounds of the possible tile spaces
+            //if tile is out of bounds of the possible tile spaces
+            if (isTileOutOfBounds(tileX, tileY, mapZoom)) return new DrawableMapTile(
                     getBlankIdentifier(),
                     tileX * tileRenderSize,
                     tileY * tileRenderSize,
                     tileRenderSize
             );
 
-            if (dyLoadedTiles.containsKey(thisKey)) return new DrawableMapTile(
-                    dyLoadedTiles.get(thisKey),
-                    tileX * tileRenderSize,
-                    tileY * tileRenderSize,
-                    tileRenderSize
-            );
-
-            BufferedImage osmTile = null;
-            try { //if image is found in cache
-                osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+cacheName+"/"+mapZoom+"/"+tileX+"-"+tileY+".png")); //get an image from /run/openminemap;
-                registerDynamicIdentifier(osmTile, thisKey);
-                return new DrawableMapTile(
+            //If tile is loaded to memory
+            if (dyLoadedTiles.containsKey(thisKey)) {
+                if (!dyLoadedTiles.get(thisKey).equals(getLoadingIdentifier())) return new DrawableMapTile(
                         dyLoadedTiles.get(thisKey),
                         tileX * tileRenderSize,
                         tileY * tileRenderSize,
                         tileRenderSize
                 );
+            }
+
+            //if image is found in cache
+            try {
+                registerDynamicIdentifier(tileX, tileY, mapZoom, cacheName, thisKey);
+            //else, request image from osm. Tile will be loaded eventually; for now check higher scales
             } catch (IIOException e) {
-                //else, request image from osm. Tile will be loaded eventually, but
+
                 //RequestManager.trySetRequest(tileX, tileY, mapZoom);
                 RequestManager.consider(tileX, tileY, mapZoom, tileRenderSize, isHudMap);
             }
@@ -257,23 +285,17 @@ public class TileManager {
             int yToTry = (tileY / 2);
             String keyToTry = Arrays.toString(new int[] {zoomToTry, xToTry, yToTry});
             boolean foundTile = false;
-            while (zoomToTry >= 0) {
-                if (dyLoadedTiles.containsKey(keyToTry)) { //if a higher tile is loaded
-                    foundTile = true;
-                    break;
-                }
-                try { //if a higher tile on disk
-                    osmTile = ImageIO.read(new File(getRootFile() + "openminemap/"+cacheName+"/"+zoomToTry+"/"+xToTry+"-"+yToTry+".png")); //get an image from /run/openminemap;
-                    registerDynamicIdentifier(osmTile, keyToTry);
-                    foundTile = true;
-                    break;
-                } catch (IIOException e) { //if neither, check even higher
-                    zoomToTry -= 1;
-                    xToTry /= 2;
-                    yToTry /= 2;
-                    keyToTry = Arrays.toString(new int[] {zoomToTry, xToTry, yToTry});
-                }
 
+            //if a higher tile is loaded
+            while (zoomToTry >= 0) {
+                if (dyLoadedTiles.containsKey(keyToTry)) {
+                    foundTile = true;
+                    break;
+                }
+                zoomToTry -= 1;
+                xToTry /= 2;
+                yToTry /= 2;
+                keyToTry = Arrays.toString(new int[] {zoomToTry, xToTry, yToTry});
             }
 
             if (foundTile && mapZoom - zoomToTry < 8) {
@@ -308,6 +330,17 @@ public class TileManager {
                 tileY * tileRenderSize,
                 tileRenderSize
             );
+        }
+    }
+
+    private static void registerDynamicIdentifier(int tileX, int tileY, int tileZoom, String cacheName, String thisKey) throws IOException {
+        if (dyLoadedTiles.containsKey(thisKey)) return;
+        File f = new File(getRootFile() + "openminemap/"+cacheName+"/"+tileZoom+"/"+tileX+"-"+tileY+".png");
+        if (f.exists()) {
+            TileLoaderManager.tileLoadQueue.addLast(new LoadableTile(tileX, tileY, tileZoom, cacheName, thisKey));
+            dyLoadedTiles.put(thisKey, getLoadingIdentifier());
+        } else if (tileZoom <= 18) {
+            throw new IOException();
         }
     }
 

@@ -2,8 +2,8 @@ package net.mmly.openminemap.map;
 
 public class RequestManager {
 
-    static LoadableTile pendingRequest;
-    static LoadableTile candidateRequest;
+    static RequestableTile pendingRequest;
+    static RequestableTile candidateRequest;
     static int mapCenterX = 64;
     static int mapCenterY = 64;
     static boolean hudMapIsPrimary = true;
@@ -23,11 +23,11 @@ public class RequestManager {
         if (!(hudMapIsPrimary == isHudMap)) return;
         int proximityScore = (int) Math.sqrt(Math.pow(mapCenterX - ((x + 0.5) * tileRenderSize) , 2) + Math.pow(mapCenterY - ((y + 0.5) * tileRenderSize) , 2));
         if (candidateRequest == null) {
-            candidateRequest = new LoadableTile(x, y, zoom, proximityScore);
+            candidateRequest = new RequestableTile(x, y, zoom, proximityScore);
             return;
         }
         if (candidateRequest.proximityScore > proximityScore) {
-            candidateRequest = new LoadableTile(x, y, zoom, proximityScore);
+            candidateRequest = new RequestableTile(x, y, zoom, proximityScore);
         }
     };
 

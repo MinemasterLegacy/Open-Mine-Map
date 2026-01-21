@@ -30,7 +30,7 @@ public class Requester extends Thread {
         if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled for this session.");
         while (true) {
             if (RequestManager.pendingRequest != null) {
-                LoadableTile request = RequestManager.pendingRequest;
+                RequestableTile request = RequestManager.pendingRequest;
                 this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url);
                 requestCounter++;
                 if (requestCounter >= requestAttempts) {

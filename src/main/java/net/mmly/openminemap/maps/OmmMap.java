@@ -231,7 +231,7 @@ public class OmmMap extends ClickableWidget {
         setRenderPositionAndSize(this.renderAreaX, this.renderAreaY, width, height);
     }
     public void setRenderPosition(int x, int y) {
-        setRenderPositionAndSize(x, y, x + this.width, y + this.height);
+        setRenderZone(x, y, x + this.width, y + this.height);
     }
     public void setRenderPositionAndSize(int x, int y, int width, int height) {
         setRenderZone(x, y, x + width, y + height);

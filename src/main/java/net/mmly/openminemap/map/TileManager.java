@@ -274,7 +274,7 @@ public class TileManager {
 
             //if image is found in cache
             try {
-                registerDynamicIdentifier(tileX, tileY, mapZoom, cacheName, thisKey);
+                registerDynamicIdentifier(tileX, tileY, mapZoom, cacheName);
             //else, request image from osm. Tile will be loaded eventually; for now check higher scales
             } catch (IOException e) {
 
@@ -285,7 +285,7 @@ public class TileManager {
             int zoomToTry = mapZoom - 1;
             int xToTry = (tileX / 2);
             int yToTry = (tileY / 2);
-            String keyToTry = Arrays.toString(new int[] {zoomToTry, xToTry, yToTry});
+            String keyToTry = getKey(zoomToTry, xToTry, yToTry);
             boolean foundTile = false;
 
             //if a higher tile is loaded
@@ -341,13 +341,15 @@ public class TileManager {
         return Arrays.toString(new int[] {mapZoom, tileX, tileY});
     }
 
-    private static void registerDynamicIdentifier(int tileX, int tileY, int tileZoom, String cacheName, String thisKey) throws IOException {
+    private static void registerDynamicIdentifier(int tileX, int tileY, int tileZoom, String cacheName) throws IOException {
         RequestableTile tile = new RequestableTile(tileX, tileY, tileZoom, 0);
-        thisKey = getKey(tile.zoom, tile.x, tile.y);
+        String thisKey = getKey(tile.zoom, tile.x, tile.y);
         if (dyLoadedTiles.containsKey(thisKey)) return;
 
         File f = new File(getRootFile() + "openminemap/"+cacheName+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png");
-        if (f.exists()) {
+        if (tile.sameTileAs(RequestManager.pendingRequest)) {
+            return; // Tile is currently being requested/written, so act as if it doesn't exist and return for now
+        } else if (f.exists()) { //If file does exist, load it and register it to be used
             System.out.println("Loading Tile: " + thisKey);
             tileLoadQueue.addLast(new LoadableTile(tile.x, tile.y, tile.zoom, cacheName, thisKey));
             dyLoadedTiles.put(thisKey, getLoadingIdentifier());

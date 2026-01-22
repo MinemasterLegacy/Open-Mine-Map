@@ -26,4 +26,9 @@ public class RequestableTile {
     public int[] getDataArray() {
         return new int[] {x, y, zoom};
     }
+
+    public boolean sameTileAs(RequestableTile tile) {
+        if (tile == null) return false;
+        return (tile.x == this.x && tile.y == this.y && tile.zoom == this.zoom);
+    }
 }

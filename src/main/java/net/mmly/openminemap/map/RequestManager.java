@@ -1,5 +1,7 @@
 package net.mmly.openminemap.map;
 
+import net.minecraft.client.MinecraftClient;
+
 public class RequestManager {
 
     static RequestableTile pendingRequest;
@@ -7,6 +9,9 @@ public class RequestManager {
     static int mapCenterX = 64;
     static int mapCenterY = 64;
     static boolean hudMapIsPrimary = true;
+    static String searchString = null;
+    static double reverseSearchLat = Double.NaN;
+    static double reverseSearchLong = Double.NaN;
 
     //there has to be a better way of doing this then passing booleans around
     public static void setMapCenter(int x, int y, boolean isHudMap) {

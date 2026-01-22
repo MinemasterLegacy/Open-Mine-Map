@@ -9,6 +9,8 @@ import net.mmly.openminemap.util.TileUrlFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
@@ -29,7 +31,13 @@ public class Requester extends Thread {
     public void run() {
         if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled for this session.");
         while (true) {
-            if (RequestManager.pendingRequest != null) {
+            if (RequestManager.searchString != null) {
+                //searchResultRequest();
+            }
+            else if (!Double.isNaN(RequestManager.reverseSearchLat)) {
+                //TODO
+            }
+            else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
                 this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url);
                 requestCounter++;
@@ -48,19 +56,41 @@ public class Requester extends Thread {
         }
     }
 
-    SearchResult[] searchResultRequest() {
+    SearchResult[] searchResultRequest(String search) {
+        //TODO other parameters (lang)
+        String urlPattern = "photon.komoot.io/api/?q=" + search.replaceAll("&", ""); //TODO check for any other characters that need to be accounted for
+        InputStream results = get(urlPattern);
+        return null;
+    }
+
+    SearchResult[] reverseSearchRequest(double lat, double lon) {
         //TODO
         return null;
     }
 
-    BufferedImage tileGetRequest(int x, int y, int zoom, String urlPattern) {
+    void tileGetRequest(int x, int y, int zoom, String urlPattern) {
         BufferedImage image = null;
-        if (disableWebRequests || TileManager.isTileOutOfBounds(x, y, zoom) || failedRequests.contains(TileManager.getKey(zoom, x, y))) return image;
+        if (disableWebRequests || TileManager.isTileOutOfBounds(x, y, zoom) || failedRequests.contains(TileManager.getKey(zoom, x, y))) return;
 
         urlPattern = ((urlPattern.replace("{z}", Integer.toString(zoom)).replace("{x}", Integer.toString(x))).replace("{y}", Integer.toString(y)).replace("{s}", subDomain));
         try {
-            URL url = new URI(urlPattern).toURL();
-            URLConnection connection = url.openConnection();
+            InputStream inputStream = get(urlPattern);
+            if (inputStream == null) return;
+            image = ImageIO.read(inputStream);
+            File out = new File(TileManager.getRootFile() + "openminemap/"+TileManager.cacheName+"/"+zoom+"/"+x+"-"+y+".png");
+            ImageIO.write(image, "png", out);
+            RequestManager.pendingRequest = null;
+            requestCounter = 0;
+        } catch (IOException e) {
+            System.out.println("Error during tile write: " + e);
+            e.printStackTrace();
+        }
+    }
+
+    private InputStream get(String url) {
+        try {
+            URL url1 = new URI(url).toURL();
+            URLConnection connection = url1.openConnection();
 
             connection.setRequestProperty("User-Agent", "Java/21.0.8 OpenMineMap (contact: minemasterlegacy@gmail.com)");
             connection.setRequestProperty("cache-control", "max-age=7");
@@ -68,18 +98,12 @@ public class Requester extends Thread {
             connection.setRequestProperty("Retry-After", "3");
 
             connection.connect();
-            //System.out.println(connection.getContent());
-            image = ImageIO.read(connection.getInputStream());
-            File out = new File(TileManager.getRootFile() + "openminemap/"+TileManager.cacheName+"/"+zoom+"/"+x+"-"+y+".png");
-            ImageIO.write(image, "png", out);
-            RequestManager.pendingRequest = null;
-            requestCounter = 0;
-
+            return connection.getInputStream();
         } catch (Exception e) {
             System.out.println("Error during url request: " + e);
             e.printStackTrace();
+            return null;
         }
-
-        return image;
     }
+
 }

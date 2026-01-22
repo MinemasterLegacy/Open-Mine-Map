@@ -133,7 +133,7 @@ public class SearchBoxLayer extends TextFieldWidget {
             }
         }
 
-        addSearchResult(new SearchResult(SearchResultType.SEARCH, 0, 0, false,"Search Places", "Powered by Nominatim"));
+        addSearchResult(new SearchResult(SearchResultType.SEARCH, 0, 0, false,"Search Places", "Using photon search"));
 
         //check history for any matching results and add them
         //TODO

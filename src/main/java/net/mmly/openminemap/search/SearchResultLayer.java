@@ -58,7 +58,7 @@ public class SearchResultLayer extends ClickableWidget {
         context.fill(getX(), getY(), getX() + 4, getY() + height, getResultColor());
         if (isFocused()) context.drawBorder(getX(), getY(), width, height, getResultColor());
 
-        context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.hsitoric ? 20 : 0), getY() + height);
+        context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
         context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, 0xFFFFFFFF, false);
         if (!myResult.context.isBlank()) {
             context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType == SearchResultType.SEARCH ? 0xFF548AF7 : 0xFFB0B0B0, false);
@@ -78,7 +78,7 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
-        if (myResult.hsitoric) context.drawTexture(
+        if (myResult.historic) context.drawTexture(
                 Identifier.of("openminemap", "search/history.png"),
                 getX() + getWidth() - 32,
                 getY() + 3,

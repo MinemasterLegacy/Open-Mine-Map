@@ -8,7 +8,7 @@ public class SearchResult {
     public String name;
     public String context = "";
     public double zoom = -1;
-    public boolean hsitoric;
+    public boolean historic;
     public double[] bounds = null;
 
     public SearchResult(SearchResultType type, double latitude, double longitude, boolean historic, String name, String context, double[] bounds) {
@@ -41,6 +41,6 @@ public class SearchResult {
         this.latitude = latitude;
         this.longitude = longitude;
         this.name = name;
-        this.hsitoric = historic;
+        this.historic = historic;
     }
 }

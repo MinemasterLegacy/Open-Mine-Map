@@ -22,7 +22,7 @@ public class Requester extends Thread {
     private final String[] subDomains = new String[]{"a", "b", "c"};
     private final String subDomain = subDomains[new Random().nextInt(3)];
 
-    ArrayList<int[]> failedRequests = new ArrayList<>();
+    ArrayList<String> failedRequests = new ArrayList<>();
 
     int requestCounter = 0;
 
@@ -35,7 +35,7 @@ public class Requester extends Thread {
                 requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;
-                    failedRequests.add(new int[]{request.x, request.y, request.zoom});
+                    failedRequests.add(TileManager.getKey(request.zoom, request.x, request.y));
                 }
                 //System.out.println("Tile request");
             }
@@ -53,13 +53,9 @@ public class Requester extends Thread {
         return null;
     }
 
-    void staticDataFileRequest() {
-        //TODO
-    }
-
     BufferedImage tileGetRequest(int x, int y, int zoom, String urlPattern) {
         BufferedImage image = null;
-        if (disableWebRequests || TileManager.isTileOutOfBounds(x, y, zoom) || failedRequests.contains(new int[] {x, y, zoom})) return image;
+        if (disableWebRequests || TileManager.isTileOutOfBounds(x, y, zoom) || failedRequests.contains(TileManager.getKey(zoom, x, y))) return image;
 
         urlPattern = ((urlPattern.replace("{z}", Integer.toString(zoom)).replace("{x}", Integer.toString(x))).replace("{y}", Integer.toString(y)).replace("{s}", subDomain));
         try {

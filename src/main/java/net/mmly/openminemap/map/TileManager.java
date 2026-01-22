@@ -68,11 +68,11 @@ public class TileManager {
         for (int i = 0; i < tileRegisteringQueue.size(); i++) {
             RegisterableTile tile = tileRegisteringQueue.getFirst();
             try {
-                System.out.println("Registering Tile: " + tile.key);
+                //System.out.println("Registering Tile: " + tile.key);
                 NativeImage nImage = NativeImage.read(tile.image);
                 //register new dynamic texture and store it again to be referenced later
                 dyLoadedTiles.remove(tile.key);
-                dyLoadedTiles.put(tile.key, mc.getTextureManager().registerDynamicTexture("osmtile", new NativeImageBackedTexture(nImage)));
+                dyLoadedTiles.put(tile.key, mc.getTextureManager().registerDynamicTexture("openminemap-tile", new NativeImageBackedTexture(nImage)));
                 //System.out.println("New Dynamic tile");
 
                 tile.image.close();
@@ -337,8 +337,9 @@ public class TileManager {
         }
     }
 
-    private static String getKey(int mapZoom, int tileX, int tileY) {
-        return Arrays.toString(new int[] {mapZoom, tileX, tileY});
+    public static String getKey(int mapZoom, int tileX, int tileY) {
+        return mapZoom + "-" + tileX + "-" + tileY;
+        //return Arrays.toString(new int[] {mapZoom, tileX, tileY});
     }
 
     private static void registerDynamicIdentifier(int tileX, int tileY, int tileZoom, String cacheName) throws IOException {
@@ -350,7 +351,7 @@ public class TileManager {
         if (tile.sameTileAs(RequestManager.pendingRequest)) {
             return; // Tile is currently being requested/written, so act as if it doesn't exist and return for now
         } else if (f.exists()) { //If file does exist, load it and register it to be used
-            System.out.println("Loading Tile: " + thisKey);
+            //System.out.println("Loading Tile: " + thisKey);
             tileLoadQueue.addLast(new LoadableTile(tile.x, tile.y, tile.zoom, cacheName, thisKey));
             dyLoadedTiles.put(thisKey, getLoadingIdentifier());
         } else if (tileZoom <= 18) {

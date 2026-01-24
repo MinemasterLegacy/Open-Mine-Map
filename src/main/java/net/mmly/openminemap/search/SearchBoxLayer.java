@@ -8,11 +8,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.PlayersManager;
+import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
 
@@ -28,8 +30,24 @@ public class SearchBoxLayer extends TextFieldWidget {
         this.setEditable(true);
     }
 
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_ENTER) {
+            FullscreenMapScreen.getInstance().jumpToSearchOption();
+            RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
+            return true;
+        } else {
+            return super.keyPressed(keyCode, scanCode, modifiers);
+        }
+    }
+
     public void drawWidget(DrawContext context) {
-        if (!previousText.equals(getText())) {
+        if (RequestManager.searchResultReturn != null) {
+            searchResults = RequestManager.searchResultReturn;
+            numResults = RequestManager.searchResultReturn.length;
+            RequestManager.searchResultReturn = null;
+            updateResultElements();
+        } else if (!previousText.equals(getText())) {
             previousText = getText();
             recalculateResults();
         }
@@ -138,12 +156,13 @@ public class SearchBoxLayer extends TextFieldWidget {
         //check history for any matching results and add them
         //TODO
 
-        //temp
+        /*
         System.out.println("-----= RESULTS =-----");
         for (SearchResult result : searchResults) {
             if (result == null) System.out.println("null");
             else System.out.println(result.name);
         }
+        */
 
         //set result widgets
         updateResultElements();

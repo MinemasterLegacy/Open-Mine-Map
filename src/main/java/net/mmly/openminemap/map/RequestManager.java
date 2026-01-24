@@ -1,6 +1,7 @@
 package net.mmly.openminemap.map;
 
 import net.minecraft.client.MinecraftClient;
+import net.mmly.openminemap.search.SearchResult;
 
 public class RequestManager {
 
@@ -12,6 +13,7 @@ public class RequestManager {
     static String searchString = null;
     static double reverseSearchLat = Double.NaN;
     static double reverseSearchLong = Double.NaN;
+    public static SearchResult[] searchResultReturn = null;
 
     //there has to be a better way of doing this then passing booleans around
     public static void setMapCenter(int x, int y, boolean isHudMap) {
@@ -47,6 +49,16 @@ public class RequestManager {
 
     public static void setMapType(boolean isHudMap) {
         hudMapIsPrimary = isHudMap;
+    }
+
+    public static void setSearchRequest(String query) {
+        searchString = query.replace("&", "");
+    }
+
+    public static void setReverseSearchRequest(double latitude, double longitude) {
+        if (Double.isNaN(latitude) || Double.isNaN(longitude)) return;
+        reverseSearchLat = latitude;
+        reverseSearchLong = longitude;
     }
 
 }

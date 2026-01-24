@@ -7,9 +7,12 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.Arrays;
 
 public class SearchResultLayer extends ClickableWidget {
 
@@ -67,7 +70,7 @@ public class SearchResultLayer extends ClickableWidget {
         }
         context.disableScissor();
 
-        context.drawTexture(
+        if (myResult.resultType != SearchResultType.LOCATION) context.drawTexture(
                 Identifier.of("openminemap", "search/" + myResult.resultType.toString().toLowerCase() + ".png"),
                 getX() + getWidth() - 17,
                 getY() + 3,
@@ -96,10 +99,14 @@ public class SearchResultLayer extends ClickableWidget {
         if (isFocused()) goToResult();
     }
 
+    public boolean isSearchOption() {
+        return myResult.resultType == SearchResultType.SEARCH;
+    }
+
     private void goToResult() {
 
         if (myResult.resultType == SearchResultType.SEARCH) {
-            //TODO
+            RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return;
         }
 
@@ -134,13 +141,16 @@ public class SearchResultLayer extends ClickableWidget {
 
         double percentage = (Math.max(areaHeight, areaWidth) / 128) * 1.15; //multiply by 1.15 to add some empty space around the focused area
 
+        /*
         System.out.println(
                 map.getRenderAreaWidth() + "\t" +
                 map.getRenderAreaHeight() + "\t" +
                 percentage + "\t" +
                 Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2
         );
+        */
 
+        System.out.println(Arrays.toString(bounds));
 
         map.setMapZoom(
                 Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2

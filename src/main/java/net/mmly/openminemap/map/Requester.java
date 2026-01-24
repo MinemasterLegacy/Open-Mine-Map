@@ -1,20 +1,23 @@
 package net.mmly.openminemap.map;
 
+import com.google.gson.Gson;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.search.SearchResult;
+import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
 
 public class Requester extends Thread {
@@ -32,7 +35,7 @@ public class Requester extends Thread {
         if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled for this session.");
         while (true) {
             if (RequestManager.searchString != null) {
-                //searchResultRequest();
+                RequestManager.searchResultReturn = searchResultRequest(RequestManager.searchString);
             }
             else if (!Double.isNaN(RequestManager.reverseSearchLat)) {
                 //TODO
@@ -49,18 +52,78 @@ public class Requester extends Thread {
             }
             //System.out.println("Request loop");
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    SearchResult[] searchResultRequest(String search) {
+    private String getStringOfInputStream() {
+        return null; //TODO
+    }
+
+    SearchResult[] searchResultRequest(String query) {
+        if (disableWebRequests) return null; //TODO account for null result
         //TODO other parameters (lang)
-        String urlPattern = "photon.komoot.io/api/?q=" + search.replaceAll("&", ""); //TODO check for any other characters that need to be accounted for
-        InputStream results = get(urlPattern);
-        return null;
+        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=7";
+
+        Gson gson = new Gson();
+        InputStream stream = get(urlPattern);
+        RequestManager.searchString = null;
+
+        Map returnedResult = gson.fromJson(new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)), Map.class);
+        if (!returnedResult.get("type").equals("FeatureCollection")) return null;
+
+        ArrayList features = (ArrayList) returnedResult.get("features");
+        SearchResult[] results = new SearchResult[7];
+
+        for (int i = 0; i < features.size(); i++) {
+            Map feature = (Map) (features.get(i));
+            Map geometry = (Map) feature.get("geometry");
+            Map properties = (Map) feature.get("properties");
+            ArrayList coords = (ArrayList) geometry.get("coordinates");
+
+            String context = "";
+            if (properties.get("county") != null) context += properties.get("county") + ", ";
+            if (properties.get("city") != null) context += properties.get("city") + ", ";
+            if (properties.get("state") != null) context += properties.get("state") + ", ";
+            if (properties.get("country") != null) context += properties.get("country") + ", ";
+            if (!context.isEmpty()) context = context.substring(0, context.length() - 2);
+
+            ArrayList extentList = (ArrayList) properties.get("extent");
+            double[] extent = null;
+            if (extentList != null) extent = new double[] {
+                    (double) extentList.get(1),
+                    (double) extentList.get(3),
+                    (double) extentList.get(0),
+                    (double) extentList.get(2)
+            };
+
+            results[i] = new SearchResult(
+                    SearchResultType.LOCATION,
+                    (Double) coords.get(1),
+                    (Double) coords.get(0),
+                    false,
+                    (String) properties.get("name"),
+                    context,
+                    extent
+            );
+        }
+
+        if (results[0] == null) {
+            results[0] = new SearchResult(
+                SearchResultType.LOCATION,
+                0,
+                0,
+                false,
+                "",
+                "No Results",
+                0
+            );
+        }
+
+        return results;
     }
 
     SearchResult[] reverseSearchRequest(double lat, double lon) {

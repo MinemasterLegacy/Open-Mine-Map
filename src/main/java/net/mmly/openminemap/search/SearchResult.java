@@ -9,7 +9,7 @@ public class SearchResult {
     public String context = "";
     public double zoom = -1;
     public boolean historic;
-    public double[] bounds = null;
+    public double[] bounds = null; //y1, y2, x1, x2
 
     public SearchResult(SearchResultType type, double latitude, double longitude, boolean historic, String name, String context, double[] bounds) {
         this(type, latitude, longitude, historic, name, context);

@@ -241,10 +241,21 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public static boolean getSearchMenuState() {
         return searchBoxLayer.visible;
     }
+    public void jumpToSearchBox() {
+        setFocused(searchBoxLayer);
+    }
+    public void jumpToSearchOption() {
+        for (SearchResultLayer layer : searchResultLayers) {
+            if (layer.isSearchOption()) {
+                setFocused(layer);
+                return;
+            }
+        }
+    }
 
     public void jumpToSearchBox(int keyCode, int scanCode, int modifiers) {
-        setFocused(searchBoxLayer);
-        searchBoxLayer.keyPressed(keyCode, scanCode, modifiers);
+         jumpToSearchBox();
+         searchBoxLayer.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private static boolean blockZoomOnZoom() {
@@ -404,7 +415,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         for (int i = 0; i < searchElements.length; i++) {
             if (searchElements[i].isFocused()) {
-                setFocused(searchElements[Math.clamp(i + change, 0, searchElements.length - 1)]);
+                setFocused(searchElements[(i + change + searchElements.length) % searchElements.length]);
                 return;
             }
         }
@@ -413,6 +424,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     public boolean searchElementsFocused() {
         return (getFocused() instanceof SearchBoxLayer || getFocused() instanceof SearchResultLayer || getFocused() instanceof SearchButtonLayer) && searchBoxLayer.visible;
+    }
+
+    public String getSearchBoxContents() {
+        return searchBoxLayer.getText();
     }
 
     @Override

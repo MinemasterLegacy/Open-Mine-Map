@@ -3,8 +3,11 @@ package net.mmly.openminemap.search;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.RequestManager;
@@ -12,6 +15,7 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 public class SearchResultLayer extends ClickableWidget {
@@ -24,6 +28,7 @@ public class SearchResultLayer extends ClickableWidget {
         super(x, y, width, 20, Text.of(""));
         this.resultNumber = resultNumber;
         yPos = y;
+        this.setTooltipDelay(Duration.ofMillis(500));
     }
 
     @Override
@@ -70,6 +75,11 @@ public class SearchResultLayer extends ClickableWidget {
         }
         context.disableScissor();
 
+        MutableText tooltip = Text.literal(myResult.name);
+        if (!myResult.name.isBlank() && !myResult.context.isBlank()) tooltip.append("\n");
+        if (!myResult.context.isBlank()) tooltip = tooltip.append(Text.literal(myResult.context).formatted(Formatting.GRAY));
+        setTooltip(Tooltip.of(tooltip));
+
         if (myResult.resultType != SearchResultType.LOCATION) context.drawTexture(
                 Identifier.of("openminemap", "search/" + myResult.resultType.toString().toLowerCase() + ".png"),
                 getX() + getWidth() - 17,
@@ -99,8 +109,9 @@ public class SearchResultLayer extends ClickableWidget {
         if (isFocused()) goToResult();
     }
 
-    public boolean isSearchOption() {
-        return myResult.resultType == SearchResultType.SEARCH;
+    public boolean isOption(SearchResultType type) {
+        if (myResult == null) return false;
+        return myResult.resultType == type;
     }
 
     private void goToResult() {

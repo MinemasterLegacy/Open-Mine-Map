@@ -1,6 +1,7 @@
 package net.mmly.openminemap.map;
 
 import net.minecraft.client.MinecraftClient;
+import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 
 public class RequestManager {
@@ -53,6 +54,7 @@ public class RequestManager {
 
     public static void setSearchRequest(String query) {
         searchString = query.replace("&", "");
+        SearchBoxLayer.toggleSearching(true);
     }
 
     public static void setReverseSearchRequest(double latitude, double longitude) {

@@ -9,6 +9,7 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.RequestManager;
+import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
@@ -16,6 +17,7 @@ import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import org.lwjgl.glfw.GLFW;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 public class SearchBoxLayer extends TextFieldWidget {
@@ -24,17 +26,36 @@ public class SearchBoxLayer extends TextFieldWidget {
     private static int scroll = 0;
     private static String previousText = "";
     private static int numResults;
+    private static boolean searching = false;
+    private static String valueStore;
+    private static SearchBoxLayer instance;
 
     public SearchBoxLayer(TextRenderer textRenderer, int x, int y) {
         super(textRenderer, x, y, 250, 20, Text.of(""));
         this.setEditable(true);
+        instance = this;
+    }
+
+    public static SearchBoxLayer getInstance() {
+        return instance;
+    }
+
+    public static void toggleSearching(boolean toggle) {
+        searching = toggle;
+        if (searching) {
+            valueStore = getInstance().getText();
+            getInstance().setText("");
+        } else {
+            getInstance().setText(valueStore);
+        }
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (searching) return true;
         if (keyCode == GLFW.GLFW_KEY_ENTER) {
-            FullscreenMapScreen.getInstance().jumpToSearchOption();
-            RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
+            FullscreenMapScreen.getInstance().jumpToBestOption();
+            //RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return true;
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
@@ -43,15 +64,21 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     public void drawWidget(DrawContext context) {
         if (RequestManager.searchResultReturn != null) {
+            toggleSearching(false);
             searchResults = RequestManager.searchResultReturn;
             numResults = RequestManager.searchResultReturn.length;
             RequestManager.searchResultReturn = null;
+            FullscreenMapScreen.getInstance().jumpToSearchBox();
             updateResultElements();
-        } else if (!previousText.equals(getText())) {
+        } else if (!previousText.equals(getText()) && !searching) {
             previousText = getText();
             recalculateResults();
         }
         this.render(context, 0, 0, 0);
+        if (searching) {
+            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, "Searching...", getX() + 4, getY() + 6, 0xFF404040);
+            return;
+        }
         if (getText().isEmpty() && isVisible()) { //<Translation>
             context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, "Search anything...", getX() + 4, getY() + 6, 0xFF404040);
         }
@@ -103,8 +130,9 @@ public class SearchBoxLayer extends TextFieldWidget {
         //If the search text is coordinates, add that as an option
         try {
             String[] coordinateStrings = this.getText().trim().replaceAll(",", " ").split(" ");
+            coordinateStrings = removeExtra(coordinateStrings);
             double[] coordinateAttempt = UnitConvert.toDecimalDegrees(coordinateStrings[0], coordinateStrings[1]);
-            if (coordinateAttempt != null) {
+            if (coordinateAttempt != null && !OmmMap.geoCoordsOutOfBounds(coordinateAttempt[0], coordinateAttempt[1])) {
                 addSearchResult(new SearchResult(
                         SearchResultType.COORDINATES,
                         coordinateAttempt[0],
@@ -151,7 +179,7 @@ public class SearchBoxLayer extends TextFieldWidget {
             }
         }
 
-        addSearchResult(new SearchResult(SearchResultType.SEARCH, 0, 0, false,"Search Places", "Using photon search"));
+        if (getText().length() >= 3) addSearchResult(new SearchResult(SearchResultType.SEARCH, 0, 0, false,"Search Places", "Using photon search"));
 
         //check history for any matching results and add them
         //TODO
@@ -177,6 +205,21 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     public static int getNumResults() {
         return numResults;
+    }
+
+    private String[] removeExtra(String[] array) {
+        String[] newArray = new String[] {" ", " "};
+        for (String element : array) {
+            if (!element.isBlank()) {
+                if (newArray[0].isBlank()) {
+                    newArray[0] = element;
+                } else {
+                    newArray[1] = element;
+                    return newArray;
+                }
+            }
+        }
+        return new String[] {""}; // Does not have coordinates, so return a short array that will throw an OOB exception
     }
 
 }

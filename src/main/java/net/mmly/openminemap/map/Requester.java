@@ -72,11 +72,25 @@ public class Requester extends Thread {
         InputStream stream = get(urlPattern);
         RequestManager.searchString = null;
 
-        Map returnedResult = gson.fromJson(new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)), Map.class);
+        SearchResult[] results = new SearchResult[7];
+        Map returnedResult;
+        try {
+            returnedResult = gson.fromJson(new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)), Map.class);
+        } catch (NullPointerException e) {
+            results[0] = new SearchResult(
+                    SearchResultType.LOCATION,
+                    0,
+                    0,
+                    false,
+                    "",
+                    "Something went wrong.",
+                    0
+            );
+            return results;
+        }
         if (!returnedResult.get("type").equals("FeatureCollection")) return null;
 
         ArrayList features = (ArrayList) returnedResult.get("features");
-        SearchResult[] results = new SearchResult[7];
 
         for (int i = 0; i < features.size(); i++) {
             Map feature = (Map) (features.get(i));
@@ -118,7 +132,7 @@ public class Requester extends Thread {
                 0,
                 false,
                 "",
-                "No Results",
+                "No web results.",
                 0
             );
         }

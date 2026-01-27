@@ -23,6 +23,7 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
+import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
@@ -244,10 +245,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public void jumpToSearchBox() {
         setFocused(searchBoxLayer);
     }
-    public void jumpToSearchOption() {
+    public void jumpToBestOption() {
         for (SearchResultLayer layer : searchResultLayers) {
-            if (layer.isSearchOption()) {
+            if (layer.isOption(SearchResultType.SEARCH) || layer.isOption(SearchResultType.COORDINATES)) {
                 setFocused(layer);
+                layer.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
                 return;
             }
         }

@@ -93,6 +93,10 @@ public class OmmMap extends ClickableWidget {
 
     private static Waypoint[] waypoints;
 
+    public static boolean geoCoordsOutOfBounds(double lat, double lon) {
+        return !(Math.abs(lon) < 180 && Math.abs(lat) < 85.0511287798);
+    }
+
     private void initFields() {
         client = MinecraftClient.getInstance();
         window = client.getWindow();

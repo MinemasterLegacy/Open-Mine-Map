@@ -485,7 +485,6 @@ public class OmmMap extends ClickableWidget {
 
     private void drawMap(DrawContext context, boolean isHudMap) {
 
-        System.out.println(tileSize);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);
 
@@ -520,8 +519,8 @@ public class OmmMap extends ClickableWidget {
     private void drawBufferedPlayer(DrawContext context, BufferedPlayer bufferedPlayer) {
 
         //get position of player relative to te screen (number passed to draw methods)
-        int relativeX = (renderAreaWidth / 2) - 4 + bufferedPlayer.offsetX + renderAreaX;
-        int relativeY = (renderAreaHeight / 2) - 4 + bufferedPlayer.offsetY + renderAreaY;
+        int relativeX = getWindowRelativeX(bufferedPlayer.mapX, 4);
+        int relativeY = getWindowRelativeY(bufferedPlayer.mapY, 4);
 
         //if outside render area in positive direction (right/down), return
         if (relativeX > renderAreaX2 || relativeY > renderAreaY2) return;
@@ -583,12 +582,8 @@ public class OmmMap extends ClickableWidget {
         if (Double.isNaN(geoCoords[0])) return null;
 
         //convert geo coordinates to map coordinates
-        double mapX = UnitConvert.longToMapX(geoCoords[1], zoom, tileSize);
+        double mapX = UnitConvert.longToMapX(geoCoords[1], zoom, tileSize); ///MAPXY
         double mapY = UnitConvert.latToMapY(geoCoords[0], zoom, tileSize);
-
-        //calculate player offset
-        int mapCenterOffsetX = (int) Math.round(mapX - mapCenterX);
-        int mapCenterOffsetY = (int) Math.round(mapY - mapCenterY);
 
         //get player texture
         Identifier playerTexture = PlayersManager.playerSkinList.get(playerDraw.getUuid());
@@ -602,12 +597,12 @@ public class OmmMap extends ClickableWidget {
             DirectionIndicator.draw(
                     context,
                     direction,
-                    renderAreaX + (renderAreaWidth / 2) - 12 + mapCenterOffsetX,
-                    renderAreaY + (renderAreaHeight / 2) - 12 + mapCenterOffsetY,
+                    getWindowRelativeX(mapX, 12),
+                    getWindowRelativeY(mapY, 12),
                     indicatorsOnly
             );
 
-        return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
+        return new BufferedPlayer(mapX, mapY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
     }
 
     private static int roundTowardsZero(double num) {

@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 public class TileManager {
 
@@ -64,7 +65,12 @@ public class TileManager {
         //System.out.println("Register Queue:"+TileLoaderManager.tileRegisteringQueue.size());
         //System.out.println("Dy Length: "+dyLoadedTiles.size());
         for (int i = 0; i < tileRegisteringQueue.size(); i++) {
-            RegisterableTile tile = tileRegisteringQueue.getFirst();
+            RegisterableTile tile;
+            try {
+                tile = tileRegisteringQueue.getFirst();
+            } catch (NoSuchElementException e) {
+                return;
+            }
             try {
                 //System.out.println("Registering Tile: " + tile.key);
                 NativeImage nImage = NativeImage.read(tile.image);

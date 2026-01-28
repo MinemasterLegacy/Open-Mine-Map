@@ -236,6 +236,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (toggle) {
             FullscreenMapScreen.getInstance().setFocused(searchBoxLayer);
             searchBoxLayer.recalculateResults();
+        } else {
+            SearchBoxLayer.setValueStore("");
+            SearchBoxLayer.toggleSearching(false);
         }
     }
 

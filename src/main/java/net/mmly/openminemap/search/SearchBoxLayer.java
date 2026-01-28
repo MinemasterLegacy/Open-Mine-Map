@@ -203,6 +203,10 @@ public class SearchBoxLayer extends TextFieldWidget {
         }
     }
 
+    public static void setValueStore(String value) {
+        valueStore = value;
+    }
+
     public static int getNumResults() {
         return numResults;
     }

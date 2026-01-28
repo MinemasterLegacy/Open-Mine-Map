@@ -19,7 +19,7 @@ public class TileLoader extends Thread{
         for (LoadableTile tile : tilesToLoad) {
             InputStream in = loadTileFromDisk(tile);
             if (in != null) {
-                TileManager.tileRegisteringQueue.addLast(new RegisterableTile(in, tile.key));
+                TileManager.tileRegisteringQueue.addLast(new RegisterableTile(in, tile.key, tile.cache));
             }
         }
     }

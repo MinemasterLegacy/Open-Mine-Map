@@ -6,10 +6,12 @@ public class RegisterableTile {
 
     InputStream image;
     String key;
+    String cacheName;
 
-    RegisterableTile(InputStream image, String key) {
+    RegisterableTile(InputStream image, String key, String cacheName) {
         this.image = image;
         this.key = key;
+        this.cacheName = cacheName;
     }
 
 }

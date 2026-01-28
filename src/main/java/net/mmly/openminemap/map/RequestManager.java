@@ -33,11 +33,11 @@ public class RequestManager {
         if (x == 0 && y == 0 && zoom == 0) proximityScore = 0;
         else proximityScore = (int) Math.sqrt(Math.pow(mapCenterX - ((x + 0.5) * tileRenderSize) , 2) + Math.pow(mapCenterY - ((y + 0.5) * tileRenderSize) , 2));
         if (candidateRequest == null) {
-            candidateRequest = new RequestableTile(x, y, zoom, proximityScore);
+            candidateRequest = new RequestableTile(x, y, zoom, proximityScore, TileManager.cacheName);
             return;
         }
         if (candidateRequest.proximityScore > proximityScore) {
-            candidateRequest = new RequestableTile(x, y, zoom, proximityScore);
+            candidateRequest = new RequestableTile(x, y, zoom, proximityScore, TileManager.cacheName);
         }
     };
 

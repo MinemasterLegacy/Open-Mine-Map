@@ -343,7 +343,7 @@ public class TileManager {
     }
 
     private static void registerDynamicIdentifier(int tileX, int tileY, int tileZoom, String cacheName) throws IOException {
-        RequestableTile tile = new RequestableTile(tileX, tileY, tileZoom, 0);
+        RequestableTile tile = new RequestableTile(tileX, tileY, tileZoom, 0, cacheName);
         String thisKey = getKey(tile.zoom, tile.x, tile.y);
         if (dyLoadedTiles.containsKey(thisKey)) return;
 

@@ -6,12 +6,14 @@ public class RequestableTile {
     int y;
     int zoom;
     int proximityScore; //the lower the score, the closer the tile is to the center and the more it should be prioritised
+    String cacheName;
 
-    public RequestableTile(int x, int y, int tileZoom, int proximityScore) {
+    public RequestableTile(int x, int y, int tileZoom, int proximityScore, String cacheName) {
         this.x = x;
         this.y = y;
         this.zoom = tileZoom;
         this.proximityScore = proximityScore;
+        this.cacheName = cacheName;
         clampToZoom18();
     }
 

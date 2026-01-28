@@ -14,7 +14,6 @@ import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
@@ -42,7 +41,7 @@ public class Requester extends Thread {
             }
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
-                this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url);
+                this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url, request.cacheName);
                 requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;
@@ -145,7 +144,7 @@ public class Requester extends Thread {
         return null;
     }
 
-    void tileGetRequest(int x, int y, int zoom, String urlPattern) {
+    void tileGetRequest(int x, int y, int zoom, String urlPattern, String cacheName) {
         BufferedImage image = null;
         if (disableWebRequests || TileManager.isTileOutOfBounds(x, y, zoom) || failedRequests.contains(TileManager.getKey(zoom, x, y))) return;
 
@@ -154,7 +153,7 @@ public class Requester extends Thread {
             InputStream inputStream = get(urlPattern);
             if (inputStream == null) return;
             image = ImageIO.read(inputStream);
-            File out = new File(TileManager.getRootFile() + "openminemap/"+TileManager.cacheName+"/"+zoom+"/"+x+"-"+y+".png");
+            File out = new File(TileManager.getRootFile() + "openminemap/"+cacheName+"/"+zoom+"/"+x+"-"+y+".png");
             ImageIO.write(image, "png", out);
             RequestManager.pendingRequest = null;
             requestCounter = 0;

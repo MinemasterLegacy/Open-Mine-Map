@@ -33,7 +33,8 @@ public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;
     public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
-    public int tileSize = 128;
+    public int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
+    public int tileSize = baseTileSize; //the actual size the tiles are currently being rendered at
     public final static int WAYPOINTSIZE = 8;
 
     private boolean fieldsInitialized = false;
@@ -114,7 +115,7 @@ public class OmmMap extends ClickableWidget {
         this.zoom = zoom;
         this.mapCenterX = mapCenterX;
         this.mapCenterY = mapCenterY;
-        this.tileSize = (int) Math.floor(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
+        this.tileSize = (int) Math.floor(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
     }
 
     public static void setWaypoints(Waypoint[] waypoints1) {
@@ -334,7 +335,7 @@ public class OmmMap extends ClickableWidget {
         mapCenterY = 64;
         mapCenterX = 64;
         zoom = 0;
-        tileSize = 128;
+        tileSize = baseTileSize;
     }
 
     public void keyNavigate(int keyCode, int modifiers) {
@@ -346,7 +347,7 @@ public class OmmMap extends ClickableWidget {
 
         if (modifiers < 3) {
             if (modifiers == 2) {
-                change = 128;
+                change = tileSize; //one whole tile
             }
             if (modifiers == 1) {
                 change = 1;
@@ -484,6 +485,7 @@ public class OmmMap extends ClickableWidget {
 
     private void drawMap(DrawContext context, boolean isHudMap) {
 
+        System.out.println(tileSize);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);
 

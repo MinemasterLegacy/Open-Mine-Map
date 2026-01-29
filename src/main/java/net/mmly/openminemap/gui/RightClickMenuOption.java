@@ -9,7 +9,8 @@ public enum RightClickMenuOption {
     VIEW_ON_MAP,
     UNPIN,
     SET_SNAP_ANGLE,
-    REVERSE_SEARCH;
+    REVERSE_SEARCH,
+    NAME;
 
     public String getTranslationKey() {
         return "omm.rcm." + switch (this) {
@@ -22,6 +23,7 @@ public enum RightClickMenuOption {
             case UNPIN -> "unpin";
             case SET_SNAP_ANGLE -> "set-snap-angle";
             case REVERSE_SEARCH -> "reverse-search";
+            case NAME -> null;
         };
     }
 

@@ -590,7 +590,7 @@ public class OmmMap extends ClickableWidget {
         if (playerTexture == null) playerTexture = Identifier.of("openminemap", "skinbackup.png");
 
         //calculate the direction the player is facing
-        double direction = playerDraw.getYaw() - Direction.calcDymaxionAngleDifference();
+        double direction = Direction.getGeoAzimuth(playerDraw.getX(), playerDraw.getZ(), playerDraw.getYaw());
 
         //Draw a direction indicator if the direction is a valid number and visibility permission is adequete
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(direction))

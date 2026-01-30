@@ -77,11 +77,11 @@ public class SearchBoxLayer extends TextFieldWidget {
         }
         this.render(context, 0, 0, 0);
         if (searching) {
-            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, "Searching...", getX() + 4, getY() + 6, 0xFF404040);
+            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, Text.translatable("omm.notification.searching"), getX() + 4, getY() + 6, 0xFF404040);
             return;
         }
         if (getText().isEmpty() && isVisible()) { //<Translation>
-            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, "Search anything...", getX() + 4, getY() + 6, 0xFF404040);
+            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, "omm.search.anything", getX() + 4, getY() + 6, 0xFF404040);
         }
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFF00FF00);
     }
@@ -169,7 +169,7 @@ public class SearchBoxLayer extends TextFieldWidget {
                             latLong[1],
                             false,
                             player.getDisplayName().getString(),
-                            ((int) player.distanceTo(MinecraftClient.getInstance().player)) + " blocks away")); //TODO use geo distance instead of mc distance
+                            ((int) player.distanceTo(MinecraftClient.getInstance().player)) + Text.translatable("omm.search.blocks-away").getString()));
                 }
             } catch (NullPointerException | CoordinateValueError ignored) {}
         }
@@ -180,7 +180,11 @@ public class SearchBoxLayer extends TextFieldWidget {
             }
         }
 
-        if (getText().length() >= 3) addSearchResult(new SearchResult(SearchResultType.SEARCH, 0, 0, false,"Search Places", "Using photon search"));
+        if (getText().length() >= 3) addSearchResult(new SearchResult(
+                SearchResultType.SEARCH,
+                0, 0, false,
+                Text.translatable("omm.search.places").getString(),
+                "Photon"));
 
         //check history for any matching results and add them
         //TODO

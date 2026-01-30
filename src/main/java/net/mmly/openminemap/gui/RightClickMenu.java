@@ -248,11 +248,14 @@ public class RightClickMenu extends ClickableWidget {
             }
             case SET_SNAP_ANGLE: {
                 setSnapAngle();
-                FullscreenMapScreen.addNotification(new Notification(Text.literal("Snap Angle set to " + UnitConvert.floorToPlace(HudMap.snapAngle,3) + "°")));
+                FullscreenMapScreen.addNotification(new Notification(Text.of(
+                        Text.translatable("omm.notification.snap-angle-set").getString() +
+                        UnitConvert.floorToPlace(HudMap.snapAngle,3) +
+                        "°")));
                 break;
             }
             case REVERSE_SEARCH: {
-                FullscreenMapScreen.addNotification(new Notification(Text.literal("Searching...")));
+                FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.searching")));
                 RequestManager.setReverseSearchRequest(savedMouseLat, savedMouseLong);
             }
             default: {/* do nothing (for options like NAME) */}

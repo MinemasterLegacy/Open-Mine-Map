@@ -45,14 +45,14 @@ public class Requester extends Thread {
                 SearchResult result = reverseSearchRequest(RequestManager.reverseSearchLat, RequestManager.reverseSearchLong);
                 RequestManager.resetReverseSearchCandidate();
                 if (result == null) {
-                    FullscreenMapScreen.addNotification(new Notification(Text.literal("Something went wrong.")));
+                    FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
                 } else {
                     try {
                         //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection("test"), null);
                         MinecraftClient.getInstance().keyboard.setClipboard(result.name + ", " + result.context);
-                        FullscreenMapScreen.addNotification(new Notification(Text.literal("Copied Location to Clipboard.")));
+                        FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.location-copied")));
                     } catch (HeadlessException e) {
-                        FullscreenMapScreen.addNotification(new Notification(Text.literal("Something went wrong.")));
+                        FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
                     }
                 }
             }

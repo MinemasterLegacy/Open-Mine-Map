@@ -91,7 +91,17 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
-        if (myResult.historic) context.drawTexture(
+        if (myResult.resultType == SearchResultType.SEARCH) context.drawTexture(
+            Identifier.of("openminemap", "search/photon.png"),
+                    getX() + getWidth() - 34,
+                    getY() + 3,
+                    0,
+                    0,
+                    14,
+                    14,
+                    14,
+                    14);
+        else if (myResult.historic) context.drawTexture(
                 Identifier.of("openminemap", "search/history.png"),
                 getX() + getWidth() - 32,
                 getY() + 3,

@@ -15,10 +15,7 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.UnitConvert;
-import net.mmly.openminemap.util.Waypoint;
-import net.mmly.openminemap.util.WaypointFile;
+import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import java.awt.*;
@@ -206,6 +203,7 @@ public class RightClickMenu extends ClickableWidget {
                 try {
                     //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection("test"), null);
                     MinecraftClient.getInstance().keyboard.setClipboard(savedMouseLat + " " + savedMouseLong);
+                    FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.key.execute.copy-coordinates")));
                 } catch (HeadlessException e) {
                     System.out.println("Unable to write to clipboard; System does not support it.");
                 }
@@ -249,6 +247,7 @@ public class RightClickMenu extends ClickableWidget {
             }
             case SET_SNAP_ANGLE: {
                 setSnapAngle();
+                FullscreenMapScreen.addNotification(new Notification(Text.literal("Snap Angle set to " + UnitConvert.floorToPlace(HudMap.snapAngle,3) + "°")));
                 break;
             }
             case REVERSE_SEARCH: {

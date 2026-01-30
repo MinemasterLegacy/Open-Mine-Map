@@ -10,7 +10,11 @@ import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextContent;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.enums.ButtonFunction;
@@ -25,11 +29,14 @@ import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.Notification;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
     public FullscreenMapScreen() {
@@ -79,6 +86,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
     private static boolean hudWasHidden = false;
+    private static LinkedList<Notification> notifications = new LinkedList<>();
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
@@ -473,6 +481,48 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     }
 
+    public static void addNotification(Notification notification) {
+        notifications.addFirst(notification);
+        if (notifications.size() > 10) notifications.removeLast();
+    }
+
+    private void purgeNotifiations() {
+        int i = 0;
+        while (i < notifications.size()) {
+            if (notifications.get(i).expirationTime < Util.getMeasuringTimeMs()) {
+                notifications.remove(i);
+            } else {
+                i++;
+            }
+        }
+    }
+
+    private void drawNotificationText(DrawContext context) {
+        if (notifications.isEmpty()) return;
+        int maxY = buttonPositions[1][0] - 13; //top of button row
+        int yPos = maxY;
+        for (int i = 0; i < notifications.size(); i++) {
+            Text text = notifications.get(i).text;
+            int textWidth = textRenderer.getWidth(text);
+            int centerX = windowScaledWidth / 2;
+            context.fill(
+                    centerX - (textWidth / 2) - 3,
+                    yPos - 3,
+                    centerX + (textWidth / 2) + 3,
+                    yPos + 1 + textRenderer.fontHeight,
+                    Math.clamp((int) (notifications.get(i).expirationTime - Util.getMeasuringTimeMs()) / (1000 / 127), 0, 127) << 24
+            );
+            context.drawText(
+                    textRenderer,
+                    text,
+                    centerX - (textWidth / 2),
+                    yPos,
+                    (Math.clamp((int) (notifications.get(i).expirationTime - Util.getMeasuringTimeMs()) / (1000 / 255), 0, 255) << 24) | 0x00FFFFFF,
+                    false);
+            yPos -= 13;
+        }
+    }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
@@ -528,6 +578,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
         pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset - pinnedWaypointsLayer.getY());
+        purgeNotifiations();
+        drawNotificationText(context);
 
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);

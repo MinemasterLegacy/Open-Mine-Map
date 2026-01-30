@@ -63,4 +63,9 @@ public class RequestManager {
         reverseSearchLong = longitude;
     }
 
+    public static void resetReverseSearchCandidate() {
+        reverseSearchLong = Double.NaN;
+        reverseSearchLat = Double.NaN;
+    }
+
 }

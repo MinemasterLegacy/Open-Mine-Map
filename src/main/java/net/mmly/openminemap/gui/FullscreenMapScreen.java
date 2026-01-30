@@ -510,14 +510,14 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                     yPos - 3,
                     centerX + (textWidth / 2) + 3,
                     yPos + 1 + textRenderer.fontHeight,
-                    Math.clamp((int) (notifications.get(i).expirationTime - Util.getMeasuringTimeMs()) / (1000 / 127), 0, 127) << 24
+                    Math.clamp((int) Math.max(notifications.get(i).expirationTime - Util.getMeasuringTimeMs(), 0) / (1000 / 127), 0, 127) << 24
             );
             context.drawText(
                     textRenderer,
                     text,
                     centerX - (textWidth / 2),
                     yPos,
-                    (Math.clamp((int) (notifications.get(i).expirationTime - Util.getMeasuringTimeMs()) / (1000 / 255), 0, 255) << 24) | 0x00FFFFFF,
+                    (Math.clamp((int) Math.max(notifications.get(i).expirationTime - Util.getMeasuringTimeMs(), 0) / (1000 / 255), 0, 255) << 24) | 0x00FFFFFF,
                     false);
             yPos -= 13;
         }

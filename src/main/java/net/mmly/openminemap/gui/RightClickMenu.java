@@ -13,6 +13,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayersManager;
+import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.*;
@@ -251,7 +252,8 @@ public class RightClickMenu extends ClickableWidget {
                 break;
             }
             case REVERSE_SEARCH: {
-                //TODO
+                FullscreenMapScreen.addNotification(new Notification(Text.literal("Searching...")));
+                RequestManager.setReverseSearchRequest(savedMouseLat, savedMouseLong);
             }
             default: {/* do nothing (for options like NAME) */}
         }

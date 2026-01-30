@@ -1,14 +1,19 @@
 package net.mmly.openminemap.map;
 
 import com.google.gson.Gson;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.Notification;
 import net.mmly.openminemap.util.TileUrlFile;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
@@ -37,7 +42,19 @@ public class Requester extends Thread {
                 RequestManager.searchResultReturn = searchResultRequest(RequestManager.searchString);
             }
             else if (!Double.isNaN(RequestManager.reverseSearchLat)) {
-                //TODO
+                SearchResult result = reverseSearchRequest(RequestManager.reverseSearchLat, RequestManager.reverseSearchLong);
+                RequestManager.resetReverseSearchCandidate();
+                if (result == null) {
+                    FullscreenMapScreen.addNotification(new Notification(Text.literal("Something went wrong.")));
+                } else {
+                    try {
+                        //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection("test"), null);
+                        MinecraftClient.getInstance().keyboard.setClipboard(result.name + ", " + result.context);
+                        FullscreenMapScreen.addNotification(new Notification(Text.literal("Copied Location to Clipboard.")));
+                    } catch (HeadlessException e) {
+                        FullscreenMapScreen.addNotification(new Notification(Text.literal("Something went wrong.")));
+                    }
+                }
             }
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
@@ -58,34 +75,30 @@ public class Requester extends Thread {
         }
     }
 
-    private String getStringOfInputStream() {
-        return null; //TODO
+    private SearchResult[] getErrorResult() {
+        return new SearchResult[] {
+                new SearchResult(
+                        SearchResultType.LOCATION,
+                        Double.NaN,
+                        Double.NaN,
+                        false,
+                        "",
+                        "Something went wrong.", //TODO translate
+                        0
+                ),
+                null, null, null, null, null, null
+        };
     }
 
-    SearchResult[] searchResultRequest(String query) {
-        if (disableWebRequests) return null; //TODO account for null result
-        //TODO other parameters (lang)
-        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=7";
-
+    private SearchResult[] parseLocationJson(InputStream stream) {
         Gson gson = new Gson();
-        InputStream stream = get(urlPattern);
-        RequestManager.searchString = null;
-
         SearchResult[] results = new SearchResult[7];
         Map returnedResult;
+
         try {
             returnedResult = gson.fromJson(new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)), Map.class);
         } catch (NullPointerException e) {
-            results[0] = new SearchResult(
-                    SearchResultType.LOCATION,
-                    0,
-                    0,
-                    false,
-                    "",
-                    "Something went wrong.",
-                    0
-            );
-            return results;
+            return getErrorResult();
         }
         if (!returnedResult.get("type").equals("FeatureCollection")) return null;
 
@@ -124,6 +137,33 @@ public class Requester extends Thread {
             );
         }
 
+        return results;
+    }
+
+    SearchResult reverseSearchRequest(double lat, double lon) {
+        if (disableWebRequests) return null;
+        String urlPattern = "https://photon.komoot.io/reverse?lon=" + lon + "&lat=" + lat;
+
+        InputStream stream = get(urlPattern);
+        SearchResult[] results = parseLocationJson(stream);
+        if (results == null) return null;
+        if (Double.isNaN(results[0].latitude)) return null;
+
+        return results[0];
+    }
+
+    SearchResult[] searchResultRequest(String query) {
+        if (disableWebRequests) return null; //TODO account for null result
+        //TODO other parameters (lang)
+        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=7";
+
+        InputStream stream = get(urlPattern);
+        if (stream == null) return null;
+        RequestManager.searchString = null;
+
+        SearchResult[] results = parseLocationJson(stream);
+        if (results == null) return null;
+
         if (results[0] == null) {
             results[0] = new SearchResult(
                 SearchResultType.LOCATION,
@@ -131,17 +171,12 @@ public class Requester extends Thread {
                 0,
                 false,
                 "",
-                "No web results.",
+                "No web results.", //TODO translate
                 0
             );
         }
 
         return results;
-    }
-
-    SearchResult[] reverseSearchRequest(double lat, double lon) {
-        //TODO
-        return null;
     }
 
     void tileGetRequest(int x, int y, int zoom, String urlPattern, String cacheName) {

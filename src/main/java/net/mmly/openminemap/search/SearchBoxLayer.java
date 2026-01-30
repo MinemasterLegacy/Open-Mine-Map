@@ -33,6 +33,7 @@ public class SearchBoxLayer extends TextFieldWidget {
     public SearchBoxLayer(TextRenderer textRenderer, int x, int y) {
         super(textRenderer, x, y, 250, 20, Text.of(""));
         this.setEditable(true);
+        this.setMaxLength(1000);
         instance = this;
     }
 

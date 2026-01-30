@@ -134,6 +134,7 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void setMapPosition(double x, double y) {
+        if (Double.isNaN(x) || Double.isNaN(y)) return;
         this.mapCenterX = x;
         this.mapCenterY = y;
     }

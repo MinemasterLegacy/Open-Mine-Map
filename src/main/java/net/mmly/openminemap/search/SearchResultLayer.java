@@ -144,6 +144,7 @@ public class SearchResultLayer extends ClickableWidget {
         if (myResult.zoom != -1) {
             FullscreenMapScreen.map.setMapZoom(myResult.zoom);
         }
+        FullscreenMapScreen.map.clampZoom();
 
     }
 

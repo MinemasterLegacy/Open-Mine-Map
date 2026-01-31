@@ -39,22 +39,16 @@ public class Requester extends Thread {
         if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled for this session.");
         while (true) {
             if (RequestManager.searchString != null) {
-                RequestManager.searchResultReturn = searchResultRequest(RequestManager.searchString);
+                SearchResult[] results = searchResultRequest(RequestManager.searchString);
+                if (results == null) {
+                    RequestManager.searchResultReturn = getErrorResult();
+                } else {
+                    RequestManager.searchResultReturn = results;
+                }
+                RequestManager.searchString = null;
             }
             else if (!Double.isNaN(RequestManager.reverseSearchLat)) {
-                SearchResult result = reverseSearchRequest(RequestManager.reverseSearchLat, RequestManager.reverseSearchLong);
-                RequestManager.resetReverseSearchCandidate();
-                if (result == null) {
-                    FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
-                } else {
-                    try {
-                        //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection("test"), null);
-                        MinecraftClient.getInstance().keyboard.setClipboard(result.name + ", " + result.context);
-                        FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.location-copied")));
-                    } catch (HeadlessException e) {
-                        FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
-                    }
-                }
+                doReverseSearch();
             }
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
@@ -83,7 +77,7 @@ public class Requester extends Thread {
                         Double.NaN,
                         false,
                         "",
-                        "Something went wrong.", //TODO translate
+                        Text.translatable("omm.notification.something-wrong").getString(),
                         0
                 ),
                 null, null, null, null, null, null
@@ -140,6 +134,26 @@ public class Requester extends Thread {
         return results;
     }
 
+    private void doReverseSearch() {
+        SearchResult result = reverseSearchRequest(RequestManager.reverseSearchLat, RequestManager.reverseSearchLong);
+        RequestManager.resetReverseSearchCandidate();
+        if (result == null) {
+            FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+        } else {
+            try {
+                String location = "";
+                if (result.name != null && FullscreenMapScreen.map.getTileZoom() >= 14) location += result.name + ", ";
+                if (result.context != null) location += result.context + ", ";
+                if (!location.isEmpty()) location = location.substring(0, location.length() - 2);
+
+                MinecraftClient.getInstance().keyboard.setClipboard(location);
+                FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.location-copied")));
+            } catch (HeadlessException e) {
+                FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+            }
+        }
+    }
+
     SearchResult reverseSearchRequest(double lat, double lon) {
         if (disableWebRequests) return null;
         String urlPattern = "https://photon.komoot.io/reverse?lon=" + lon + "&lat=" + lat;
@@ -147,19 +161,18 @@ public class Requester extends Thread {
         InputStream stream = get(urlPattern);
         SearchResult[] results = parseLocationJson(stream);
         if (results == null) return null;
+        if (results[0] == null) return null;
         if (Double.isNaN(results[0].latitude)) return null;
 
         return results[0];
     }
 
     SearchResult[] searchResultRequest(String query) {
-        if (disableWebRequests) return null; //TODO account for null result
-        //TODO other parameters (lang)
+        if (disableWebRequests) return null;
         String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=7";
 
         InputStream stream = get(urlPattern);
         if (stream == null) return null;
-        RequestManager.searchString = null;
 
         SearchResult[] results = parseLocationJson(stream);
         if (results == null) return null;
@@ -171,7 +184,7 @@ public class Requester extends Thread {
                 0,
                 false,
                 "",
-                "No web results.", //TODO translate
+                Text.translatable("omm.search.no-results").getString(),
                 0
             );
         }

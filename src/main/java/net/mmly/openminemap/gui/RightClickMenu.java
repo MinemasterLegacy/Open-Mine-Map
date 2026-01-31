@@ -257,8 +257,11 @@ public class RightClickMenu extends ClickableWidget {
             case REVERSE_SEARCH: {
                 FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.searching")));
                 RequestManager.setReverseSearchRequest(savedMouseLat, savedMouseLong);
+                break;
             }
-            default: {/* do nothing (for options like NAME) */}
+            case NAME: {
+                return; //prevents from disabling right click menu when clicking name
+            }
         }
         FullscreenMapScreen.disableRightClickMenu();
     }

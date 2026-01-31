@@ -81,7 +81,7 @@ public class SearchBoxLayer extends TextFieldWidget {
             return;
         }
         if (getText().isEmpty() && isVisible()) { //<Translation>
-            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, "omm.search.anything", getX() + 4, getY() + 6, 0xFF404040);
+            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, Text.translatable("omm.search.anything").getString(), getX() + 4, getY() + 6, 0xFF404040);
         }
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFF00FF00);
     }
@@ -110,10 +110,7 @@ public class SearchBoxLayer extends TextFieldWidget {
     }
 
     private static SearchResult[] getSearchHistory() {
-        //TODO
-        return new SearchResult[] {
-                new SearchResult(SearchResultType.PLAYER, 40, 40, true, "Player301", "Distance: 31m")
-        };
+        return new SearchResult[0]; //to be implemented
     }
 
     public void recalculateResults() {
@@ -186,8 +183,7 @@ public class SearchBoxLayer extends TextFieldWidget {
                 Text.translatable("omm.search.places").getString(),
                 "Photon"));
 
-        //check history for any matching results and add them
-        //TODO
+        //check history for any matching results and add them (to be implemented)
 
         /*
         System.out.println("-----= RESULTS =-----");

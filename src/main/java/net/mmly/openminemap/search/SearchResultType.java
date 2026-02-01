@@ -1,9 +1,9 @@
-package net.mmly.openminemap.enums;
+package net.mmly.openminemap.search;
 
 public enum SearchResultType {
     COORDINATES,
     WAYPOINT,
     PLAYER,
-    HISTORY_LOCATION,
-    LOCATION
+    LOCATION,
+    SEARCH
 }

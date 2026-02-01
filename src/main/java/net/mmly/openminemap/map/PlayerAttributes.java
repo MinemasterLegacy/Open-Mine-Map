@@ -25,7 +25,7 @@ public class PlayerAttributes {
         if (yaw < 0) {
             yaw = yaw + 360;
         }
-        geoYaw = yaw - Direction.calcDymaxionAngleDifference(); //yaw value for use with geo-based elements, like the compass and direction indicators
+        geoYaw = Direction.getGeoAzimuth(MinecraftClient.getInstance().player); //yaw value for use with geo-based elements, like the compass and direction indicators
         //geoYaw can be NaN
 
         try {

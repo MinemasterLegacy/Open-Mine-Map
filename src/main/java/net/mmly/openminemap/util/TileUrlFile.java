@@ -118,7 +118,10 @@ public class TileUrlFile {
             for (int i = 0; i < tileUrlGroup.sources.length; i++) {
                 isValid = checkValidityOf(tileUrlGroup.sources[i]);
                 if (isValid == TileUrlErrorType.NO_ERROR) tileUrls[i + 1] = tileUrlGroup.sources[i];
-                else setError(isValid, tileUrlGroup.sources[i]);
+                else {
+                    setError(isValid, tileUrlGroup.sources[i]);
+                    throw new TileUrlFileFormatException();
+                }
             }
 
             String setUrl = ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL);

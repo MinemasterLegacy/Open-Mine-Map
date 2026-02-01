@@ -5,12 +5,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextContent;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.enums.ButtonFunction;
@@ -20,12 +25,19 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.search.SearchBoxLayer;
+import net.mmly.openminemap.search.SearchButtonLayer;
+import net.mmly.openminemap.search.SearchResultLayer;
+import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.Notification;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
     public FullscreenMapScreen() {
@@ -55,6 +67,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
     private static SearchButtonLayer searchButtonLayer;
     private static SearchBoxLayer searchBoxLayer;
+    public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[7];
     private static PinnedWaypointsLayer pinnedWaypointsLayer;
     private static final Identifier[][] buttonIdentifiers = new Identifier[3][numHotbarButtons];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
@@ -74,6 +87,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
     private static boolean hudWasHidden = false;
+    private static LinkedList<Notification> notifications = new LinkedList<>();
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
@@ -211,7 +225,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     private static void onLeftClick() {
         disableRightClickMenu();
-        //searchBoxLayer.setFocused(false);
+        searchBoxLayer.setFocused(false);
+        toggleSearchMenu(false);
     }
 
     private static void onRightClick() {
@@ -221,16 +236,41 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         } else {
             disableRightClickMenu();
         }
+        toggleSearchMenu(false);
     }
 
     public static void toggleSearchMenu(boolean toggle) {
-        //pinnedWaypointsLayer.visible = !toggle;
-        //searchBoxLayer.visible = toggle;
+        pinnedWaypointsLayer.visible = !toggle;
+        searchBoxLayer.visible = toggle;
+        if (toggle) {
+            FullscreenMapScreen.getInstance().setFocused(searchBoxLayer);
+            searchBoxLayer.recalculateResults();
+            FullscreenMapScreen.getInstance().jumpToSearchBox();
+        } else {
+            SearchBoxLayer.setValueStore("");
+            SearchBoxLayer.toggleSearching(false);
+        }
     }
 
     public static boolean getSearchMenuState() {
-        //return searchBoxLayer.visible;
-        return false;
+        return searchBoxLayer.visible;
+    }
+    public void jumpToSearchBox() {
+        setFocused(searchBoxLayer);
+    }
+    public void jumpToBestOption() {
+        for (SearchResultLayer layer : searchResultLayers) {
+            if (layer.isOption(SearchResultType.SEARCH) || layer.isOption(SearchResultType.COORDINATES)) {
+                setFocused(layer);
+                layer.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
+                return;
+            }
+        }
+    }
+
+    public void jumpToSearchBox(int keyCode, int scanCode, int modifiers) {
+         jumpToSearchBox();
+         searchBoxLayer.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private static boolean blockZoomOnZoom() {
@@ -257,10 +297,16 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
-        //searchButtonLayer = new SearchButtonLayer(3, 3);
-        //this.addDrawableChild(searchButtonLayer);
-        //searchBoxLayer = new SearchBoxLayer(this.textRenderer, 26, 3);
-        //this.addDrawableChild(searchBoxLayer);
+
+        for (int i = 0; i < 7; i++) {
+            searchResultLayers[i] = new SearchResultLayer(26, 23 + (i * 20), 250, i);
+            this.addDrawableChild(searchResultLayers[i]);
+        }
+
+        searchButtonLayer = new SearchButtonLayer(3, 3);
+        this.addDrawableChild(searchButtonLayer);
+        searchBoxLayer = new SearchBoxLayer(this.textRenderer, 26, 3);
+        this.addDrawableChild(searchBoxLayer);
 
         webAppSelectLayer = new WebAppSelectLayer();
         this.addDrawableChild(webAppSelectLayer);
@@ -274,7 +320,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         updateTileSet();
 
-        pinnedWaypointsLayer = new PinnedWaypointsLayer(0, /*26*/0, 20, 2, this.textRenderer);
+        pinnedWaypointsLayer = new PinnedWaypointsLayer(0, 26, 20, 2, this.textRenderer);
         this.addDrawableChild(pinnedWaypointsLayer);
 
         this.addDrawableChild(map); //added last so it's checked last for clicking
@@ -370,16 +416,50 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
     }
 
+    private void arrowNavigateSearch(int code) {
+        int change;
+        if (code == GLFW.GLFW_KEY_DOWN) change = 1;
+        else if (code == GLFW.GLFW_KEY_UP) change = -1;
+        else return;
+
+        int numResults = SearchBoxLayer.getNumResults();
+
+        Element[] searchElements = new Element[numResults + 1];
+        searchElements[0] = searchBoxLayer;
+        System.arraycopy(searchResultLayers, 0, searchElements, 1, numResults);
+
+        for (int i = 0; i < searchElements.length; i++) {
+            if (searchElements[i].isFocused()) {
+                setFocused(searchElements[(i + change + searchElements.length) % searchElements.length]);
+                return;
+            }
+        }
+
+    }
+
+    public boolean searchElementsFocused() {
+        return (getFocused() instanceof SearchBoxLayer || getFocused() instanceof SearchResultLayer || getFocused() instanceof SearchButtonLayer) && searchBoxLayer.visible;
+    }
+
+    public String getSearchBoxContents() {
+        return searchBoxLayer.getText();
+    }
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256 && this.shouldCloseOnEsc()) {
-            this.close();
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            if (searchElementsFocused()) toggleSearchMenu(false);
+            else this.close();
             return true;
         }
 
-        if (false /*searchBoxLayer.isFocused()*/) {
-            if (keyCode == 256 || keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN) return true;
-            return super.keyPressed(keyCode, scanCode, modifiers);
+        if (searchElementsFocused()) {
+            if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN) {
+                arrowNavigateSearch(keyCode);
+                return true;
+            } else {
+                return super.keyPressed(keyCode, scanCode, modifiers);
+            }
         }
 
         if (mClient.options.chatKey.matchesKey(keyCode, 0)) {
@@ -401,6 +481,48 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             MinecraftClient.getInstance().options.hudHidden = hudWasHidden;
         }
 
+    }
+
+    public static void addNotification(Notification notification) {
+        notifications.addFirst(notification);
+        if (notifications.size() > 10) notifications.removeLast();
+    }
+
+    private void purgeNotifiations() {
+        int i = 0;
+        while (i < notifications.size()) {
+            if (notifications.get(i).expirationTime < Util.getMeasuringTimeMs()) {
+                notifications.remove(i);
+            } else {
+                i++;
+            }
+        }
+    }
+
+    private void drawNotificationText(DrawContext context) {
+        if (notifications.isEmpty()) return;
+        int maxY = buttonPositions[1][0] - 13; //top of button row
+        int yPos = maxY;
+        for (int i = 0; i < notifications.size(); i++) {
+            Text text = notifications.get(i).text;
+            int textWidth = textRenderer.getWidth(text);
+            int centerX = windowScaledWidth / 2;
+            context.fill(
+                    centerX - (textWidth / 2) - 3,
+                    yPos - 3,
+                    centerX + (textWidth / 2) + 3,
+                    yPos + 1 + textRenderer.fontHeight,
+                    Math.clamp((int) Math.max(notifications.get(i).expirationTime - Util.getMeasuringTimeMs(), 0) / (1000 / 127), 0, 127) << 24
+            );
+            context.drawText(
+                    textRenderer,
+                    text,
+                    centerX - (textWidth / 2),
+                    yPos,
+                    (Math.clamp((int) Math.max(notifications.get(i).expirationTime - Util.getMeasuringTimeMs(), 0) / (1000 / 255), 0, 255) << 24) | 0x00FFFFFF,
+                    false);
+            yPos -= 13;
+        }
     }
 
     @Override
@@ -442,7 +564,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMouseZoomStrength(TileManager.mouseZoomStrength);
-        map.renderMap(context, null);
+        map.renderMap(context, null, false);
 
         drawButtons(context);
 
@@ -457,7 +579,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, 0x88000000);
         context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
-        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset /*- pinnedWaypointsLayer.getY()*/);
+        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset - pinnedWaypointsLayer.getY());
+        purgeNotifiations();
+        drawNotificationText(context);
 
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);
@@ -468,8 +592,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         webAppSelectLayer.drawWidget(context);
 
         pinnedWaypointsLayer.drawWidget(context);
-        //searchButtonLayer.drawWidget(context);
-        //searchBoxLayer.drawWidget(context);
+
+        for (SearchResultLayer layer : searchResultLayers) {
+            layer.drawWidget(context, textRenderer);
+        }
+        searchButtonLayer.drawWidget(context);
+        searchBoxLayer.drawWidget(context);
     }
 
     //used in the hud to render a 'fake' fsmap screen when chat is opened
@@ -495,7 +623,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 MinecraftClient.getInstance().getWindow().getScaledWidth(),
                 MinecraftClient.getInstance().getWindow().getScaledHeight()
         );
-        map.renderMap(context, null);
+        map.renderMap(context, null, false);
 
     }
 

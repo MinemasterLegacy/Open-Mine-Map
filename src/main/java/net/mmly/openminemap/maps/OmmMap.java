@@ -35,7 +35,8 @@ public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;
     public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
-    public int tileSize = 128;
+    public int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
+    public int tileSize = baseTileSize; //the actual size the tiles are currently being rendered at
     public final static int WAYPOINTSIZE = 8;
 
     private boolean fieldsInitialized = false;
@@ -95,6 +96,10 @@ public class OmmMap extends ClickableWidget {
 
     private static Waypoint[] waypoints;
 
+    public static boolean geoCoordsOutOfBounds(double lat, double lon) {
+        return !(Math.abs(lon) < 180 && Math.abs(lat) < 85.0511287798);
+    }
+
     private void initFields() {
         client = MinecraftClient.getInstance();
         window = client.getWindow();
@@ -112,7 +117,7 @@ public class OmmMap extends ClickableWidget {
         this.zoom = zoom;
         this.mapCenterX = mapCenterX;
         this.mapCenterY = mapCenterY;
-        this.tileSize = (int) Math.floor(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
+        this.tileSize = (int) Math.floor(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
     }
 
     public static void setWaypoints(Waypoint[] waypoints1) {
@@ -131,10 +136,12 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void setMapPosition(double x, double y) {
+        if (Double.isNaN(x) || Double.isNaN(y)) return;
         this.mapCenterX = x;
         this.mapCenterY = y;
     }
     public void setMapZoom(double zoom1) {
+        zoom1 = Math.clamp(zoom1, 0, maxZoom);
         if (zoom > zoom1) {
             zoomOut(zoom - zoom1);
         }
@@ -232,7 +239,7 @@ public class OmmMap extends ClickableWidget {
         setRenderPositionAndSize(this.renderAreaX, this.renderAreaY, width, height);
     }
     public void setRenderPosition(int x, int y) {
-        setRenderPositionAndSize(x, y, x + this.width, y + this.height);
+        setRenderZone(x, y, x + this.width, y + this.height);
     }
     public void setRenderPositionAndSize(int x, int y, int width, int height) {
         setRenderZone(x, y, x + width, y + height);
@@ -331,7 +338,7 @@ public class OmmMap extends ClickableWidget {
         mapCenterY = 64;
         mapCenterX = 64;
         zoom = 0;
-        tileSize = 128;
+        tileSize = baseTileSize;
     }
 
     public void keyNavigate(int keyCode, int modifiers) {
@@ -343,7 +350,7 @@ public class OmmMap extends ClickableWidget {
 
         if (modifiers < 3) {
             if (modifiers == 2) {
-                change = 128;
+                change = tileSize; //one whole tile
             }
             if (modifiers == 1) {
                 change = 1;
@@ -479,12 +486,12 @@ public class OmmMap extends ClickableWidget {
         // play no sound
     }
 
-    private void drawMap(DrawContext context) {
+    private void drawMap(DrawContext context, boolean isHudMap) {
 
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);
 
-        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight);
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight, isHudMap);
         for (DrawableMapTile[] column : tiles) {
             for (DrawableMapTile tile : column) {
                 drawTile(context, tile);
@@ -515,8 +522,8 @@ public class OmmMap extends ClickableWidget {
     private void drawBufferedPlayer(DrawContext context, BufferedPlayer bufferedPlayer) {
 
         //get position of player relative to te screen (number passed to draw methods)
-        int relativeX = (renderAreaWidth / 2) - 4 + bufferedPlayer.offsetX + renderAreaX;
-        int relativeY = (renderAreaHeight / 2) - 4 + bufferedPlayer.offsetY + renderAreaY;
+        int relativeX = getWindowRelativeX(bufferedPlayer.mapX, 4);
+        int relativeY = getWindowRelativeY(bufferedPlayer.mapY, 4);
 
         //if outside render area in positive direction (right/down), return
         if (relativeX > renderAreaX2 || relativeY > renderAreaY2) return;
@@ -578,44 +585,50 @@ public class OmmMap extends ClickableWidget {
         if (Double.isNaN(geoCoords[0])) return null;
 
         //convert geo coordinates to map coordinates
-        double mapX = UnitConvert.longToMapX(geoCoords[1], zoom, tileSize);
+        double mapX = UnitConvert.longToMapX(geoCoords[1], zoom, tileSize); ///MAPXY
         double mapY = UnitConvert.latToMapY(geoCoords[0], zoom, tileSize);
-
-        //calculate player offset
-        int mapCenterOffsetX = (int) Math.round(mapX - mapCenterX);
-        int mapCenterOffsetY = (int) Math.round(mapY - mapCenterY);
 
         //get player texture
         Identifier playerTexture = PlayersManager.playerSkinList.get(playerDraw.getUuid());
         if (playerTexture == null) playerTexture = Identifier.of("openminemap", "skinbackup.png");
 
         //calculate the direction the player is facing
-        double direction = playerDraw.getYaw() - Direction.calcDymaxionAngleDifference();
+        double direction = Direction.getGeoAzimuth(playerDraw.getX(), playerDraw.getZ(), playerDraw.getYaw());
 
         //Draw a direction indicator if the direction is a valid number and visibility permission is adequete
         if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(direction))
             DirectionIndicator.draw(
                     context,
                     direction,
-                    renderAreaX + (renderAreaWidth / 2) - 12 + mapCenterOffsetX,
-                    renderAreaY + (renderAreaHeight / 2) - 12 + mapCenterOffsetY,
+                    getWindowRelativeX(mapX, 12),
+                    getWindowRelativeY(mapY, 12),
                     indicatorsOnly
             );
 
-        return new BufferedPlayer(mapCenterOffsetX, mapCenterOffsetY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
+        return new BufferedPlayer(mapX, mapY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
     }
 
-    private int roundTowardsZero(double num) {
+    private static int roundTowardsZero(double num) {
         return num < 0 ?
                 (int) Math.ceil(num) :
                 (int) num;
     }
 
+    //Given a pair of map-relative coordinates, returns a pair of the equivalent coordinates relative to the window (coordinates to be passed to context.draw methods)
+    private int getWindowRelativeX(double mapX, int textureOffset) {
+        return roundTowardsZero(mapX) + renderAreaX - textureOffset + (int) (((double) renderAreaWidth / 2) - mapCenterX);
+    }
+
+    private int getWindowRelativeY(double mapY, int textureOffset) {
+        return roundTowardsZero(mapY) + renderAreaY - textureOffset + (int) (((double) renderAreaHeight / 2) - mapCenterY);
+    }
+
     private void drawTile(DrawContext context, DrawableMapTile tile) {
 
         //offset the tiles so that the map is centered on the render area
-        int relativeX = (roundTowardsZero(tile.x) + renderAreaX + (int) (((double) renderAreaWidth / 2) - mapCenterX));
-        int relativeY = (roundTowardsZero(tile.y) + renderAreaY + (int) (((double) renderAreaHeight / 2) - mapCenterY));
+        int relativeX = getWindowRelativeX(tile.x, 0);
+        int relativeY = getWindowRelativeY(tile.y, 0);
+        //int relativeY = (roundTowardsZero(tile.y) + renderAreaY + (int) (((double) renderAreaHeight / 2) - mapCenterY));
 
         //if out of bounds in the positive (right/down) direction, return
         if (relativeX > renderAreaX2 || relativeY > renderAreaY2) return;
@@ -730,12 +743,12 @@ public class OmmMap extends ClickableWidget {
         context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + 13, 0xFFFFFFFF,false);
     }
 
-    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter) {
+    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
 
         updateFields();
 
         context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
-        drawMap(context); //draw the map tiles + background
+        drawMap(context, isHudMap); //draw the map tiles + background
 
         //draw waypoints
 
@@ -744,9 +757,10 @@ public class OmmMap extends ClickableWidget {
 
             if (!waypoint.visible) continue;
 
-
-            int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
-            int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
+            int x = getWindowRelativeX(UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize), 4);
+            int y = getWindowRelativeY(UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize), 4);
+            //int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
+            //int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
 
             if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
                 hoveredWaypoint = waypoint;
@@ -789,7 +803,7 @@ public class OmmMap extends ClickableWidget {
         //draw other players
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
             for (BufferedPlayer bufferedPlayer : players) {
-                if (player == null) continue;
+                if (bufferedPlayer == null) continue;
                 drawBufferedPlayer(context, bufferedPlayer);
             }
         }

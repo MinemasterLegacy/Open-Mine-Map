@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
@@ -11,17 +12,17 @@ public class ChoiceButtonWidget extends ButtonWidget {
     ButtonWidget buttonWidget;
     String[] options;
     int selection;
-    Text message;
+    net.minecraft.text.Text message;
     ConfigOptions configOption;
 
-    protected ChoiceButtonWidget(int x, int y, Text message, Text tooltip, String[] options, ConfigOptions configOption) {
+    protected ChoiceButtonWidget(int x, int y, net.minecraft.text.Text message, net.minecraft.text.Text tooltip, String[] options, ConfigOptions configOption) {
         super(x, y, 120, 20, message, null, null);
         this.options = options;
         this.message = message;
         this.configOption = configOption;
         selection = getSelectedOption();
 
-        buttonWidget = ButtonWidget.builder(Text.of(message.getString() + ": " + getTranslatedOption(this.options[selection])),
+        buttonWidget = ButtonWidget.builder(net.minecraft.text.Text.of(message.getString() + ": " + getTranslatedOption(this.options[selection])),
             this::cycleOption
         ).dimensions(x, y, 120, 20).build();
         buttonWidget.setTooltip(Tooltip.of(tooltip));
@@ -37,13 +38,13 @@ public class ChoiceButtonWidget extends ButtonWidget {
 
     private static String getTranslatedOption(String option) {
         if (option.contains("/")) option = option.substring(1);
-        return Text.translatable("omm.config.state."+(option.toLowerCase())).getString();
+        return net.minecraft.text.Text.translatable("omm.config.state."+(option.toLowerCase())).getString();
     }
 
     private void cycleOption(ButtonWidget buttonWidget) {
         selection++;
         if (selection > options.length - 1) selection = 0;
-        buttonWidget.setMessage(Text.of(message.getString() + ": " + getTranslatedOption(options[selection])));
+        buttonWidget.setMessage(net.minecraft.text.Text.of(message.getString() + ": " + getTranslatedOption(options[selection])));
     }
 
     protected ButtonWidget getButtonWidget() {
@@ -54,4 +55,8 @@ public class ChoiceButtonWidget extends ButtonWidget {
         ConfigFile.writeParameter(configOption, options[selection].toLowerCase());
     }
 
+    @Override
+    protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+
+    }
 }

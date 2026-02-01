@@ -47,10 +47,9 @@ public class RepositionElement extends ClickableWidget {
         subDeltaX += deltaX;
         subDeltaY += deltaY;
         if (type == RepositionType.MAP) {
-            HudMap.map.setPosition(
+            HudMap.map.setRenderPosition(
                     HudMap.map.getRenderAreaX() + (int) subDeltaX,
                     HudMap.map.getRenderAreaY() + (int) subDeltaY
-
             );
         } else if (type == RepositionType.COMPASS) {
             HudMap.hudCompassX += (int) subDeltaX;

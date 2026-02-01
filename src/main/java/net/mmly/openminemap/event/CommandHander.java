@@ -17,6 +17,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
@@ -50,8 +51,28 @@ public class CommandHander {
                             .then(ClientCommandManager.argument("warp", CoordinateArgumentType.coordinateArgumentType())
                             .suggests(new WarpSuggestionProvider())
                             .executes(CommandHander::warp)))
+                    .then(ClientCommandManager.literal("distortion")
+                            .executes(CommandHander::distortion))
         );});
         //registerCommands();
+    }
+
+    private static int distortion(CommandContext<FabricClientCommandSource> context) {
+
+        try {
+            double[] distortion = Projection.getDistortion(PlayerAttributes.getLongitude(), PlayerAttributes.getLatitude());
+            MinecraftClient.getInstance().player.sendMessage(Text.literal(
+                    "Distortion: \n" +
+                        UnitConvert.floorToPlace(Math.sqrt(Math.abs(distortion[0])), 10) +
+                        " ± " +
+                        UnitConvert.floorToPlace(Math.toDegrees(distortion[1]), 10) +
+                        "°"
+            ).formatted(Formatting.ITALIC), false);
+        } catch (CoordinateValueError e) {
+            MinecraftClient.getInstance().player.sendMessage(Text.of("Cannot calculate distortion: Out of Bounds"), false);
+        }
+
+        return 0;
     }
 
     private static int warp(CommandContext<FabricClientCommandSource> context) {

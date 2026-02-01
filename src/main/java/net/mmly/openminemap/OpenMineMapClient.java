@@ -9,6 +9,7 @@ import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
+import net.mmly.openminemap.map.TileLoader;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
-    public static final String MODVERSION = "1.5.1";
+    public static final String MODVERSION = "1.6.0";
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
     private static final Identifier HUD_MAP_LAYER_FS = Identifier.of("openminemap", "hud-example-layer-fs");
@@ -36,6 +37,8 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
         Requester osmTileRequester = new Requester();
         osmTileRequester.start();
+        //TileLoader tileLoader = new TileLoader();
+        //tileLoader.start();
 
         HudRenderCallback.EVENT.register(HudMap::render);
         HudRenderCallback.EVENT.register(FullscreenMapScreen::render);

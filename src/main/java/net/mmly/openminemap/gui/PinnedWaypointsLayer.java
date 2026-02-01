@@ -41,7 +41,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
     public void drawWidget(DrawContext context) {
 
-        //if (!visible) return;
+        if (!visible) return;
         setHeight(Math.min(maxHeight, pinnedWaypoints.length * width));
 
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);

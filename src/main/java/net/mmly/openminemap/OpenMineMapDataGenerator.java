@@ -149,7 +149,6 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.rcm.unpin", "Unpin");
         translationBuilder.add("omm.rcm.create-waypoint", "Create Waypoint");
         translationBuilder.add("omm.error.tile-url.parse", "Error Parsing Tile Source");
-        // TODO ----- 1.6.0 ------
         translationBuilder.add("omm.notification.something-wrong", "Something went wrong");
         translationBuilder.add("omm.notification.location-copied", "Copied location to clipboard.");
         translationBuilder.add("omm.notification.searching", "Searching...");

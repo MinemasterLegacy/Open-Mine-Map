@@ -46,6 +46,7 @@ public class Projection {
     static GeographicProjection _upright_proj = _orient_projection(_projection, Orientation.UPRIGHT);
     static ScaleProjection _scale_proj = new ScaleProjection(_upright_proj, 7318261.522857145, 7318261.522857145);
 
+    //returns [x, z]
     public static double[] from_geo(double lat, double lon) throws CoordinateValueError {
         _validate_geographic_coordinates(lat, lon);
         return _scale_proj.from_geo(lon, lat);
@@ -107,6 +108,36 @@ public class Projection {
 
     public Projection() {
 
+    }
+
+    public static double[] getDistortion(double lon, double lat) throws CoordinateValueError {
+
+        double R = GeographicProjection.EARTH_CIRCUMFERENCE / (2 * Math.PI);
+
+        double ddeg = Math.toDegrees(1E-7d);
+
+        double[] base = Projection.from_geo(lat, lon);
+        double[] lonoff = Projection.from_geo(lat, lon + ddeg);
+        double[] latoff = Projection.from_geo(lat + ddeg, lon);
+
+        double dxdl = (lonoff[0] - base[0]) / 1E-7d;
+        double dxdp = (latoff[0] - base[0]) / 1E-7d;
+        double dydl = (lonoff[1] - base[1]) / 1E-7d;
+        double dydp = (latoff[1] - base[1]) / 1E-7d;
+
+        double cosp = Math.cos(Math.toRadians(lat));
+
+        double h = Math.sqrt(dxdp * dxdp + dydp * dydp) / R;
+        double k = Math.sqrt(dxdl * dxdl + dydl * dydl) / (cosp * R);
+
+        double sint = Math.abs(dydp * dxdl - dxdp * dydl) / (R * R * cosp * h * k);
+        double ap = Math.sqrt(h * h + k * k + 2 * h * k * sint);
+        double bp = Math.sqrt(h * h + k * k - 2 * h * k * sint);
+
+        double a = (ap + bp) / 2;
+        double b = (ap - bp) / 2;
+
+        return new double[]{ h * k * sint, 2 * Math.asin(bp / ap), a, b };
     }
 
 }
@@ -317,8 +348,8 @@ class ScaleProjection extends ProjectionTransform{
 } //done
 
 abstract class GeographicProjection {
-    final double EARTH_CIRCUMFERENCE = 40075017.0F;
-    final double EARTH_POLAR_CIRCUMFERENCE = 40008000.0F;
+    static final double EARTH_CIRCUMFERENCE = 40075017.0F;
+    static final double EARTH_POLAR_CIRCUMFERENCE = 40008000.0F;
 
     double[] to_geo(double x, double y) {
         return new double[] {x, y};

@@ -149,6 +149,16 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.rcm.unpin", "Unpin");
         translationBuilder.add("omm.rcm.create-waypoint", "Create Waypoint");
         translationBuilder.add("omm.error.tile-url.parse", "Error Parsing Tile Source");
+        translationBuilder.add("omm.notification.something-wrong", "Something went wrong");
+        translationBuilder.add("omm.notification.location-copied", "Copied location to clipboard.");
+        translationBuilder.add("omm.notification.searching", "Searching...");
+        translationBuilder.add("omm.notification.snap-angle-set", "Snap Angle set to ");
+        translationBuilder.add("omm.search.anything", "Search anything...");
+        translationBuilder.add("omm.search.blocks-away", " meters away");
+        translationBuilder.add("omm.search.places", "Search Places");
+        translationBuilder.add("omm.search.no-results", "No web results");
+        translationBuilder.add("omm.rcm.reverse-search", "Reverse Search");
+
     }
 }
 

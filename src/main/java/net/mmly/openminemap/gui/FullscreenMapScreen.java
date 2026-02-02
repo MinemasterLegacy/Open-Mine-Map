@@ -10,13 +10,10 @@ import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextContent;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.draw.MmlyDrawContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -28,15 +25,11 @@ import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
 import net.mmly.openminemap.search.SearchResultType;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.Notification;
-import net.mmly.openminemap.util.UnitConvert;
-import net.mmly.openminemap.util.Waypoint;
+import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
     public FullscreenMapScreen() {
@@ -205,15 +198,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
                 rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
             }
 
-            if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
-                rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
-                rightClickLayer.horizontalSide = -1;
-            } else rightClickLayer.horizontalSide = 1;
-
-            if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
-                rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
-                rightClickLayer.verticalSize = -1;
-            } else rightClickLayer.verticalSize = 1;
+            rightClickLayer.repositionForOverflow(windowScaledWidth, windowScaledHeight);
         }
 
     }
@@ -527,6 +512,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
+        MmlyDrawContext.setContext(context);
 
         if (chatToBeOpened) {
             if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient

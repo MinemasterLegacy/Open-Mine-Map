@@ -121,7 +121,10 @@ public class RightClickMenu extends ClickableWidget {
         this.setHeight(Math.max(16 * menuOptions.length, 16));
         width = 16;
         for (int i = 0; i < menuOptions.length; i++) {
-            width = Math.max(width, 8 + textRenderer.getWidth(firstOptionIsBold && i == 0 ? Text.translatable(menuOptions[i].getTranslationKey()).formatted(Formatting.BOLD) : Text.translatable(menuOptions[i].getTranslationKey())));
+            int compare = 8;
+            if (menuOptions[i] == RightClickMenuOption.NAME) compare += textRenderer.getWidth(Text.literal(selectedWaypoint.name).formatted(Formatting.BOLD));
+            else compare += textRenderer.getWidth(Text.translatable(menuOptions[i].getTranslationKey()));
+            width = Math.max(width, 8 + compare);
         }
         this.setWidth(width);
     }

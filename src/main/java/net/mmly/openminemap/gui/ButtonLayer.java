@@ -45,7 +45,7 @@ public class ButtonLayer extends ClickableWidget {
                 FullscreenMapScreen.resetMap();
                 break;
             case ButtonFunction.FOLLOW: //follow
-                if (PlayerAttributes.positionIsValid()) FullscreenMapScreen.followPlayer();
+                if (PlayerAttributes.positionIsValid()) FullscreenMapScreen.followPlayer(true);
                 break;
             case ButtonFunction.CONFIG: //config
                 MinecraftClient.getInstance().setScreen(

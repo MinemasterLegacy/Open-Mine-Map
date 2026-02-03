@@ -86,8 +86,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.clampZoom();
     }
 
-    public static void followPlayer() {
-        map.setFollowPlayer(true);
+    public static void followPlayer(boolean follow) {
+        map.setFollowPlayer(follow);
     }
 
     public static FullscreenMapScreen getInstance() {

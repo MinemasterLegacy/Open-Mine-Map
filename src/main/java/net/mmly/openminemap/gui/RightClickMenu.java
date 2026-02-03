@@ -264,6 +264,7 @@ public class RightClickMenu extends ClickableWidget {
                 break;
             }
             case VIEW_ON_MAP: {
+                FullscreenMapScreen.followPlayer(false);
                 FullscreenMapScreen.map.setMapPosition(
                         UnitConvert.longToMapX(selectedWaypoint.longitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize()),
                         UnitConvert.latToMapY(selectedWaypoint.latitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize())

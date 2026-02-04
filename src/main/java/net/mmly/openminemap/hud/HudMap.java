@@ -105,9 +105,9 @@ public class HudMap {
         drawCompassBackground(context);
         PlayerEntity player = MinecraftClient.getInstance().player;
         //draw the compass
-        context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, (float) (Direction.getGeoAzimuth(player.getX(), player.getZ(), player.getYaw()) - ((double) hudCompassWidth / 2)), 0, hudCompassWidth, 16, 360, 16);
+        context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, (float) (Direction.getGeoAzimuth(player) - ((double) hudCompassWidth / 2)), 0, hudCompassWidth, 16, 360, 16);
         //draw the snap angle indicator
-        if (doSnapAngle) context.drawTexture(snapAngleIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, (float) (Direction.getGeoAzimuth(player.getX(), player.getZ(), player.getYaw() + snapAngle) - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, 90, 16);
+        if (doSnapAngle) context.drawTexture(snapAngleIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, (float) (Direction.getGeoAzimuth(player) - Direction.getGeoAzimuth(player.getX(), player.getZ(), -snapAngle) - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, 90, 16);
         //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
         //draw the compass direction needle line thing (i dont have a good name for it)
         context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);

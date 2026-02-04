@@ -317,9 +317,7 @@ public class WaypointScreen extends Screen {
     private void updateWidgetPositions() {
         midPoint = width / 2;
 
-        for (WaypointEntryWidget entry : waypointEntries) {
-            entry.setScroll(entryListScroll);
-        }
+        WaypointEntryWidget.setScroll(entryListScroll);
 
         int creationAreaWidth = width - midPoint;
 

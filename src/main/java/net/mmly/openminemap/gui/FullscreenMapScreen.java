@@ -13,7 +13,7 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.mmly.openminemap.draw.MmlyDrawContext;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -512,7 +512,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
-        MmlyDrawContext.setContext(context);
+        UContext.setContext(context);
 
         if (chatToBeOpened) {
             if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient
@@ -601,7 +601,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
 
         //context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x22FF0000);
-
+        UContext.setContext(context);
         FullscreenMapScreen.instance.renderBackground(context, 0, 0, 0);
 
         map.setRenderSize(

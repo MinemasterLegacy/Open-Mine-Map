@@ -10,7 +10,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.draw.Justify;
-import net.mmly.openminemap.draw.MmlyDrawContext;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
@@ -196,7 +196,7 @@ public class RightClickMenu extends ClickableWidget {
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
 
         for (int i = 0; i < menuOptions.length; i++) {
-            MmlyDrawContext.drawJustifiedText(
+            UContext.drawJustifiedText(
                     getTextFor(menuOptions[i]),
                     horizontalSide == -1 ? Justify.RIGHT : Justify.LEFT,
                     horizontalSide == -1 ? getX() + width - 4 : getX() + 4,

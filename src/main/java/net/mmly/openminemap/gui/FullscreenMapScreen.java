@@ -197,10 +197,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             } else {
                 rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
             }
-
-            rightClickLayer.repositionForOverflow(windowScaledWidth, windowScaledHeight);
         }
-
+        rightClickLayer.repositionForOverflow(windowScaledWidth, windowScaledHeight);
     }
 
     private static Identifier getButtonTexture(ButtonFunction buttonFunction, ButtonState buttonState) {
@@ -227,6 +225,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         pinnedWaypointsLayer.visible = !toggle;
         searchBoxLayer.visible = toggle;
         if (toggle) {
+            disableRightClickMenu();
             FullscreenMapScreen.getInstance().setFocused(searchBoxLayer);
             searchBoxLayer.recalculateResults();
             FullscreenMapScreen.getInstance().jumpToSearchBox();

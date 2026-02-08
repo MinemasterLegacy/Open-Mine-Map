@@ -170,6 +170,11 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     protected void repositionForOverflow(int windowScaledWidth, int windowScaledHeight) {
+        if (displayType == RightClickMenuType.PINNED_WAYPOINT) {
+            horizontalSide = 1;
+            verticalSize = 1;
+            return;
+        }
         if (getX() + width > windowScaledWidth && getX() - width < 0) { //if there's no way to fit the whole menu on screen
             if (getX() > windowScaledWidth / 2) repositionLeftward();
             else horizontalSide = 1;

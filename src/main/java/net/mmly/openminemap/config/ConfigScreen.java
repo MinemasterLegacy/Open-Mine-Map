@@ -5,12 +5,14 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
@@ -21,12 +23,16 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
 
+import java.util.ArrayList;
+
 public class ConfigScreen extends Screen {
     public ConfigScreen() {
         super(Text.of("OMM Config"));
     }
 
     static ConfigScreen configScreen;
+    private static final int BOTTOM_SPACE = 40;
+    private static final int BOTTOM_BUTTON_OFFSET = 32;
     private static int windowHeight;
     private static int windowWidth;
     public static int windowScaledHeight;
@@ -46,7 +52,7 @@ public class ConfigScreen extends Screen {
     TextWidget versionLabel;
     ButtonWidget configHud;
 
-    TextWidget generalLabel;
+    CategoryLabelWidget generalLabel;
     ChoiceButtonWidget artificialZoomOption;
     public static TextFieldWidget snapAngleWidget;
     ChoiceButtonWidget rightClickMeuUsesOption;
@@ -60,7 +66,6 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget altitudeShadingOption;
 
     TextWidget urlLabel;
-    public static TextFieldWidget customUrlWidget;
     private static UrlChoiceWidget definedUrlWidget;
     private final String[] zoomStrengthLevels = new String[] {
             "0.05", "0.1", "0.15", "0.2", "0.25",
@@ -79,13 +84,13 @@ public class ConfigScreen extends Screen {
      */
 
     protected static final int buttonSize = 20;
-    protected final int[][] buttonPositionModifiers = new int[][] {
-            {(8 + buttonSize), 22},
-            {(8 + buttonSize), -2},
-    };
 
     Window window;
     public static ButtonWidget toggleArtificialZoomButton;
+
+    ConfigList configList;
+    ArrayList<ClickableWidget> choiceWidgets = new ArrayList<>();
+    ArrayList<ConfigAnchorWidget> anchorWidgets = new ArrayList<>();
 
     @Override
     public void close() {
@@ -94,7 +99,6 @@ public class ConfigScreen extends Screen {
                 new FullscreenMapScreen()
         );
     }
-
     public static ConfigScreen getInstance() {
         return configScreen;
     }
@@ -168,6 +172,17 @@ public class ConfigScreen extends Screen {
         return b;
     }
 
+    private void addConfigOptionWidget(ClickableWidget widget) {
+        if (!ConfigChoice.class.isAssignableFrom(widget.getClass())) return;
+        choiceWidgets.add(widget);
+        ConfigAnchorWidget anchor = new ConfigAnchorWidget();
+        configList.addEntry(anchor);
+        anchorWidgets.add(anchor);
+        ((ConfigChoice) widget).setAnchor(anchor);
+        anchor.setWidget(widget);
+        this.addDrawableChild(widget);
+    }
+
     @Override
     protected void init() {
         totalOptions = 0;
@@ -177,11 +192,16 @@ public class ConfigScreen extends Screen {
         updateTileSet();
         updateScreenDims();
 
+        configList = new ConfigList(MinecraftClient.getInstance(), 0, 0, 0, 24);
+        configList.setWidth(windowScaledWidth);
+        configList.setHeight(windowScaledHeight - BOTTOM_SPACE);
+        this.addDrawableChild(configList);
+
         wikiLinkLayer = new WikiLinkLayer(0, 0);
         this.addDrawableChild(wikiLinkLayer);
 
-        exitButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], buttonSize, buttonSize, ButtonFunction.EXIT);
-        checkButtonLayer = new ButtonLayer(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], buttonSize, buttonSize, ButtonFunction.CHECKMARK);
+        exitButtonLayer = new ButtonLayer(windowScaledWidth - 22, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, buttonSize, buttonSize, ButtonFunction.EXIT);
+        checkButtonLayer = new ButtonLayer(windowScaledWidth + 2, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, buttonSize, buttonSize, ButtonFunction.CHECKMARK);
         exitButtonLayer.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.exit-without-saving")));
         checkButtonLayer.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.save-and-exit")));
         this.addDrawableChild(exitButtonLayer);
@@ -194,16 +214,15 @@ public class ConfigScreen extends Screen {
         configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
-        }).dimensions(20, getNextOptionSlot(), 120, 20).build();
+        }).dimensions(20, windowScaledHeight - 35, 120, 20).build();
         configHud.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.configure-hud")));
         this.addDrawableChild(configHud);
 
-        generalLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.general"), this.textRenderer);
-        this.addDrawableChild(generalLabel);
+        generalLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.general"), this.textRenderer);
+        this.addConfigOptionWidget(generalLabel);
 
-        artificialZoomOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.artificial-zoom"), Text.of(""), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
-        artificialZoomOption.getButtonWidget().setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.artificial-zoom")));
-        this.addDrawableChild(artificialZoomOption.getButtonWidget());
+        artificialZoomOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.artificial-zoom"), Text.of(Text.translatable("omm.config.tooltip.artificial-zoom")), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
+        this.addConfigOptionWidget(artificialZoomOption);
 
         snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.translatable("omm.config.option.snap-angle"), 0);
         snapAngleWidget.setMaxLength(50);
@@ -211,41 +230,32 @@ public class ConfigScreen extends Screen {
         snapAngleWidget.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")));
         this.addDrawableChild(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.rcm-uses"), Text.translatable("omm.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
-        this.addDrawableChild(rightClickMeuUsesOption.getButtonWidget());
+        rightClickMeuUsesOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.rcm-uses"), Text.translatable("omm.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
+        this.addConfigOptionWidget(rightClickMeuUsesOption);
 
-        reverseScrollOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.reverse-scroll"), Text.translatable("omm.config.tooltip.reverse-scroll"), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
-        this.addDrawableChild(reverseScrollOption.getButtonWidget());
+        reverseScrollOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.reverse-scroll"), Text.translatable("omm.config.tooltip.reverse-scroll"), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
+        this.addConfigOptionWidget(reverseScrollOption);
 
-        zoomStrengthWidget = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.zoom-strength"), Text.translatable("omm.config.tooltip.zoom-strength"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
-        this.addDrawableChild(zoomStrengthWidget);
+        zoomStrengthWidget = new ChoiceSliderWidget(Text.translatable("omm.config.option.zoom-strength"), Text.translatable("omm.config.tooltip.zoom-strength"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
+        this.addConfigOptionWidget(zoomStrengthWidget);
 
-        hoverNamesOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.hover-names"), Text.translatable("omm.config.tooltip.hover-names"), new String[] {"Off", "On"}, ConfigOptions.HOVER_NAMES);
-        this.addDrawableChild(hoverNamesOption.getButtonWidget());
+        hoverNamesOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.hover-names"), Text.translatable("omm.config.tooltip.hover-names"), new String[] {"Off", "On"}, ConfigOptions.HOVER_NAMES);
+        this.addConfigOptionWidget(hoverNamesOption);
 
-        overlayLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.overlays"), this.textRenderer);
-        this.addDrawableChild(overlayLabel);
+        overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
+        this.addConfigOptionWidget(overlayLabel);
 
-        playerShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.players"), Text.translatable("omm.config.tooltip.players"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
-        this.addDrawableChild(playerShowSlider);
+        playerShowSlider = new ChoiceSliderWidget(Text.translatable("omm.config.option.players"), Text.translatable("omm.config.tooltip.players"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
+        this.addConfigOptionWidget(playerShowSlider);
 
-        directionIndicatorShowSlider = new ChoiceSliderWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.directions"), Text.translatable("omm.config.tooltip.directions"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
-        this.addDrawableChild(directionIndicatorShowSlider);
+        directionIndicatorShowSlider = new ChoiceSliderWidget(Text.translatable("omm.config.option.directions"), Text.translatable("omm.config.tooltip.directions"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
+        this.addConfigOptionWidget(directionIndicatorShowSlider);
 
-        altitudeShadingOption = new ChoiceButtonWidget(20, getNextOptionSlot(), Text.translatable("omm.config.option.altitude-shading"),  Text.translatable("omm.config.tooltip.altitude-shading"), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
-        this.addDrawableChild(altitudeShadingOption.getButtonWidget());
+        altitudeShadingOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.altitude-shading"),  Text.translatable("omm.config.tooltip.altitude-shading"), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
+        this.addConfigOptionWidget(altitudeShadingOption);
 
-        urlLabel = new TextWidget(20, getNextOptionSlot() + 5, 120, 20, Text.translatable("omm.config.category.tile-source"), this.textRenderer);
-        this.addDrawableChild(urlLabel);
-
-        /*
-        customUrlWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 300, 20, Text.of("Map Tile Data URL"), 1);
-        customUrlWidget.setMaxLength(1000);
-        customUrlWidget.setText(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL));
-        customUrlWidget.setTooltip(Tooltip.of(Text.of("Set the URL that OpenMineMap will attempt to load tiles from. \n{x}: Tile X position\n{y}: Tile Y position\n{z}: Zoom level")));
-        this.addDrawableChild(customUrlWidget);
-
-         */
+        urlLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.tile-source"), this.textRenderer);
+        this.addConfigOptionWidget(urlLabel);
 
         definedUrlWidget = new UrlChoiceWidget(this.textRenderer, 20, getNextOptionSlot(), 120, 20);
         this.addDrawableChild(definedUrlWidget);
@@ -300,16 +310,21 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
         updateScreenDims();
+        UContext.setContext(context);
 
         wikiLinkLayer.setPosition(windowScaledWidth - wikiLinkLayer.getWidth(), windowScaledHeight - 32);
-        exitButtonLayer.setPosition(windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1]);
-        checkButtonLayer.setPosition(windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1]);
+        exitButtonLayer.setPosition(windowScaledWidth / 2 - 22, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
+        checkButtonLayer.setPosition(windowScaledWidth / 2 + 2, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
+        configHud.setY(windowScaledHeight - BOTTOM_BUTTON_OFFSET);
+
+        //context.enableScissor(0, 0, windowScaledWidth, windowScaledHeight - BOTTOM_SPACE);
+        super.render(context, mouseX, mouseY, delta);
+        //context.disableScissor();
 
         wikiLinkLayer.drawWidget(context, textRenderer);
-        context.drawTexture(checkButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0], windowScaledWidth - buttonPositionModifiers[0][0], (windowScaledHeight / 2) + buttonPositionModifiers[0][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(exitButtonLayer.isHovered() ? buttonIdentifiers[2][1] : buttonIdentifiers[1][1], windowScaledWidth - buttonPositionModifiers[1][0], (windowScaledHeight / 2) + buttonPositionModifiers[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(checkButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0], checkButtonLayer.getX(), checkButtonLayer.getY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        context.drawTexture(exitButtonLayer.isHovered() ? buttonIdentifiers[2][1] : buttonIdentifiers[1][1], exitButtonLayer.getX(), exitButtonLayer.getY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
 
     }
 }

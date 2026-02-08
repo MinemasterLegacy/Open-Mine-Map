@@ -466,7 +466,7 @@ public class OmmMap extends ClickableWidget {
     private void normalizeZoom(double originalZoom) {
         //https://www.desmos.com/calculator/6nlrz2hv5z
         int oldMapSize = tileSize * (int) Math.pow(2, Math.round(originalZoom));
-        tileSize = (int) Math.floor(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
+        tileSize = (int) Math.round(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
         int totalMapSize = (int) (tileSize * Math.pow(2, Math.round(zoom))); //determine total map size (tile size * num of tiles)
         double zoom1 = (Math.log10(totalMapSize) - log10of128) / log10of2; //get the desired zoom level of the current map
         zoom = (double) Math.round(zoom1 * 100) / 100; //set zoom to the desired zoom level

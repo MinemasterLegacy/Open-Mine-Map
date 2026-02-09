@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
@@ -17,7 +16,6 @@ import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
-import net.mmly.openminemap.gui.TextFieldLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
@@ -47,7 +45,7 @@ public class ConfigScreen extends Screen {
 
     CategoryLabelWidget generalLabel;
     ChoiceButtonWidget artificialZoomOption;
-    public static TextFieldWidget snapAngleWidget;
+    ChoiceNumberWidget snapAngleWidget;
     ChoiceButtonWidget rightClickMeuUsesOption;
     ChoiceButtonWidget reverseScrollOption;
     ChoiceSliderWidget zoomStrengthWidget;
@@ -161,7 +159,7 @@ public class ConfigScreen extends Screen {
         configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
-        }).dimensions(20, windowScaledHeight - 35, 120, 20).build();
+        }).dimensions(15, windowScaledHeight - 35, 120, 20).build();
         configHud.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.configure-hud")));
         this.addDrawableChild(configHud);
 
@@ -171,11 +169,8 @@ public class ConfigScreen extends Screen {
         artificialZoomOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.artificial-zoom"), Text.of(Text.translatable("omm.config.tooltip.artificial-zoom")), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
         this.addConfigOptionWidget(artificialZoomOption);
 
-        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, 20, 120, 20, Text.translatable("omm.config.option.snap-angle"), 0);
-        snapAngleWidget.setMaxLength(50);
-        snapAngleWidget.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
-        snapAngleWidget.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")));
-        this.addDrawableChild(snapAngleWidget);
+        snapAngleWidget = new ChoiceNumberWidget(textRenderer, Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")), Text.translatable("omm.config.option.snap-angle"));
+        this.addConfigOptionWidget(snapAngleWidget);
 
         rightClickMeuUsesOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.rcm-uses"), Text.translatable("omm.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
@@ -212,42 +207,13 @@ public class ConfigScreen extends Screen {
     }
 
     public void saveChanges() {
-
-        if (definedUrlWidget.currentUrlId != TileUrlFile.getCurrentUrlId()) {
-            definedUrlWidget.writeParameterToFile();
-            TileManager.setCacheDir();
-            TileManager.themeColor = 0xFF808080;
+        for (ClickableWidget widget : choiceWidgets) {
+            ((ConfigChoice) widget).writeParameterToFile();
         }
-
-        /*
-        if (!Objects.equals(ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL), customUrlWidget.getText())) {
-            //System.out.println("yea");
-            TileManager.clearCacheDir();
-        }
-
-         */
-        String snapAngle;
-        try {
-            snapAngle = Double.toString(Double.parseDouble(snapAngleWidget.getText())); //will ensure that the snap angle is a number
-        } catch (NumberFormatException e) {
-            snapAngle = "";
-        }
-        //ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, customUrlWidget.getText());
-        ConfigFile.writeParameter(ConfigOptions.SNAP_ANGLE, snapAngle);
-        //ConfigFile.writeParameter("ArtificialZoom", Boolean.toString(doArtificialZoom));
-        rightClickMeuUsesOption.writeParameterToFile();
-        artificialZoomOption.writeParameterToFile();
-        reverseScrollOption.writeParameterToFile();
-        zoomStrengthWidget.writeParameterToFile();
-        hoverNamesOption.writeParameterToFile();
-        playerShowSlider.writeParameterToFile();
-        directionIndicatorShowSlider.writeParameterToFile();
-        altitudeShadingOption.writeParameterToFile();
         if (!ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on")) {
             FullscreenMapScreen.clampZoom();
             HudMap.clampZoom();
         }
-
         TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();

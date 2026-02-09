@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
 
@@ -39,8 +40,13 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
     }
 
      public void writeParameterToFile() {
-        ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, TileUrlFile.getTileUrl(currentUrlId).name);
-        TileUrlFile.setCurrentUrl(currentUrlId);
+         if (currentUrlId != TileUrlFile.getCurrentUrlId()) {
+             ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, TileUrlFile.getTileUrl(currentUrlId).name);
+             TileUrlFile.setCurrentUrl(currentUrlId);
+             TileManager.setCacheDir();
+             TileManager.themeColor = 0xFF808080;
+         }
+
     }
 
     protected void changeToNextUrl() {

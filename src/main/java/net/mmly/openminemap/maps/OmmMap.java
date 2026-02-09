@@ -569,7 +569,7 @@ public class OmmMap extends ClickableWidget {
         return hoveredWaypoint;
     }
 
-    private BufferedPlayer drawDirectionIndicator(DrawContext context, PlayerEntity playerDraw, boolean indicatorsOnly) {
+    private BufferedPlayer drawDirectionIndicator(DrawContext context, PlayerEntity playerDraw, boolean indicatorsOnly, OverlayVisibility requiredPermission) {
         //Draws a direction indicator
         //May also return a BufferedPlayer if other players are to be drawn
 
@@ -594,7 +594,7 @@ public class OmmMap extends ClickableWidget {
         double direction = Direction.getGeoAzimuth(playerDraw.getX(), playerDraw.getZ(), playerDraw.getYaw());
 
         //Draw a direction indicator if the direction is a valid number and visibility permission is adequete
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(direction))
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, requiredPermission) && !Double.isNaN(direction))
             DirectionIndicator.draw(
                     context,
                     direction,
@@ -789,9 +789,10 @@ public class OmmMap extends ClickableWidget {
                     player,
                     !OverlayVisibility.checkPermissionFor(
                             TileManager.showPlayers,
-                            OverlayVisibility.LOCAL)
-                    )
-            );
+                            OverlayVisibility.LOCAL
+                    ),
+                    OverlayVisibility.LOCAL
+            ));
         }
 
         //draw other players
@@ -805,8 +806,8 @@ public class OmmMap extends ClickableWidget {
         BufferedPlayer self = null;
         if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("on")) drawHoveredPlayerText(context);
 
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
-            if (followPlayer) {
+        if (followPlayer) {
+            if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
                 DirectionIndicator.draw(
                         context,
                         PlayerAttributes.geoYaw,
@@ -814,10 +815,10 @@ public class OmmMap extends ClickableWidget {
                         renderAreaY + (renderAreaHeight / 2) - 12,
                         !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)
                 );
-            } else {
-                self = drawDirectionIndicator(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF));
             }
 
+        } else {
+            self = drawDirectionIndicator(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF), OverlayVisibility.SELF);
         }
 
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {

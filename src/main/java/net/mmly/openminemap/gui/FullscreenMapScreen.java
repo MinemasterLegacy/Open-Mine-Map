@@ -449,6 +449,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             chatToBeOpened = true;
         }
 
+        if (keyCode == GLFW.GLFW_KEY_TAB) {
+            toggleSearchMenu(true);
+            return true;
+        }
+
         map.keyNavigate(keyCode, modifiers);
 
         return true;

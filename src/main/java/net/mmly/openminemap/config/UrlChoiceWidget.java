@@ -13,15 +13,16 @@ import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
 
-public class UrlChoiceWidget extends TextFieldWidget {
+public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
 
     //private static final Identifier upArrow = Identifier.of("minecraft", "textures/");
     private final SelectArrow upArrowWidget;
     private final SelectArrow downArrowWidget;
     protected int currentUrlId;
+    ConfigAnchorWidget anchor;
 
-    public UrlChoiceWidget(TextRenderer textRenderer, int x, int y, int width, int height) {
-        super(textRenderer, x, y, width, height, Text.of(""));
+    public UrlChoiceWidget(TextRenderer textRenderer) {
+        super(textRenderer, 0, -100, 200, 20, Text.of(""));
         this.setEditable(false);
         this.setMaxLength(1000);
         this.setUneditableColor(14737632);
@@ -32,7 +33,12 @@ public class UrlChoiceWidget extends TextFieldWidget {
         this.currentUrlId = TileUrlFile.getCurrentUrlId();
     }
 
-    protected void writeParameterToFile() {
+    @Override
+    public void setAnchor(ConfigAnchorWidget anchor) {
+        this.anchor = anchor;
+    }
+
+     public void writeParameterToFile() {
         ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, TileUrlFile.getTileUrl(currentUrlId).name);
         TileUrlFile.setCurrentUrl(currentUrlId);
     }
@@ -55,8 +61,16 @@ public class UrlChoiceWidget extends TextFieldWidget {
 
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.renderWidget(context, mouseX, mouseY, delta);
+        if (!anchor.drawNow) {return; }
+        this.setX(anchor.getX());
+        this.setY(anchor.getY());
+        this.width = anchor.getWidth();
         refreshText();
+        upArrowWidget.refreshPosition();
+        downArrowWidget.refreshPosition();
+        upArrowWidget.drawWidget(context);
+        downArrowWidget.drawWidget(context);
+        super.renderWidget(context, mouseX, mouseY, delta);
     }
 
     @Override
@@ -65,10 +79,8 @@ public class UrlChoiceWidget extends TextFieldWidget {
     }
 
     @Override
-    public void setY(int y) {
-        super.setY(y);
-        upArrowWidget.setY(y);
-        downArrowWidget.setY(y);
+    public void setDimensionsAndPosition(int width, int height, int x, int y) {
+        super.setDimensionsAndPosition(width, height, x, y);
     }
 
     public SelectArrow getUpArrowWidget() {
@@ -86,9 +98,11 @@ class SelectArrow extends ClickableWidget {
     private final Identifier arrowSelected;
     private final ArrowDirection direction;
     private final UrlChoiceWidget choiceWidget;
+    private static final int TEXTURE_WIDTH = 11;
+    private static final int TEXTURE_HEIGHT = 7;
 
     protected SelectArrow(ArrowDirection direction, UrlChoiceWidget choiceWidget) {
-        super(choiceWidget.getX() + choiceWidget.getWidth() + 3, choiceWidget.getY() + ArrowDirection.getHeightMod(direction) + 2, 11, 7, Text.of(""));
+        super(0,0, TEXTURE_WIDTH, 0, Text.of(""));
         //System.out.println(getY());
         arrow = Identifier.of("openminemap", "arrowselect/"+direction+".png");
         arrowSelected = Identifier.of("openminemap", "arrowselect/"+direction+"selected.png");
@@ -96,6 +110,7 @@ class SelectArrow extends ClickableWidget {
         this.choiceWidget = choiceWidget;
         if (direction == ArrowDirection.up) setTooltip(Tooltip.of(Text.translatable("omm.config.gui.previous-source")));
         if (direction == ArrowDirection.down) setTooltip(Tooltip.of(Text.translatable("omm.config.gui.next-source")));
+        refreshPosition();
     }
 
     @Override
@@ -106,24 +121,26 @@ class SelectArrow extends ClickableWidget {
     }
 
     @Override
-    public void setY(int y) {
-        super.setY(y + ArrowDirection.getHeightMod(direction) + 2);
-    }
-
-    @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        //context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0xFFFFFFFF);
-        context.drawTexture(isHovered() ? arrowSelected : arrow, getX(), getY(),0, 0, getWidth(), getHeight(), 11, 7);
+
     }
 
-    @Override
-    public boolean isHovered() {
-        return super.isHovered();
+    protected void drawWidget(DrawContext context) {
+        context.drawTexture(isHovered() ? arrowSelected : arrow, getX(), getY(),0, 0, width, height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        //context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x800000FF);
     }
 
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
+    }
+
+    protected void refreshPosition() {
+        setPosition(
+                choiceWidget.getX() - TEXTURE_WIDTH - 3,
+                choiceWidget.getY() + ArrowDirection.getHeightMod(direction) + 2
+        );
+        setHeight(Math.clamp(ConfigScreen.getConfigListBottom() - getY(), 0, TEXTURE_HEIGHT));
     }
 }
 

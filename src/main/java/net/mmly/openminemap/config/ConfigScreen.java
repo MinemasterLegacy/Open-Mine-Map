@@ -32,19 +32,12 @@ public class ConfigScreen extends Screen {
 
     static ConfigScreen configScreen;
     private static final int BOTTOM_SPACE = 40;
-    private static final int BOTTOM_BUTTON_OFFSET = 32;
+    private static final int BOTTOM_BUTTON_OFFSET = 30;
     private static int windowHeight;
     private static int windowWidth;
     public static int windowScaledHeight;
     public static int windowScaledWidth;
     private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
-
-    int nextOptionSlot;
-    int totalOptions;
-    private int scrollRange;
-    private int currentScroll = 0;
-    private int maxScroll;
-    private final int SCROLLSPEED = 5;
 
     private static WikiLinkLayer wikiLinkLayer;
     private static ButtonLayer exitButtonLayer;
@@ -88,7 +81,7 @@ public class ConfigScreen extends Screen {
     Window window;
     public static ButtonWidget toggleArtificialZoomButton;
 
-    ConfigList configList;
+    static ConfigList configList;
     ArrayList<ClickableWidget> choiceWidgets = new ArrayList<>();
     ArrayList<ConfigAnchorWidget> anchorWidgets = new ArrayList<>();
 
@@ -99,14 +92,12 @@ public class ConfigScreen extends Screen {
                 new FullscreenMapScreen()
         );
     }
+
     public static ConfigScreen getInstance() {
         return configScreen;
     }
-
-    private int getNextOptionSlot() {
-        totalOptions++;
-        nextOptionSlot += 25;
-        return nextOptionSlot;
+    public static int getConfigListBottom() {
+        return configList.getBottom();
     }
 
     private void updateScreenDims() {
@@ -129,64 +120,20 @@ public class ConfigScreen extends Screen {
         }
     }
 
-    private void updateScrollPositions(int change) {
-        currentScroll -= change;
-        generalLabel.setY(generalLabel.getY() + change);
-        configHud.setY(configHud.getY() + change);
-        artificialZoomOption.getButtonWidget().setY(artificialZoomOption.getButtonWidget().getY() + change);
-       // customUrlWidget.setY(customUrlWidget.getY() + change);
-        snapAngleWidget.setY(snapAngleWidget.getY() + change);
-        rightClickMeuUsesOption.getButtonWidget().setY(rightClickMeuUsesOption.getButtonWidget().getY() + change);
-        reverseScrollOption.getButtonWidget().setY(reverseScrollOption.getButtonWidget().getY() + change);
-        zoomStrengthWidget.setY(zoomStrengthWidget.getY() + change);
-        hoverNamesOption.getButtonWidget().setY(hoverNamesOption.getButtonWidget().getY() + change);
-        overlayLabel.setY(overlayLabel.getY() + change);
-        playerShowSlider.setY(playerShowSlider.getY() + change);
-        directionIndicatorShowSlider.setY(directionIndicatorShowSlider.getY() + change);
-        altitudeShadingOption.getButtonWidget().setY(altitudeShadingOption.getButtonWidget().getY() + change);
-        urlLabel.setY(urlLabel.getY() + change);
-        definedUrlWidget.setY(definedUrlWidget.getY() + change);
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        boolean b = super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-        maxScroll = Math.max(scrollRange - windowScaledHeight, 0);
-        //System.out.println(verticalAmount);
-        if (TileManager.doReverseScroll) verticalAmount *= -1;
-        if (verticalAmount < 0) { //down
-            if (currentScroll + SCROLLSPEED < maxScroll) {
-                updateScrollPositions(-SCROLLSPEED);
-            } else {
-                updateScrollPositions(currentScroll - maxScroll);
-            }
-        } else /*verticalAmount > 0*/ { //up
-            if (currentScroll - SCROLLSPEED > 0) {
-                updateScrollPositions(SCROLLSPEED);
-            } else {
-                updateScrollPositions(currentScroll);
-            }
-        }
-        //System.out.println(": "+maxScroll+", "+currentScroll+", "+windowScaledHeight+", "+scrollRange);
-        //System.out.println(currentScroll);
-        return b;
-    }
-
     private void addConfigOptionWidget(ClickableWidget widget) {
         if (!ConfigChoice.class.isAssignableFrom(widget.getClass())) return;
         choiceWidgets.add(widget);
         ConfigAnchorWidget anchor = new ConfigAnchorWidget();
+        this.addDrawableChild(widget);
+
         configList.addEntry(anchor);
         anchorWidgets.add(anchor);
         ((ConfigChoice) widget).setAnchor(anchor);
         anchor.setWidget(widget);
-        this.addDrawableChild(widget);
     }
 
     @Override
     protected void init() {
-        totalOptions = 0;
-        nextOptionSlot = -5;
         configScreen = this;
 
         updateTileSet();
@@ -224,7 +171,7 @@ public class ConfigScreen extends Screen {
         artificialZoomOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.artificial-zoom"), Text.of(Text.translatable("omm.config.tooltip.artificial-zoom")), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
         this.addConfigOptionWidget(artificialZoomOption);
 
-        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, getNextOptionSlot(), 120, 20, Text.translatable("omm.config.option.snap-angle"), 0);
+        snapAngleWidget = new TextFieldLayer(this.textRenderer, 20, 20, 120, 20, Text.translatable("omm.config.option.snap-angle"), 0);
         snapAngleWidget.setMaxLength(50);
         snapAngleWidget.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
         snapAngleWidget.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")));
@@ -257,13 +204,11 @@ public class ConfigScreen extends Screen {
         urlLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.tile-source"), this.textRenderer);
         this.addConfigOptionWidget(urlLabel);
 
-        definedUrlWidget = new UrlChoiceWidget(this.textRenderer, 20, getNextOptionSlot(), 120, 20);
-        this.addDrawableChild(definedUrlWidget);
+        definedUrlWidget = new UrlChoiceWidget(this.textRenderer);
+        this.addConfigOptionWidget(definedUrlWidget);
         this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
         this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
 
-        scrollRange = totalOptions * 25 + 35;
-        currentScroll = 0;
     }
 
     public void saveChanges() {

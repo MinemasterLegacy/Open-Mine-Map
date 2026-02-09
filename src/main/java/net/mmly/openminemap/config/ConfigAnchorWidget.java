@@ -36,8 +36,25 @@ public class ConfigAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<Conf
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        widget.onClick(mouseX, mouseY);
+        widget.mouseClicked(mouseX, mouseY, button);
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        widget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        widget.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        super.mouseMoved(mouseX, mouseY);
     }
 
     @Override
@@ -48,6 +65,6 @@ public class ConfigAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<Conf
         drawNow = true;
         widget.render(context, mouseX, mouseY, tickDelta);
         drawNow = false;
-        //context.fill(x, y, x + entryWidth, y + entryHeight, 0xFFFF0000);
+        //context.fill(x, y, x + entryWidth, y + entryHeight, 0x80FF0000);
     }
 }

@@ -105,6 +105,11 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         }
     }
 
+    @Override
+    protected boolean isValidClickButton(int button) {
+        return button == 0 || button == 1;
+    }
+
     public static void updatePinnedWaypoints() {
         int num = 0;
         for (Waypoint waypoint : OmmMap.getWaypoints()) {

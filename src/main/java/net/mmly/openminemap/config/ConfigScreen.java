@@ -159,6 +159,7 @@ public class ConfigScreen extends Screen {
         configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
+                FullscreenMapScreen.toggleAltScreenMap(false);
         }).dimensions(15, windowScaledHeight - 35, 120, 20).build();
         configHud.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.configure-hud")));
         this.addDrawableChild(configHud);
@@ -203,6 +204,8 @@ public class ConfigScreen extends Screen {
         this.addConfigOptionWidget(definedUrlWidget);
         this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
         this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
+
+        FullscreenMapScreen.toggleAltScreenMap(true);
 
     }
 

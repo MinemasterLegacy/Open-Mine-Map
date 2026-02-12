@@ -13,6 +13,7 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ButtonState;
@@ -26,6 +27,7 @@ import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.*;
+import net.mmly.openminemap.waypoint.WaypointScreen;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -78,7 +80,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     );
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
-    private static boolean hudWasHidden = false;
     private static LinkedList<Notification> notifications = new LinkedList<>();
 
     public static void clampZoom() {
@@ -459,16 +460,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return true;
     }
 
-    private static void toggleAltScreenMap(boolean state) {
+    public static void toggleAltScreenMap(boolean state) {
         renderAltMap = state;
         map.setDraggable(!state);
-        if (state == true) {
-            hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
-            MinecraftClient.getInstance().options.hudHidden = true;
-        } else {
-            MinecraftClient.getInstance().options.hudHidden = hudWasHidden;
-        }
-
     }
 
     public static void addNotification(Notification notification) {
@@ -513,6 +507,15 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
     }
 
+    private static boolean currentScreenIsValidAltMapScreen() {
+        Screen current = MinecraftClient.getInstance().currentScreen;
+        if (current instanceof ChatScreen) return true;
+        if (current instanceof ConfirmLinkScreen) return true;
+        if (current instanceof ConfigScreen) return true;
+        if (current instanceof WaypointScreen) return true;
+        return false;
+    }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
@@ -520,11 +523,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         if (chatToBeOpened) {
             if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient
-                renderAltMap = true;
                 mClient.setScreen(new ChatScreen(""));
-                map.setDraggable(false);
-                hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
-                MinecraftClient.getInstance().options.hudHidden = true;
+                toggleAltScreenMap(true);
             }
             chatToBeOpened = false;
         }
@@ -593,14 +593,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
 
         if (!renderAltMap) return;
-
-        if (!(MinecraftClient.getInstance().currentScreen instanceof ChatScreen || MinecraftClient.getInstance().currentScreen instanceof ConfirmLinkScreen)) {
-            renderAltMap = false;
+        if (!currentScreenIsValidAltMapScreen()) {
             MinecraftClient.getInstance().setScreen(
                     new FullscreenMapScreen()
             );
-            map.setDraggable(true);
-            MinecraftClient.getInstance().options.hudHidden = FullscreenMapScreen.hudWasHidden;
+            toggleAltScreenMap(false);
             return;
         }
 

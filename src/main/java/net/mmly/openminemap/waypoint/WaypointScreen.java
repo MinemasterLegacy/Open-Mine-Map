@@ -212,6 +212,7 @@ public class WaypointScreen extends Screen {
         initInEditMode = false;
 
         updateWidgetPositions();
+        FullscreenMapScreen.toggleAltScreenMap(true);
     }
 
     public static void deleteEditingWaypoint() {

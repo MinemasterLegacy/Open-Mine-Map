@@ -81,6 +81,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
     private static LinkedList<Notification> notifications = new LinkedList<>();
+    private static boolean hudWasHidden;
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
@@ -463,6 +464,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public static void toggleAltScreenMap(boolean state) {
         renderAltMap = state;
         map.setDraggable(!state);
+        if (state) {
+            hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
+            MinecraftClient.getInstance().options.hudHidden = true;
+        }
+        else MinecraftClient.getInstance().options.hudHidden = hudWasHidden;
     }
 
     public static void addNotification(Notification notification) {

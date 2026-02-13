@@ -196,6 +196,7 @@ public class TileManager {
             tm.destroyTexture(tile);
         }
         dyLoadedTiles.clear();
+        TileLoader.resetCacheSize();
     }
 
     public static void purgeOldFiles() {

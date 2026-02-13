@@ -54,28 +54,28 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         drawBorder(x, y, x2 - x, y2 - y, color);
     }
 
-    public void fillZone(int x, int y, int width, int height, int color) {
+    public static void fillZone(int x, int y, int width, int height, int color) {
         drawContext.fill(x, y, x + width, y + height, color);
     }
 
-    public void fillAndDrawText(Text text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor, boolean shadow) {
+    public static void fillAndDrawText(Text text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor, boolean shadow) {
         fillZone(x, y, (marginWidth * 2) + textRenderer.getWidth(text), (marginHeight * 2) + textRenderer.fontHeight, fillColor);
         drawJustifiedText(text, Justify.LEFT, x + marginWidth, y + marginHeight, textColor, shadow);
     }
 
-    public void fillAndDrawText(Text text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor) {
+    public static void fillAndDrawText(Text text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor) {
         fillAndDrawText(text, x, y, marginWidth, marginHeight, fillColor, textColor, false);
     }
 
-    public void drawTexture(Identifier identifier, int x, int y, int width, int height, int textureWidth, int textureHeight) {
+    public static void drawTexture(Identifier identifier, int x, int y, int width, int height, int textureWidth, int textureHeight) {
         drawTexture(identifier, x, y, width, height, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
     }
 
-    public void drawTexture(Identifier identifier, int x, int y, int width, int height, float u, float v, int textureWidth, int textureHeight) {
+    public static void drawTexture(Identifier identifier, int x, int y, int width, int height, float u, float v, int textureWidth, int textureHeight) {
         drawTexture(identifier, x, y, width, height, u, v, textureWidth, textureHeight, textureWidth, textureHeight);
     }
 
-    public void drawTexture(Identifier identifier, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+    public static void drawTexture(Identifier identifier, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         drawContext.drawTexture(identifier, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight);
     }
 }

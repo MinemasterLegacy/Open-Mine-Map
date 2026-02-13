@@ -19,7 +19,6 @@ import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.TileUrlFile;
 
 import java.util.ArrayList;
 
@@ -31,11 +30,8 @@ public class ConfigScreen extends Screen {
     static ConfigScreen configScreen;
     private static final int BOTTOM_SPACE = 40;
     private static final int BOTTOM_BUTTON_OFFSET = 30;
-    private static int windowHeight;
-    private static int windowWidth;
     public static int windowScaledHeight;
     public static int windowScaledWidth;
-    private static Identifier[][] buttonIdentifiers = new Identifier[3][2];
 
     private static WikiLinkLayer wikiLinkLayer;
     private static ButtonLayer exitButtonLayer;
@@ -74,8 +70,6 @@ public class ConfigScreen extends Screen {
         The top and bottom of the screen have a padding of 20.
      */
 
-    protected static final int buttonSize = 20;
-
     Window window;
     public static ButtonWidget toggleArtificialZoomButton;
 
@@ -100,22 +94,8 @@ public class ConfigScreen extends Screen {
 
     private void updateScreenDims() {
         window = MinecraftClient.getInstance().getWindow();
-        windowHeight = window.getHeight();
-        windowWidth = window.getWidth();
         windowScaledHeight = window.getScaledHeight();
         windowScaledWidth = window.getScaledWidth();
-    }
-
-    static protected void updateTileSet() {
-        String path;
-        String[] names = new String[] {"check.png", "exit.png"};
-        String[] states = new String[] {"locked/", "default/", "hover/"};
-        path = "buttons/vanilla/";
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 2; j++) {
-                buttonIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
-            }
-        }
     }
 
     private void addConfigOptionWidget(ClickableWidget widget) {
@@ -134,7 +114,6 @@ public class ConfigScreen extends Screen {
     protected void init() {
         configScreen = this;
 
-        updateTileSet();
         updateScreenDims();
 
         configList = new ConfigList(MinecraftClient.getInstance(), 0, 0, 0, 24);
@@ -145,8 +124,8 @@ public class ConfigScreen extends Screen {
         wikiLinkLayer = new WikiLinkLayer(0, 0);
         this.addDrawableChild(wikiLinkLayer);
 
-        exitButtonLayer = new ButtonLayer(windowScaledWidth - 22, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, buttonSize, buttonSize, ButtonFunction.EXIT);
-        checkButtonLayer = new ButtonLayer(windowScaledWidth + 2, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, buttonSize, buttonSize, ButtonFunction.CHECKMARK);
+        exitButtonLayer = new ButtonLayer(windowScaledWidth - 22, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, ButtonFunction.EXIT);
+        checkButtonLayer = new ButtonLayer(windowScaledWidth + 2, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, ButtonFunction.CHECKMARK);
         exitButtonLayer.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.exit-without-saving")));
         checkButtonLayer.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.save-and-exit")));
         this.addDrawableChild(exitButtonLayer);
@@ -235,10 +214,6 @@ public class ConfigScreen extends Screen {
         //context.enableScissor(0, 0, windowScaledWidth, windowScaledHeight - BOTTOM_SPACE);
         super.render(context, mouseX, mouseY, delta);
         //context.disableScissor();
-
         wikiLinkLayer.drawWidget(context, textRenderer);
-        context.drawTexture(checkButtonLayer.isHovered() ? buttonIdentifiers[2][0] : buttonIdentifiers[1][0], checkButtonLayer.getX(), checkButtonLayer.getY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(exitButtonLayer.isHovered() ? buttonIdentifiers[2][1] : buttonIdentifiers[1][1], exitButtonLayer.getX(), exitButtonLayer.getY(), 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-
     }
 }

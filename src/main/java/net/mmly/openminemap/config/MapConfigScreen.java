@@ -17,8 +17,6 @@ import net.mmly.openminemap.util.ConfigFile;
 
 public class MapConfigScreen extends Screen {
 
-    private final static Identifier horzAdjust = Identifier.of("openminemap", "resizehorizontal.png");
-    private final static Identifier vertAdjust = Identifier.of("openminemap", "resizevertical.png");
     private static ResizeElement upResize;
     private static ResizeElement rightResize;
     private static ResizeElement downResize;
@@ -30,9 +28,6 @@ public class MapConfigScreen extends Screen {
     private static ButtonLayer exitButton;
     private static ButtonLayer saveButton;
     private static ButtonLayer resetConfigButton;
-    private static Identifier[] exitIdentifiers;
-    private static Identifier[] saveIdentifiers;
-    private static Identifier[] resetConfigIdentifiers;
     private static Window window;
     private static int windowWidth = 640;
     private static int windowHeight = 480;
@@ -104,27 +99,15 @@ public class MapConfigScreen extends Screen {
         if (!HudMap.renderHud) HudMap.toggleRendering();
         updateScreenDims();
 
-        saveIdentifiers = new Identifier[] {
-                Identifier.of("openminemap", "buttons/vanilla/default/check.png"),
-                Identifier.of("openminemap", "buttons/vanilla/hover/check.png")
-        };
-        saveButton = new ButtonLayer(0, 0,20, 20, ButtonFunction.CHECKMARK);
+        saveButton = new ButtonLayer(0, 0, ButtonFunction.CHECKMARK);
         saveButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.save-and-exit")));
         this.addDrawableChild(saveButton);
 
-        exitIdentifiers = new Identifier[] {
-                Identifier.of("openminemap", "buttons/vanilla/default/exit.png"),
-                Identifier.of("openminemap", "buttons/vanilla/hover/exit.png")
-        };
-        exitButton = new ButtonLayer(0, 0,20, 20, ButtonFunction.EXIT);
+        exitButton = new ButtonLayer(0, 0,ButtonFunction.EXIT);
         exitButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.exit-without-saving")));
         this.addDrawableChild(exitButton);
 
-        resetConfigIdentifiers = new Identifier[] {
-                Identifier.of("openminemap", "buttons/vanilla/default/resetconfig.png"),
-                Identifier.of("openminemap", "buttons/vanilla/hover/resetconfig.png")
-        };
-        resetConfigButton = new ButtonLayer(0, 0, 20, 20, ButtonFunction.RESET_CONFIG);
+        resetConfigButton = new ButtonLayer(0, 0, ButtonFunction.RESETCONFIG);
         resetConfigButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.reset-to-default")));
         this.addDrawableChild(resetConfigButton);
 
@@ -152,6 +135,10 @@ public class MapConfigScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        saveButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10));
+        exitButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 + 24));
+        resetConfigButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 - 24));
+
         super.render(context, mouseX, mouseY, delta);
         updateScreenDims();
         //Blue rectangle overlay
@@ -163,16 +150,5 @@ public class MapConfigScreen extends Screen {
         downResize.drawWidget(context);
         compassLeftResize.drawWidget(context);
         compassRightResize.drawWidget(context);
-
-        saveButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10));
-        context.drawTexture(saveButton.isHovered() ? saveIdentifiers[1] : saveIdentifiers[0], saveButton.getX(), saveButton.getY(), 0, 0, 20, 20, 20, 20);
-
-        exitButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 + 24));
-        context.drawTexture(exitButton.isHovered() ? exitIdentifiers[1] : exitIdentifiers[0], exitButton.getX(), exitButton.getY(), 0, 0, 20, 20, 20, 20);
-
-        resetConfigButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 - 24));
-        context.drawTexture(resetConfigButton.isHovered() ? resetConfigIdentifiers[1] : resetConfigIdentifiers[0], resetConfigButton.getX(), resetConfigButton.getY(), 0, 0, 20, 20, 20, 20);
-
-
     }
 }

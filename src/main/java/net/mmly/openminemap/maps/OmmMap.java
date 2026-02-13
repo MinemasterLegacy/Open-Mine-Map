@@ -28,6 +28,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {
 
@@ -89,7 +90,7 @@ public class OmmMap extends ClickableWidget {
 
     public MethodInterface rightClickProcedure;
     public MethodInterface leftClickProcedure;
-    public BooleanInterface blockZoomProcedure;
+    public BooleanSupplier blockZoomProcedure;
     public MethodInterface waypointClickedProcedure;
 
     private static Waypoint[] waypoints;
@@ -450,13 +451,13 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void mouseZoomIn() {
-        if (blockZoomProcedure.evaluate()) return;
+        if (blockZoomProcedure.getAsBoolean()) return;
         updateFields();
         zoomIn(mouseZoomStrength, true);
 
     }
     public void mouseZoomOut() {
-        if (blockZoomProcedure.evaluate()) return;
+        if (blockZoomProcedure.getAsBoolean()) return;
         updateFields();
         zoomOut(mouseZoomStrength, true);
     }

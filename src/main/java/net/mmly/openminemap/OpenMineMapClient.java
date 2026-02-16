@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
-    public static final String MODVERSION = "1.6.0";
+    public static final String MODVERSION = "1.6.1";
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
     private static final Identifier HUD_MAP_LAYER_FS = Identifier.of("openminemap", "hud-example-layer-fs");
@@ -42,7 +42,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         //tileLoader.start();
 
         HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, HUD_MAP_LAYER, HudMap::render));
-        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, HUD_MAP_LAYER_FS, FullscreenMapScreen::render));
+        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.SLEEP, HUD_MAP_LAYER_FS, FullscreenMapScreen::render));
 
         //ClientLoginConnectionEvents.INIT.register(WaypointFile::setWaypointsOfThisWorld);
         WaypointFile.load();

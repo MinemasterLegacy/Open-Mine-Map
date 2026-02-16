@@ -26,7 +26,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     _FS_LAST_X,
     _FS_LAST_Y,
 
-    __DISABLE_WEB_REQUESTS;
+    __DISABLE_WEB_REQUESTS,
+    __SHOW_MEMORY_CACHE_SIZE;
 
     public static String getRawTextOf(ConfigOptions configOption) {
         switch (configOption) {
@@ -56,6 +57,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case _FS_LAST_Y: return "§fslasty";
 
             case __DISABLE_WEB_REQUESTS: return "DisableWebRequests";
+            case __SHOW_MEMORY_CACHE_SIZE: return "ShowMemoryCacheSize";
         }
         return null;
     }
@@ -88,6 +90,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case "§fslasty": return _FS_LAST_Y;
 
             case "DisableWebRequests": return __DISABLE_WEB_REQUESTS;
+            case "ShowMemoryCacheSize": return __SHOW_MEMORY_CACHE_SIZE;
         }
         return null;
     }

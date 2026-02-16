@@ -10,35 +10,35 @@ import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextContent;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.config.ConfigScreen;
+import net.mmly.openminemap.draw.Justify;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.map.TileLoader;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
 import net.mmly.openminemap.search.SearchResultType;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.Notification;
-import net.mmly.openminemap.util.UnitConvert;
-import net.mmly.openminemap.util.Waypoint;
+import net.mmly.openminemap.util.*;
+import net.mmly.openminemap.waypoint.WaypointScreen;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.function.BooleanSupplier;
 
 public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
     public FullscreenMapScreen() {
@@ -70,7 +70,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static SearchBoxLayer searchBoxLayer;
     public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[7];
     private static PinnedWaypointsLayer pinnedWaypointsLayer;
-    private static final Identifier[][] buttonIdentifiers = new Identifier[3][numHotbarButtons];
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
     String playerDisplayLon = "0.00000";
     String playerDisplayLat = "0.00000";
@@ -87,16 +86,16 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     );
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
-    private static boolean hudWasHidden = false;
     private static LinkedList<Notification> notifications = new LinkedList<>();
+    private static boolean hudWasHidden;
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
         map.clampZoom();
     }
 
-    public static void followPlayer() {
-        map.setFollowPlayer(true);
+    public static void followPlayer(boolean follow) {
+        map.setFollowPlayer(follow);
     }
 
     public static FullscreenMapScreen getInstance() {
@@ -121,21 +120,15 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.setRenderSize(windowScaledWidth, windowScaledHeight);
     }
 
-    static protected void updateTileSet() {
+    static protected void setIdentifiers() {
         String path;
-        String[] names = new String[] {"zoomin.png", "zoomout.png", "reset.png", "follow.png", "config.png", "exit.png", "waypoint.png"};
-        String[] states = new String[] {"locked/", "default/", "hover/"};
+        String[] states = new String[] {"default/", "hover/"};
         path = "buttons/vanilla/";
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < numHotbarButtons; j++) {
-                buttonIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
-            }
-        }
-        names = new String[] {"mapoff.png", "mapon.png"};
+        String[] names = new String[] {"mapoff.png", "mapon.png"};
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
-                showIdentifiers[i][j] = Identifier.of("openminemap", path + states[i + 1] + names[j]);
+                showIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
             }
         }
     }
@@ -206,22 +199,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             } else {
                 rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
             }
-
-            if (windowScaledWidth > rightClickLayer.getWidth() && rightClickLayer.getX() + rightClickLayer.getWidth() > windowScaledWidth) {
-                rightClickLayer.setX(rightClickLayer.getX() - rightClickLayer.getWidth() + 1);
-                rightClickLayer.horizontalSide = -1;
-            } else rightClickLayer.horizontalSide = 1;
-
-            if (windowScaledHeight > rightClickLayer.getHeight() && rightClickLayer.getY() + rightClickLayer.getHeight() > windowScaledHeight) {
-                rightClickLayer.setY(rightClickLayer.getY() - rightClickLayer.getHeight() + 1);
-                rightClickLayer.verticalSize = -1;
-            } else rightClickLayer.verticalSize = 1;
         }
-
-    }
-
-    private static Identifier getButtonTexture(ButtonFunction buttonFunction, ButtonState buttonState) {
-        return buttonIdentifiers[buttonState.ordinal()][buttonFunction.ordinal()];
+        rightClickLayer.repositionForOverflow(windowScaledWidth, windowScaledHeight);
     }
 
     private static void onLeftClick() {
@@ -244,6 +223,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         pinnedWaypointsLayer.visible = !toggle;
         searchBoxLayer.visible = toggle;
         if (toggle) {
+            disableRightClickMenu();
             FullscreenMapScreen.getInstance().setFocused(searchBoxLayer);
             searchBoxLayer.recalculateResults();
             FullscreenMapScreen.getInstance().jumpToSearchBox();
@@ -284,15 +264,27 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
+    private BooleanSupplier getDisableConditionOf(ButtonFunction f) {
+        switch (f) {
+            case ZOOMIN: return () -> map.getZoom() >= map.getMaxZoom();
+            case ZOOMOUT: return () -> map.getZoom() <= 0;
+            case FOLLOW: return () -> !PlayerAttributes.positionIsValid() || map.followingPlayer();
+            case null:
+            default: return null;
+        }
+    }
+
     @Override
     protected void init() { //called when screen is being initialized
         instance = this;
+        setIdentifiers();
 
         rightClickLayer = new RightClickMenu(-500, -500, this.textRenderer);
         this.addDrawableChild(rightClickLayer);
 
         for (int i = 0; i < numHotbarButtons; i++) {
-            buttonlayers.put(ButtonFunction.getEnumOf(i), new ButtonLayer(0, 0, buttonSize, buttonSize, ButtonFunction.getEnumOf(i)));
+            ButtonFunction f = ButtonFunction.getEnumOf(i);
+            buttonlayers.put(ButtonFunction.getEnumOf(i), new ButtonLayer(0, 0, f, getDisableConditionOf(f)));
             this.addDrawableChild(buttonlayers.get(ButtonFunction.getEnumOf(i)));
         }
 
@@ -319,8 +311,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         TileManager.initializeConfigParameters();
 
-        updateTileSet();
-
         pinnedWaypointsLayer = new PinnedWaypointsLayer(0, 26, 20, 2, this.textRenderer);
         this.addDrawableChild(pinnedWaypointsLayer);
 
@@ -339,48 +329,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     }
 
     private static void drawButtons(DrawContext context) {
-        //draws the buttons
-        context.drawTexture(RenderLayer::getGuiTextured, //zoom in
-                map.getZoom() < map.getMaxZoom() ?
-                        (buttonlayers.get(ButtonFunction.ZOOMIN).isHovered() ?
-                                getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.HOVER) :
-                                getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.DEFAULT)) :
-                        getButtonTexture(ButtonFunction.ZOOMIN, ButtonState.LOCKED),
-                buttonPositions[0][0], buttonPositions[1][0], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, //zoom out
-                map.getZoom() > 0 ?
-                        (buttonlayers.get(ButtonFunction.ZOOMOUT).isHovered() ?
-                                getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.HOVER) :
-                                getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.DEFAULT)) :
-                        getButtonTexture(ButtonFunction.ZOOMOUT, ButtonState.LOCKED),
-                buttonPositions[0][1], buttonPositions[1][1], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, //reset map
-                buttonlayers.get(ButtonFunction.RESET).isHovered() ?
-                        getButtonTexture(ButtonFunction.RESET, ButtonState.HOVER) :
-                        getButtonTexture(ButtonFunction.RESET, ButtonState.DEFAULT),
-                buttonPositions[0][2], buttonPositions[1][2], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, //follow player
-                !PlayerAttributes.positionIsValid() || map.followingPlayer() ?
-                        getButtonTexture(ButtonFunction.FOLLOW, ButtonState.LOCKED) :
-                        (buttonlayers.get(ButtonFunction.FOLLOW).isHovered() ?
-                                getButtonTexture(ButtonFunction.FOLLOW, ButtonState.HOVER) :
-                                getButtonTexture(ButtonFunction.FOLLOW, ButtonState.DEFAULT)),
-                buttonPositions[0][3], buttonPositions[1][3], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, //config
-                buttonlayers.get(ButtonFunction.CONFIG).isHovered() ?
-                        getButtonTexture(ButtonFunction.CONFIG, ButtonState.HOVER) :
-                        getButtonTexture(ButtonFunction.CONFIG, ButtonState.DEFAULT),
-                buttonPositions[0][4], buttonPositions[1][4], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, //exit
-                buttonlayers.get(ButtonFunction.EXIT).isHovered() ?
-                        getButtonTexture(ButtonFunction.EXIT, ButtonState.HOVER) :
-                        getButtonTexture(ButtonFunction.EXIT, ButtonState.DEFAULT),
-                buttonPositions[0][5], buttonPositions[1][5], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
-        context.drawTexture(RenderLayer::getGuiTextured, //waypoints
-                buttonlayers.get(ButtonFunction.WAYPOINTS).isHovered() ?
-                        getButtonTexture(ButtonFunction.WAYPOINTS, ButtonState.HOVER) :
-                        getButtonTexture(ButtonFunction.WAYPOINTS, ButtonState.DEFAULT),
-                buttonPositions[0][6], buttonPositions[1][6], 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+        for (int i = 0; i < numHotbarButtons; i++) {
+            buttonlayers.get(ButtonFunction.getEnumOf(i)).drawWidget(context);
+        }
     }
 
     private static void updateWidgetPositions(TextRenderer textRenderer) {
@@ -467,21 +418,24 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             chatToBeOpened = true;
         }
 
+        if (keyCode == GLFW.GLFW_KEY_TAB) {
+            toggleSearchMenu(true);
+            return true;
+        }
+
         map.keyNavigate(keyCode, modifiers);
 
         return true;
     }
 
-    private static void toggleAltScreenMap(boolean state) {
+    public static void toggleAltScreenMap(boolean state) {
         renderAltMap = state;
         map.setDraggable(!state);
-        if (state == true) {
+        if (state) {
             hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
             MinecraftClient.getInstance().options.hudHidden = true;
-        } else {
-            MinecraftClient.getInstance().options.hudHidden = hudWasHidden;
         }
-
+        else MinecraftClient.getInstance().options.hudHidden = hudWasHidden;
     }
 
     public static void addNotification(Notification notification) {
@@ -526,17 +480,24 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
     }
 
+    private static boolean currentScreenIsValidAltMapScreen() {
+        Screen current = MinecraftClient.getInstance().currentScreen;
+        if (current instanceof ChatScreen) return true;
+        if (current instanceof ConfirmLinkScreen) return true;
+        if (current instanceof ConfigScreen) return true;
+        if (current instanceof WaypointScreen) return true;
+        return false;
+    }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
+        UContext.setContext(context);
 
         if (chatToBeOpened) {
             if (mClient.getChatRestriction().allowsChat(mClient.isInSingleplayer())) { //copied from minecraftclient
-                renderAltMap = true;
                 mClient.setScreen(new ChatScreen(""));
-                map.setDraggable(false);
-                hudWasHidden = MinecraftClient.getInstance().options.hudHidden;
-                MinecraftClient.getInstance().options.hudHidden = false;
+                toggleAltScreenMap(true);
             }
             chatToBeOpened = false;
         }
@@ -570,7 +531,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         drawButtons(context);
 
         int buttonStyle = HudMap.hudEnabled ? 1 : 0;
-        context.drawTexture(RenderLayer::getGuiTextured, toggleHudMapButtonLayer.isHovered() ? showIdentifiers[1][buttonStyle] : showIdentifiers[0][buttonStyle], toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
+        context.drawTexture(RenderLayer::getGuiTextured, toggleHudMapButtonLayer.isHovered() ?
+                showIdentifiers[1][buttonStyle] :
+                showIdentifiers[0][buttonStyle],
+                toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         //draws the Mouse and player coordinates text fields
         String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";
@@ -583,6 +547,12 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset - pinnedWaypointsLayer.getY());
         purgeNotifiations();
         drawNotificationText(context);
+
+        if (Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_MEMORY_CACHE_SIZE))) {
+            Text text = Text.literal(TileLoader.getStylizedCacheSize()).formatted(Formatting.BOLD);
+            int width = textRenderer.getWidth(text);
+            UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, 0x80000000, 0xFFD0D0D0, false);
+        }
 
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);
@@ -605,19 +575,16 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
 
         if (!renderAltMap) return;
-
-        if (!(MinecraftClient.getInstance().currentScreen instanceof ChatScreen || MinecraftClient.getInstance().currentScreen instanceof ConfirmLinkScreen)) {
-            renderAltMap = false;
+        if (!currentScreenIsValidAltMapScreen()) {
             MinecraftClient.getInstance().setScreen(
                     new FullscreenMapScreen()
             );
-            map.setDraggable(true);
-            MinecraftClient.getInstance().options.hudHidden = FullscreenMapScreen.hudWasHidden;
+            toggleAltScreenMap(false);
             return;
         }
 
         //context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x22FF0000);
-
+        UContext.setContext(context);
         FullscreenMapScreen.instance.renderBackground(context, 0, 0, 0);
 
         map.setRenderSize(

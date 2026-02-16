@@ -9,7 +9,7 @@ public enum ButtonFunction {
     EXIT,
     WAYPOINTS,
     CHECKMARK,
-    RESET_CONFIG;
+    RESETCONFIG;
 
     public static ButtonFunction getEnumOf(int i) {
         return switch (i) {
@@ -21,8 +21,22 @@ public enum ButtonFunction {
             case 5 -> EXIT;
             case 6 -> WAYPOINTS;
             case 7 -> CHECKMARK;
-            case 8 -> RESET_CONFIG;
+            case 8 -> RESETCONFIG;
             default -> null;
+        };
+    }
+
+    public String getTextureFileName() {
+        return switch (this) {
+            case ZOOMIN -> "zoomin.png";
+            case ZOOMOUT -> "zoomout.png";
+            case RESET -> "reset.png";
+            case FOLLOW -> "follow.png";
+            case CONFIG -> "config.png";
+            case EXIT -> "exit.png";
+            case WAYPOINTS -> "waypoint.png";
+            case CHECKMARK -> "check.png";
+            case RESETCONFIG -> "resetconfig.png";
         };
     }
 }

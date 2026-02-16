@@ -131,7 +131,7 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-        versionLabel = new TextWidget(0, windowScaledHeight - 20, windowScaledWidth - 5, 20, Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), this.textRenderer);
+        versionLabel = new TextWidget(0, windowScaledHeight - 16, windowScaledWidth - 5, 9, Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), this.textRenderer);
         versionLabel.alignRight();
         this.addDrawableChild(versionLabel);
 
@@ -206,7 +206,7 @@ public class ConfigScreen extends Screen {
         updateScreenDims();
         UContext.setContext(context);
 
-        wikiLinkLayer.setPosition(windowScaledWidth - wikiLinkLayer.getWidth(), windowScaledHeight - 32);
+        wikiLinkLayer.setPosition(windowScaledWidth - wikiLinkLayer.getWidth(), windowScaledHeight - BOTTOM_SPACE + 7);
         exitButtonLayer.setPosition(windowScaledWidth / 2 - 22, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
         checkButtonLayer.setPosition(windowScaledWidth / 2 + 2, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
         configHud.setY(windowScaledHeight - BOTTOM_BUTTON_OFFSET);

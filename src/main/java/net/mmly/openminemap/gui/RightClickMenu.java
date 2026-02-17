@@ -10,6 +10,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.draw.Justify;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
@@ -122,7 +124,10 @@ public class RightClickMenu extends ClickableWidget {
         this.setHeight(Math.max(16 * menuOptions.length, 16));
         width = 16;
         for (int i = 0; i < menuOptions.length; i++) {
-            width = Math.max(width, 8 + textRenderer.getWidth(firstOptionIsBold && i == 0 ? Text.translatable(menuOptions[i].getTranslationKey()).formatted(Formatting.BOLD) : Text.translatable(menuOptions[i].getTranslationKey())));
+            int compare = 8;
+            if (menuOptions[i] == RightClickMenuOption.NAME) compare += textRenderer.getWidth(Text.literal(selectedWaypoint.name).formatted(Formatting.BOLD));
+            else compare += textRenderer.getWidth(Text.translatable(menuOptions[i].getTranslationKey()));
+            width = Math.max(width, 8 + compare);
         }
         this.setWidth(width);
     }
@@ -155,6 +160,37 @@ public class RightClickMenu extends ClickableWidget {
 
     }
 
+    private void repositionLeftward() {
+        this.setX(this.getX() - width + 1);
+        this.horizontalSide = -1;
+    }
+
+    private void repositionDownward() {
+        this.setY(this.getY() - height + 1);
+        this.verticalSize = -1;
+    }
+
+    protected void repositionForOverflow(int windowScaledWidth, int windowScaledHeight) {
+        if (displayType == RightClickMenuType.PINNED_WAYPOINT) {
+            horizontalSide = 1;
+            verticalSize = 1;
+            return;
+        }
+        if (getX() + width > windowScaledWidth && getX() - width < 0) { //if there's no way to fit the whole menu on screen
+            if (getX() > windowScaledWidth / 2) repositionLeftward();
+            else horizontalSide = 1;
+        } else if (getX() + width > windowScaledWidth) { //else, reposition left if needed
+            repositionLeftward();
+        } else horizontalSide = 1;
+
+        if (getY() + height > windowScaledHeight && getY() - height < 0) {
+            if (getY() > windowScaledHeight / 2) repositionDownward();
+            else verticalSize = 1;
+        } else if (getY() + height > windowScaledHeight) {
+            repositionDownward();
+        } else verticalSize = 1;
+    }
+
     private Text getTextFor(RightClickMenuOption option) {
         if (option == null) return Text.literal("[null]").formatted(Formatting.GRAY);
         if (option == RightClickMenuOption.NAME) return Text.literal(selectedWaypoint.name).formatted(Formatting.BOLD);
@@ -166,15 +202,14 @@ public class RightClickMenu extends ClickableWidget {
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
 
         for (int i = 0; i < menuOptions.length; i++) {
-            context.drawText(
-                    renderer,
+            UContext.drawJustifiedText(
                     getTextFor(menuOptions[i]),
-                    getX() + 4,
+                    horizontalSide == -1 ? Justify.RIGHT : Justify.LEFT,
+                    horizontalSide == -1 ? getX() + width - 4 : getX() + 4,
                     getY() + 4 + (16 * i),
                     hoverOn == i + 1 && !(firstOptionIsBold && i == 0) ?
                             0xFFa8afff :
-                            0xFFFFFFFF,
-                    false
+                            0xFFFFFFFF
             );
         }
 
@@ -235,6 +270,7 @@ public class RightClickMenu extends ClickableWidget {
                 break;
             }
             case VIEW_ON_MAP: {
+                FullscreenMapScreen.followPlayer(false);
                 FullscreenMapScreen.map.setMapPosition(
                         UnitConvert.longToMapX(selectedWaypoint.longitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize()),
                         UnitConvert.latToMapY(selectedWaypoint.latitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize())

@@ -35,6 +35,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         this.setEditable(true);
         this.setMaxLength(1000);
         instance = this;
+        this.setUneditableColor(0xFF404040);
     }
 
     public static SearchBoxLayer getInstance() {
@@ -44,9 +45,11 @@ public class SearchBoxLayer extends TextFieldWidget {
     public static void toggleSearching(boolean toggle) {
         searching = toggle;
         if (searching) {
+            getInstance().setEditable(false);
             valueStore = getInstance().getText();
             getInstance().setText("");
         } else {
+            getInstance().setEditable(true);
             getInstance().setText(valueStore);
         }
     }
@@ -75,14 +78,22 @@ public class SearchBoxLayer extends TextFieldWidget {
             previousText = getText();
             recalculateResults();
         }
+
+        setEditableColor(getText().isEmpty() && !isFocused() ? 0xFF404040 : 0xFFFFFFFF);
+        if (searching) setPlaceholder(Text.translatable("omm.notification.searching"));
+        else setPlaceholder(Text.translatable("omm.search.anything"));
+
         this.render(context, 0, 0, 0);
+        /*
         if (searching) {
             context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, Text.translatable("omm.notification.searching"), getX() + 4, getY() + 6, 0xFF404040);
             return;
         }
+
         if (getText().isEmpty() && isVisible()) { //<Translation>
             context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, Text.translatable("omm.search.anything").getString(), getX() + 4, getY() + 6, 0xFF404040);
         }
+         */
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFF00FF00);
     }
 

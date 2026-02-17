@@ -135,6 +135,7 @@ public class SearchResultLayer extends ClickableWidget {
             RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return;
         }
+        FullscreenMapScreen.followPlayer(false);
 
         if (myResult.bounds != null) {
             goAndZoomToResult(myResult.bounds);

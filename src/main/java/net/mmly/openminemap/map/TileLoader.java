@@ -1,17 +1,36 @@
 package net.mmly.openminemap.map;
 
+import net.mmly.openminemap.util.UnitConvert;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Arrays;
 
-public class TileLoader extends Thread{
+public class TileLoader extends Thread {
 
     private final LoadableTile[] tilesToLoad;
-
+    private static long memoryCacheSize;
 
     TileLoader(LoadableTile[] tilesToLoad) {
         this.tilesToLoad = tilesToLoad;
+    }
+
+    public static long getMemoryCacheSize() {
+        return memoryCacheSize;
+    }
+
+    public static String getStylizedCacheSize() {
+        if (memoryCacheSize > 1e9) {
+            return UnitConvert.floorToPlace(memoryCacheSize / 1e9, 2) + "gB";
+        } else if (memoryCacheSize > 1e6) {
+            return UnitConvert.floorToPlace(memoryCacheSize / 1e6, 2) + "mB";
+        } else {
+            return UnitConvert.floorToPlace(memoryCacheSize / 1e3, 2) + "kB";
+        }
+    }
+
+    public static void resetCacheSize() {
+        memoryCacheSize = 0;
     }
 
     @Override
@@ -32,6 +51,7 @@ public class TileLoader extends Thread{
             ImageIO.write(tileImage, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             os.close();
+            memoryCacheSize += is.available();
             return is;
         } catch(IOException e) {
             System.out.println("Error while getting tile: " + e);

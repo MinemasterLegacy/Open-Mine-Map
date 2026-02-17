@@ -158,7 +158,8 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.search.places", "Search Places");
         translationBuilder.add("omm.search.no-results", "No web results");
         translationBuilder.add("omm.rcm.reverse-search", "Reverse Search");
-
+        translationBuilder.add("omm.error.distortion", "Cannot calculate distortion: Out of Bounds");
+        translationBuilder.add("omm.text.distortion", "Distortion:");
     }
 }
 
@@ -266,6 +267,17 @@ abstract class OmmSpanishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.rcm.unpin", "Quitar Waypoint fijado");
         translationBuilder.add("omm.rcm.create-waypoint", "Crear un Waypoint");
         translationBuilder.add("omm.error.tile-url.parse", "Error al procesar la fuente de mapas");
+        translationBuilder.add("omm.notification.something-wrong", "Algo salió mal");
+        translationBuilder.add("omm.notification.location-copied", "Ubicación copiada al portapapeles");
+        translationBuilder.add("omm.notification.searching", "Buscando...");
+        translationBuilder.add("omm.notification.snap-angle-set", "Ángulo de ajuste establecido en ");
+        translationBuilder.add("omm.search.anything", "Buscar cualquier cosa");
+        translationBuilder.add("omm.search.blocks-away", " metros de distancia");
+        translationBuilder.add("omm.search.places", "Buscando Lugares");
+        translationBuilder.add("omm.search.no-results", "Sin resultados en la web");
+        translationBuilder.add("omm.rcm.reverse-search", "Búsqueda inversa");
+        translationBuilder.add("omm.error.distortion", "No se puede calcular la distorsión: fuera de los límites");
+        translationBuilder.add("omm.text.distortion", "Distorsión:");
     }
 }
 class OmmArgentinianSpanishLanguageProvider extends OmmSpanishLanguageProvider {
@@ -515,6 +527,17 @@ abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvi
         translationBuilder.add("omm.rcm.unpin", "取消標記");
         translationBuilder.add("omm.rcm.create-waypoint", "建立路標");
         translationBuilder.add("omm.error.tile-url.parse", "解析圖磚來源錯誤");
+        //translationBuilder.add("omm.notification.something-wrong", "Something went wrong");
+        //translationBuilder.add("omm.notification.location-copied", "Copied location to clipboard.");
+        translationBuilder.add("omm.notification.searching", "搜尋中...");
+        translationBuilder.add("omm.notification.snap-angle-set", "吸附角設為 ");
+        //translationBuilder.add("omm.search.anything", "Search anything...");
+        translationBuilder.add("omm.search.blocks-away", " 公尺遠");
+        //translationBuilder.add("omm.search.places", "Search Places");
+        //translationBuilder.add("omm.search.no-results", "No web results");
+        //translationBuilder.add("omm.rcm.reverse-search", "Reverse Search");
+        translationBuilder.add("omm.error.distortion", "無法計算變形量：超出範圍");
+        translationBuilder.add("omm.text.distortion", "變形量：");
     }
 }
 class OmmTraditionalHongKongChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {

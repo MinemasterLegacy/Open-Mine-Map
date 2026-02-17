@@ -30,6 +30,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {
 
@@ -91,7 +92,7 @@ public class OmmMap extends ClickableWidget {
 
     public MethodInterface rightClickProcedure;
     public MethodInterface leftClickProcedure;
-    public BooleanInterface blockZoomProcedure;
+    public BooleanSupplier blockZoomProcedure;
     public MethodInterface waypointClickedProcedure;
 
     private static Waypoint[] waypoints;
@@ -452,13 +453,13 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void mouseZoomIn() {
-        if (blockZoomProcedure.evaluate()) return;
+        if (blockZoomProcedure.getAsBoolean()) return;
         updateFields();
         zoomIn(mouseZoomStrength, true);
 
     }
     public void mouseZoomOut() {
-        if (blockZoomProcedure.evaluate()) return;
+        if (blockZoomProcedure.getAsBoolean()) return;
         updateFields();
         zoomOut(mouseZoomStrength, true);
     }
@@ -468,7 +469,7 @@ public class OmmMap extends ClickableWidget {
     private void normalizeZoom(double originalZoom) {
         //https://www.desmos.com/calculator/6nlrz2hv5z
         int oldMapSize = tileSize * (int) Math.pow(2, Math.round(originalZoom));
-        tileSize = (int) Math.floor(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
+        tileSize = (int) Math.round(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
         int totalMapSize = (int) (tileSize * Math.pow(2, Math.round(zoom))); //determine total map size (tile size * num of tiles)
         double zoom1 = (Math.log10(totalMapSize) - log10of128) / log10of2; //get the desired zoom level of the current map
         zoom = (double) Math.round(zoom1 * 100) / 100; //set zoom to the desired zoom level
@@ -571,7 +572,7 @@ public class OmmMap extends ClickableWidget {
         return hoveredWaypoint;
     }
 
-    private BufferedPlayer drawDirectionIndicator(DrawContext context, PlayerEntity playerDraw, boolean indicatorsOnly) {
+    private BufferedPlayer drawDirectionIndicator(DrawContext context, PlayerEntity playerDraw, boolean indicatorsOnly, OverlayVisibility requiredPermission) {
         //Draws a direction indicator
         //May also return a BufferedPlayer if other players are to be drawn
 
@@ -596,7 +597,7 @@ public class OmmMap extends ClickableWidget {
         double direction = Direction.getGeoAzimuth(playerDraw.getX(), playerDraw.getZ(), playerDraw.getYaw());
 
         //Draw a direction indicator if the direction is a valid number and visibility permission is adequete
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.LOCAL) && !Double.isNaN(direction))
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, requiredPermission) && !Double.isNaN(direction))
             DirectionIndicator.draw(
                     context,
                     direction,
@@ -795,9 +796,10 @@ public class OmmMap extends ClickableWidget {
                     player,
                     !OverlayVisibility.checkPermissionFor(
                             TileManager.showPlayers,
-                            OverlayVisibility.LOCAL)
-                    )
-            );
+                            OverlayVisibility.LOCAL
+                    ),
+                    OverlayVisibility.LOCAL
+            ));
         }
 
         //draw other players
@@ -811,8 +813,8 @@ public class OmmMap extends ClickableWidget {
         BufferedPlayer self = null;
         if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("on")) drawHoveredPlayerText(context);
 
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
-            if (followPlayer) {
+        if (followPlayer) {
+            if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
                 DirectionIndicator.draw(
                         context,
                         PlayerAttributes.geoYaw,
@@ -820,10 +822,10 @@ public class OmmMap extends ClickableWidget {
                         renderAreaY + (renderAreaHeight / 2) - 12,
                         !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)
                 );
-            } else {
-                self = drawDirectionIndicator(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF));
             }
 
+        } else {
+            self = drawDirectionIndicator(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF), OverlayVisibility.SELF);
         }
 
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {

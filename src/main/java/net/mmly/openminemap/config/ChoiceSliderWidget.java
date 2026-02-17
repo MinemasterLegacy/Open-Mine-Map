@@ -1,20 +1,22 @@
 package net.mmly.openminemap.config;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
-public class ChoiceSliderWidget extends SliderWidget {
+public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
 
     String[] options;
     int selection;
     Text message;
     ConfigOptions configOption;
+    ConfigAnchorWidget anchor;
 
-    public ChoiceSliderWidget(int x, int y, Text message, Text tooltip, String[] options, ConfigOptions configOption) {
-        super(x, y, 120, 20, message, 0);
+    public ChoiceSliderWidget(Text message, Text tooltip, String[] options, ConfigOptions configOption) {
+        super(0, -100, 200, 20, message, 0);
         this.options = options;
         this.message = message;
         this.configOption = configOption;
@@ -49,7 +51,21 @@ public class ChoiceSliderWidget extends SliderWidget {
         //System.out.println(selection);
     }
 
-    protected void writeParameterToFile() {
+    @Override
+    public void setAnchor(ConfigAnchorWidget anchor) {
+        this.anchor = anchor;
+    }
+
+    public void writeParameterToFile() {
         ConfigFile.writeParameter(configOption, options[selection].toLowerCase());
+    }
+
+    @Override
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        if (!anchor.drawNow) return;
+        this.setX(anchor.getX());
+        this.setY(anchor.getY());
+        this.width = anchor.getWidth();
+        super.renderWidget(context, mouseX, mouseY, delta);
     }
 }

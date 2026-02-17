@@ -195,6 +195,7 @@ public class TileManager {
             tm.destroyTexture(tile);
         }
         dyLoadedTiles.clear();
+        TileLoader.resetCacheSize();
     }
 
     public static void purgeOldFiles() {
@@ -357,7 +358,7 @@ public class TileManager {
             //System.out.println("Loading Tile: " + thisKey);
             tileLoadQueue.addLast(new LoadableTile(tile.x, tile.y, tile.zoom, cacheName, thisKey));
             dyLoadedTiles.put(thisKey, getLoadingIdentifier());
-        } else if (tileZoom <= 18) {
+        } else {
             throw new IOException();
         }
     }

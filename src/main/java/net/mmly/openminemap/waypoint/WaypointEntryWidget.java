@@ -3,6 +3,7 @@ package net.mmly.openminemap.waypoint;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -13,6 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
 
@@ -20,7 +22,7 @@ public class WaypointEntryWidget extends ClickableWidget {
 
     Waypoint waypoint;
     TextRenderer renderer;
-    public int scrollOffset;
+    public static int scrollOffset;
 
     private static final Identifier editId = Identifier.of("openminemap", "waypoints/gui/edit.png");
     private static final Identifier pinOnId = Identifier.of("openminemap", "waypoints/gui/pinon.png");
@@ -40,18 +42,21 @@ public class WaypointEntryWidget extends ClickableWidget {
     private int mx = 0;
     private int my = 0;
 
+    private int initY;
+
     private static final Text[] tooltipMessages = new Text[] {
             Text.translatable("omm.waypoints.button.edit"),
             Text.translatable("omm.waypoints.button.view"),
             Text.translatable("omm.waypoints.button.pin"),
     };
 
-    public void setScroll(int scroll) {
+    public static void setScroll(int scroll) {
         scrollOffset = scroll;
     }
 
     public WaypointEntryWidget(int x, int y, Text message, Waypoint waypoint, TextRenderer textRenderer, boolean pinned, boolean visible) {
         super(x, y, 0, 20, message);
+        this.initY = y;
         this.waypoint = waypoint;
         this.renderer = textRenderer;
         this.visibleWaypoint = visible;
@@ -84,17 +89,18 @@ public class WaypointEntryWidget extends ClickableWidget {
         mx = mouseX;
         my = mouseY;
 
+        setY(initY - scrollOffset);
         setWidth(WaypointScreen.getMidPoint() - 20);
 
         int borderColor = WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? editingColor : (isFocused() ? selectedColor : (isHovered() ? hoverColor : idleColor));
 
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, waypoint.identifier, getX() + 3, getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, waypoint.identifier, getX() + 3, getY() + 3, 0, 0, 14, 14, 14, 14);
 
         int xMod = 0;
         setTooltip(null);
         selection = Selection.NONE;
         for (Identifier i : new Identifier[]{editId, visibleWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, i, getX() + width - 17 - (xMod * 16), getY() + 3 - scrollOffset, 0, 0, 14, 14, 14, 14);
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, i, getX() + width - 17 - (xMod * 16), getY() + 3, 0, 0, 14, 14, 14, 14);
             if (mouseIsInArea(getX() + width - 17 - (xMod * 16), getY() + 3, 14, 14)) {
                 setTooltip(Tooltip.of(tooltipMessages[xMod]));
                 selection = Selection.getById(xMod + 1);
@@ -103,21 +109,13 @@ public class WaypointEntryWidget extends ClickableWidget {
         }
 
         context.enableScissor(0, 0, getX() + width - 52, MinecraftClient.getInstance().getWindow().getScaledHeight());
-        context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.translatable("omm.waypoints.editing").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2) - scrollOffset, 0xFFFFFFFF, true);
+        context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.translatable("omm.waypoints.editing").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2), 0xFFFFFFFF, true);
         context.disableScissor();
 
-        drawBorder(context, getX(), getY() - scrollOffset, getWidth(), getHeight(), borderColor);
-        context.drawVerticalLine(getX() + width - 52, getY() - scrollOffset, getY() + height - scrollOffset, borderColor);
-        context.drawVerticalLine(getX() + 19, getY() - scrollOffset, getY() + height - scrollOffset, borderColor);
+        UContext.drawBorder(getX(), getY(), getWidth(), getHeight(), borderColor);
+        context.drawVerticalLine(getX() + width - 52, getY(), getY() + height, borderColor);
+        context.drawVerticalLine(getX() + 19, getY(), getY() + height, borderColor);
 
-    }
-
-    private static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
-        //temporary method for 21.9. Can be replaced with context.drawBorder(...) in 1.21.8-, and context.submitOutline(...) in 1.21.10+
-        context.fill(x, y, x + width, y + 1, color);
-        context.fill(x, y + height - 1, x + width, y + height, color);
-        context.fill(x, y + 1, x + 1, y + height - 1, color);
-        context.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
     }
 
     @Override

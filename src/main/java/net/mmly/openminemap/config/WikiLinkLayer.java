@@ -37,7 +37,8 @@ public class WikiLinkLayer extends ClickableWidget {
                         text,
                 windowScaledWidth - (textWidth + 5),
                 windowScaledHeight + 7 - textRenderer.fontHeight - 10 - 16,
-                0xFF890792,
+                //0xFF890792,
+                0xFFff55ff,
                 true);
     }
 

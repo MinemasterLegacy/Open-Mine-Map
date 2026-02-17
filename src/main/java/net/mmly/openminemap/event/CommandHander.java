@@ -224,7 +224,7 @@ class WarpSuggestionProvider implements SuggestionProvider<FabricClientCommandSo
         String existing = context.getInput().substring(10);
 
         for (Waypoint waypoint : OmmMap.getWaypoints()) {
-            if (!(waypoint.name.startsWith(existing))) continue;
+            if (!(waypoint.name.toLowerCase().startsWith(existing.toLowerCase()))) continue;
             builder.suggest(waypoint.name);
         }
         return builder.buildFuture();

@@ -72,6 +72,7 @@ public class Direction {
     }
 
     public static double getGeoAzimuth(Entity entity) {
+        if (entity == null) return 0;
         return getGeoAzimuth(entity.getX(), entity.getZ(), entity.getYaw());
     }
 

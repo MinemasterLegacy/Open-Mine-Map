@@ -12,6 +12,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.TileManager;
@@ -217,6 +218,7 @@ public class WaypointScreen extends Screen {
         initInEditMode = false;
 
         updateWidgetPositions();
+        FullscreenMapScreen.toggleAltScreenMap(true);
     }
 
     public static void deleteEditingWaypoint() {
@@ -322,9 +324,7 @@ public class WaypointScreen extends Screen {
     private void updateWidgetPositions() {
         midPoint = width / 2;
 
-        for (WaypointEntryWidget entry : waypointEntries) {
-            entry.setScroll(entryListScroll);
-        }
+        WaypointEntryWidget.setScroll(entryListScroll);
 
         int creationAreaWidth = width - midPoint;
 
@@ -365,17 +365,10 @@ public class WaypointScreen extends Screen {
 
     }
 
-    private static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
-        //temporary method for 21.9. Can be replaced with context.drawBorder(...) in 1.21.8-, and context.submitOutline(...) in 1.21.10+
-        context.fill(x, y, x + width, y + 1, color);
-        context.fill(x, y + height - 1, x + width, y + height, color);
-        context.fill(x, y + 1, x + 1, y + height - 1, color);
-        context.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
-    }
-
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+        UContext.setContext(context);
 
         while (pathInt > -1) {
             MinecraftClient.getInstance().getTextureManager().destroyTexture(Identifier.of("openminemap", "waypoint-s-shaded-"+pathInt));
@@ -392,14 +385,14 @@ public class WaypointScreen extends Screen {
 
         if ((inEditMode && saveWaypointButton.isHovered()) || (!inEditMode && createWaypointButton.isHovered())) {
             if (nameField.valueIsValid() && longitudeWidget.valueIsValid() && latitudeWidget.valueIsValid() && angleWidget.valueIsValid()) {
-                drawBorder(context, createWaypointButton.getX(), createWaypointButton.getY(), createWaypointButton.getWidth(), createWaypointButton.getHeight(), 0xFF55ff55);
+                UContext.drawBorder(createWaypointButton.getX(), createWaypointButton.getY(), createWaypointButton.getWidth(), createWaypointButton.getHeight(), 0xFF55ff55);
             } else {
-                drawBorder(context, createWaypointButton.getX(), createWaypointButton.getY(), createWaypointButton.getWidth(), createWaypointButton.getHeight(), 0xFFFF5555);
+                UContext.drawBorder(createWaypointButton.getX(), createWaypointButton.getY(), createWaypointButton.getWidth(), createWaypointButton.getHeight(), 0xFFFF5555);
             }
         }
 
         if (inEditMode && deleteWaypointButton.isHovered()) {
-            drawBorder(context, deleteWaypointButton.getX(), deleteWaypointButton.getY(), deleteWaypointButton.getWidth(), deleteWaypointButton.getHeight(), 0xFFaa0000);
+            UContext.drawBorder(deleteWaypointButton.getX(), deleteWaypointButton.getY(), deleteWaypointButton.getWidth(), deleteWaypointButton.getHeight(), 0xFFaa0000);
         }
 
         //context.fill(140, 20, 160, 40, Color.HSBtoRGB(ColorSliderWidget.hue, ColorSliderWidget.saturation, ColorSliderWidget.value));
@@ -408,7 +401,7 @@ public class WaypointScreen extends Screen {
         //image = colorize(image, ColorSliderWidget.hue);
 
         context.fill(midPoint + 20, 148 - createScroll, context.getScaledWindowWidth() - 21, 180 - createScroll, 0xFF000000);
-        drawBorder(context, midPoint + 20, 148 - createScroll, context.getScaledWindowWidth() - 40 - midPoint, 32, 0xFF808080);
+        UContext.drawBorder(midPoint + 20, 148 - createScroll, context.getScaledWindowWidth() - 40 - midPoint, 32, 0xFF808080);
         context.enableScissor(midPoint + 21, 148 - createScroll, context.getScaledWindowWidth() - 21, 180 - createScroll);
 
         int image = styleSelection.ordinal();

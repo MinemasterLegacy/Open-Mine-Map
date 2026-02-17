@@ -4,6 +4,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.Waypoint;
 
@@ -26,20 +27,12 @@ public class WaypointParameterWidget extends TextFieldWidget {
         this.renderer = textRenderer;
     }
 
-    private static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
-        //temporary method for 21.9. Can be replaced with context.drawBorder(...) in 1.21.8-, and context.submitOutline(...) in 1.21.10+
-        context.fill(x, y, x + width, y + 1, color);
-        context.fill(x, y + height - 1, x + width, y + height, color);
-        context.fill(x, y + 1, x + 1, y + height - 1, color);
-        context.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
-    }
-
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         super.renderWidget(context, mouseX, mouseY, delta);
 
         if (!valueIsValid()) {
-            drawBorder(context, getX(), getY(), width, height, 0xFFFF5555);
+            UContext.drawBorder(getX(), getY(), width, height, 0xFFFF5555);
         }
 
         String suggestion = type.getTranslatedString().replace("_", " ").toLowerCase();

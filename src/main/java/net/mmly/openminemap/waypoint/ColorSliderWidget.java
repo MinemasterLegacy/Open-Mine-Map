@@ -8,6 +8,7 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.draw.UContext;
 
 import java.awt.*;
 
@@ -47,16 +48,8 @@ public class ColorSliderWidget extends ClickableWidget {
         }
     }
 
-    private static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
-        //temporary method for 21.9. Can be replaced with context.drawBorder(...) in 1.21.8-, and context.submitOutline(...) in 1.21.10+
-        context.fill(x, y, x + width, y + 1, color);
-        context.fill(x, y + height - 1, x + width, y + height, color);
-        context.fill(x, y + 1, x + 1, y + height - 1, color);
-        context.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
-    }
-
     private void drawSelectionBox(DrawContext context, float channel) {
-        drawBorder(context, getX() - 1, (int) (getY() - 1 + ((height-1) * channel)), width + 2, 3, 0xFF888888);
+        UContext.drawBorder(getX() - 1, (int) (getY() - 1 + ((height-1) * channel)), width + 2, 3, 0xFF888888);
     }
 
     @Override

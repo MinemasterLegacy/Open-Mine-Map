@@ -43,6 +43,7 @@ public class SearchButtonLayer extends ClickableWidget {
     @Override
     public void onClick(Click click, boolean doubled) {
         FullscreenMapScreen.toggleSearchMenu(!FullscreenMapScreen.getSearchMenuState());
+        FullscreenMapScreen.getInstance().jumpToSearchBox();
     }
 
     @Override

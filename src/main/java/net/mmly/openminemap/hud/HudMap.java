@@ -2,6 +2,7 @@ package net.mmly.openminemap.hud;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.render.RenderTickCounter;
@@ -12,6 +13,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.config.MapConfigScreen;
+import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.RequestManager;
@@ -107,9 +110,9 @@ public class HudMap {
         drawCompassBackground(context);
         PlayerEntity player = MinecraftClient.getInstance().player;
         //draw the compass
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, compassIdentifier, hudCompassX, hudCompassY, (float) (Direction.getGeoAzimuth(player.getX(), player.getZ(), player.getYaw()) - ((double) hudCompassWidth / 2)), 0, hudCompassWidth, 16, hudCompassWidth, 16, 360, 16);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, compassIdentifier, hudCompassX, hudCompassY, (float) (Direction.getGeoAzimuth(player) - ((double) hudCompassWidth / 2)), 0, hudCompassWidth, 16, 360, 16);
         //draw the snap angle indicator
-        if (doSnapAngle) context.drawTexture(RenderPipelines.GUI_TEXTURED, snapAngleIdentifier, hudCompassX, hudCompassY, (float) (Direction.getGeoAzimuth(player.getX(), player.getZ(), player.getYaw() + snapAngle) - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 90, 16);
+        if (doSnapAngle) context.drawTexture(RenderPipelines.GUI_TEXTURED, snapAngleIdentifier, hudCompassX, hudCompassY, (float) (Direction.getGeoAzimuth(player) - Direction.getGeoAzimuth(player.getX(), player.getZ(), -snapAngle) - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 90, 16);
         //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
         //draw the compass direction needle line thing (i dont have a good name for it)
         context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);
@@ -137,9 +140,9 @@ public class HudMap {
 
         if ((!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) && !(MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
 
+        UContext.setContext(context);
         playerIdentifier = MinecraftClient.getInstance().player.getSkin().body().texturePath();
 
-        playerIdentifier = MinecraftClient.getInstance().player.getSkin().body().texturePath();
         PlayersManager.updatePlayerSkinList();
 
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw

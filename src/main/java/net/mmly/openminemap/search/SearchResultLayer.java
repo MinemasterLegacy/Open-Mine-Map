@@ -13,6 +13,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
@@ -57,15 +58,6 @@ public class SearchResultLayer extends ClickableWidget {
         }
     }
 
-    private static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
-        //temporary method for 21.9. Can be replaced with context.drawBorder(...) in 1.21.8-, and context.submitOutline(...) in 1.21.10+
-        //copied from colorsliderwidget
-        context.fill(x, y, x + width, y + 1, color);
-        context.fill(x, y + height - 1, x + width, y + height, color);
-        context.fill(x, y + 1, x + 1, y + height - 1, color);
-        context.fill(x + width - 1, y + 1, x + width, y + height - 1, color);
-    }
-
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFFFF0000);
 
@@ -77,7 +69,7 @@ public class SearchResultLayer extends ClickableWidget {
 
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x80000000);
         context.fill(getX(), getY(), getX() + 4, getY() + height, getResultColor());
-        if (isFocused()) drawBorder(context, getX(), getY(), width, height, getResultColor());
+        if (isFocused()) UContext.drawBorder(getX(), getY(), width, height, getResultColor());
 
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
         context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, 0xFFFFFFFF, false);
@@ -146,6 +138,7 @@ public class SearchResultLayer extends ClickableWidget {
             RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return;
         }
+        FullscreenMapScreen.followPlayer(false);
 
         if (myResult.bounds != null) {
             goAndZoomToResult(myResult.bounds);

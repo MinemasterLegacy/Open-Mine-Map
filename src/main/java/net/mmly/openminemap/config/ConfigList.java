@@ -1,6 +1,7 @@
 package net.mmly.openminemap.config;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.EntryListWidget;
@@ -15,6 +16,14 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
     @Override
     public int addEntry(ConfigAnchorWidget entry) {
         return super.addEntry(entry);
+    }
+
+    @Override
+    public boolean mouseClicked(Click click, boolean doubled) {
+        //list seems to be blocking the arrows, so pass through a click event here
+        ConfigScreen.getInstance().getChoiceWidget().getUpArrowWidget().mouseClicked(click, doubled);
+        ConfigScreen.getInstance().getChoiceWidget().getDownArrowWidget().mouseClicked(click, doubled);
+        return super.mouseClicked(click, doubled);
     }
 
     @Override

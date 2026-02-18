@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
-    public static final String MODVERSION = "1.6.1";
+    public static final String MODVERSION = "1.6.2";
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
     private static final Identifier HUD_MAP_LAYER_FS = Identifier.of("openminemap", "hud-example-layer-fs");

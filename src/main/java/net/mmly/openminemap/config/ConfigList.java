@@ -18,6 +18,16 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY) {
+
+    }
+
+    @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
     }

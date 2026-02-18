@@ -5,6 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.sound.SoundManager;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -205,5 +206,10 @@ public class SearchResultLayer extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
+    }
+
+    @Override
+    public void playDownSound(SoundManager soundManager) {
+        //no sound
     }
 }

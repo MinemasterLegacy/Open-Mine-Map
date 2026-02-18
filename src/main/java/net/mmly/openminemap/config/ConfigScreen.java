@@ -189,6 +189,10 @@ public class ConfigScreen extends Screen {
 
     }
 
+    public UrlChoiceWidget getChoiceWidget() {
+        return definedUrlWidget;
+    }
+
     public void saveChanges() {
         for (ClickableWidget widget : choiceWidgets) {
             ((ConfigChoice) widget).writeParameterToFile();

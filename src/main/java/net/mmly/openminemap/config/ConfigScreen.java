@@ -13,6 +13,7 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -133,9 +134,9 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(exitButtonLayer);
         this.addDrawableChild(checkButtonLayer);
 
-        versionLabel = new TextWidget(0, windowScaledHeight - 16, windowScaledWidth - 5, 9, Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), this.textRenderer);
-        versionLabel.alignRight();
-        this.addDrawableChild(versionLabel);
+        //versionLabel = new TextWidget(0, windowScaledHeight - 16, windowScaledWidth - 5, 9, Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), this.textRenderer);
+        //versionLabel.alignRight();
+        //this.addDrawableChild(versionLabel);
 
         configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
@@ -190,6 +191,10 @@ public class ConfigScreen extends Screen {
 
     }
 
+    public UrlChoiceWidget getChoiceWidget() {
+        return definedUrlWidget;
+    }
+
     public void saveChanges() {
         for (ClickableWidget widget : choiceWidgets) {
             ((ConfigChoice) widget).writeParameterToFile();
@@ -217,5 +222,6 @@ public class ConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
         //context.disableScissor();
         wikiLinkLayer.drawWidget(context, textRenderer);
+        UContext.drawJustifiedText(Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF);
     }
 }

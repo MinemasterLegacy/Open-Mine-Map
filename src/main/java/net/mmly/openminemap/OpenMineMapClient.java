@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
+    public static final boolean SHOWDEVELOPEROPTIONS = true;
     public static final String MODVERSION = "1.6.2";
 
     @Override

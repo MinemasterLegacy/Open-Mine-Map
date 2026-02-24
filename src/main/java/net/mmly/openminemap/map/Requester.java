@@ -26,7 +26,7 @@ import java.util.Random;
 
 public class Requester extends Thread {
 
-    boolean disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS)); //development variable for disabling web requests. If disabled, tiles will ony be loaded from the cache or as error tiles
+    public static boolean disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS)); //development variable for disabling web requests. If disabled, tiles will ony be loaded from the cache or as error tiles
     int requestAttempts = 2; //how many times a tile will be requested before it is determined to not request it anymore
     private final String[] subDomains = new String[]{"a", "b", "c"};
     private final String subDomain = subDomains[new Random().nextInt(3)];
@@ -36,7 +36,7 @@ public class Requester extends Thread {
     int requestCounter = 0;
 
     public void run() {
-        if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled for this session.");
+        if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled.");
         while (true) {
             if (RequestManager.searchString != null) {
                 SearchResult[] results = searchResultRequest(RequestManager.searchString);
@@ -53,7 +53,7 @@ public class Requester extends Thread {
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
                 this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url, request.cacheName);
-                requestCounter++;
+                if (!disableWebRequests) requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;
                     failedRequests.add(TileManager.getKey(request.zoom, request.x, request.y));

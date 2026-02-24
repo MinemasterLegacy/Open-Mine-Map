@@ -14,15 +14,21 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     Text message;
     ConfigOptions configOption;
     ConfigAnchorWidget anchor;
+    boolean optionIsLiteral = false;
 
-    protected ChoiceButtonWidget(Text message, Text tooltip, String[] options, ConfigOptions configOption) {
+    protected ChoiceButtonWidget(Text message, Text tooltip, String[] options, ConfigOptions configOption, boolean optionIsLiteral) {
         super(0, -100, 120, 20, message, ButtonWidget::onPress, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
         this.options = options;
         this.message = message;
         this.setTooltip(Tooltip.of(tooltip));
         this.configOption = configOption;
         selection = getSelectedOption();
+        this.optionIsLiteral = optionIsLiteral;
         refreshMessage();
+    }
+
+    protected ChoiceButtonWidget(Text message, Text tooltip, String[] options, ConfigOptions configOption) {
+        this(message, tooltip, options, configOption, false);
     }
 
     private int getSelectedOption() {
@@ -33,9 +39,9 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
         return 0;
     }
 
-    private static String getTranslatedOption(String option) {
-        if (option.contains("/")) option = option.substring(1);
-        return Text.translatable("omm.config.state."+(option.toLowerCase())).getString();
+    private String getTranslatedOption(String option) {
+         if (optionIsLiteral) return option;
+         return Text.translatable("omm.config.state."+(option.toLowerCase())).getString();
     }
 
     @Override

@@ -18,6 +18,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 
@@ -153,7 +154,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget = new ChoiceNumberWidget(textRenderer, Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")), Text.translatable("omm.config.option.snap-angle"));
         this.addConfigOptionWidget(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.rcm-uses"), Text.translatable("omm.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.rcm-uses"), Text.translatable("omm.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
 
         reverseScrollOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.reverse-scroll"), Text.translatable("omm.config.tooltip.reverse-scroll"), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
@@ -185,6 +186,12 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
         this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
 
+        if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
+            this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(Text.of("DisableWebRequests"), Text.of(""), new String[] {"false", "true"}, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(Text.of("ShowMemoryCacheSize"), Text.of(""), new String[] {"false", "true"}, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
+        }
+
         FullscreenMapScreen.toggleAltScreenMap(true);
 
     }
@@ -200,6 +207,7 @@ public class ConfigScreen extends Screen {
         TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();
+        Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));
     }
 
     @Override

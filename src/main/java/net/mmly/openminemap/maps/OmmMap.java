@@ -34,7 +34,7 @@ public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;
     public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
-    public int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
+    public static int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
     public int tileSize = baseTileSize; //the actual size the tiles are currently being rendered at
     public final static int WAYPOINTSIZE = 8;
 
@@ -463,13 +463,12 @@ public class OmmMap extends ClickableWidget {
     }
 
     private static final double log10of2 = Math.log10(2);
-    private static final double log10of128 = Math.log10(128);
     private void normalizeZoom(double originalZoom) {
         //https://www.desmos.com/calculator/6nlrz2hv5z
         int oldMapSize = tileSize * (int) Math.pow(2, Math.round(originalZoom));
-        tileSize = (int) Math.round(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
+        tileSize = (int) Math.round(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
         int totalMapSize = (int) (tileSize * Math.pow(2, Math.round(zoom))); //determine total map size (tile size * num of tiles)
-        double zoom1 = (Math.log10(totalMapSize) - log10of128) / log10of2; //get the desired zoom level of the current map
+        double zoom1 = (Math.log10(totalMapSize) - Math.log10(baseTileSize)) / log10of2; //get the desired zoom level of the current map
         zoom = (double) Math.round(zoom1 * 100) / 100; //set zoom to the desired zoom level
         mapCenterX *= ((double) totalMapSize / oldMapSize);
         mapCenterY *= ((double) totalMapSize / oldMapSize);

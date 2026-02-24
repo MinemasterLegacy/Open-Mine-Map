@@ -192,6 +192,7 @@ public class ConfigScreen extends Screen {
             this.addConfigOptionWidget(new ChoiceButtonWidget(Text.of("ShowMemoryCacheSize"), Text.of(""), new String[] {"false", "true"}, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
         }
 
+        configList.restoreScroll();
         FullscreenMapScreen.toggleAltScreenMap(true);
 
     }

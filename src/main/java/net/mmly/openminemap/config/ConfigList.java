@@ -8,8 +8,15 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
 public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
+
+    private static double savedScrollAmount;
+
     public ConfigList(MinecraftClient minecraftClient, int width, int height, int y, int itemHeight) {
         super(minecraftClient, width, height, y, itemHeight);
+    }
+
+    public void restoreScroll() {
+        setScrollAmount(savedScrollAmount);
     }
 
     @Override
@@ -25,6 +32,7 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         super.renderWidget(context, mouseX, mouseY, delta);
+        savedScrollAmount = getScrollAmount();
     }
 
     @Override

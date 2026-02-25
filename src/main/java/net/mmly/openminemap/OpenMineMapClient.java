@@ -3,6 +3,7 @@ package net.mmly.openminemap;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
-    public static final boolean SHOWDEVELOPEROPTIONS = true;
+    public static boolean SHOWDEVELOPEROPTIONS = false;
     public static final String MODVERSION = "1.6.2";
 
     @Override
@@ -51,6 +52,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
         TileManager.initializeConfigParameters();
 
+        OpenMineMapClient.SHOWDEVELOPEROPTIONS = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS));
         //Tpll.lonLatToMcCoords(-112.07151142039129, 33.45512716304792);
         //test t = new test();
         /*

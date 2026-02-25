@@ -39,8 +39,9 @@ public class ConfigFile {
             "64", //fslastx
             "64", //fslasty
 
+            "false", //ShowDeveloperOptions
             "false", //DisableWebRequests
-            "false"
+            "false" //ShowMemoryCacheSize
     };
     private static final int numOfArgs = ConfigOptions.length();
 

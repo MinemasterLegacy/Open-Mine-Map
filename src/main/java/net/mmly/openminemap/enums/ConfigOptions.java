@@ -26,6 +26,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     _FS_LAST_X,
     _FS_LAST_Y,
 
+    __SHOW_DEVELOPER_OPTIONS,
     __DISABLE_WEB_REQUESTS,
     __SHOW_MEMORY_CACHE_SIZE;
 
@@ -56,6 +57,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case _FS_LAST_X: return "§fslastx";
             case _FS_LAST_Y: return "§fslasty";
 
+            case __SHOW_DEVELOPER_OPTIONS: return "ShowDeveloperOptions";
             case __DISABLE_WEB_REQUESTS: return "DisableWebRequests";
             case __SHOW_MEMORY_CACHE_SIZE: return "ShowMemoryCacheSize";
         }
@@ -89,6 +91,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case "§fslastx": return _FS_LAST_X;
             case "§fslasty": return _FS_LAST_Y;
 
+            case "ShowDeveloperOptions": return __SHOW_DEVELOPER_OPTIONS;
             case "DisableWebRequests": return __DISABLE_WEB_REQUESTS;
             case "ShowMemoryCacheSize": return __SHOW_MEMORY_CACHE_SIZE;
         }

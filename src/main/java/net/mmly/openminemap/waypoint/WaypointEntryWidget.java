@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.config.ConfigAnchorWidget;
 import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
 
@@ -37,7 +38,7 @@ public class WaypointEntryWidget extends ClickableWidget {
     private int mx = 0;
     private int my = 0;
 
-    private int initY;
+    private WaypointAnchorWidget anchor;
 
     private static final Text[] tooltipMessages = new Text[] {
             Text.translatable("omm.waypoints.button.edit"),
@@ -49,9 +50,8 @@ public class WaypointEntryWidget extends ClickableWidget {
         scrollOffset = scroll;
     }
 
-    public WaypointEntryWidget(int x, int y, Text message, Waypoint waypoint, TextRenderer textRenderer, boolean pinned, boolean visible) {
-        super(x, y, 0, 20, message);
-        this.initY = y;
+    public WaypointEntryWidget(Text message, Waypoint waypoint, TextRenderer textRenderer, boolean pinned, boolean visible) {
+        super(0, 0, 0, 20, message);
         this.waypoint = waypoint;
         this.renderer = textRenderer;
         this.visibleWaypoint = visible;
@@ -78,14 +78,19 @@ public class WaypointEntryWidget extends ClickableWidget {
         WaypointScreen.getInstance().enableEditMode(waypoint);
     }
 
+    public void setAnchor(WaypointAnchorWidget anchor) {
+        this.anchor = anchor;
+    }
+
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 
         mx = mouseX;
         my = mouseY;
 
-        setY(initY - scrollOffset);
-        setWidth(WaypointScreen.getMidPoint() - 20);
+        setX(anchor.getX());
+        setY(anchor.getY());
+        setWidth(anchor.getWidth());
 
         int borderColor = WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? editingColor : (isFocused() ? selectedColor : (isHovered() ? hoverColor : idleColor));
 

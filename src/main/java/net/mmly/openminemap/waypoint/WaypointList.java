@@ -21,6 +21,12 @@ public class WaypointList extends EntryListWidget<WaypointAnchorWidget> {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        this.setFocused(null);
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
     public int addEntry(WaypointAnchorWidget entry) {
         return super.addEntry(entry);
     }

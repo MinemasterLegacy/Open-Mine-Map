@@ -10,7 +10,7 @@ public class WaypointAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<Wa
     private int yStore = 0;
     private int xStore = 0;
     private int widthStore = 0;
-    ClickableWidget widget;
+    WaypointEntryWidget widget;
     public boolean drawNow = false;
 
     @Override
@@ -27,10 +27,10 @@ public class WaypointAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<Wa
     }
 
     public int getWidth() {
-        return widthStore - 4;
+        return widthStore;
     }
 
-    public void setWidget(ClickableWidget widget) {
+    public void setWidget(WaypointEntryWidget widget) {
         this.widget = widget;
     }
 
@@ -82,6 +82,6 @@ public class WaypointAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<Wa
         drawNow = true;
         widget.render(context, mouseX, mouseY, tickDelta);
         drawNow = false;
-        //context.fill(x, y, x + entryWidth, y + entryHeight, 0x80FF0000);
+        context.fill(x, y, x + entryWidth, y + entryHeight, 0x80FF0000);
     }
 }

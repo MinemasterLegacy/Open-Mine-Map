@@ -14,6 +14,8 @@ import net.mmly.openminemap.config.ConfigAnchorWidget;
 import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
 
+import java.time.Duration;
+
 public class WaypointEntryWidget extends ClickableWidget {
 
     Waypoint waypoint;
@@ -51,11 +53,12 @@ public class WaypointEntryWidget extends ClickableWidget {
     }
 
     public WaypointEntryWidget(Text message, Waypoint waypoint, TextRenderer textRenderer, boolean pinned, boolean visible) {
-        super(0, 0, 0, 20, message);
+        super(10, 0, 0, 20, message);
         this.waypoint = waypoint;
         this.renderer = textRenderer;
         this.visibleWaypoint = visible;
         this.pinnedWaypoint = pinned;
+        setTooltipDelay(Duration.ofMillis(1000));
     }
 
     private void setPinned(boolean pinned) {
@@ -97,7 +100,7 @@ public class WaypointEntryWidget extends ClickableWidget {
         context.drawTexture(waypoint.identifier, getX() + 3, getY() + 3, 0, 0, 14, 14, 14, 14);
 
         int xMod = 0;
-        setTooltip(null);
+        setTooltip(Tooltip.of(Text.of(waypoint.name)));
         selection = Selection.NONE;
         for (Identifier i : new Identifier[]{editId, visibleWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
             context.drawTexture(i, getX() + width - 17 - (xMod * 16), getY() + 3, 0, 0, 14, 14, 14, 14);

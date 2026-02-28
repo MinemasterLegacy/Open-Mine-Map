@@ -34,7 +34,7 @@ public class WaypointScreen extends Screen {
     private ButtonWidget createWaypointButton;
     private ButtonWidget saveWaypointButton;
     private ButtonWidget deleteWaypointButton;
-    private WaypointList waypointList;
+    WaypointList waypointList;
 
     private WaypointParameterWidget nameField;
     private WaypointParameterWidget longitudeWidget;
@@ -224,7 +224,7 @@ public class WaypointScreen extends Screen {
     }
 
     private void refreshMidpoint() {
-        midPoint = Math.max(width / 2, 220);
+        midPoint = 240;
     }
 
     public static void saveEditingWaypoint() {
@@ -333,25 +333,28 @@ public class WaypointScreen extends Screen {
         x += marginWidths + sliderWidths;
         valueSlider.setDimensionsAndPosition(sliderWidths, 120, (int) x, 20 - createScroll);
 
-        createWaypointButton.setDimensions(midPoint - 40, 20);
-        createWaypointButton.setPosition(midPoint + 20, 310 - createScroll);
-        saveWaypointButton.setDimensions(midPoint - 40, 20);
-        saveWaypointButton.setPosition(midPoint + 20, 310 - createScroll);
+        int elementWidths = width - midPoint - 40;
+        int elementXs = midPoint + 20;
 
-        deleteWaypointButton.setDimensions(midPoint - 40, 20);
-        deleteWaypointButton.setPosition(midPoint + 20, 350 - createScroll);
+        createWaypointButton.setWidth(elementWidths);
+        createWaypointButton.setPosition(elementXs, 310 - createScroll);
+        saveWaypointButton.setWidth(elementWidths);
+        saveWaypointButton.setPosition(elementXs, 310 - createScroll);
 
-        nameField.setWidth(midPoint - 40);
-        nameField.setPosition(midPoint + 20, 190 - createScroll);
+        deleteWaypointButton.setWidth(elementWidths);
+        deleteWaypointButton.setPosition(elementXs, 350 - createScroll);
 
-        longitudeWidget.setWidth(midPoint - 40);
-        longitudeWidget.setPosition(midPoint + 20, 250 - createScroll);
+        nameField.setWidth(elementWidths);
+        nameField.setPosition(elementXs, 190 - createScroll);
 
-        latitudeWidget.setWidth(midPoint - 40);
-        latitudeWidget.setPosition(midPoint + 20, 220 - createScroll);
+        longitudeWidget.setWidth(elementWidths);
+        longitudeWidget.setPosition(elementXs, 250 - createScroll);
 
-        angleWidget.setWidth(midPoint - 40);
-        angleWidget.setPosition(midPoint + 20, 280 - createScroll);
+        latitudeWidget.setWidth(elementWidths);
+        latitudeWidget.setPosition(elementXs, 220 - createScroll);
+
+        angleWidget.setWidth(elementWidths);
+        angleWidget.setPosition(elementXs, 280 - createScroll);
 
         //        context.fill(midPoint + 20, 148, context.getScaledWindowWidth() - 21, 180, 0xFF000000);
         leftButton.setPosition(midPoint + 11, 157 - createScroll);
@@ -387,20 +390,22 @@ public class WaypointScreen extends Screen {
         //BufferedImage image = new BufferedImage(diamondWaypoint.getColorModel(), diamondWaypoint.getRaster(), diamondWaypoint.getColorModel().isAlphaPremultiplied(), null);
         //image = colorize(image, ColorSliderWidget.hue);
 
+        int createMidpoint = (width - midPoint) / 2 + midPoint;
+
         context.fill(midPoint + 20, 148 - createScroll, context.getScaledWindowWidth() - 21, 180 - createScroll, 0xFF000000);
         context.drawBorder(midPoint + 20, 148 - createScroll, context.getScaledWindowWidth() - 40 - midPoint, 32, 0xFF808080);
         context.enableScissor(midPoint + 21, 148 - createScroll, context.getScaledWindowWidth() - 21, 180 - createScroll);
 
         int image = styleSelection.ordinal();
-        context.fill(midPoint + (midPoint / 2) - 14, 149 - createScroll, midPoint + (midPoint / 2) + 14, 179 - createScroll, 0xFF404040);
-        drawColorizedImage(context, styleIdentifiers[image], midPoint + (midPoint / 2) - 12, 152 - createScroll, 24, 24);
+        context.fill(createMidpoint - 14, 149 - createScroll, createMidpoint + 14, 179 - createScroll, 0xFF404040);
+        drawColorizedImage(context, styleIdentifiers[image], createMidpoint - 12, 152 - createScroll, 24, 24);
 
-        for (int i = 1; (midPoint + (midPoint / 2) - 12 + (i * 30)) < context.getScaledWindowWidth() - 20; i++) {
-            drawColorizedImage(context, styleIdentifiers[(image + i) % styleIdentifiers.length], midPoint + (midPoint / 2) - 12 + (i * 30), 152 - createScroll, 24, 24);
+        for (int i = 1; (createMidpoint - 12 + (i * 30)) < context.getScaledWindowWidth() - 20; i++) {
+            drawColorizedImage(context, styleIdentifiers[(image + i) % styleIdentifiers.length], createMidpoint - 12 + (i * 30), 152 - createScroll, 24, 24);
         }
 
-        for (int i = -1; (midPoint + (midPoint / 2) - 12 + (i * 30)) > midPoint - 7; i--) {
-            drawColorizedImage(context, styleIdentifiers[(((image + i) % styleIdentifiers.length) + styleIdentifiers.length) % styleIdentifiers.length], midPoint + (midPoint / 2) - 12 + (i * 30), 152 - createScroll, 24, 24);
+        for (int i = -1; (createMidpoint - 12 + (i * 30)) > midPoint - 7; i--) {
+            drawColorizedImage(context, styleIdentifiers[(((image + i) % styleIdentifiers.length) + styleIdentifiers.length) % styleIdentifiers.length], createMidpoint - 12 + (i * 30), 152 - createScroll, 24, 24);
         }
 
         context.disableScissor();

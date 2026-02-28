@@ -82,6 +82,6 @@ public class WaypointAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<Wa
         drawNow = true;
         widget.render(context, mouseX, mouseY, tickDelta);
         drawNow = false;
-        context.fill(x, y, x + entryWidth, y + entryHeight, 0x80FF0000);
+        //context.fill(x, y, x + entryWidth, y + entryHeight, 0x80FF0000);
     }
 }

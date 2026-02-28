@@ -58,7 +58,6 @@ public class WaypointEntryWidget extends ClickableWidget {
         this.renderer = textRenderer;
         this.visibleWaypoint = visible;
         this.pinnedWaypoint = pinned;
-        setTooltipDelay(Duration.ofMillis(1000));
     }
 
     private void setPinned(boolean pinned) {
@@ -100,12 +99,16 @@ public class WaypointEntryWidget extends ClickableWidget {
         context.drawTexture(waypoint.identifier, getX() + 3, getY() + 3, 0, 0, 14, 14, 14, 14);
 
         int xMod = 0;
-        setTooltip(Tooltip.of(Text.of(waypoint.name)));
         selection = Selection.NONE;
+        if (mouseX < getRight() - 51) {
+            setTooltip(Tooltip.of(Text.of(waypoint.name)));
+            setTooltipDelay(Duration.ofMillis(1000));
+        }
         for (Identifier i : new Identifier[]{editId, visibleWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
             context.drawTexture(i, getX() + width - 17 - (xMod * 16), getY() + 3, 0, 0, 14, 14, 14, 14);
             if (mouseIsInArea(getX() + width - 17 - (xMod * 16), getY() + 3, 14, 14)) {
                 setTooltip(Tooltip.of(tooltipMessages[xMod]));
+                setTooltipDelay(Duration.ZERO);
                 selection = Selection.getById(xMod + 1);
             }
             xMod++;

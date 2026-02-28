@@ -261,6 +261,10 @@ public class WaypointScreen extends Screen {
 
         refreshMidpoint();
         if (waypointList != null) this.remove(waypointList);
+        for (WaypointEntryWidget widget : waypointWidgets) {
+            this.remove(widget);
+        }
+
         waypointList = new WaypointList(MinecraftClient.getInstance(), midPoint, height, 0, 24);
         this.addDrawableChild(waypointList);
 

@@ -81,7 +81,6 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void close() {
-        super.close();
         MinecraftClient.getInstance().setScreen(
                 new FullscreenMapScreen()
         );

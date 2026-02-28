@@ -472,7 +472,7 @@ public class WaypointScreen extends Screen {
 
     @Override
     public void close() {
-        super.close();
+        //super.close();
         MinecraftClient.getInstance().setScreen(
                 new FullscreenMapScreen()
         );

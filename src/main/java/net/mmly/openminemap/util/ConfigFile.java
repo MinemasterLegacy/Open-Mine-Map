@@ -41,7 +41,8 @@ public class ConfigFile {
 
             "false", //ShowDeveloperOptions
             "false", //DisableWebRequests
-            "false" //ShowMemoryCacheSize
+            "false", //ShowMemoryCacheSize
+            "false"
     };
     private static final int numOfArgs = ConfigOptions.length();
 

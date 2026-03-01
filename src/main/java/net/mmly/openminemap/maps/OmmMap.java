@@ -1,5 +1,6 @@
 package net.mmly.openminemap.maps;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.font.TextRenderer;
@@ -7,7 +8,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.render.*;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.Window;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,9 +25,11 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.*;
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
@@ -621,6 +624,107 @@ public class OmmMap extends ClickableWidget {
         return roundTowardsZero(mapY) + renderAreaY - textureOffset + (int) (((double) renderAreaHeight / 2) - mapCenterY);
     }
 
+    private int[][][] latLonTriangleArrayToWindowRelative(double[][][] triangle) {
+        int[][][] newTriangle = new int[triangle.length][3][2];
+        for (int i = 0; i < triangle.length; i++) {
+            for (int j = 0; j < 3; j++) {
+                newTriangle[i][j][0] = getWindowRelativeX(Math.round(UnitConvert.longToMapX(triangle[i][j][0], zoom, tileSize)), 0);
+                newTriangle[i][j][1] = getWindowRelativeY(Math.round(UnitConvert.latToMapY(triangle[i][j][1], zoom, tileSize)), 0);
+            }
+        }
+        return newTriangle;
+    }
+
+    private int[][] latLonPointArrayToWindowRelative(double[][] points) {
+        int[][] newPoints = new int[points.length][2];
+        for (int i = 0; i < points.length; i++) {
+            newPoints[i][0] = getWindowRelativeX(Math.round(UnitConvert.longToMapX(points[i][0], zoom, tileSize)), 0);
+            newPoints[i][1] = getWindowRelativeY(Math.round(UnitConvert.latToMapY(points[i][1], zoom, tileSize)), 0);
+        }
+        return newPoints;
+    }
+
+    private boolean drawPolygon(DrawContext drawContext, double[][] points, int fillColor, int outlineColor) {
+        RenderSystem.disableCull();
+
+        double[][][] latLonTriangles = PolygonTriangulator.triangulate(points);
+        System.out.println(Arrays.deepToString(latLonTriangles));
+        int[][][] triangles;
+        if (latLonTriangles == null) triangles = null;
+        else triangles = latLonTriangleArrayToWindowRelative(latLonTriangles);
+        System.out.println(Arrays.deepToString(triangles));
+
+        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
+        Tessellator tessellator = Tessellator.getInstance();
+        //BufferBuilder fillBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        BufferBuilder outlineBuilder = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
+
+        /*
+        if (triangles != null) for (int[][] triangle : triangles) {
+            for (int[] point : triangle) {
+                point[0] = getWindowRelativeX(Math.round(UnitConvert.longToMapX(point[0], zoom, tileSize)), 0);
+                point[1] = getWindowRelativeY(Math.round(UnitConvert.latToMapY(point[1], zoom, tileSize)), 0);
+                fillBuilder.vertex(matrix, point[0], point[1], 0).color(fillColor);
+            }
+            fillBuilder.vertex(matrix, triangle[2][0], triangle[2][1], 0).color(fillColor);
+        }
+         */
+        //int[][] mapRelativePoints = latLonPointArrayToWindowRelative(points);
+        //for (int i = 0; i < points.length; i++) {
+        //    drawDiagonalLine(drawContext, mapRelativePoints[i], mapRelativePoints[i], outlineColor);
+        //}
+
+        drawDiagonalLine(drawContext, new int[] {40, 40}, new int[] {60, 60}, 0xFF000000);
+
+        if (triangles != null) for (int[][] triangle : triangles) {
+            drawTriangle(drawContext, triangle, fillColor);
+        }
+
+        //for (double[] point : points) {
+        //    point[0] = getWindowRelativeX(Math.round(UnitConvert.longToMapX(point[0], zoom, tileSize)), 0);
+        //    point[1] = getWindowRelativeY(Math.round(UnitConvert.latToMapY(point[1], zoom, tileSize)), 0);
+        //    outlineBuilder.vertex(matrix, (int) Math.round(point[0]), (int) Math.round(point[1]), 1).color(outlineColor).normal(2, 2, 2);
+        //}
+
+
+        //outlineBuilder.vertex(35, 40, 0).color(outlineColor);
+        //outlineBuilder.vertex(45, 80, 0).color(outlineColor);
+        //outlineBuilder.vertex(80, 85, 0).color(outlineColor);
+        //outlineBuilder.vertex(75, 40, 0).color(outlineColor);
+
+        //BufferRenderer.drawWithGlobalProgram(outlineBuilder.end());
+
+        RenderSystem.enableCull();
+        return triangles != null;
+    }
+
+    private static final int[] lineXModifiers = {0, 1, 1, 0, -1, -1, -1, 0, 1};
+    private static final int[] lineYModifiers = {0, 0, 1, 1, 1, 0, -1, -1, -1};
+    private void drawDiagonalLine(DrawContext drawContext, int[] point1, int[] point2, int outlineColor) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder outlineBuilder = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
+
+        for (int i = 0; i < 9; i++) {
+            outlineBuilder.vertex(matrix, point1[0] + lineXModifiers[i], point1[1] + lineYModifiers[i], 0).color(outlineColor);
+            outlineBuilder.vertex(matrix, point2[0] + lineXModifiers[i], point2[1] + lineYModifiers[i], 0).color(outlineColor);
+        }
+
+        BufferRenderer.drawWithGlobalProgram(outlineBuilder.end());
+
+    }
+
+    private void drawTriangle(DrawContext drawContext, int[][] triangle, int fillColor) {
+        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
+        VertexConsumer consumer = drawContext.getVertexConsumers().getBuffer(RenderLayer.getGui());
+        for (int[] point : triangle) {
+            //fillBuilder.vertex(matrix, point[0], point[1], 0).color(fillColor);
+            consumer.vertex(matrix, point[0], point[1], 0).color(fillColor);
+        }
+        consumer.vertex(matrix, triangle[2][0], triangle[2][1], 0).color(fillColor);
+        drawContext.draw();
+    }
+
     private void drawTile(DrawContext context, DrawableMapTile tile) {
 
         //offset the tiles so that the map is centered on the render area
@@ -827,6 +931,138 @@ public class OmmMap extends ClickableWidget {
             } else {
                 if (self != null) drawBufferedPlayer(context, self);
             }
+        }
+
+        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true")) {
+            double[][] poly = new double[][] {
+                    {
+                            -112.0724980674874,
+                            33.45862324333743
+                    },
+                    {
+                            -112.07373112639085,
+                            33.45861764421596
+                    },
+                    {
+                            -112.073734671256,
+                            33.45763577350699
+                    },
+                    {
+                            -112.07374214372476,
+                            33.456650970810955
+                    },
+                    {
+                            -112.07351181073597,
+                            33.45664415635916
+                    },
+                    {
+                            -112.07247878299067,
+                            33.45664287021509
+                    },
+                    {
+                            -112.07248593143615,
+                            33.455598238772694
+                    },
+                    {
+                            -112.07121585164461,
+                            33.45559572681226
+                    },
+                    {
+                            -112.0712181616629,
+                            33.454586963614915
+                    },
+                    {
+                            -112.0700520319818,
+                            33.45458897435081
+                    },
+                    {
+                            -112.07004312485601,
+                            33.45663388724003
+                    },
+                    {
+                            -112.06879419608015,
+                            33.45661685813002
+                    },
+                    {
+                            -112.06879078257768,
+                            33.45765878640273
+                    },
+                    {
+                            -112.06754749157277,
+                            33.45766831714259
+                    },
+                    {
+                            -112.06754890686672,
+                            33.45800269571116
+                    },
+                    {
+                            -112.06810768374606,
+                            33.458001728527975
+                    },
+                    {
+                            -112.06816572885411,
+                            33.458005999514555
+                    },
+                    {
+                            -112.06816472953587,
+                            33.45841705944993
+                    },
+                    {
+                            -112.06754487778132,
+                            33.45841702178653
+                    },
+                    {
+                            -112.0675435792755,
+                            33.458599172596806
+                    },
+                    {
+                            -112.06914839323953,
+                            33.45861012852579
+                    },
+                    {
+                            -112.06973511377674,
+                            33.458613879420284
+                    },
+                    {
+                            -112.06988572786094,
+                            33.458613879420284
+                    },
+                    {
+                            -112.07004173202688,
+                            33.458620395198565
+                    },
+                    {
+                            -112.07132276495196,
+                            33.458625936836256
+                    },
+                    {
+                            -112.07133083762156,
+                            33.45899140200342
+                    },
+                    {
+                            -112.07134016127786,
+                            33.45994606023646
+                    },
+                    {
+                            -112.07195309379404,
+                            33.4599475142349
+                    },
+                    {
+                            -112.07248187243594,
+                            33.45995028334487
+                    },
+                    {
+                            -112.0724980674874,
+                            33.45862324333743
+                    }
+            };
+            /*drawPolygon(context, new double[][] {
+                    {-112.07134016127786, 33.45994606023646},
+                    {-112.07195309379404, 33.4599475142349},
+                    {-112.07248187243594, 33.45995028334487},
+                    {-112.0724980674874, 33.45862324333743}
+            }, 0x4000FF00, 0xFF000000);*/
+            drawPolygon(context, poly, 0x4000FF00, 0xFF000000);
         }
 
         context.disableScissor();

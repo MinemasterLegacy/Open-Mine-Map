@@ -28,7 +28,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
 
     __SHOW_DEVELOPER_OPTIONS,
     __DISABLE_WEB_REQUESTS,
-    __SHOW_MEMORY_CACHE_SIZE;
+    __SHOW_MEMORY_CACHE_SIZE,
+    __EXPERIMENTAL_CLAIMS_RENDERING;
 
     public static String getRawTextOf(ConfigOptions configOption) {
         switch (configOption) {
@@ -60,6 +61,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case __SHOW_DEVELOPER_OPTIONS: return "ShowDeveloperOptions";
             case __DISABLE_WEB_REQUESTS: return "DisableWebRequests";
             case __SHOW_MEMORY_CACHE_SIZE: return "ShowMemoryCacheSize";
+            case __EXPERIMENTAL_CLAIMS_RENDERING: return "ExperimentalClaimsRendering";
         }
         return null;
     }
@@ -94,6 +96,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
             case "ShowDeveloperOptions": return __SHOW_DEVELOPER_OPTIONS;
             case "DisableWebRequests": return __DISABLE_WEB_REQUESTS;
             case "ShowMemoryCacheSize": return __SHOW_MEMORY_CACHE_SIZE;
+            case "ExperimentalClaimsRendering": return __EXPERIMENTAL_CLAIMS_RENDERING;
         }
         return null;
     }

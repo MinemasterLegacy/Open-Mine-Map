@@ -189,6 +189,7 @@ public class ConfigScreen extends Screen {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(Text.of("DisableWebRequests"), Text.of(""), new String[] {"false", "true"}, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(Text.of("ShowMemoryCacheSize"), Text.of(""), new String[] {"false", "true"}, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(Text.of("ExperimentalClaimsRendering"), Text.of(""), new String[] {"false", "true"}, ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING, true));
         }
 
         configList.restoreScroll();

@@ -62,14 +62,14 @@ public class CommandHander {
         try {
             double[] distortion = Projection.getDistortion(PlayerAttributes.getLongitude(), PlayerAttributes.getLatitude());
             MinecraftClient.getInstance().player.sendMessage(Text.literal(
-                    "Distortion: \n" +
+                    Text.translatable("omm.text.distortion").getString() + " \n" +
                         UnitConvert.floorToPlace(Math.sqrt(Math.abs(distortion[0])), 10) +
                         " ± " +
                         UnitConvert.floorToPlace(Math.toDegrees(distortion[1]), 10) +
                         "°"
             ).formatted(Formatting.ITALIC));
         } catch (CoordinateValueError e) {
-            MinecraftClient.getInstance().player.sendMessage(Text.of("Cannot calculate distortion: Out of Bounds"));
+            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.distortion"));
         }
 
         return 0;

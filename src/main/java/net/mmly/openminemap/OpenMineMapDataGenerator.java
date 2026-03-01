@@ -420,6 +420,17 @@ class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.rcm.unpin", "取消标记");
         translationBuilder.add("omm.rcm.create-waypoint", "创建路标");
         translationBuilder.add("omm.error.tile-url.parse", "解析图砖来源错误");
+        translationBuilder.add("omm.notification.something-wrong", "发生错误");
+        translationBuilder.add("omm.notification.location-copied", "地点已复制到剪贴簿。");
+        translationBuilder.add("omm.notification.searching", "搜寻中...");
+        translationBuilder.add("omm.notification.snap-angle-set", "吸附角设为 ");
+        translationBuilder.add("omm.search.anything", "任意搜寻...");
+        translationBuilder.add("omm.search.blocks-away", " 公尺远");
+        translationBuilder.add("omm.search.places", "搜寻位置");
+        translationBuilder.add("omm.search.no-results", "没有网络搜寻结果");
+        translationBuilder.add("omm.rcm.reverse-search", "反向搜寻");
+        translationBuilder.add("omm.error.distortion", "无法计算变形量：超出范围");
+        translationBuilder.add("omm.text.distortion", "变形量：");
     }
 }
 
@@ -527,15 +538,15 @@ abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvi
         translationBuilder.add("omm.rcm.unpin", "取消標記");
         translationBuilder.add("omm.rcm.create-waypoint", "建立路標");
         translationBuilder.add("omm.error.tile-url.parse", "解析圖磚來源錯誤");
-        //translationBuilder.add("omm.notification.something-wrong", "Something went wrong");
-        //translationBuilder.add("omm.notification.location-copied", "Copied location to clipboard.");
+        translationBuilder.add("omm.notification.something-wrong", "發生錯誤");
+        translationBuilder.add("omm.notification.location-copied", "地點已複製到剪貼簿。");
         translationBuilder.add("omm.notification.searching", "搜尋中...");
         translationBuilder.add("omm.notification.snap-angle-set", "吸附角設為 ");
-        //translationBuilder.add("omm.search.anything", "Search anything...");
+        translationBuilder.add("omm.search.anything", "任意搜尋...");
         translationBuilder.add("omm.search.blocks-away", " 公尺遠");
-        //translationBuilder.add("omm.search.places", "Search Places");
-        //translationBuilder.add("omm.search.no-results", "No web results");
-        //translationBuilder.add("omm.rcm.reverse-search", "Reverse Search");
+        translationBuilder.add("omm.search.places", "搜尋位置");
+        translationBuilder.add("omm.search.no-results", "沒有網路搜尋結果");
+        translationBuilder.add("omm.rcm.reverse-search", "反向搜尋");
         translationBuilder.add("omm.error.distortion", "無法計算變形量：超出範圍");
         translationBuilder.add("omm.text.distortion", "變形量：");
     }

@@ -6,6 +6,7 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
@@ -39,7 +40,7 @@ public class Requester extends Thread {
         if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled.");
         while (true) {
             if (RequestManager.searchString != null) {
-                SearchResult[] results = searchResultRequest(RequestManager.searchString);
+                SearchResult[] results = searchResultRequest(RequestManager.searchString, RequestManager.searchPriorityLat, RequestManager.searchPriorityLon);
                 if (results == null) {
                     RequestManager.searchResultReturn = getErrorResult();
                 } else {
@@ -167,9 +168,14 @@ public class Requester extends Thread {
         return results[0];
     }
 
-    SearchResult[] searchResultRequest(String query) {
+    SearchResult[] searchResultRequest(String query, double latFocus, double lonFocus) {
         if (disableWebRequests) return null;
+
         String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=7";
+        if (!OmmMap.geoCoordsOutOfBounds(latFocus, lonFocus)) {
+            urlPattern += "&lat=" + latFocus + "&lon=" + lonFocus;
+        }
+        System.out.println(urlPattern);
 
         InputStream stream = get(urlPattern);
         if (stream == null) return null;

@@ -47,7 +47,7 @@ public class SearchResultLayer extends ClickableWidget {
     }
 
     private int getResultColor() {
-        if (myResult.resultType == SearchResultType.SEARCH) {
+        if (myResult.resultType.isSearchType()) {
             return resultNumber % 2 == 0 ? 0xFF0BD604 : 0xFF0DFF05;
         } else {
             return resultNumber % 2 == 0 ? 0xFF0447D8 : 0xFF0554FF;
@@ -70,7 +70,7 @@ public class SearchResultLayer extends ClickableWidget {
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
         context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, 0xFFFFFFFF, false);
         if (!myResult.context.isBlank()) {
-            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType == SearchResultType.SEARCH ? 0xFF548AF7 : 0xFFB0B0B0, false);
+            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : 0xFFB0B0B0, false);
             //renderer.fontHeight = 5;
             //context.drawText();
         }
@@ -92,7 +92,7 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
-        if (myResult.resultType == SearchResultType.SEARCH) context.drawTexture(
+        if (myResult.resultType.isSearchType()) context.drawTexture(
             Identifier.of("openminemap", "search/photon.png"),
                     getX() + getWidth() - 34,
                     getY() + 3,
@@ -131,6 +131,16 @@ public class SearchResultLayer extends ClickableWidget {
             RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return;
         }
+
+        if (myResult.resultType == SearchResultType.SEARCHLOCAL) {
+            RequestManager.setSearchRequest(
+                    FullscreenMapScreen.getInstance().getSearchBoxContents(),
+                    FullscreenMapScreen.map.getMapCenterLat(),
+                    FullscreenMapScreen.map.getMapCenterLon()
+            );
+            return;
+        }
+
         FullscreenMapScreen.followPlayer(false);
 
         if (myResult.bounds != null) {

@@ -210,6 +210,12 @@ public class OmmMap extends ClickableWidget {
     public double getMapCenterY() {
         return mapCenterY;
     }
+    public double getMapCenterLat() {
+        return UnitConvert.myToLat(mapCenterY, zoom, tileSize);
+    }
+    public double getMapCenterLon() {
+        return UnitConvert.mxToLong(mapCenterX, zoom, tileSize);
+    }
 
     public double getZoom() {
         return zoom;

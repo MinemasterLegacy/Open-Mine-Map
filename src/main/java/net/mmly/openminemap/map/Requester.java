@@ -106,7 +106,7 @@ public class Requester extends Thread {
             ArrayList coords = (ArrayList) geometry.get("coordinates");
 
             String context = "";
-            if (properties.get("county") != null) context += properties.get("county") + ", ";
+            //if (properties.get("county") != null) context += properties.get("county") + ", ";
             if (properties.get("city") != null) context += properties.get("city") + ", ";
             if (properties.get("state") != null) context += properties.get("state") + ", ";
             if (properties.get("country") != null) context += properties.get("country") + ", ";

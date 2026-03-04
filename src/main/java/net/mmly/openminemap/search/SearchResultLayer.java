@@ -148,10 +148,7 @@ public class SearchResultLayer extends ClickableWidget {
             return;
         }
 
-        FullscreenMapScreen.map.setMapPosition(
-                UnitConvert.longToMapX(myResult.longitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize()),
-                UnitConvert.latToMapY(myResult.latitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize())
-        );
+        FullscreenMapScreen.map.setMapLatLong(myResult.latitude, myResult.longitude);
 
         if (myResult.zoom != -1) {
             FullscreenMapScreen.map.setMapZoom(myResult.zoom);
@@ -190,13 +187,10 @@ public class SearchResultLayer extends ClickableWidget {
                 Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2
         );
 
-        double areaCenterY = (bounds[0] + bounds[1]) / 2;
-        double areaCenterX = (bounds[2] + bounds[3]) / 2;
+        double areaCenterLat = (bounds[0] + bounds[1]) / 2;
+        double areaCenterLon = (bounds[2] + bounds[3]) / 2;
 
-        map.setMapPosition(
-                UnitConvert.longToMapX(areaCenterX, map.getZoom(), map.getTileSize()),
-                UnitConvert.latToMapY(areaCenterY, map.getZoom(), map.getTileSize())
-        );
+        map.setMapLatLong(areaCenterLat, areaCenterLon);
 
     }
 

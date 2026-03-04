@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.RightClickMenu;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
@@ -86,6 +87,18 @@ public class WaypointScreen extends Screen {
         initWithValues = true;
         initLong = lon;
         initLat = lat;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (RightClickMenu.instance.isMouseOver(mouseX, mouseY)) {
+            if (RightClickMenu.instance.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+        }
+        boolean b = super.mouseClicked(mouseX, mouseY, button);
+        if (button == 0) RightClickMenu.disableMenu();
+        return b;
     }
 
     //called by the right click menu to immediately enter edit mode
@@ -187,6 +200,8 @@ public class WaypointScreen extends Screen {
 
         rightButton = new WaypointIconSelectButton(1);
         this.addDrawableChild(rightButton);
+
+        this.addDrawableChild(new RightClickMenu(this.textRenderer));
 
         if (initWithValues) {
             nameField.setCursorToStart(false);
@@ -413,6 +428,8 @@ public class WaypointScreen extends Screen {
         }
 
         context.disableScissor();
+
+        RightClickMenu.instance.drawWidget(context, this.textRenderer);
 
     }
 

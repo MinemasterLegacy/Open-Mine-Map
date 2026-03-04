@@ -137,6 +137,11 @@ public class OmmMap extends ClickableWidget {
         }
     }
 
+    public void setMapLatLong(double lat, double lon) {
+        if (Double.isNaN(lat) || Double.isNaN(lon)) return;
+        this.mapCenterX = UnitConvert.longToMapX(lon, zoom, tileSize);
+        this.mapCenterY = UnitConvert.latToMapY(lat, zoom, tileSize);
+    }
     public void setMapPosition(double x, double y) {
         if (Double.isNaN(x) || Double.isNaN(y)) return;
         this.mapCenterX = x;

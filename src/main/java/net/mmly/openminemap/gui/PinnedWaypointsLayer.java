@@ -51,7 +51,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         if (isHovered()) {
             int selection = ((mouseY - getY()) / waypointHitboxSize);
             context.drawBorder(getX() + margin - 1, getY() + margin - 1 + (selection * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFFFF);
-            if (FullscreenMapScreen.getRightClickMenuType() == RightClickMenuType.HIDDEN) {
+            if (RightClickMenu.getDisplayType() == RightClickMenuType.HIDDEN) {
                 fill(context, getX() + width + 3, getY() + (selection * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2) - 2, textRenderer.getWidth(pinnedWaypoints[selection].name) + 3, textRenderer.fontHeight + 3, 0x80000000);
                 context.drawText(textRenderer, pinnedWaypoints[selection].name, getX() + width + 5, getY() + (selection * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2), RGBof(pinnedWaypoints[selection].color), false);
             }
@@ -90,14 +90,14 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         int selection = ((((int) mouseY) - getY()) / waypointHitboxSize);
-        if (FullscreenMapScreen.getRightClickMenuType() == RightClickMenuType.PINNED_WAYPOINT && FullscreenMapScreen.getRightClickMenuWaypoint().name.equals(pinnedWaypoints[selection].name)) {
-            FullscreenMapScreen.disableRightClickMenu();
+        if (RightClickMenu.getDisplayType() == RightClickMenuType.PINNED_WAYPOINT && FullscreenMapScreen.getRightClickMenuWaypoint().name.equals(pinnedWaypoints[selection].name)) {
+            RightClickMenu.disableMenu();
         } else {
-            FullscreenMapScreen.enableRightClickMenu(
+            RightClickMenu.enableMenu(
+                    RightClickMenuType.PINNED_WAYPOINT,
                     getX() + width + 3,
                     /*getY() + (selection * waypointHitboxSize) + ((double) waypointHitboxSize / 2) - ((double) textRenderer.fontHeight / 2) - 3,*/
                     getY() + 3,
-                    RightClickMenuType.PINNED_WAYPOINT,
                     getSelectedWaypoint()
             );
             menuSelection = selection;

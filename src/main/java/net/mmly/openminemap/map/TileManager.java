@@ -12,13 +12,10 @@ import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.DrawableMapTile;
 import net.mmly.openminemap.util.TileUrlFile;
 
-import javax.imageio.IIOException;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;

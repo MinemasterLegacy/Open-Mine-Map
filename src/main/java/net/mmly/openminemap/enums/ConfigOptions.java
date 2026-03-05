@@ -1,7 +1,5 @@
 package net.mmly.openminemap.enums;
 
-import net.minecraft.text.Text;
-
 public enum ConfigOptions { //no underscore for standard config option, one for session variables (Ex: map positioning and zoom), two for development variables
     HUD_MAP_X(0, "HudMapX", "10"),
     HUD_MAP_Y(0, "HudMapY", "10"),

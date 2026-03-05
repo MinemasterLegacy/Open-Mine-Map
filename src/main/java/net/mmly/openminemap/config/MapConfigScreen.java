@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.RepositionType;

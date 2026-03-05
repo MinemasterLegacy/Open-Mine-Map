@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.mmly.openminemap.config.ConfigAnchorWidget;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 

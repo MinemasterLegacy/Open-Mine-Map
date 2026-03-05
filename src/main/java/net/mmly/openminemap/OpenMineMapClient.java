@@ -9,7 +9,6 @@ import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
-import net.mmly.openminemap.map.TileLoader;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;

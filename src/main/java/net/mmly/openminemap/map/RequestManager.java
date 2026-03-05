@@ -1,6 +1,5 @@
 package net.mmly.openminemap.map;
 
-import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 

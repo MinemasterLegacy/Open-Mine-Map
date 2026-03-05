@@ -1,6 +1,5 @@
 package net.mmly.openminemap.event;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -24,7 +23,6 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
-import net.mmly.openminemap.util.WaypointFile;
 
 import java.util.Arrays;
 import java.util.Objects;

@@ -1,7 +1,5 @@
 package net.mmly.openminemap.util;
 
-import java.util.ArrayList;
-
 public class PolygonTriangulator {
 
     //  Coded by Darel Rex Finley, 2022; hereby given to the public domain. If you use this code in your own project,

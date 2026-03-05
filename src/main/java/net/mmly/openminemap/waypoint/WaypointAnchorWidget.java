@@ -2,7 +2,6 @@ package net.mmly.openminemap.waypoint;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 
 public class WaypointAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<WaypointAnchorWidget> {

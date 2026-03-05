@@ -15,14 +15,14 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
     ConfigOptions configOption;
     ConfigAnchorWidget anchor;
 
-    public ChoiceSliderWidget(Text message, Text tooltip, String[] options, ConfigOptions configOption) {
-        super(0, -100, 200, 20, message, 0);
+    public ChoiceSliderWidget(String[] options, ConfigOptions configOption) {
+        super(0, -100, 200, 20, Text.empty(), 0);
         this.options = options;
-        this.message = message;
+        this.message = Text.translatable(configOption.message);
         this.configOption = configOption;
         selection = getSelectedOption();
         this.value = (1F / (options.length - 1)) * selection;
-        this.setTooltip(Tooltip.of(tooltip));
+        this.setTooltip(Tooltip.of(Text.translatable(configOption.tooltip)));
         updateMessage();
     }
 

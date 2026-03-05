@@ -156,7 +156,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget = new ChoiceNumberWidget(textRenderer);
         this.addConfigOptionWidget(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
 
         reverseScrollOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.REVERSE_SCROLL);

@@ -13,7 +13,8 @@ public class ConfigFile {
     public static File configFile;
     public static boolean isConfigLoaded = false;
     private static HashMap<ConfigOptions, String> configParams = new HashMap<>();
-    private static final String[] defaultValues = new String[] { //default values for every config option / parameter
+    private static final String[] defaultValues = ConfigOptions.defaultValues;
+    /*new String[] { //default values for every config option / parameter
             "10", //hudmapx
             "10", //hudmapy
             "144", //hudmapwidth
@@ -43,7 +44,7 @@ public class ConfigFile {
             "false", //DisableWebRequests
             "false", //ShowMemoryCacheSize
             "false"
-    };
+    };*/
     private static final int numOfArgs = ConfigOptions.length();
 
     public static void establishConfigFile() {
@@ -63,8 +64,6 @@ public class ConfigFile {
     }
 
     public static boolean writeDefaultParameter(ConfigOptions parameter) {
-        System.out.println(parameter);
-        System.out.println(defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))]);
         return configParams.replace(parameter, defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))]) != null;
     }
 

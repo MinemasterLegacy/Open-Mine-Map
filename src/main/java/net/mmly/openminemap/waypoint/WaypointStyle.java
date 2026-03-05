@@ -7,27 +7,21 @@ public enum WaypointStyle {
     CITY,
     CROSS;
 
+    private static final WaypointStyle defaultStyle = DIAMOND;
+
     public static WaypointStyle getByOrdinal(int o) {
         o = ((o % 5) + 5) % 5;
-        return switch (o) {
-            case 0 -> DIAMOND;
-            case 1 -> STAR;
-            case 2 -> HOUSE;
-            case 3 -> CITY;
-            case 4 -> CROSS;
-            default -> DIAMOND;
-        };
+        for (WaypointStyle enu : WaypointStyle.values()) {
+            if (enu.ordinal() == o) return enu;
+        }
+        return defaultStyle;
     }
 
     public static WaypointStyle getByString(String s) {
-        return switch (s) {
-            case "diamond" -> DIAMOND;
-            case "star" -> STAR;
-            case "house" -> HOUSE;
-            case "city" -> CITY;
-            case "cross" -> CROSS;
-            default -> DIAMOND;
-        };
+        for (WaypointStyle enu : WaypointStyle.values()) {
+            if (enu.toString().toLowerCase().equals(s)) return enu;
+        }
+        return defaultStyle;
     }
 
 }

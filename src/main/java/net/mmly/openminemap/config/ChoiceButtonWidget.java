@@ -16,19 +16,19 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     ConfigAnchorWidget anchor;
     boolean optionIsLiteral = false;
 
-    protected ChoiceButtonWidget(Text message, Text tooltip, String[] options, ConfigOptions configOption, boolean optionIsLiteral) {
-        super(0, -100, 120, 20, message, ButtonWidget::onPress, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
+    protected ChoiceButtonWidget(String[] options, ConfigOptions configOption, boolean optionIsLiteral) {
+        super(0, -100, 120, 20, Text.empty(), ButtonWidget::onPress, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
         this.options = options;
-        this.message = message;
-        this.setTooltip(Tooltip.of(tooltip));
+        this.message = Text.translatable(configOption.message);
+        this.setTooltip(Tooltip.of(Text.translatable(configOption.tooltip)));
         this.configOption = configOption;
         selection = getSelectedOption();
         this.optionIsLiteral = optionIsLiteral;
         refreshMessage();
     }
 
-    protected ChoiceButtonWidget(Text message, Text tooltip, String[] options, ConfigOptions configOption) {
-        this(message, tooltip, options, configOption, false);
+    protected ChoiceButtonWidget(String[] options, ConfigOptions configOption) {
+        this(options, configOption, false);
     }
 
     private int getSelectedOption() {

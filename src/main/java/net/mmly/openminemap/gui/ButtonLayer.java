@@ -36,7 +36,7 @@ public class ButtonLayer extends ClickableWidget {
     }
 
     private static Identifier getButtonIdentifierOf(ButtonState state, ButtonFunction function) {
-        return Identifier.of("openminemap", "buttons/vanilla/" + state.toString().toLowerCase() + "/" + function.getTextureFileName());
+        return Identifier.of("openminemap", "buttons/vanilla/" + state.toString().toLowerCase() + "/" + function.textureFileName);
     }
 
     public void drawWidget(DrawContext context) {

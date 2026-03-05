@@ -5,5 +5,10 @@ public enum SearchResultType {
     WAYPOINT,
     PLAYER,
     LOCATION,
-    SEARCH
+    SEARCH,
+    SEARCHLOCAL;
+
+    public boolean isSearchType() {
+        return this == SEARCH || this == SEARCHLOCAL;
+    }
 }

@@ -1,43 +1,29 @@
 package net.mmly.openminemap.enums;
 
 public enum OverlayVisibility {
-    ALL, //currently should be unused, global players will be added when I make a server side mod version
-    LOCAL,
-    SELF,
-    NONE;
+    ALL(3),
+    LOCAL(2),
+    SELF(1),
+    NONE(0);
 
-    public static int getNumericIdOf(OverlayVisibility v) {
-        if (v == null) return 0;
-        return switch (v) {
-            case ALL -> 3;
-            case LOCAL -> 2;
-            case SELF -> 1;
-            case NONE -> 0;
-        };
-    }
+    public final int numericId;
+    public final String stringOf;
+    private static final OverlayVisibility defaultEnum = LOCAL;
 
-    public static OverlayVisibility getEnumOf(int i) {
-        return switch (i) {
-            case 3 -> ALL;
-            case 2 -> LOCAL;
-            case 1 -> SELF;
-            case 0 -> NONE;
-            default -> null;
-        };
+    OverlayVisibility(int numericId) {
+        this.numericId = numericId;
+        this.stringOf = this.toString().toLowerCase();
     }
 
     public static OverlayVisibility fromString(String s) {
-        return switch (s.toLowerCase()) {
-            case "all" -> ALL;
-            case "local" -> LOCAL;
-            case "self" -> SELF;
-            case "none" -> NONE;
-            default -> LOCAL;
-        };
+        for (OverlayVisibility enu : OverlayVisibility.values()) {
+            if (enu.stringOf.equals(s.toLowerCase())) return enu;
+        }
+        return defaultEnum;
     }
 
     public static boolean checkPermissionFor(OverlayVisibility currentPerm, OverlayVisibility requiredPerm) {
-        return getNumericIdOf(currentPerm) >= getNumericIdOf(requiredPerm);
+        return currentPerm.numericId >= requiredPerm.numericId;
     }
 
 }

@@ -8,7 +8,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.RepositionType;

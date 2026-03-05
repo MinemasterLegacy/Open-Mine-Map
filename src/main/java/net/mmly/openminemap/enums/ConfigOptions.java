@@ -1,96 +1,77 @@
 package net.mmly.openminemap.enums;
 
 public enum ConfigOptions { //no underscore for standard config option, one for session variables (Ex: map positioning and zoom), two for development variables
-    HUD_MAP_X,
-    HUD_MAP_Y,
-    HUD_MAP_WIDTH,
-    HUD_MAP_HEIGHT,
-    HUD_COMPASS_X,
-    HUD_COMPASS_Y,
-    HUD_COMPASS_WIDTH,
-    TILE_MAP_URL,
-    ARTIFICIAL_ZOOM,
-    SNAP_ANGLE,
-    RIGHT_CLICK_MENU_USES,
-    REVERSE_SCROLL,
-    SHOW_PLAYERS,
-    SHOW_DIRECTION_INDICATORS,
-    ALTITUDE_SHADING,
-    ZOOM_STRENGTH,
-    HOVER_NAMES,
+    HUD_MAP_X(0, "HudMapX", "10"),
+    HUD_MAP_Y(0, "HudMapY", "10"),
+    HUD_MAP_WIDTH(0, "HudMapWidth", "144"),
+    HUD_MAP_HEIGHT(0, "HudMapHeight", "81"),
+    HUD_COMPASS_X(0, "HudCompassX", "10"),
+    HUD_COMPASS_Y(0, "HudCompassY", "96"),
+    HUD_COMPASS_WIDTH(0, "HudCompassWidth", "144"),
+    TILE_MAP_URL(0, "TileMapUrl", "OpenStreetMap", "", "omm.config.tooltip.tile-source"),
+    ARTIFICIAL_ZOOM(0, "ArtificialZoom", "off", "artificial-zoom"),
+    SNAP_ANGLE(0, "SnapAngle", "", "snap-angle"),
+    RIGHT_CLICK_MENU_USES(0, "RightClickMenuUses", "/tpll", "rcm-uses"),
+    REVERSE_SCROLL(0, "ReverseScroll", "off", "reverse-scroll"),
+    SHOW_PLAYERS(0, "ShowPlayers", "local", "players"),
+    SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators", "local", "directions"),
+    ALTITUDE_SHADING(0, "AltitudeShading", "on", "altitude-shading"),
+    ZOOM_STRENGTH(0, "ZoomStrength", "0.4", "zoom-strength"),
+    HOVER_NAMES(0, "HoverNames", "on", "hover-names"),
 
-    _HUD_TOGGLE,
-    _HUD_ENABLED,
-    _HUD_LAST_ZOOM,
-    _FS_LAST_ZOOM,
-    _FS_LAST_X,
-    _FS_LAST_Y,
+    _HUD_TOGGLE(1, "§hudtoggle", "true"),
+    _HUD_ENABLED(1, "§hudenabled", "true"),
+    _HUD_LAST_ZOOM(1, "§hudlastzoom", "0"),
+    _FS_LAST_ZOOM(1, "§fslastzoom", "0"),
+    _FS_LAST_X(1, "§fslastx", "64"),
+    _FS_LAST_Y(1, "§fslasty", "64"),
 
-    __DISABLE_WEB_REQUESTS,
-    __SHOW_MEMORY_CACHE_SIZE;
+    __SHOW_DEVELOPER_OPTIONS(2, "ShowDeveloperOptions", "false"),
+    __DISABLE_WEB_REQUESTS(2, "DisableWebRequests", "false", "DisableWebRequests", ""),
+    __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", ""),
+    __EXPERIMENTAL_CLAIMS_RENDERING(2, "ExperimentalClaimsRendering", "false", "ExperimentalClaimsRendering", "");
+
+    private final String defaultValue;
+    private final String rawText;
+    public final String message;
+    public final String tooltip;
+    private final int type; //0 = normal, 1 = saved runtime variable, 2 = developer
+    public static final String[] defaultValues = calcDefaults();
+
+    private static String[] calcDefaults() {
+        String[] defaults = new String[length()];
+        for (int i = 0; i < length(); i++) {
+            defaults[i] = values()[i].defaultValue;
+        }
+        return defaults;
+    }
+
+    private static final String messageKeyStart = "omm.config.option.";
+    private static final String tooltipKeyStart = "omm.config.tooltip.";
+
+    ConfigOptions(int type, String rawTextOf, String defaultValue, String subKey) {
+        this(type, rawTextOf, defaultValue, messageKeyStart + subKey, tooltipKeyStart + subKey);
+    }
+
+    ConfigOptions(int type, String rawTextOf, String defaultValue) {
+        this(type, rawTextOf, defaultValue, "", "");
+    }
+
+    ConfigOptions(int type, String rawTextOf, String defaultValue, String message, String tooltip) {
+        this.type = type;
+        this.defaultValue = defaultValue;
+        this.rawText = rawTextOf;
+        this.message = message;
+        this.tooltip = tooltip;
+    }
 
     public static String getRawTextOf(ConfigOptions configOption) {
-        switch (configOption) {
-            case HUD_MAP_X: return "HudMapX";
-            case HUD_MAP_Y: return "HudMapY";
-            case HUD_MAP_WIDTH: return "HudMapWidth";
-            case HUD_MAP_HEIGHT: return "HudMapHeight";
-            case HUD_COMPASS_X: return "HudCompassX";
-            case HUD_COMPASS_Y: return "HudCompassY";
-            case HUD_COMPASS_WIDTH: return "HudCompassWidth";
-            case TILE_MAP_URL: return "TileMapUrl";
-            case ARTIFICIAL_ZOOM: return "ArtificialZoom";
-            case SNAP_ANGLE: return "SnapAngle";
-            case RIGHT_CLICK_MENU_USES: return "RightClickMenuUses";
-            case REVERSE_SCROLL: return "ReverseScroll";
-            case SHOW_PLAYERS: return "ShowPlayers";
-            case SHOW_DIRECTION_INDICATORS: return "ShowDirectionIndicators";
-            case ALTITUDE_SHADING: return "AltitudeShading";
-            case ZOOM_STRENGTH: return "ZoomStrength";
-            case HOVER_NAMES: return "HoverNames";
-
-            case _HUD_TOGGLE: return "§hudtoggle";
-            case _HUD_ENABLED: return "§hudenabled";
-            case _HUD_LAST_ZOOM: return "§hudlastzoom";
-            case _FS_LAST_ZOOM: return "§fslastzoom";
-            case _FS_LAST_X: return "§fslastx";
-            case _FS_LAST_Y: return "§fslasty";
-
-            case __DISABLE_WEB_REQUESTS: return "DisableWebRequests";
-            case __SHOW_MEMORY_CACHE_SIZE: return "ShowMemoryCacheSize";
-        }
-        return null;
+        return configOption == null ? null : configOption.rawText;
     }
 
     public static ConfigOptions getOptionOf(String option) {
-        switch (option) {
-            case "HudMapX": return HUD_MAP_X;
-            case "HudMapY": return HUD_MAP_Y;
-            case "HudMapWidth": return HUD_MAP_WIDTH;
-            case "HudMapHeight": return HUD_MAP_HEIGHT;
-            case "HudCompassX": return HUD_COMPASS_X;
-            case "HudCompassY": return HUD_COMPASS_Y;
-            case "HudCompassWidth": return HUD_COMPASS_WIDTH;
-            case "TileMapUrl": return TILE_MAP_URL;
-            case "ArtificialZoom": return ARTIFICIAL_ZOOM;
-            case "SnapAngle": return SNAP_ANGLE;
-            case "RightClickMenuUses": return RIGHT_CLICK_MENU_USES;
-            case "ReverseScroll": return REVERSE_SCROLL;
-            case "ShowPlayers": return SHOW_PLAYERS;
-            case "ShowDirectionIndicators": return SHOW_DIRECTION_INDICATORS;
-            case "AltitudeShading": return ALTITUDE_SHADING;
-            case "ZoomStrength": return ZOOM_STRENGTH;
-            case "HoverNames": return HOVER_NAMES;
-
-            case "§hudtoggle": return _HUD_TOGGLE;
-            case "§hudenabled": return _HUD_ENABLED;
-            case "§hudlastzoom": return _HUD_LAST_ZOOM;
-            case "§fslastzoom": return _FS_LAST_ZOOM;
-            case "§fslastx": return _FS_LAST_X;
-            case "§fslasty": return _FS_LAST_Y;
-
-            case "DisableWebRequests": return __DISABLE_WEB_REQUESTS;
-            case "ShowMemoryCacheSize": return __SHOW_MEMORY_CACHE_SIZE;
+        for (ConfigOptions enu : ConfigOptions.values()) {
+            if (enu.rawText.equals(option)) return enu;
         }
         return null;
     }

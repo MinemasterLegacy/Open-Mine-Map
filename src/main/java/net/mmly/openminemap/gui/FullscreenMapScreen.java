@@ -17,10 +17,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.config.ConfigScreen;
-import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
-import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
@@ -31,7 +29,10 @@ import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
 import net.mmly.openminemap.search.SearchResultType;
-import net.mmly.openminemap.util.*;
+import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.Notification;
+import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 import org.lwjgl.glfw.GLFW;
 
@@ -103,7 +104,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
     @Override
     public void close() {
-        disableRightClickMenu();
+        RightClickMenu.disableMenu();
         ConfigFile.writeParameter(ConfigOptions._FS_LAST_ZOOM, Double.toString(map.getZoom()));
         ConfigFile.writeParameter(ConfigOptions._FS_LAST_X, Double.toString(map.getMapCenterX()));
         ConfigFile.writeParameter(ConfigOptions._FS_LAST_Y, Double.toString(map.getMapCenterY()));
@@ -161,59 +162,25 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (toggleAltScreenMap) toggleAltScreenMap(true);
     }
 
-    public static RightClickMenuType getRightClickMenuType() {
-        return rightClickLayer.getDisplayType();
-    }
-
     public static Waypoint getRightClickMenuWaypoint() {return rightClickLayer.selectedWaypoint;}
 
-    public static void disableRightClickMenu() {
-        rightClickLayer.setDisplayType(RightClickMenuType.HIDDEN);
-        rightClickLayer.setPosition(-500, 500);
-        rightClickLayer.selectingSite = false;
-        PinnedWaypointsLayer.menuSelection = -1;
-    }
 
     public static Waypoint getSelectedPinnedWaypoint() {
         return pinnedWaypointsLayer.getSelectedWaypoint();
     }
 
-    public static void enableRightClickMenu(double x, double y, RightClickMenuType type, Waypoint waypoint) {
-        if (type == RightClickMenuType.HIDDEN) {
-            disableRightClickMenu();
-            return;
-        }
-        PinnedWaypointsLayer.menuSelection = -1;
-        rightClickLayer.setDisplayType(type);
-        RightClickMenu.selectingSite = false;
-        rightClickLayer.clickX = x;
-        rightClickLayer.clickY = y;
-        rightClickLayer.setPosition((int) x, (int) y);
-
-        if (type == RightClickMenuType.PINNED_WAYPOINT) {
-            rightClickLayer.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
-        } else {
-            if (type == RightClickMenuType.WAYPOINT) {
-                rightClickLayer.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
-            } else {
-                rightClickLayer.setSavedMouseLatLong(map.getMouseLong(), map.getMouseLat());
-            }
-        }
-        rightClickLayer.repositionForOverflow(windowScaledWidth, windowScaledHeight);
-    }
-
     private static void onLeftClick() {
-        disableRightClickMenu();
+        RightClickMenu.disableMenu();
         searchBoxLayer.setFocused(false);
         toggleSearchMenu(false);
     }
 
     private static void onRightClick() {
         if (!map.mouseIsOutOfBounds()) { //checks if mouse is positioned on the map (this variable will be "-.-" if it isn't)
-            if (map.getHoveredWaypoint() != null) enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.WAYPOINT, map.getHoveredWaypoint());
-            else enableRightClickMenu(map.getMouseX(), map.getMouseY(), RightClickMenuType.DEFAULT, null);
+            if (map.getHoveredWaypoint() != null) RightClickMenu.enableMenu(RightClickMenuType.WAYPOINT, map.getMouseX(), map.getMouseY(), map.getHoveredWaypoint());
+            else RightClickMenu.enableMenu(RightClickMenuType.DEFAULT, map.getMouseX(), map.getMouseY(), null);
         } else {
-            disableRightClickMenu();
+            RightClickMenu.disableMenu();
         }
         toggleSearchMenu(false);
     }
@@ -222,7 +189,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         pinnedWaypointsLayer.visible = !toggle;
         searchBoxLayer.visible = toggle;
         if (toggle) {
-            disableRightClickMenu();
+            RightClickMenu.disableMenu();
             FullscreenMapScreen.getInstance().setFocused(searchBoxLayer);
             searchBoxLayer.recalculateResults();
             FullscreenMapScreen.getInstance().jumpToSearchBox();
@@ -278,7 +245,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         instance = this;
         setIdentifiers();
 
-        rightClickLayer = new RightClickMenu(-500, -500, this.textRenderer);
+        rightClickLayer = new RightClickMenu(this.textRenderer);
         this.addDrawableChild(rightClickLayer);
 
         for (int i = 0; i < numHotbarButtons; i++) {

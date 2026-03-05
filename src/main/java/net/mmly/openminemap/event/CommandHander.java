@@ -1,6 +1,5 @@
 package net.mmly.openminemap.event;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -24,7 +23,6 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
-import net.mmly.openminemap.util.WaypointFile;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -62,14 +60,14 @@ public class CommandHander {
         try {
             double[] distortion = Projection.getDistortion(PlayerAttributes.getLongitude(), PlayerAttributes.getLatitude());
             MinecraftClient.getInstance().player.sendMessage(Text.literal(
-                    "Distortion: \n" +
+                    Text.translatable("omm.text.distortion").getString() + " \n" +
                         UnitConvert.floorToPlace(Math.sqrt(Math.abs(distortion[0])), 10) +
                         " ± " +
                         UnitConvert.floorToPlace(Math.toDegrees(distortion[1]), 10) +
                         "°"
             ).formatted(Formatting.ITALIC), false);
         } catch (CoordinateValueError e) {
-            MinecraftClient.getInstance().player.sendMessage(Text.of("Cannot calculate distortion: Out of Bounds"), false);
+            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.distortion"), false);
         }
 
         return 0;

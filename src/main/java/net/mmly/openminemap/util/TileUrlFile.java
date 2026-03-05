@@ -75,20 +75,7 @@ public class TileUrlFile {
             } else if (errorUrl.name == null)  {
                 name = ": ";
             } else name = " - " + Text.translatable("omm.error.tile-url.parse").getString() +" "+ errorUrl.name + ": ";
-            OpenMineMapClient.debugMessages.add(debugStart.getString() + name + switch (loadError) {
-                case MALFORMED_JSON_FILE -> Text.translatable("omm.error.tile-source-json-formatting").getString();
-                case NULL_TILE_URL -> Text.translatable("omm.error.blank-tile-url").getString();
-                case NULL_VALUE -> Text.translatable("omm.error.blank-field").getString();
-                case MALFORMED_SOURCE_URL -> Text.translatable("omm.error.source-link-invalid").getString();
-                case MALFORMED_ATTRIBUTION_LINK -> Text.translatable("omm.error.attribution-link-invalid").getString();
-                case INVALID_SOURCE_URL_BRACKET_PLACEMENT -> Text.translatable("omm.error.source-bracket-placement").getString();
-                case INVALID_ATTRIBUTION_BRACKET_PLACEMENT -> Text.translatable("omm.error.attribution-bracket-placement").getString();
-                case MISMATCHED_ATTRIBUTION_LINKS -> Text.translatable("omm.error.link-number-mismatch").getString();
-                case MISSING_X_POSITION_FIELD -> Text.translatable("omm.error.field-missing-x").getString();
-                case MISSING_Y_POSITION_FIELD -> Text.translatable("omm.error.field-missing-y").getString();
-                case MISSING_ZOOM_FIELD -> Text.translatable("omm.error.field-missing-zoom").getString();
-                default -> throw new IllegalStateException("Unexpected value: " + loadError);
-            });
+            OpenMineMapClient.debugMessages.add(debugStart.getString() + name + Text.translatable(loadError.translationKey).getString());
         }
     }
 

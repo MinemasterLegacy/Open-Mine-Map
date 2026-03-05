@@ -30,7 +30,7 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
         this.setUneditableColor(14737632);
         upArrowWidget = new SelectArrow(ArrowDirection.up, this);
         downArrowWidget = new SelectArrow(ArrowDirection.down, this);
-        this.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.tile-source")));
+        this.setTooltip(Tooltip.of(Text.translatable(ConfigOptions.TILE_MAP_URL.tooltip)));
         refreshText();
         this.currentUrlId = TileUrlFile.getCurrentUrlId();
     }

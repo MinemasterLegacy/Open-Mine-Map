@@ -4,35 +4,28 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.text.Text;
 
 public enum WebIcon {
-    GOOGLE_MAPS,
-    GOOGLE_EARTH,
-    GOOGLE_EARTH_PRO,
-    OPEN_STREET_MAP,
-    BING_MAPS,
-    APPLE_MAPS;
+    GOOGLE_MAPS("Google Maps"),
+    GOOGLE_EARTH("Google Earth"),
+    GOOGLE_EARTH_PRO("Google Earth Pro (.kml)"),
+    OPEN_STREET_MAP("OpenStreetMap"),
+    BING_MAPS("Bing Maps"),
+    APPLE_MAPS("Apple Maps");
+
+    private final Tooltip tooltip;
+
+    WebIcon(String tooltipString) {
+        this.tooltip = Tooltip.of(Text.of(tooltipString));
+    }
 
     public static WebIcon getUsingId(int id) {
-        return switch (id) {
-            case 0 -> GOOGLE_MAPS;
-            case 1 -> GOOGLE_EARTH;
-            case 2 -> GOOGLE_EARTH_PRO;
-            case 3 -> OPEN_STREET_MAP;
-            case 4 -> BING_MAPS;
-            case 5 -> APPLE_MAPS;
-            default -> null;
-        };
+        for (WebIcon enu : WebIcon.values()) {
+            if (enu.ordinal() == id) return enu;
+        }
+        return null;
     }
 
     public static Tooltip getTooltipUsingId(int id) {
-        return Tooltip.of(Text.of(
-            switch (id) {
-                case 0 -> "Google Maps";
-                case 1 -> "Google Earth";
-                case 2 -> "Google Earth Pro (.kml)";
-                case 3 -> "OpenStreetMap";
-                case 4 -> "Bing Maps";
-                case 5 -> "Apple Maps";
-                default -> "null";
-            }));
+        if (!(id >= 0 && id < WebIcon.values().length)) return null;
+        return WebIcon.getUsingId(id).tooltip;
     }
 }

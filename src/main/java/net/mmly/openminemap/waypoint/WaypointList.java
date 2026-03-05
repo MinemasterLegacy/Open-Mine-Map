@@ -1,4 +1,4 @@
-package net.mmly.openminemap.config;
+package net.mmly.openminemap.waypoint;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -7,11 +7,11 @@ import net.minecraft.client.gui.widget.EntryListWidget;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
-public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
+public class WaypointList extends EntryListWidget<WaypointAnchorWidget> {
 
     private static double savedScrollAmount;
 
-    public ConfigList(MinecraftClient minecraftClient, int width, int height, int y, int itemHeight) {
+    public WaypointList(MinecraftClient minecraftClient, int width, int height, int y, int itemHeight) {
         super(minecraftClient, width, height, y, itemHeight);
     }
 
@@ -20,21 +20,14 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
     }
 
     @Override
-    public int addEntry(ConfigAnchorWidget entry) {
-        return super.addEntry(entry);
-    }
-
-    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        //list seems to be blocking the arrows, so pass through a click event here
-        ConfigScreen.getInstance().getChoiceWidget().getUpArrowWidget().mouseClicked(mouseX, mouseY, 0);
-        ConfigScreen.getInstance().getChoiceWidget().getDownArrowWidget().mouseClicked(mouseX, mouseY, 0);
+        this.setFocused(null);
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-
+    public int addEntry(WaypointAnchorWidget entry) {
+        return super.addEntry(entry);
     }
 
     @Override

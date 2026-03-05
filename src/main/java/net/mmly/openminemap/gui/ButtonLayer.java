@@ -6,7 +6,6 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.config.ConfigScreen;
@@ -39,7 +38,7 @@ public class ButtonLayer extends ClickableWidget {
     }
 
     private static Identifier getButtonIdentifierOf(ButtonState state, ButtonFunction function) {
-        return Identifier.of("openminemap", "buttons/vanilla/" + state.toString().toLowerCase() + "/" + function.getTextureFileName());
+        return Identifier.of("openminemap", "buttons/vanilla/" + state.toString().toLowerCase() + "/" + function.textureFileName);
     }
 
     public void drawWidget(DrawContext context) {
@@ -69,7 +68,7 @@ public class ButtonLayer extends ClickableWidget {
 
     @Override
     public void onClick(Click click, boolean doubled) {
-        FullscreenMapScreen.disableRightClickMenu();
+        RightClickMenu.disableMenu();
         switch (function) {
             case ButtonFunction.ZOOMIN: //zoom in
                 FullscreenMapScreen.zoomIn();
@@ -89,14 +88,14 @@ public class ButtonLayer extends ClickableWidget {
                 );
                 break;
             case ButtonFunction.EXIT: //exit
-                if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
+                if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
                     MapConfigScreen.revertChanges();
                     MinecraftClient.getInstance().setScreen(
                             new ConfigScreen()
                     );
                     break;
                 }
-                if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {
+                if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
                     MinecraftClient.getInstance().setScreen(
                             new FullscreenMapScreen()
                     );
@@ -110,13 +109,13 @@ public class ButtonLayer extends ClickableWidget {
                 );
                 break;
             case ButtonFunction.CHECKMARK:
-                if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Config"))) {
+                if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
                     ConfigScreen.getInstance().saveChanges();
                     MinecraftClient.getInstance().setScreen(
                             new FullscreenMapScreen()
                     );
                     break;
-                } else if (MinecraftClient.getInstance().currentScreen.getTitle().equals(Text.of("OMM Map Config"))) {
+                } else if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
                     MapConfigScreen.saveChanges();
                 } else {
                     break;

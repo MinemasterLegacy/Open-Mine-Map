@@ -10,7 +10,6 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
@@ -19,6 +18,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 
@@ -56,7 +56,11 @@ public class ConfigScreen extends Screen {
 
     TextWidget urlLabel;
     private static UrlChoiceWidget definedUrlWidget;
-    private final String[] zoomStrengthLevels = new String[] {
+
+    private final String[] onOffOptions = new String[] {"On", "Off"};
+    private final String[] booleanOptions = new String[] {"false", "true"};
+    private final String[] visibilityOptions = new String[] {"None", "Self", "Local"};
+    private final String[] zoomStrengthOptions = new String[] {
             "0.05", "0.1", "0.15", "0.2", "0.25",
             "0.3", "0.35", "0.4", "0.45", "0.5",
             "0.55", "0.6", "0.65", "0.7", "0.75",
@@ -81,7 +85,6 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void close() {
-        super.close();
         MinecraftClient.getInstance().setScreen(
                 new FullscreenMapScreen()
         );
@@ -148,34 +151,34 @@ public class ConfigScreen extends Screen {
         generalLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.general"), this.textRenderer);
         this.addConfigOptionWidget(generalLabel);
 
-        artificialZoomOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.artificial-zoom"), Text.of(Text.translatable("omm.config.tooltip.artificial-zoom")), new String[] {"Off", "On"}, ConfigOptions.ARTIFICIAL_ZOOM);
+        artificialZoomOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.ARTIFICIAL_ZOOM);
         this.addConfigOptionWidget(artificialZoomOption);
 
-        snapAngleWidget = new ChoiceNumberWidget(textRenderer, Tooltip.of(Text.translatable("omm.config.tooltip.snap-angle")), Text.translatable("omm.config.option.snap-angle"));
+        snapAngleWidget = new ChoiceNumberWidget(textRenderer);
         this.addConfigOptionWidget(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.rcm-uses"), Text.translatable("omm.config.tooltip.rcm-uses"), new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
 
-        reverseScrollOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.reverse-scroll"), Text.translatable("omm.config.tooltip.reverse-scroll"), new String[] {"Off", "On"}, ConfigOptions.REVERSE_SCROLL);
+        reverseScrollOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.REVERSE_SCROLL);
         this.addConfigOptionWidget(reverseScrollOption);
 
-        zoomStrengthWidget = new ChoiceSliderWidget(Text.translatable("omm.config.option.zoom-strength"), Text.translatable("omm.config.tooltip.zoom-strength"), zoomStrengthLevels, ConfigOptions.ZOOM_STRENGTH);
+        zoomStrengthWidget = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH);
         this.addConfigOptionWidget(zoomStrengthWidget);
 
-        hoverNamesOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.hover-names"), Text.translatable("omm.config.tooltip.hover-names"), new String[] {"Off", "On"}, ConfigOptions.HOVER_NAMES);
+        hoverNamesOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.HOVER_NAMES);
         this.addConfigOptionWidget(hoverNamesOption);
 
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
 
-        playerShowSlider = new ChoiceSliderWidget(Text.translatable("omm.config.option.players"), Text.translatable("omm.config.tooltip.players"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_PLAYERS);
+        playerShowSlider = new ChoiceSliderWidget(visibilityOptions, ConfigOptions.SHOW_PLAYERS);
         this.addConfigOptionWidget(playerShowSlider);
 
-        directionIndicatorShowSlider = new ChoiceSliderWidget(Text.translatable("omm.config.option.directions"), Text.translatable("omm.config.tooltip.directions"), new String[] {"None", "Self", "Local"}, ConfigOptions.SHOW_DIRECTION_INDICATORS);
+        directionIndicatorShowSlider = new ChoiceSliderWidget(visibilityOptions, ConfigOptions.SHOW_DIRECTION_INDICATORS);
         this.addConfigOptionWidget(directionIndicatorShowSlider);
 
-        altitudeShadingOption = new ChoiceButtonWidget(Text.translatable("omm.config.option.altitude-shading"),  Text.translatable("omm.config.tooltip.altitude-shading"), new String[] {"On", "Off"}, ConfigOptions.ALTITUDE_SHADING);
+        altitudeShadingOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.ALTITUDE_SHADING);
         this.addConfigOptionWidget(altitudeShadingOption);
 
         urlLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.tile-source"), this.textRenderer);
@@ -186,6 +189,14 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
         this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
 
+        if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
+            this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING, true));
+        }
+
+        configList.restoreScroll();
         FullscreenMapScreen.toggleAltScreenMap(true);
 
     }
@@ -205,6 +216,7 @@ public class ConfigScreen extends Screen {
         TileManager.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();
+        Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));
     }
 
     @Override

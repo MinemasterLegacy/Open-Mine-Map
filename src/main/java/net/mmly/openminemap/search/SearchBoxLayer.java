@@ -10,7 +10,6 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.RequestManager;
-import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
@@ -18,12 +17,12 @@ import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import org.lwjgl.glfw.GLFW;
 
-import java.time.Duration;
 import java.util.Arrays;
 
 public class SearchBoxLayer extends TextFieldWidget {
 
-    private static SearchResult[] searchResults = new SearchResult[7]; //not sure about length yet, may need to be longer or be a more advanced array type (ex. arraylist)
+    private static final int MAX_SEARCH_RESULTS = 8;
+    private static SearchResult[] searchResults = new SearchResult[8];
     private static int scroll = 0;
     private static String previousText = "";
     private static int numResults;
@@ -107,7 +106,7 @@ public class SearchBoxLayer extends TextFieldWidget {
     }
 
     private void addSearchResult(SearchResult result) {
-        for (int i = 0; i < searchResults.length; i++) {
+        for (int i = 0; i < MAX_SEARCH_RESULTS; i++) {
             if (searchResults[i] == null) {
                 searchResults[i] = result;
                 numResults++;
@@ -115,8 +114,12 @@ public class SearchBoxLayer extends TextFieldWidget {
             }
         }
 
-        if (result.resultType == SearchResultType.SEARCH) {
-            searchResults[searchResults.length-1] = result;
+        if (result.resultType.isSearchType()) {
+            if (searchResults[MAX_SEARCH_RESULTS].resultType.isSearchType()){
+                searchResults[MAX_SEARCH_RESULTS - 2] = result;
+            } else {
+                searchResults[MAX_SEARCH_RESULTS - 1] = result;
+            }
         }
 
     }
@@ -189,11 +192,19 @@ public class SearchBoxLayer extends TextFieldWidget {
             }
         }
 
-        if (getText().length() >= 3) addSearchResult(new SearchResult(
-                SearchResultType.SEARCH,
-                0, 0, false,
-                Text.translatable("omm.search.places").getString(),
-                "Photon"));
+        if (getText().length() >= 3) {
+            addSearchResult(new SearchResult(
+                    SearchResultType.SEARCHLOCAL,
+                    0, 0, false,
+                    Text.translatable("omm.search.places").getString(),
+                    "Photon"));
+
+            addSearchResult(new SearchResult(
+                    SearchResultType.SEARCH,
+                    0, 0, false,
+                    Text.translatable("omm.search.places").getString(),
+                    "Photon"));
+        }
 
         //check history for any matching results and add them (to be implemented)
 

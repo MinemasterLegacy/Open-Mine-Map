@@ -1,4 +1,4 @@
-package net.mmly.openminemap.config;
+package net.mmly.openminemap.waypoint;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
@@ -8,11 +8,11 @@ import net.minecraft.client.gui.widget.EntryListWidget;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
-public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
+public class WaypointList extends EntryListWidget<WaypointAnchorWidget> {
 
     private static double savedScrollAmount;
 
-    public ConfigList(MinecraftClient minecraftClient, int width, int height, int y, int itemHeight) {
+    public WaypointList(MinecraftClient minecraftClient, int width, int height, int y, int itemHeight) {
         super(minecraftClient, width, height, y, itemHeight);
     }
 
@@ -21,16 +21,14 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
     }
 
     @Override
-    public int addEntry(ConfigAnchorWidget entry) {
-        return super.addEntry(entry);
+    public boolean mouseClicked(Click click, boolean doubled) {
+        this.setFocused(null);
+        return super.mouseClicked(click, doubled);
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        //list seems to be blocking the arrows, so pass through a click event here
-        ConfigScreen.getInstance().getChoiceWidget().getUpArrowWidget().mouseClicked(click, doubled);
-        ConfigScreen.getInstance().getChoiceWidget().getDownArrowWidget().mouseClicked(click, doubled);
-        return super.mouseClicked(click, doubled);
+    public int addEntry(WaypointAnchorWidget entry) {
+        return super.addEntry(entry);
     }
 
     @Override
@@ -45,7 +43,7 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
     }
 
     @Override
-    protected void drawSelectionHighlight(DrawContext context, ConfigAnchorWidget entry, int color) {
+    protected void drawSelectionHighlight(DrawContext context, WaypointAnchorWidget entry, int color) {
         //nothing
     }
 

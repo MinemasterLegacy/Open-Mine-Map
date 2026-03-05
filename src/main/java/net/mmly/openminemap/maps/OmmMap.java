@@ -1,5 +1,6 @@
 package net.mmly.openminemap.maps;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.font.TextRenderer;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.render.*;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.Window;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,9 +27,11 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.*;
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
@@ -35,7 +39,7 @@ public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;
     public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
-    public int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
+    public static int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
     public int tileSize = baseTileSize; //the actual size the tiles are currently being rendered at
     public final static int WAYPOINTSIZE = 8;
 
@@ -135,6 +139,11 @@ public class OmmMap extends ClickableWidget {
         }
     }
 
+    public void setMapLatLong(double lat, double lon) {
+        if (Double.isNaN(lat) || Double.isNaN(lon)) return;
+        this.mapCenterX = UnitConvert.longToMapX(lon, zoom, tileSize);
+        this.mapCenterY = UnitConvert.latToMapY(lat, zoom, tileSize);
+    }
     public void setMapPosition(double x, double y) {
         if (Double.isNaN(x) || Double.isNaN(y)) return;
         this.mapCenterX = x;
@@ -207,6 +216,12 @@ public class OmmMap extends ClickableWidget {
     }
     public double getMapCenterY() {
         return mapCenterY;
+    }
+    public double getMapCenterLat() {
+        return UnitConvert.myToLat(mapCenterY, zoom, tileSize);
+    }
+    public double getMapCenterLon() {
+        return UnitConvert.mxToLong(mapCenterX, zoom, tileSize);
     }
 
     public double getZoom() {
@@ -464,13 +479,12 @@ public class OmmMap extends ClickableWidget {
     }
 
     private static final double log10of2 = Math.log10(2);
-    private static final double log10of128 = Math.log10(128);
     private void normalizeZoom(double originalZoom) {
         //https://www.desmos.com/calculator/6nlrz2hv5z
         int oldMapSize = tileSize * (int) Math.pow(2, Math.round(originalZoom));
-        tileSize = (int) Math.round(128 * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
+        tileSize = (int) Math.round(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5)); //determine the desired tile size for this zoom level
         int totalMapSize = (int) (tileSize * Math.pow(2, Math.round(zoom))); //determine total map size (tile size * num of tiles)
-        double zoom1 = (Math.log10(totalMapSize) - log10of128) / log10of2; //get the desired zoom level of the current map
+        double zoom1 = (Math.log10(totalMapSize) - Math.log10(baseTileSize)) / log10of2; //get the desired zoom level of the current map
         zoom = (double) Math.round(zoom1 * 100) / 100; //set zoom to the desired zoom level
         mapCenterX *= ((double) totalMapSize / oldMapSize);
         mapCenterY *= ((double) totalMapSize / oldMapSize);
@@ -621,6 +635,86 @@ public class OmmMap extends ClickableWidget {
 
     private int getWindowRelativeY(double mapY, int textureOffset) {
         return roundTowardsZero(mapY) + renderAreaY - textureOffset + (int) (((double) renderAreaHeight / 2) - mapCenterY);
+    }
+
+    private int[][][] latLonTriangleArrayToWindowRelative(double[][][] triangle) {
+        int[][][] newTriangle = new int[triangle.length][3][2];
+        for (int i = 0; i < triangle.length; i++) {
+            for (int j = 0; j < 3; j++) {
+                newTriangle[i][j][0] = getWindowRelativeX(Math.round(UnitConvert.longToMapX(triangle[i][j][0], zoom, tileSize)), 0);
+                newTriangle[i][j][1] = getWindowRelativeY(Math.round(UnitConvert.latToMapY(triangle[i][j][1], zoom, tileSize)), 0);
+            }
+        }
+        return newTriangle;
+    }
+
+    private int[][] latLonPointArrayToWindowRelative(double[][] points) {
+        int[][] newPoints = new int[points.length][2];
+        for (int i = 0; i < points.length; i++) {
+            newPoints[i][0] = getWindowRelativeX(Math.round(UnitConvert.longToMapX(points[i][0], zoom, tileSize)), 0);
+            newPoints[i][1] = getWindowRelativeY(Math.round(UnitConvert.latToMapY(points[i][1], zoom, tileSize)), 0);
+        }
+        return newPoints;
+    }
+
+    private boolean drawPolygon(DrawContext drawContext, double[][] points, int fillColor, int outlineColor) {
+        return true;
+        /*
+        RenderSystem.disableCull();
+
+        double[][][] latLonTriangles = PolygonTriangulator.triangulate(points);
+        System.out.println(Arrays.deepToString(latLonTriangles));
+        int[][][] triangles;
+        if (latLonTriangles == null) triangles = null;
+        else triangles = latLonTriangleArrayToWindowRelative(latLonTriangles);
+        System.out.println(Arrays.deepToString(triangles));
+
+        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
+        Tessellator tessellator = Tessellator.getInstance();
+        //BufferBuilder fillBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        BufferBuilder outlineBuilder = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
+
+        drawDiagonalLine(drawContext, new int[] {40, 40}, new int[] {60, 60}, 0xFF000000);
+
+        if (triangles != null) for (int[][] triangle : triangles) {
+            drawTriangle(drawContext, triangle, fillColor);
+        }
+
+        RenderSystem.enableCull();
+        return triangles != null;
+        */
+    }
+
+    private static final int[] lineXModifiers = {0, 1, 1, 0, -1, -1, -1, 0, 1};
+    private static final int[] lineYModifiers = {0, 0, 1, 1, 1, 0, -1, -1, -1};
+    private void drawDiagonalLine(DrawContext drawContext, int[] point1, int[] point2, int outlineColor) {
+        return;
+        /*
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder outlineBuilder = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
+
+        for (int i = 0; i < 9; i++) {
+            outlineBuilder.vertex(matrix, point1[0] + lineXModifiers[i], point1[1] + lineYModifiers[i], 0).color(outlineColor);
+            outlineBuilder.vertex(matrix, point2[0] + lineXModifiers[i], point2[1] + lineYModifiers[i], 0).color(outlineColor);
+        }
+
+        BufferRenderer.drawWithGlobalProgram(outlineBuilder.end());
+        */
+    }
+
+    private void drawTriangle(DrawContext drawContext, int[][] triangle, int fillColor) {
+        return;
+        /*
+        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
+        VertexConsumer consumer = drawContext.getVertexConsumers().getBuffer(RenderLayer.getGui());
+        for (int[] point : triangle) {
+            //fillBuilder.vertex(matrix, point[0], point[1], 0).color(fillColor);
+            consumer.vertex(matrix, point[0], point[1], 0).color(fillColor);
+        }
+        consumer.vertex(matrix, triangle[2][0], triangle[2][1], 0).color(fillColor);
+        drawContext.draw();
+         */
     }
 
     private void drawTile(DrawContext context, DrawableMapTile tile) {
@@ -833,6 +927,138 @@ public class OmmMap extends ClickableWidget {
             } else {
                 if (self != null) drawBufferedPlayer(context, self);
             }
+        }
+
+        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true")) {
+            double[][] poly = new double[][] {
+                    {
+                            -112.0724980674874,
+                            33.45862324333743
+                    },
+                    {
+                            -112.07373112639085,
+                            33.45861764421596
+                    },
+                    {
+                            -112.073734671256,
+                            33.45763577350699
+                    },
+                    {
+                            -112.07374214372476,
+                            33.456650970810955
+                    },
+                    {
+                            -112.07351181073597,
+                            33.45664415635916
+                    },
+                    {
+                            -112.07247878299067,
+                            33.45664287021509
+                    },
+                    {
+                            -112.07248593143615,
+                            33.455598238772694
+                    },
+                    {
+                            -112.07121585164461,
+                            33.45559572681226
+                    },
+                    {
+                            -112.0712181616629,
+                            33.454586963614915
+                    },
+                    {
+                            -112.0700520319818,
+                            33.45458897435081
+                    },
+                    {
+                            -112.07004312485601,
+                            33.45663388724003
+                    },
+                    {
+                            -112.06879419608015,
+                            33.45661685813002
+                    },
+                    {
+                            -112.06879078257768,
+                            33.45765878640273
+                    },
+                    {
+                            -112.06754749157277,
+                            33.45766831714259
+                    },
+                    {
+                            -112.06754890686672,
+                            33.45800269571116
+                    },
+                    {
+                            -112.06810768374606,
+                            33.458001728527975
+                    },
+                    {
+                            -112.06816572885411,
+                            33.458005999514555
+                    },
+                    {
+                            -112.06816472953587,
+                            33.45841705944993
+                    },
+                    {
+                            -112.06754487778132,
+                            33.45841702178653
+                    },
+                    {
+                            -112.0675435792755,
+                            33.458599172596806
+                    },
+                    {
+                            -112.06914839323953,
+                            33.45861012852579
+                    },
+                    {
+                            -112.06973511377674,
+                            33.458613879420284
+                    },
+                    {
+                            -112.06988572786094,
+                            33.458613879420284
+                    },
+                    {
+                            -112.07004173202688,
+                            33.458620395198565
+                    },
+                    {
+                            -112.07132276495196,
+                            33.458625936836256
+                    },
+                    {
+                            -112.07133083762156,
+                            33.45899140200342
+                    },
+                    {
+                            -112.07134016127786,
+                            33.45994606023646
+                    },
+                    {
+                            -112.07195309379404,
+                            33.4599475142349
+                    },
+                    {
+                            -112.07248187243594,
+                            33.45995028334487
+                    },
+                    {
+                            -112.0724980674874,
+                            33.45862324333743
+                    }
+            };
+            /*drawPolygon(context, new double[][] {
+                    {-112.07134016127786, 33.45994606023646},
+                    {-112.07195309379404, 33.4599475142349},
+                    {-112.07248187243594, 33.45995028334487},
+                    {-112.0724980674874, 33.45862324333743}
+            }, 0x4000FF00, 0xFF000000);*/
+            drawPolygon(context, poly, 0x4000FF00, 0xFF000000);
         }
 
         context.disableScissor();

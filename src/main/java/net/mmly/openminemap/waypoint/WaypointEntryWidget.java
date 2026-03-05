@@ -12,8 +12,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.gui.RightClickMenu;
+import net.mmly.openminemap.gui.RightClickMenuType;
 import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
+
+import java.time.Duration;
 
 public class WaypointEntryWidget extends ClickableWidget {
 
@@ -39,7 +43,8 @@ public class WaypointEntryWidget extends ClickableWidget {
     private int mx = 0;
     private int my = 0;
 
-    private int initY;
+    private WaypointAnchorWidget anchor;
+    private int lastCheckedButton = 0;
 
     private static final Text[] tooltipMessages = new Text[] {
             Text.translatable("omm.waypoints.button.edit"),
@@ -51,9 +56,8 @@ public class WaypointEntryWidget extends ClickableWidget {
         scrollOffset = scroll;
     }
 
-    public WaypointEntryWidget(int x, int y, Text message, Waypoint waypoint, TextRenderer textRenderer, boolean pinned, boolean visible) {
-        super(x, y, 0, 20, message);
-        this.initY = y;
+    public WaypointEntryWidget(Text message, Waypoint waypoint, TextRenderer textRenderer, boolean pinned, boolean visible) {
+        super(10, 0, 0, 20, message);
         this.waypoint = waypoint;
         this.renderer = textRenderer;
         this.visibleWaypoint = visible;
@@ -80,34 +84,55 @@ public class WaypointEntryWidget extends ClickableWidget {
         WaypointScreen.getInstance().enableEditMode(waypoint);
     }
 
+    public void setAnchor(WaypointAnchorWidget anchor) {
+        this.anchor = anchor;
+    }
+
+    @Override
+    protected boolean isValidClickButton(int button) {
+        this.lastCheckedButton = button;
+        return button == 0 || this.lastCheckedButton == 1;
+    }
+
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 
         mx = mouseX;
         my = mouseY;
 
-        setY(initY - scrollOffset);
-        setWidth(WaypointScreen.getMidPoint() - 20);
+        setX(anchor.getX());
+        setY(anchor.getY());
+        setWidth(anchor.getWidth());
 
         int borderColor = WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? editingColor : (isFocused() ? selectedColor : (isHovered() ? hoverColor : idleColor));
 
         context.drawTexture(RenderPipelines.GUI_TEXTURED, waypoint.identifier, getX() + 3, getY() + 3, 0, 0, 14, 14, 14, 14);
 
         int xMod = 0;
-        setTooltip(null);
         selection = Selection.NONE;
+        if (mouseX < getRight() - 51) {
+            setTooltip(Tooltip.of(Text.of(waypoint.name)));
+            setTooltipDelay(Duration.ofMillis(1000));
+        }
         for (Identifier i : new Identifier[]{editId, visibleWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
             context.drawTexture(RenderPipelines.GUI_TEXTURED, i, getX() + width - 17 - (xMod * 16), getY() + 3, 0, 0, 14, 14, 14, 14);
             if (mouseIsInArea(getX() + width - 17 - (xMod * 16), getY() + 3, 14, 14)) {
                 setTooltip(Tooltip.of(tooltipMessages[xMod]));
+                setTooltipDelay(Duration.ZERO);
                 selection = Selection.getById(xMod + 1);
             }
             xMod++;
         }
 
-        context.enableScissor(0, 0, getX() + width - 52, MinecraftClient.getInstance().getWindow().getScaledHeight());
-        context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.translatable("omm.waypoints.editing").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2), 0xFFFFFFFF, true);
-        context.disableScissor();
+        if (!(
+                (getY() >= RightClickMenu.instance.getY() && getY() < RightClickMenu.instance.getBottom()) ||
+                (getBottom() < RightClickMenu.instance.getBottom() && getY() >= RightClickMenu.instance.getY())
+            )) {
+            context.enableScissor(0, 0, getX() + width - 52, MinecraftClient.getInstance().getWindow().getScaledHeight());
+            context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.translatable("omm.waypoints.editing").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2), 0xFFFFFFFF, true);
+            context.disableScissor();
+        }
+
 
         context.drawBorder(getX(), getY(), getWidth(), getHeight(), borderColor);
         context.drawVerticalLine(getX() + width - 52, getY(), getY() + height, borderColor);
@@ -122,6 +147,17 @@ public class WaypointEntryWidget extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
+
+        if (lastCheckedButton == 1) {
+            RightClickMenu.enableMenu(
+                    RightClickMenuType.SCREEN_WAYPOINT,
+                    getX(),
+                    getY() + height,
+                    this.waypoint
+            );
+            return;
+        }
+
         if (selection == Selection.VIEW) {
             setVisible(!visibleWaypoint);
         }

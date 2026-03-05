@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -49,7 +48,7 @@ public class SearchResultLayer extends ClickableWidget {
     }
 
     private int getResultColor() {
-        if (myResult.resultType == SearchResultType.SEARCH) {
+        if (myResult.resultType.isSearchType()) {
             return resultNumber % 2 == 0 ? 0xFF0BD604 : 0xFF0DFF05;
         } else {
             return resultNumber % 2 == 0 ? 0xFF0447D8 : 0xFF0554FF;
@@ -72,7 +71,7 @@ public class SearchResultLayer extends ClickableWidget {
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
         context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, 0xFFFFFFFF, false);
         if (!myResult.context.isBlank()) {
-            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType == SearchResultType.SEARCH ? 0xFF548AF7 : 0xFFB0B0B0, false);
+            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : 0xFFB0B0B0, false);
             //renderer.fontHeight = 5;
             //context.drawText();
         }
@@ -95,7 +94,7 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
-        if (myResult.resultType == SearchResultType.SEARCH) context.drawTexture(
+        if (myResult.resultType.isSearchType()) context.drawTexture(
                 RenderPipelines.GUI_TEXTURED,
                 Identifier.of("openminemap", "search/photon.png"),
                 getX() + getWidth() - 34,
@@ -136,6 +135,16 @@ public class SearchResultLayer extends ClickableWidget {
             RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return;
         }
+
+        if (myResult.resultType == SearchResultType.SEARCHLOCAL) {
+            RequestManager.setSearchRequest(
+                    FullscreenMapScreen.getInstance().getSearchBoxContents(),
+                    FullscreenMapScreen.map.getMapCenterLat(),
+                    FullscreenMapScreen.map.getMapCenterLon()
+            );
+            return;
+        }
+
         FullscreenMapScreen.followPlayer(false);
 
         if (myResult.bounds != null) {
@@ -143,10 +152,7 @@ public class SearchResultLayer extends ClickableWidget {
             return;
         }
 
-        FullscreenMapScreen.map.setMapPosition(
-                UnitConvert.longToMapX(myResult.longitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize()),
-                UnitConvert.latToMapY(myResult.latitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize())
-        );
+        FullscreenMapScreen.map.setMapLatLong(myResult.latitude, myResult.longitude);
 
         if (myResult.zoom != -1) {
             FullscreenMapScreen.map.setMapZoom(myResult.zoom);
@@ -185,13 +191,10 @@ public class SearchResultLayer extends ClickableWidget {
                 Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2
         );
 
-        double areaCenterY = (bounds[0] + bounds[1]) / 2;
-        double areaCenterX = (bounds[2] + bounds[3]) / 2;
+        double areaCenterLat = (bounds[0] + bounds[1]) / 2;
+        double areaCenterLon = (bounds[2] + bounds[3]) / 2;
 
-        map.setMapPosition(
-                UnitConvert.longToMapX(areaCenterX, map.getZoom(), map.getTileSize()),
-                UnitConvert.latToMapY(areaCenterY, map.getZoom(), map.getTileSize())
-        );
+        map.setMapLatLong(areaCenterLat, areaCenterLon);
 
     }
 

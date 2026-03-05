@@ -175,7 +175,7 @@ public class HudMap {
 
     public static void deinitialize(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
         initialized = false;
-        System.out.println("deinitialize hudmap");
+        //System.out.println("deinitialize hudmap");
 
     }
 }

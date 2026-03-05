@@ -1,6 +1,5 @@
 package net.mmly.openminemap.map;
 
-import net.minecraft.client.MinecraftClient;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 
@@ -12,6 +11,8 @@ public class RequestManager {
     static int mapCenterY = 64;
     static boolean hudMapIsPrimary = true;
     static String searchString = null;
+    static double searchPriorityLat = Double.NaN;
+    static double searchPriorityLon = Double.NaN;
     static double reverseSearchLat = Double.NaN;
     static double reverseSearchLong = Double.NaN;
     public static SearchResult[] searchResultReturn = null;
@@ -52,9 +53,15 @@ public class RequestManager {
         hudMapIsPrimary = isHudMap;
     }
 
-    public static void setSearchRequest(String query) {
+    public static void setSearchRequest(String query, double latFocus, double lonFocus) {
+        searchPriorityLat = latFocus;
+        searchPriorityLon = lonFocus;
         searchString = query.replace("&", "");
         SearchBoxLayer.toggleSearching(true);
+    }
+
+    public static void setSearchRequest(String query) {
+       setSearchRequest(query, Double.NaN, Double.NaN);
     }
 
     public static void setReverseSearchRequest(double latitude, double longitude) {

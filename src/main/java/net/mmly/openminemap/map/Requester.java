@@ -6,6 +6,7 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
@@ -26,7 +27,7 @@ import java.util.Random;
 
 public class Requester extends Thread {
 
-    boolean disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS)); //development variable for disabling web requests. If disabled, tiles will ony be loaded from the cache or as error tiles
+    public static boolean disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS)); //development variable for disabling web requests. If disabled, tiles will ony be loaded from the cache or as error tiles
     int requestAttempts = 2; //how many times a tile will be requested before it is determined to not request it anymore
     private final String[] subDomains = new String[]{"a", "b", "c"};
     private final String subDomain = subDomains[new Random().nextInt(3)];
@@ -36,10 +37,10 @@ public class Requester extends Thread {
     int requestCounter = 0;
 
     public void run() {
-        if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled for this session.");
+        if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled.");
         while (true) {
             if (RequestManager.searchString != null) {
-                SearchResult[] results = searchResultRequest(RequestManager.searchString);
+                SearchResult[] results = searchResultRequest(RequestManager.searchString, RequestManager.searchPriorityLat, RequestManager.searchPriorityLon);
                 if (results == null) {
                     RequestManager.searchResultReturn = getErrorResult();
                 } else {
@@ -53,7 +54,7 @@ public class Requester extends Thread {
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
                 this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url, request.cacheName);
-                requestCounter++;
+                if (!disableWebRequests) requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;
                     failedRequests.add(TileManager.getKey(request.zoom, request.x, request.y));
@@ -105,7 +106,7 @@ public class Requester extends Thread {
             ArrayList coords = (ArrayList) geometry.get("coordinates");
 
             String context = "";
-            if (properties.get("county") != null) context += properties.get("county") + ", ";
+            //if (properties.get("county") != null) context += properties.get("county") + ", ";
             if (properties.get("city") != null) context += properties.get("city") + ", ";
             if (properties.get("state") != null) context += properties.get("state") + ", ";
             if (properties.get("country") != null) context += properties.get("country") + ", ";
@@ -167,9 +168,14 @@ public class Requester extends Thread {
         return results[0];
     }
 
-    SearchResult[] searchResultRequest(String query) {
+    SearchResult[] searchResultRequest(String query, double latFocus, double lonFocus) {
         if (disableWebRequests) return null;
+
         String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=7";
+        if (!OmmMap.geoCoordsOutOfBounds(latFocus, lonFocus)) {
+            urlPattern += "&lat=" + latFocus + "&lon=" + lonFocus;
+        }
+        System.out.println(urlPattern);
 
         InputStream stream = get(urlPattern);
         if (stream == null) return null;

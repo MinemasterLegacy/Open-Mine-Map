@@ -14,13 +14,13 @@ public class ChoiceNumberWidget extends TextFieldWidget implements ConfigChoice{
     Text placeholder;
     TextRenderer textRenderer;
 
-    public ChoiceNumberWidget(TextRenderer textRenderer, Tooltip tooltip, Text placeholder) {
-        super(textRenderer, 0, -100, 20, 20, Text.of(""));
+    public ChoiceNumberWidget(TextRenderer textRenderer) {
+        super(textRenderer, 0, -100, 20, 20, Text.empty());
         this.setMaxLength(50);
         this.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
-        setTooltip(tooltip);
+        setTooltip(Tooltip.of(Text.translatable(ConfigOptions.SNAP_ANGLE.tooltip)));
         this.setEditable(true);
-        this.placeholder = placeholder;
+        this.placeholder = Text.translatable(ConfigOptions.SNAP_ANGLE.message);
         this.textRenderer = textRenderer;
         this.setCursorToStart(false);
     }

@@ -5,49 +5,24 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ResizeDirection;
-import net.mmly.openminemap.enums.ResizePlane;
 import net.mmly.openminemap.hud.HudMap;
 
 public class ResizeElement extends ClickableWidget {
 
     Identifier texture;
     ResizeDirection direction;
-    ResizePlane plane;
-    /*
-    int[][] dims = {
-        {20, 7},
-        {7, 20},
-        {20, 7},
-        {7, 20},
-        {7, 20},
-        {7, 20}
-    };
-     */
-    double startMouseX;
-    double startMouseY;
     double moveRemainder;
 
     //for parameter direction - up:0 right:1 down:2 left:3
     public ResizeElement(int x, int y, ResizeDirection direction) {
         super(x, y, 0, 0, Text.empty());
         this.direction = direction;
-
-        if (direction == ResizeDirection.UP_MAP || direction == ResizeDirection.DOWN_MAP) {
-            plane = ResizePlane.VERTICAL;
-            texture = Identifier.of("openminemap", "resizevertical.png");
-            setWidth(20);
-            setHeight(7);
-        } else {
-            plane = ResizePlane.HORIZONTAL;
-            texture = Identifier.of("openminemap", "resizehorizontal.png");
-            setWidth(7);
-            setHeight(20);
-        }
-
+        this.texture = direction.identifier;
+        setWidth(direction.width());
+        setHeight(direction.height());
     }
 
     @Override
@@ -61,7 +36,7 @@ public class ResizeElement extends ClickableWidget {
 
     @Override
     protected void onDrag(Click click, double offsetX, double offsetY) {
-        if (plane == ResizePlane.HORIZONTAL) {
+        if (direction.isHorizontal()) {
             switch (direction) {
                 case ResizeDirection.RIGHT_MAP: {
                     int change = (int) (offsetX + moveRemainder);

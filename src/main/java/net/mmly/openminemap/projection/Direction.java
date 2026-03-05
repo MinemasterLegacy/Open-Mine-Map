@@ -2,8 +2,6 @@ package net.mmly.openminemap.projection;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.mmly.openminemap.map.PlayerAttributes;
 
 public class Direction {

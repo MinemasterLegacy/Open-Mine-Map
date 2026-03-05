@@ -3,10 +3,16 @@ package net.mmly.openminemap.waypoint;
 import net.minecraft.text.Text;
 
 public enum WaypointValueInputType {
-    NAME,
-    LATITUDE,
-    LONGITUDE,
-    SNAP_ANGLE;
+    NAME("omm.text.name"),
+    LATITUDE("omm.text.latitude"),
+    LONGITUDE("omm.text.longitude"),
+    SNAP_ANGLE("omm.config.option.snap-angle");
+
+    private final String translationKey;
+
+    WaypointValueInputType(String translationKey) {
+        this.translationKey = translationKey;
+    }
 
     public boolean isNumber() {
         return !this.equals(NAME);
@@ -17,11 +23,6 @@ public enum WaypointValueInputType {
     }
 
     public String getTranslatedString() {
-        return switch (this) {
-            case NAME -> Text.translatable("omm.text.name").getString();
-            case LATITUDE -> Text.translatable("omm.text.latitude").getString();
-            case LONGITUDE -> Text.translatable("omm.text.longitude").getString();
-            case SNAP_ANGLE -> Text.translatable("omm.config.option.snap-angle").getString();
-        };
+        return Text.translatable(translationKey).getString();
     }
 }

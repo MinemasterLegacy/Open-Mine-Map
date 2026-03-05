@@ -5,6 +5,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
@@ -32,8 +33,8 @@ public class RightClickMenu extends ClickableWidget {
     private int hoverOn = 0;
     private boolean useTp;
     public static boolean selectingSite = false;
-    double clickX = 0;
-    double clickY = 0;
+    static double clickX = 0;
+    static double clickY = 0;
     private final Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
     public int horizontalSide = 1;
     public int verticalSize = 1;
@@ -41,6 +42,7 @@ public class RightClickMenu extends ClickableWidget {
     //private WebAppSelectLayer webSelect = null;
     public Waypoint selectedWaypoint;
     private boolean firstOptionIsBold = false;
+    public static RightClickMenu instance;
 
     private final RightClickMenuOption[] waypointMenuOptions = {
         RightClickMenuOption.NAME,
@@ -83,9 +85,18 @@ public class RightClickMenu extends ClickableWidget {
         RightClickMenuOption.CREATE_WAYPOINT,
         RightClickMenuOption.REVERSE_SEARCH
     };
+    private final RightClickMenuOption[] waypointScreenOptions = {
+        RightClickMenuOption.NAME,
+        RightClickMenuOption.TELEPORT_HERE,
+        RightClickMenuOption.COPY_COORDINATES
+    };
     private RightClickMenuOption[] menuOptions;
 
     private RightClickMenuType displayType = RightClickMenuType.HIDDEN;
+
+    public static RightClickMenu getInstance() {
+        return instance;
+    }
 
     private RightClickMenuOption[] getMenuOptions(RightClickMenuType type) {
         return getMenuOptions(type, false);
@@ -100,26 +111,21 @@ public class RightClickMenu extends ClickableWidget {
             if (withSnapAngle) return pinnedWaypointOptions;
             else return pinnedWaypointOptionsMinusSnap;
         }
+        if (type == RightClickMenuType.SCREEN_WAYPOINT) {
+            return waypointScreenOptions;
+        }
         return defaultOptions;
     }
 
-    public void setDisplayType(RightClickMenuType type) {
+    public void setDisplayType(RightClickMenuType type, Waypoint waypoint) {
         this.displayType = type;
         firstOptionIsBold = false;
-        switch (type) {
-            case RightClickMenuType.DEFAULT -> menuOptions = getMenuOptions(RightClickMenuType.DEFAULT);
-            case RightClickMenuType.WAYPOINT -> {
-                this.selectedWaypoint = FullscreenMapScreen.map.getHoveredWaypoint();
-                if (selectedWaypoint.angle < 0) menuOptions = getMenuOptions(RightClickMenuType.WAYPOINT, false);
-                else menuOptions = getMenuOptions(RightClickMenuType.WAYPOINT, true);
-                firstOptionIsBold = true;
-            }
-            case RightClickMenuType.PINNED_WAYPOINT -> {
-                this.selectedWaypoint = FullscreenMapScreen.getSelectedPinnedWaypoint();
-                if (selectedWaypoint.angle < 0) menuOptions = getMenuOptions(RightClickMenuType.PINNED_WAYPOINT, false);
-                else menuOptions = getMenuOptions(RightClickMenuType.PINNED_WAYPOINT, true);
-                firstOptionIsBold = true;
-            }
+        if (type.isWaypointType) {
+            this.selectedWaypoint = waypoint;
+            firstOptionIsBold = true;
+            menuOptions = getMenuOptions(type, !(selectedWaypoint.angle < 0));
+        } else if (type == RightClickMenuType.DEFAULT) {
+            menuOptions = getMenuOptions(RightClickMenuType.DEFAULT);
         }
 
         this.setHeight(Math.max(16 * menuOptions.length, 16));
@@ -133,18 +139,18 @@ public class RightClickMenu extends ClickableWidget {
         this.setWidth(width);
     }
 
-    public RightClickMenuType getDisplayType() {
-        return displayType;
+    public static RightClickMenuType getDisplayType() {
+        return instance.displayType;
     }
 
-    public RightClickMenu(int x, int y, TextRenderer textRenderer) {
-        super(x, y, 0, 0, Text.empty());
+    public RightClickMenu(TextRenderer textRenderer) {
+        super(-500, -500, 0, 0, Text.empty());
+        instance = this;
         useTp = Objects.equals(ConfigFile.readParameter(ConfigOptions.RIGHT_CLICK_MENU_USES), "/tp");
         this.textRenderer = textRenderer;
 
         this.menuOptions = getMenuOptions(RightClickMenuType.DEFAULT);
-        this.setDisplayType(RightClickMenuType.HIDDEN);
-
+        this.setDisplayType(RightClickMenuType.HIDDEN, null);
     }
 
     static float savedMouseLat;
@@ -153,12 +159,37 @@ public class RightClickMenu extends ClickableWidget {
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(getX(), getY(), getX() + width, getY() + height, 0x00000000);
-        if (this.isMouseOver(UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getX()), UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getY()))) {
-            hoverOn = (int) Math.ceil((UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getY()) - this.getY() + UnitConvert.pixelToScaledCoords(1))/16);
+        if (this.isMouseOver(mouseX, mouseY)) {
+            hoverOn = (int) Math.ceil((mouseY - this.getY() + UnitConvert.pixelToScaledCoords(1))/16);
         } else {
             hoverOn = 0;
         }
 
+    }
+
+    public static void disableMenu() {
+        instance.setDisplayType(RightClickMenuType.HIDDEN, null);
+        instance.setPosition(-500, 500);
+        selectingSite = false;
+        PinnedWaypointsLayer.menuSelection = -1;
+    }
+
+    public static void enableMenu(RightClickMenuType type, double mapX, double mapY, Waypoint waypoint) {
+        if (type == RightClickMenuType.HIDDEN) return;
+        PinnedWaypointsLayer.menuSelection = -1;
+        instance.setDisplayType(type, waypoint);
+        RightClickMenu.selectingSite = false;
+        clickX = mapX;
+        clickY = mapY;
+        instance.setPosition((int) mapX, (int) mapY);
+
+        if (type.isWaypointType) {
+            instance.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
+        } else {
+            instance.setSavedMouseLatLong(FullscreenMapScreen.map.getMouseLong(), FullscreenMapScreen.map.getMouseLat());
+        }
+
+        if (!(MinecraftClient.getInstance().currentScreen instanceof WaypointScreen)) instance.repositionForOverflow();
     }
 
     private void repositionLeftward() {
@@ -171,7 +202,12 @@ public class RightClickMenu extends ClickableWidget {
         this.verticalSize = -1;
     }
 
-    protected void repositionForOverflow(int windowScaledWidth, int windowScaledHeight) {
+    protected void repositionForOverflow() {
+        Screen currentScreen = MinecraftClient.getInstance().currentScreen;
+        if (currentScreen == null) return;
+        int windowScaledWidth = currentScreen.width;
+        int windowScaledHeight = currentScreen.height;
+
         if (displayType == RightClickMenuType.PINNED_WAYPOINT) {
             horizontalSide = 1;
             verticalSize = 1;
@@ -231,6 +267,10 @@ public class RightClickMenu extends ClickableWidget {
                         } else {
                             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong);
                         }
+                        if (MinecraftClient.getInstance().currentScreen instanceof WaypointScreen) {
+                            MinecraftClient.getInstance().setScreen(new FullscreenMapScreen());
+                            FullscreenMapScreen.map.setMapLatLong(selectedWaypoint.latitude, selectedWaypoint.longitude);
+                        }
                     }
                 } catch (CoordinateValueError error) {
                     System.out.println("Error with teleport here");
@@ -272,10 +312,7 @@ public class RightClickMenu extends ClickableWidget {
             }
             case VIEW_ON_MAP: {
                 FullscreenMapScreen.followPlayer(false);
-                FullscreenMapScreen.map.setMapPosition(
-                        UnitConvert.longToMapX(selectedWaypoint.longitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize()),
-                        UnitConvert.latToMapY(selectedWaypoint.latitude, FullscreenMapScreen.map.getZoom(), FullscreenMapScreen.map.getTileSize())
-                );
+                FullscreenMapScreen.map.setMapLatLong(selectedWaypoint.latitude, selectedWaypoint.longitude);
                 break;
             }
             case UNPIN: {
@@ -301,7 +338,7 @@ public class RightClickMenu extends ClickableWidget {
                 return; //prevents from disabling right click menu when clicking name
             }
         }
-        FullscreenMapScreen.disableRightClickMenu();
+        disableMenu();
     }
 
     private void setSnapAngle() {

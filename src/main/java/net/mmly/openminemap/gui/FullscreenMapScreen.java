@@ -8,8 +8,6 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
@@ -69,6 +67,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
     private static SearchButtonLayer searchButtonLayer;
     private static SearchBoxLayer searchBoxLayer;
+    private static NetworkStatusLayer networkStatusLayer;
     public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[7];
     private static PinnedWaypointsLayer pinnedWaypointsLayer;
     private static final Identifier[][] showIdentifiers = new Identifier[2][2];
@@ -89,6 +88,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private boolean chatToBeOpened = false;
     private static LinkedList<Notification> notifications = new LinkedList<>();
     private static boolean hudWasHidden;
+    public static int backingColor = 0x80000000;
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
@@ -262,6 +262,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             searchResultLayers[i] = new SearchResultLayer(26, 23 + (i * 20), 250, i);
             this.addDrawableChild(searchResultLayers[i]);
         }
+
+        networkStatusLayer = new NetworkStatusLayer(width - 26, 0);
+        this.addDrawableChild(networkStatusLayer);
 
         searchButtonLayer = new SearchButtonLayer(3, 3);
         this.addDrawableChild(searchButtonLayer);
@@ -506,9 +509,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         //draws the Mouse and player coordinates text fields
         String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";
         String playerLabelText = Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°";
-        context.fill(0, windowScaledHeight - 16 - attributionOffset, 8 + textRenderer.getWidth(mouseLabelText), windowScaledHeight - attributionOffset, 0x88000000);
+        context.fill(0, windowScaledHeight - 16 - attributionOffset, 8 + textRenderer.getWidth(mouseLabelText), windowScaledHeight - attributionOffset, backingColor);
         context.drawText(this.textRenderer, mouseLabelText, 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, 0xFFFFFFFF, true);
-        context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, 0x88000000);
+        context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, backingColor);
         context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
 
         pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset - pinnedWaypointsLayer.getY());
@@ -518,12 +521,14 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_MEMORY_CACHE_SIZE))) {
             Text text = Text.literal(TileLoader.getStylizedCacheSize()).formatted(Formatting.BOLD);
             int width = textRenderer.getWidth(text);
-            UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, 0x80000000, 0xFFD0D0D0, false);
+            UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, backingColor, 0xFFD0D0D0, false);
         }
 
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);
         bugReportLayer.drawWidget(context, this.textRenderer);
+
+        networkStatusLayer.drawWidget(context);
 
         //draws the right click menu
         rightClickLayer.drawWidget(context, this.textRenderer);

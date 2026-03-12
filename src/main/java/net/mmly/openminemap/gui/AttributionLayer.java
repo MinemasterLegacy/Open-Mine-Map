@@ -44,7 +44,7 @@ public class AttributionLayer extends ClickableWidget {
         calculateSelection();
 
         textWidth = textRenderer.getWidth(attribution);
-        context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, 0x88000000);
+        context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, FullscreenMapScreen.backingColor);
 
         int y = windowScaledHeight + 7 -textRenderer.fontHeight - 10;
         int drawCursorX = windowScaledWidth - textWidth - 3;

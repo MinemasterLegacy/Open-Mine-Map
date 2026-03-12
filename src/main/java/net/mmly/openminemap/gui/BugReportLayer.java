@@ -28,7 +28,7 @@ public class BugReportLayer extends ClickableWidget {
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
         MutableText text = Text.translatable("omm.fullscreen.report-bugs");
         int textWidth = textRenderer.getWidth(text);
-        context.fill(windowScaledWidth - (textWidth + 10), windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
+        context.fill(windowScaledWidth - (textWidth + 10), windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, FullscreenMapScreen.backingColor);
         setX(windowScaledWidth - (textWidth + 10));
         setWidth(windowScaledWidth - getX());
         context.drawText(textRenderer,

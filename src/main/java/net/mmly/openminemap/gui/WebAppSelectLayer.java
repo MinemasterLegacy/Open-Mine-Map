@@ -58,7 +58,7 @@ public class WebAppSelectLayer extends ClickableWidget {
     protected void drawWidget(DrawContext context) {
         if (!RightClickMenu.selectingSite) return;
 
-        context.fill(getX(), getY(), getX() + getWidth(), getY()+getHeight(), 0x88000000);
+        context.fill(getX(), getY(), getX() + getWidth(), getY()+getHeight(), FullscreenMapScreen.backingColor);
 
         if (selection != -1) context.drawTexture(RenderLayer::getGuiTextured, iconSelections.get(WebIcon.getUsingId(selection)), getX() + 2 - 1, getY() + 2 + (selection * 16) - 1, 0, 0, 12, 16, 12, 16);
 

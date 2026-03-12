@@ -65,7 +65,7 @@ public class SearchResultLayer extends ClickableWidget {
         }
         visible = true;
 
-        context.fill(getX(), getY(), getX() + width, getY() + height, 0x80000000);
+        context.fill(getX(), getY(), getX() + width, getY() + height, FullscreenMapScreen.backingColor);
         context.fill(getX(), getY(), getX() + 4, getY() + height, getResultColor());
         if (isFocused()) context.drawBorder(getX(), getY(), width, height, getResultColor());
 

@@ -7,7 +7,6 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
@@ -49,13 +48,16 @@ public class ConfigScreen extends Screen {
     ChoiceSliderWidget zoomStrengthWidget;
     ChoiceButtonWidget hoverNamesOption;
 
-    TextWidget overlayLabel;
+    CategoryLabelWidget overlayLabel;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
     ChoiceButtonWidget altitudeShadingOption;
 
-    TextWidget urlLabel;
+    CategoryLabelWidget urlLabel;
     private static UrlChoiceWidget definedUrlWidget;
+
+    CategoryLabelWidget interfaceLabel;
+    ChoiceSliderWidget transparencySlider;
 
     private final String[] onOffOptions = new String[] {"On", "Off"};
     private final String[] booleanOptions = new String[] {"false", "true"};
@@ -70,6 +72,12 @@ public class ConfigScreen extends Screen {
             "1.55", "1.6", "1.65", "1.7", "1.75",
             "1.8", "1.85", "1.9", "1.95", "2.0"
     }; // I know this is a lazy solution, but it's also the easiest (:
+    private final String[] decimalPercentOptions = new String[] {
+            "0.0", "0.05", "0.1", "0.15", "0.2", "0.25",
+            "0.3", "0.35", "0.4", "0.45", "0.5",
+            "0.55", "0.6", "0.65", "0.7", "0.75",
+            "0.8", "0.85", "0.9", "0.95", "1.0"
+    };
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -188,6 +196,12 @@ public class ConfigScreen extends Screen {
         this.addConfigOptionWidget(definedUrlWidget);
         this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
         this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
+
+        interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer); //TODO TRANSLATE
+        this.addConfigOptionWidget(interfaceLabel);
+
+        transparencySlider = new ChoiceSliderWidget(decimalPercentOptions, ConfigOptions.INTERFACE_OPACITY);
+        this.addConfigOptionWidget(transparencySlider);
 
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));

@@ -157,7 +157,7 @@ public class RightClickMenu extends ClickableWidget {
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(getX(), getY(), getX() + width, getY() + height, 0x00000000);
+        //context.fill(getX(), getY(), getX() + width, getY() + height, 0x00000000);
         if (this.isMouseOver(mouseX, mouseY)) {
             hoverOn = (int) Math.ceil((mouseY - this.getY() + UnitConvert.pixelToScaledCoords(1))/16);
         } else {
@@ -235,7 +235,7 @@ public class RightClickMenu extends ClickableWidget {
 
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         if (displayType == RightClickMenuType.HIDDEN) return;
-        context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
+        context.fill(getX(), getY(), getX() + width, getY() + height, FullscreenMapScreen.backingColor);
 
         for (int i = 0; i < menuOptions.length; i++) {
             UContext.drawJustifiedText(

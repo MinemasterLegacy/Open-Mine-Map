@@ -32,13 +32,17 @@ public class KeyInputHandler {
     private static KeyBinding snapAngleKey;
     private static int stopIt = 0;
 
+    public static KeyBinding getOpenFullscreenOsmMapKey() {
+        return openFullscreenOsmMapKey;
+    }
+
     //event handling for when the keys are pressed
     public static void registerKeyInputs() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if(openFullscreenOsmMapKey.wasPressed()) {
                 //what to do when key is pressed
                 //client.player.sendMessage(Text.literal("Key pressed!")); //send message in chat
-
+                System.out.println("key");
                 MinecraftClient.getInstance().setScreen(
                         new FullscreenMapScreen()
                 );

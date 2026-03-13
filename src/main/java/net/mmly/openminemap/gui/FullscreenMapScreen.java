@@ -19,6 +19,7 @@ import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileLoader;
@@ -373,6 +374,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             if (searchElementsFocused()) toggleSearchMenu(false);
             else this.close();
             return true;
+        }
+
+        if (KeyInputHandler.getOpenFullscreenOsmMapKey().matchesKey(keyCode, scanCode)) {
+            this.close();
         }
 
         if (searchElementsFocused()) {

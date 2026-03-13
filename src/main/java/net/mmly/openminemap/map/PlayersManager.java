@@ -11,10 +11,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.world.Heightmap;
 import net.mmly.openminemap.network.PlayerData;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayersManager {
 
@@ -22,18 +19,24 @@ public class PlayersManager {
     public static PlayerData lastReceivedData;
 
     //MinecraftClient.getInstance().world.getPlayers()
-    public static List<PlayerEntity> getNearPlayers() {
+    public static List<MappablePlayer> getNearPlayers() {
         updatePlayerSkinList();
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        List<PlayerEntity> l = MinecraftClient.getInstance().world.getEntitiesByType(EntityType.PLAYER, new Box(
-                player.getBlockX() + 128,
-                player.getBlockY() + 128,
-                player.getBlockZ() + 128,
-                player.getBlockX() - 128,
-                player.getBlockY() - 128,
-                player.getBlockZ() - 128
+        ClientPlayerEntity selfPlayer = MinecraftClient.getInstance().player;
+
+        List<PlayerEntity> list = MinecraftClient.getInstance().world.getEntitiesByType(EntityType.PLAYER, new Box(
+                selfPlayer.getBlockX() + 128,
+                selfPlayer.getBlockY() + 128,
+                selfPlayer.getBlockZ() + 128,
+                selfPlayer.getBlockX() - 128,
+                selfPlayer.getBlockY() - 128,
+                selfPlayer.getBlockZ() - 128
         ), EntityPredicates.VALID_ENTITY);
-        return l;
+
+        ArrayList<MappablePlayer> returnList = new ArrayList<>();
+        for (PlayerEntity player : list.toArray(new PlayerEntity[0])) {
+            returnList.add(new MappablePlayer(player));
+        }
+        return returnList.stream().toList();
     }
 
     private static void updatePlayerSkinList() {

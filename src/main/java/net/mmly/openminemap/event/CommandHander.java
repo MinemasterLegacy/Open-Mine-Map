@@ -16,6 +16,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.maps.OmmMap;
@@ -173,19 +174,16 @@ public class CommandHander {
     private static int tpllto(CommandContext<FabricClientCommandSource> context) {
         String desiredPlayer = context.getArgument("player name", CoordinateValue.class).value.trim();
 
-        for (PlayerEntity knownPlayer : PlayersManager.getNearPlayers()) {
+        for (MappablePlayer knownPlayer : PlayersManager.getNearPlayers()) {
+            if (knownPlayer.outOfBounds) continue;
             try {
-                if (Objects.equals(Objects.requireNonNull(knownPlayer.getName()).getString(), desiredPlayer)) {
-                    double desiredY = knownPlayer.getY();
-                    double[] longLat = Projection.to_geo(knownPlayer.getX(), knownPlayer.getZ());
-                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", longLat[0])+" "+String.format("%.7f", longLat[1])+" "+desiredY);
+                if (Objects.equals(Objects.requireNonNull(knownPlayer.name).getString(), desiredPlayer)) {
+                    double desiredY = knownPlayer.altitude;
+                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", knownPlayer.latitude)+" "+String.format("%.7f", knownPlayer.longitude)+" "+desiredY);
                     return 1;
                 }
             } catch (NullPointerException e) {
                 System.out.println("NullPointerException thrown for /tpllto");
-                return 0;
-            } catch (CoordinateValueError e) {
-                context.getSource().sendFeedback(Text.translatable("omm.error.player-out-of-bounds"));
                 return 0;
             }
         }
@@ -205,8 +203,9 @@ class TplltoSuggestionProvider implements SuggestionProvider<FabricClientCommand
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        for (PlayerEntity knownPlayer : PlayersManager.getNearPlayers()) {
-            String name = knownPlayer.getName().getString();
+        for (MappablePlayer knownPlayer : PlayersManager.getNearPlayers()) {
+            if (knownPlayer.outOfBounds) continue;
+            String name = knownPlayer.name.getString();
             if (name.equals(MinecraftClient.getInstance().player.getName().getString())) continue;
             builder.suggest(name);
         }

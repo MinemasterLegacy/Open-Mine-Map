@@ -7,6 +7,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
@@ -170,19 +171,19 @@ public class SearchBoxLayer extends TextFieldWidget {
         }
 
         //If the search text is a player, add them
-        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+        for (MappablePlayer player : PlayersManager.getNearPlayers()) {
             try {
-                if (player.getDisplayName().getString().toLowerCase().contains(getText().toLowerCase()) && player != MinecraftClient.getInstance().player) {
-                    double[] latLong = Projection.to_geo(player.getX(), player.getZ());
+                if (player.outOfBounds) continue;
+                if (player.stylizedName.getString().toLowerCase().contains(getText().toLowerCase()) && player.uuid != MinecraftClient.getInstance().player.getUuid()) {
                     addSearchResult(new SearchResult(
                             SearchResultType.PLAYER,
-                            latLong[0],
-                            latLong[1],
+                            player.latitude,
+                            player.longitude,
                             false,
-                            player.getDisplayName().getString(),
+                            player.stylizedName.getString(),
                             ((int) player.distanceTo(MinecraftClient.getInstance().player)) + Text.translatable("omm.search.blocks-away").getString()));
                 }
-            } catch (NullPointerException | CoordinateValueError ignored) {}
+            } catch (NullPointerException ignored) {}
         }
 
         for (SearchResult result : getSearchHistory()) {

@@ -20,6 +20,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
+import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
@@ -585,41 +586,32 @@ public class OmmMap extends ClickableWidget {
         return hoveredWaypoint;
     }
 
-    private BufferedPlayer drawDirectionIndicator(DrawContext context, PlayerEntity playerDraw, boolean indicatorsOnly, OverlayVisibility requiredPermission) {
+    private BufferedPlayer drawDirectionIndicator(DrawContext context, MappablePlayer playerDraw, boolean indicatorsOnly, OverlayVisibility requiredPermission) {
         //Draws a direction indicator
         //May also return a BufferedPlayer if other players are to be drawn
 
         //Convert mc coordinates to geo coordinates, returning null if the conversion fails
-        double[] geoCoords;
-        try {
-            geoCoords = Projection.to_geo(playerDraw.getX(), playerDraw.getZ());
-        } catch (CoordinateValueError e) {
-            return null;
-        }
-        if (Double.isNaN(geoCoords[0])) return null;
+        if (playerDraw.outOfBounds) return null;
 
         //convert geo coordinates to map coordinates
-        double mapX = UnitConvert.longToMapX(geoCoords[1], zoom, tileSize); ///MAPXY
-        double mapY = UnitConvert.latToMapY(geoCoords[0], zoom, tileSize);
+        double mapX = UnitConvert.longToMapX(playerDraw.longitude, zoom, tileSize); ///MAPXY
+        double mapY = UnitConvert.latToMapY(playerDraw.latitude, zoom, tileSize);
 
         //get player texture
-        Identifier playerTexture = PlayersManager.playerSkinList.get(playerDraw.getUuid());
+        Identifier playerTexture = PlayersManager.playerSkinList.get(playerDraw.uuid);
         if (playerTexture == null) playerTexture = Identifier.of("openminemap", "skinbackup.png");
 
-        //calculate the direction the player is facing
-        double direction = Direction.getGeoAzimuth(playerDraw.getX(), playerDraw.getZ(), playerDraw.getYaw());
-
         //Draw a direction indicator if the direction is a valid number and visibility permission is adequete
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, requiredPermission) && !Double.isNaN(direction))
+        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, requiredPermission) && !Double.isNaN(playerDraw.geoYaw))
             DirectionIndicator.draw(
                     context,
-                    direction,
+                    playerDraw.geoYaw,
                     getWindowRelativeX(mapX, 12),
                     getWindowRelativeY(mapY, 12),
                     indicatorsOnly
             );
 
-        return new BufferedPlayer(mapX, mapY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
+        return new BufferedPlayer(mapX, mapY, playerTexture, playerDraw.altitude, playerDraw.stylizedName);
     }
 
     private static int roundTowardsZero(double num) {
@@ -906,8 +898,8 @@ public class OmmMap extends ClickableWidget {
 
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         //draw other players' direction indicators
-        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-            if (player.getUuid().equals(client.player.getUuid())) continue; //self player should be drawn last so that it's on top, so don't draw it here
+        for (MappablePlayer player : PlayersManager.getNearPlayers()) {
+            if (player.uuid.equals(client.player.getUuid())) continue; //self player should be drawn last so that it's on top, so don't draw it here
             players.add(drawDirectionIndicator(
                     context,
                     player,
@@ -942,8 +934,10 @@ public class OmmMap extends ClickableWidget {
             }
 
         } else {
-            self = drawDirectionIndicator(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF), OverlayVisibility.SELF);
+            self = drawDirectionIndicator(context, new MappablePlayer(player), !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF), OverlayVisibility.SELF);
         }
+
+        System.out.println(MinecraftClient.getInstance().player.getUuid());
 
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
             if (followPlayer) {

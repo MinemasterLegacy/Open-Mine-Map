@@ -9,6 +9,7 @@ import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.Heightmap;
+import net.mmly.openminemap.network.PlayerData;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class PlayersManager {
 
     public static HashMap<UUID, Identifier> playerSkinList;
+    public static PlayerData lastReceivedData;
 
     //MinecraftClient.getInstance().world.getPlayers()
     public static List<PlayerEntity> getNearPlayers() {

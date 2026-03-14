@@ -19,6 +19,7 @@ import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
 
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ public class ConfigScreen extends Screen {
     CategoryLabelWidget overlayLabel;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
+    ChoiceSliderWidget playerSizeSlider;
+    ChoiceSliderWidget waypointSizeSlider;
     ChoiceButtonWidget altitudeShadingOption;
 
     CategoryLabelWidget urlLabel;
@@ -62,6 +65,7 @@ public class ConfigScreen extends Screen {
     private final String[] onOffOptions = new String[] {"On", "Off"};
     private final String[] booleanOptions = new String[] {"false", "true"};
     private final String[] visibilityOptions = new String[] {"None", "Self", "Local"};
+    private final String[] sizeOptions = new String[] {"Small", "Normal", "Large"}; //TODO translate?
     private final String[] zoomStrengthOptions = new String[] {
             "0.05", "0.1", "0.15", "0.2", "0.25",
             "0.3", "0.35", "0.4", "0.45", "0.5",
@@ -186,6 +190,12 @@ public class ConfigScreen extends Screen {
         directionIndicatorShowSlider = new ChoiceSliderWidget(visibilityOptions, ConfigOptions.SHOW_DIRECTION_INDICATORS);
         this.addConfigOptionWidget(directionIndicatorShowSlider);
 
+        playerSizeSlider = new ChoiceSliderWidget(sizeOptions, ConfigOptions.PLAYER_SIZE);
+        this.addConfigOptionWidget(playerSizeSlider);
+
+        waypointSizeSlider = new ChoiceSliderWidget(sizeOptions, ConfigOptions.WAYPOINT_SIZE);
+        this.addConfigOptionWidget(waypointSizeSlider);
+
         altitudeShadingOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.ALTITUDE_SHADING);
         this.addConfigOptionWidget(altitudeShadingOption);
 
@@ -228,6 +238,7 @@ public class ConfigScreen extends Screen {
             HudMap.clampZoom();
         }
         TileManager.initializeConfigParameters();
+        OmmMap.initializeConfigParameters();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();
         Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));

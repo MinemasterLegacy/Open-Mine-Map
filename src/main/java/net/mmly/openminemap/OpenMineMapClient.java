@@ -16,6 +16,7 @@ import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.network.PlayerData;
 import net.mmly.openminemap.network.PlayerDataS2CPayload;
 import net.mmly.openminemap.network.PlayerInfoPacketCodec;
@@ -63,6 +64,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         TileUrlFile.establishUrls();
 
         TileManager.initializeConfigParameters();
+        OmmMap.initializeConfigParameters();
 
         OpenMineMapClient.SHOWDEVELOPEROPTIONS = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS));
         //Tpll.lonLatToMcCoords(-112.07151142039129, 33.45512716304792);

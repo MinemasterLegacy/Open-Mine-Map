@@ -38,7 +38,8 @@ public class OmmMap extends ClickableWidget {
     public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
     public static int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
     public int tileSize = baseTileSize; //the actual size the tiles are currently being rendered at
-    public final static int WAYPOINTSIZE = 8;
+    public static int WAYPOINTSIZE;
+    public static int PLAYERSIZE;
 
     private boolean fieldsInitialized = false;
     private MinecraftClient client;
@@ -119,6 +120,19 @@ public class OmmMap extends ClickableWidget {
         this.mapCenterX = mapCenterX;
         this.mapCenterY = mapCenterY;
         this.tileSize = (int) Math.floor(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
+    }
+
+    private static int parseSize(String size) {
+        return switch (size) {
+            case "small" -> 8;
+            case "large" -> 12;
+            default -> 10;
+        };
+    }
+
+    public static void initializeConfigParameters() {
+        PLAYERSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.PLAYER_SIZE));
+        WAYPOINTSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.WAYPOINT_SIZE));
     }
 
     public static void setWaypoints(Waypoint[] waypoints1) {
@@ -533,15 +547,15 @@ public class OmmMap extends ClickableWidget {
     private void drawBufferedPlayer(DrawContext context, BufferedPlayer bufferedPlayer) {
 
         //get position of player relative to te screen (number passed to draw methods)
-        int relativeX = getWindowRelativeX(bufferedPlayer.mapX, 4);
-        int relativeY = getWindowRelativeY(bufferedPlayer.mapY, 4);
+        int relativeX = getWindowRelativeX(bufferedPlayer.mapX, PLAYERSIZE / 2);
+        int relativeY = getWindowRelativeY(bufferedPlayer.mapY, PLAYERSIZE / 2);
 
         //if outside render area in positive direction (right/down), return
         if (relativeX > renderAreaX2 || relativeY > renderAreaY2) return;
 
         //variable initialization
-        int width = 8;
-        int height = 8;
+        int width = PLAYERSIZE;
+        int height = PLAYERSIZE;
         int u = 8;
         int v = 8;
         int regionWidth = 8;
@@ -602,8 +616,8 @@ public class OmmMap extends ClickableWidget {
             DirectionIndicator.draw(
                     context,
                     playerDraw.geoYaw,
-                    getWindowRelativeX(mapX, 12),
-                    getWindowRelativeY(mapY, 12),
+                    getWindowRelativeX(mapX, (int) (PLAYERSIZE * 1.5)),
+                    getWindowRelativeY(mapY, (int) (PLAYERSIZE * 1.5)),
                     indicatorsOnly
             );
 
@@ -821,10 +835,10 @@ public class OmmMap extends ClickableWidget {
         context.drawTexture(
                 RenderLayer::getGuiTextured,
                 PlayerAttributes.getIdentifier(),
-                renderAreaX + (renderAreaWidth / 2) - 4,
-                renderAreaY + (renderAreaHeight / 2) - 4,
+                renderAreaX + (renderAreaWidth / 2) - (PLAYERSIZE / 2),
+                renderAreaY + (renderAreaHeight / 2) - (PLAYERSIZE / 2),
                 8, 8,
-                8, 8,
+                PLAYERSIZE, PLAYERSIZE,
                 8, 8,
                 64, 64
         );
@@ -834,7 +848,7 @@ public class OmmMap extends ClickableWidget {
                 renderAreaX + (renderAreaWidth / 2) - 4,
                 renderAreaY + (renderAreaHeight / 2) - 4,
                 40, 8,
-                8, 8,
+                PLAYERSIZE, PLAYERSIZE,
                 8, 8,
                 64, 64
         );
@@ -863,8 +877,8 @@ public class OmmMap extends ClickableWidget {
 
             if (!waypoint.visible) continue;
 
-            int x = getWindowRelativeX(UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize), 4);
-            int y = getWindowRelativeY(UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize), 4);
+            int x = getWindowRelativeX(UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize), WAYPOINTSIZE / 2);
+            int y = getWindowRelativeY(UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize), WAYPOINTSIZE / 2);
             //int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
             //int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
 
@@ -923,8 +937,8 @@ public class OmmMap extends ClickableWidget {
                 DirectionIndicator.draw(
                         context,
                         PlayerAttributes.geoYaw,
-                        renderAreaX + (renderAreaWidth / 2) - 12,
-                        renderAreaY + (renderAreaHeight / 2) - 12,
+                        renderAreaX + (renderAreaWidth / 2) - (int) (PLAYERSIZE * 1.5),
+                        renderAreaY + (renderAreaHeight / 2) - (int) (PLAYERSIZE * 1.5),
                         !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)
                 );
             }

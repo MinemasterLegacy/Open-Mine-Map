@@ -19,6 +19,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     ZOOM_STRENGTH(0, "ZoomStrength", "0.4", "zoom-strength"),
     HOVER_NAMES(0, "HoverNames", "on", "hover-names"),
     INTERFACE_OPACITY(0, "InterfaceOpacity", "0.5", "Opacity", "Set opacity of the interface backing"), //TODO TRANSLATE
+    PLAYER_SIZE(0, "PlayerSize", "normal", "Player Size", "Set the render size for players"), //TODO translate
+    WAYPOINT_SIZE(0, "WaypointSize", "normal", "Waypoint Size", "Set the render size for waypoints"), //TODO translate
 
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),

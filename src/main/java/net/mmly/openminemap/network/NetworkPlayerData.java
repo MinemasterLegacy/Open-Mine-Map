@@ -1,14 +1,14 @@
 package net.mmly.openminemap.network;
 
 import com.google.common.collect.ImmutableList;
+import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.map.MappablePlayer;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class PlayerData {
+public class NetworkPlayerData {
 
     public int packetVersion;
     public List<UUID> uuids;
@@ -24,15 +24,15 @@ public class PlayerData {
         return uuids.stream().toList();
     }
 
-    public static PlayerData empty() {
-        return new PlayerData(-1, List.of(), List.of(), List.of(), List.of());
+    public static NetworkPlayerData empty() {
+        return new NetworkPlayerData(-1, List.of(), List.of(), List.of(), List.of());
     }
 
-    public PlayerData(int packetVersion, List<Long> mostSignificant, List<Long> leastSignificant, List<Float> latitudes, List<Float> longitudes, List<Short> encodedYaws) {
+    public NetworkPlayerData(int packetVersion, List<Long> mostSignificant, List<Long> leastSignificant, List<Float> latitudes, List<Float> longitudes, List<Short> encodedYaws) {
         this(packetVersion, toUUIDs(mostSignificant, leastSignificant), latitudes, longitudes, encodedYaws);
     }
 
-    public PlayerData(int packetVersion, List<UUID> uuids, List<Float> latitudes, List<Float> longitudes, List<Short> encodedYaws) {
+    public NetworkPlayerData(int packetVersion, List<UUID> uuids, List<Float> latitudes, List<Float> longitudes, List<Short> encodedYaws) {
         this.packetVersion = packetVersion;
         this.uuids = uuids;
         this.latitudes = latitudes;
@@ -83,7 +83,7 @@ public class PlayerData {
     public MappablePlayer[] getMappablePlayers() {
         MappablePlayer[] players = new MappablePlayer[uuids.size()];
         for (int i = 0; i < uuids.size(); i++) {
-            players[i] = new MappablePlayer(latitudes.get(i), longitudes.get(i), decodeDirection(encodedYaws.get(i)), uuids.get(i));
+            players[i] = new MappablePlayer(latitudes.get(i), longitudes.get(i), decodeDirection(encodedYaws.get(i)), uuids.get(i), OverlayVisibility.ALL);
         }
         return players;
     }

@@ -66,7 +66,7 @@ public class TileUrlFile {
         errorUrl = url;
     }
 
-    public static void addApplicableErrors(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
+    public static void addApplicableErrors(MinecraftClient client) {
         Text debugStart = Text.translatable("omm.error.tile-url.start");
         if (loadError != TileUrlErrorType.NO_ERROR) {
             String name;

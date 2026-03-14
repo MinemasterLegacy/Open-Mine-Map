@@ -13,14 +13,15 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SNAP_ANGLE(0, "SnapAngle", "", "snap-angle"),
     RIGHT_CLICK_MENU_USES(0, "RightClickMenuUses", "/tpll", "rcm-uses"),
     REVERSE_SCROLL(0, "ReverseScroll", "off", "reverse-scroll"),
-    SHOW_PLAYERS(0, "ShowPlayers", "local", "players"),
-    SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators", "local", "directions"),
+    SHOW_PLAYERS(0, "ShowPlayers", "all", "players"),
+    SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators", "all", "directions"),
     ALTITUDE_SHADING(0, "AltitudeShading", "on", "altitude-shading"),
     ZOOM_STRENGTH(0, "ZoomStrength", "0.4", "zoom-strength"),
     HOVER_NAMES(0, "HoverNames", "on", "hover-names"),
-    INTERFACE_OPACITY(0, "InterfaceOpacity", "0.5", "Opacity", "Set opacity of the interface backing"), //TODO TRANSLATE
-    PLAYER_SIZE(0, "PlayerSize", "normal", "Player Size", "Set the render size for players"), //TODO translate
-    WAYPOINT_SIZE(0, "WaypointSize", "normal", "Waypoint Size", "Set the render size for waypoints"), //TODO translate
+    INTERFACE_OPACITY(0, "InterfaceOpacity", "0.5", "Opacity", "Set opacity of the interface backing"),
+    PLAYER_SIZE(0, "PlayerSize", "normal", "Player Size", "Set the render size for players"),
+    WAYPOINT_SIZE(0, "WaypointSize", "normal", "Waypoint Size", "Set the render size for waypoints"),
+    SHOW_CONNECTION_STATUS(0, "ShowConnectionStatus", "off", "Show Connection Status", "Show the map's current connection status with the server"),
 
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),

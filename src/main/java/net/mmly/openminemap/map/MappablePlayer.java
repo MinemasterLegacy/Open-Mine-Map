@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
+import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
@@ -25,23 +26,43 @@ public class MappablePlayer {
     public final UUID uuid;
     private final double x;
     private final double z;
+    private final OverlayVisibility visibility;
 
-    public MappablePlayer(PlayerEntity player) {
-        this(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getName(), player.getStyledDisplayName(), player.getUuid());
+    private static final Text fallbackText = Text.of("(unknown)");
+
+    @Deprecated
+    public MappablePlayer(OverlayVisibility visibility) {
+        //Purely for visibilty comparisons
+        outOfBounds = false;
+        latitude = Double.NaN;
+        longitude = Double.NaN;
+        altitude = Double.NaN;
+        geoYaw = Double.NaN;
+        stylizedName = fallbackText;
+        name = fallbackText;
+        uuid = null;
+        x = Double.NaN;
+        z = Double.NaN;
+        this.visibility = visibility;
     }
 
-    public MappablePlayer(double lat, double lon, double yaw, UUID uuid) {
+    public MappablePlayer(PlayerEntity player, OverlayVisibility visibility) {
+        this(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getName(), player.getStyledDisplayName(), player.getUuid(), visibility);
+    }
+
+    public MappablePlayer(double lat, double lon, double yaw, UUID uuid, OverlayVisibility visibility) {
         this.outOfBounds = Double.isNaN(lat);
         this.latitude = lat;
         this.longitude = lon;
         this.uuid = uuid;
         this.altitude = Double.NaN;
+        this.visibility = visibility;
 
         Text name = PlayersManager.getDisplayNameOf(uuid);
 
         if (name == null) {
-            this.stylizedName = Text.of("(unknown)");
-            this.name = stylizedName;
+            this.stylizedName = fallbackText;
+            this.name = fallbackText;
         } else {
             this.stylizedName = name;
             this.name = Text.of(stylizedName);
@@ -62,7 +83,7 @@ public class MappablePlayer {
         this.geoYaw = Direction.getGeoAzimuth(x, z, yaw);
     }
 
-    public MappablePlayer(double x, double y, double z, double yaw, Text name, Text stylizedName, UUID uuid) {
+    public MappablePlayer(double x, double y, double z, double yaw, Text name, Text stylizedName, UUID uuid, OverlayVisibility visibility) {
 
         this.x = x;
         this.z = z;
@@ -70,6 +91,7 @@ public class MappablePlayer {
         altitude = y;
         this.name = name;
         this.stylizedName = stylizedName;
+        this.visibility = visibility;
 
         double[] latLon = null;
         try {
@@ -97,6 +119,14 @@ public class MappablePlayer {
         float g = (float)(altitude - entity.getY());
         float h = (float)(z - entity.getZ());
         return MathHelper.sqrt(f * f + g * g + h * h);
+    }
+
+    public boolean isPlayerDrawable() {
+        return TileManager.showPlayers.id >= visibility.id;
+    }
+
+    public boolean isIndicatorDrawable() {
+        return TileManager.showDirectionIndicators.id >= visibility.id;
     }
 
 }

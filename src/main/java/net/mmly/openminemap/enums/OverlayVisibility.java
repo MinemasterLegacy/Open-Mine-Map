@@ -6,12 +6,12 @@ public enum OverlayVisibility {
     SELF(1),
     NONE(0);
 
-    public final int numericId;
+    public final int id;
     public final String stringOf;
-    private static final OverlayVisibility defaultEnum = LOCAL;
+    private static final OverlayVisibility defaultEnum = ALL;
 
-    OverlayVisibility(int numericId) {
-        this.numericId = numericId;
+    OverlayVisibility(int id) {
+        this.id = id;
         this.stringOf = this.toString().toLowerCase();
     }
 
@@ -20,10 +20,6 @@ public enum OverlayVisibility {
             if (enu.stringOf.equals(s.toLowerCase())) return enu;
         }
         return defaultEnum;
-    }
-
-    public static boolean checkPermissionFor(OverlayVisibility currentPerm, OverlayVisibility requiredPerm) {
-        return currentPerm.numericId >= requiredPerm.numericId;
     }
 
 }

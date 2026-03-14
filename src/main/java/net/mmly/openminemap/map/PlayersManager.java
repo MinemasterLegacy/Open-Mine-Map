@@ -11,18 +11,19 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.Heightmap;
-import net.mmly.openminemap.network.PlayerData;
+import net.mmly.openminemap.enums.OverlayVisibility;
+import net.mmly.openminemap.network.NetworkPlayerData;
 
 import java.util.*;
 
 public class PlayersManager {
 
     public static HashMap<UUID, Identifier> playerSkinList;
-    public static PlayerData lastReceivedData = PlayerData.empty();
+    public static NetworkPlayerData lastReceivedData = NetworkPlayerData.empty();
 
     //MinecraftClient.getInstance().world.getPlayers()
 
-    /// Returns a list of current players that should be displayed, (TODO taking into account overlay visibility rules) and excluding the client player.
+    /// Returns a list of current players that should be displayed, taking into account overlay visibility rules and excluding the client player.
     public static List<MappablePlayer> getMappablePlayers() {
         updatePlayerSkinList();
         ClientPlayerEntity selfPlayer = MinecraftClient.getInstance().player;
@@ -41,7 +42,7 @@ public class PlayersManager {
         //ArrayList<MappablePlayer> returnList = new ArrayList<>();
 
         for (PlayerEntity player : list.toArray(new PlayerEntity[0])) {
-            MappablePlayer mappablePlayer = new MappablePlayer(player);
+            MappablePlayer mappablePlayer = new MappablePlayer(player, OverlayVisibility.LOCAL);
             if (!mappablePlayer.outOfBounds) returnList.put(mappablePlayer.uuid, mappablePlayer);
         }
 
@@ -77,12 +78,8 @@ public class PlayersManager {
 
     public static Text getDisplayNameOf(UUID uuid) {
         PlayerListEntry entry = MinecraftClient.getInstance().player.networkHandler.getPlayerListEntry(uuid);
-        if (entry != null) {
-            System.out.println(entry.getDisplayName());
-        }
+        if (entry != null) {}
         for (PlayerListEntry listEntry : MinecraftClient.getInstance().player.networkHandler.getPlayerList()) {
-            System.out.println("Player: " + uuid);
-            System.out.println("Entry : " + listEntry.getProfile().getId());
             GameProfile profile = listEntry.getProfile();
             if (profile.getId().equals(uuid)) return Text.of(profile.getName());
         }

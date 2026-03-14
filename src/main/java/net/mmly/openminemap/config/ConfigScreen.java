@@ -48,6 +48,7 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget reverseScrollOption;
     ChoiceSliderWidget zoomStrengthWidget;
     ChoiceButtonWidget hoverNamesOption;
+    ChoiceButtonWidget showConnectionStatusOption;
 
     CategoryLabelWidget overlayLabel;
     ChoiceSliderWidget playerShowSlider;
@@ -64,8 +65,8 @@ public class ConfigScreen extends Screen {
 
     private final String[] onOffOptions = new String[] {"On", "Off"};
     private final String[] booleanOptions = new String[] {"false", "true"};
-    private final String[] visibilityOptions = new String[] {"None", "Self", "Local"};
-    private final String[] sizeOptions = new String[] {"Small", "Normal", "Large"}; //TODO translate?
+    private final String[] visibilityOptions = new String[] {"None", "Self", "Local", "All"};
+    private final String[] sizeOptions = new String[] {"Small", "Normal", "Large"};
     private final String[] zoomStrengthOptions = new String[] {
             "0.05", "0.1", "0.15", "0.2", "0.25",
             "0.3", "0.35", "0.4", "0.45", "0.5",
@@ -207,11 +208,14 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
         this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
 
-        interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer); //TODO TRANSLATE
+        interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer);
         this.addConfigOptionWidget(interfaceLabel);
 
         transparencySlider = new ChoiceSliderWidget(decimalPercentOptions, ConfigOptions.INTERFACE_OPACITY);
         this.addConfigOptionWidget(transparencySlider);
+
+        showConnectionStatusOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.SHOW_CONNECTION_STATUS);
+        this.addConfigOptionWidget(showConnectionStatusOption);
 
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));

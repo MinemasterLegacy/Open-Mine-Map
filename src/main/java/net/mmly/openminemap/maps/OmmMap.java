@@ -596,7 +596,7 @@ public class OmmMap extends ClickableWidget {
         return hoveredWaypoint;
     }
 
-    private BufferedPlayer drawDirectionIndicator(DrawContext context, MappablePlayer playerDraw, boolean indicatorsOnly, OverlayVisibility requiredPermission) {
+    private BufferedPlayer drawDirectionIndicator(DrawContext context, MappablePlayer playerDraw) {
         //Draws a direction indicator
         //May also return a BufferedPlayer if other players are to be drawn
 
@@ -612,16 +612,17 @@ public class OmmMap extends ClickableWidget {
         if (playerTexture == null) playerTexture = Identifier.of("openminemap", "skinbackup.png");
 
         //Draw a direction indicator if the direction is a valid number and visibility permission is adequete
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, requiredPermission) && !Double.isNaN(playerDraw.geoYaw))
+        if (playerDraw.isIndicatorDrawable() && !Double.isNaN(playerDraw.geoYaw))
             DirectionIndicator.draw(
                     context,
                     playerDraw.geoYaw,
                     getWindowRelativeX(mapX, (int) (PLAYERSIZE * 1.5)),
                     getWindowRelativeY(mapY, (int) (PLAYERSIZE * 1.5)),
-                    indicatorsOnly
+                    !playerDraw.isPlayerDrawable()
             );
 
-        return new BufferedPlayer(mapX, mapY, playerTexture, playerDraw.altitude, playerDraw.stylizedName);
+        if (playerDraw.isPlayerDrawable()) return new BufferedPlayer(mapX, mapY, playerTexture, playerDraw.altitude, playerDraw.stylizedName);
+        else return null;
     }
 
     private static int roundTowardsZero(double num) {
@@ -903,51 +904,37 @@ public class OmmMap extends ClickableWidget {
 
         }
 
-
         hoveredPlayerY = -250;
 
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         //draw other players' direction indicators
         for (MappablePlayer player : PlayersManager.getMappablePlayers()) {
-            //if (player.uuid.equals(client.player.getUuid())) continue; //self player should be drawn last so that it's on top, so don't draw it here
-            players.add(drawDirectionIndicator(
-                    context,
-                    player,
-                    !OverlayVisibility.checkPermissionFor(
-                            TileManager.showPlayers,
-                            OverlayVisibility.LOCAL
-                    ),
-                    OverlayVisibility.LOCAL
-            ));
+            players.add(drawDirectionIndicator(context, player));
         }
 
         //draw other players
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
-            for (BufferedPlayer bufferedPlayer : players) {
-                if (bufferedPlayer == null) continue;
-                drawBufferedPlayer(context, bufferedPlayer);
-            }
+        for (BufferedPlayer bufferedPlayer : players) {
+            if (bufferedPlayer == null) continue;
+            drawBufferedPlayer(context, bufferedPlayer);
         }
 
+        MappablePlayer selfMappable = new MappablePlayer(player, OverlayVisibility.SELF);
         BufferedPlayer self = null;
         if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("on")) drawHoveredPlayerText(context);
 
         if (followPlayer) {
-            if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
-                DirectionIndicator.draw(
-                        context,
-                        PlayerAttributes.geoYaw,
-                        renderAreaX + (renderAreaWidth / 2) - (int) (PLAYERSIZE * 1.5),
-                        renderAreaY + (renderAreaHeight / 2) - (int) (PLAYERSIZE * 1.5),
-                        !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)
-                );
-            }
-
+            DirectionIndicator.draw(
+                    context,
+                    PlayerAttributes.geoYaw,
+                    renderAreaX + (renderAreaWidth / 2) - (int) (PLAYERSIZE * 1.5),
+                    renderAreaY + (renderAreaHeight / 2) - (int) (PLAYERSIZE * 1.5),
+                    !selfMappable.isPlayerDrawable()
+            );
         } else {
-            self = drawDirectionIndicator(context, new MappablePlayer(player), !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF), OverlayVisibility.SELF);
+            self = drawDirectionIndicator(context, selfMappable);
         }
 
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
+        if (selfMappable.isPlayerDrawable()) {
             if (followPlayer) {
                 drawClientPlayerCentered(context);
             } else {

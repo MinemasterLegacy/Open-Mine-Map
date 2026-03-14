@@ -7,8 +7,10 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.network.NetworkState;
 import net.mmly.openminemap.network.PlayerInfoPacketCodec;
+import net.mmly.openminemap.util.ConfigFile;
 
 public class NetworkStatusLayer extends ClickableWidget {
     public NetworkStatusLayer(int x, int y) {
@@ -21,15 +23,16 @@ public class NetworkStatusLayer extends ClickableWidget {
     }
 
     protected void drawWidget(DrawContext context) {
+        if (MinecraftClient.getInstance().isInSingleplayer() || ConfigFile.readParameter(ConfigOptions.SHOW_CONNECTION_STATUS) != "on") return;
         int winWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         UContext.fillZone(winWidth - 26, 0, 26, 26, FullscreenMapScreen.backingColor);
         if (isHovered()) {
-            UContext.drawTexture(PlayerInfoPacketCodec.currentNetworkState.selectionIdentifier, winWidth - 24, 2, 22, 22, 22, 22);
-            setTooltip(Tooltip.of(Text.translatable(PlayerInfoPacketCodec.currentNetworkState.translationKey)));
+            UContext.drawTexture(NetworkState.getNetworkState().selectionIdentifier, winWidth - 24, 2, 22, 22, 22, 22);
+            setTooltip(Tooltip.of(Text.translatable(NetworkState.getNetworkState().translationKey)));
         } else {
             setTooltip(null);
         }
-        UContext.drawTexture(PlayerInfoPacketCodec.currentNetworkState.identifier, winWidth - 23, 3, 20, 20, 20, 20);
+        UContext.drawTexture(NetworkState.getNetworkState().identifier, winWidth - 23, 3, 20, 20, 20, 20);
     }
 
     /*

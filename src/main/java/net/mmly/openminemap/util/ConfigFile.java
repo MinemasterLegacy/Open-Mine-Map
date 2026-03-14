@@ -90,7 +90,7 @@ public class ConfigFile {
         }
     }
 
-    public static void writeOnClose(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
+    public static void writeOnClose(MinecraftClient client) {
         writeToFile();
     }
 

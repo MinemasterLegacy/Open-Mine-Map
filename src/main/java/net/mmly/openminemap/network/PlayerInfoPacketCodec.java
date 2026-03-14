@@ -19,18 +19,11 @@ public class PlayerInfoPacketCodec implements PacketCodec<ByteBuf, PlayerData> {
             Codec.LONG.listOf().fieldOf("L").forGetter(PlayerData::getLeastSignificant),
             Codec.FLOAT.listOf().fieldOf("A").forGetter(PlayerData::getLatitudes),
             Codec.FLOAT.listOf().fieldOf("O").forGetter(PlayerData::getLongitudes),
-            Codec.SHORT.listOf().fieldOf("Y").forGetter(PlayerData::getYaws)
+            Codec.SHORT.listOf().fieldOf("Y").forGetter(PlayerData::getEncodedYaws)
     ).apply(instance, PlayerData::new));
 
     //TODO move to packet handler class
     public static NetworkState currentNetworkState = NetworkState.NOT_CONNECTED;
-
-    private static double CONVERSION_FACTOR = 182.0444;
-    // 0-360 > 0-65535
-
-    public static double decodeDirection(byte[] encodedYaw) {
-        return ByteBuffer.wrap(encodedYaw).getShort() / CONVERSION_FACTOR;
-    }
 
     @Override
     public PlayerData decode(ByteBuf buf) {

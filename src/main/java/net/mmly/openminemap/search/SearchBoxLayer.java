@@ -4,15 +4,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.projection.CoordinateValueError;
-import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import org.lwjgl.glfw.GLFW;
@@ -171,7 +168,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         }
 
         //If the search text is a player, add them
-        for (MappablePlayer player : PlayersManager.getNearPlayers()) {
+        for (MappablePlayer player : PlayersManager.getMappablePlayers()) {
             try {
                 if (player.outOfBounds) continue;
                 if (player.stylizedName.getString().toLowerCase().contains(getText().toLowerCase()) && player.uuid != MinecraftClient.getInstance().player.getUuid()) {

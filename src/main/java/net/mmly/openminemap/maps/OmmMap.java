@@ -13,7 +13,6 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.Window;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -24,9 +23,6 @@ import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
-import net.mmly.openminemap.projection.CoordinateValueError;
-import net.mmly.openminemap.projection.Direction;
-import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.*;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
@@ -898,8 +894,8 @@ public class OmmMap extends ClickableWidget {
 
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         //draw other players' direction indicators
-        for (MappablePlayer player : PlayersManager.getNearPlayers()) {
-            if (player.uuid.equals(client.player.getUuid())) continue; //self player should be drawn last so that it's on top, so don't draw it here
+        for (MappablePlayer player : PlayersManager.getMappablePlayers()) {
+            //if (player.uuid.equals(client.player.getUuid())) continue; //self player should be drawn last so that it's on top, so don't draw it here
             players.add(drawDirectionIndicator(
                     context,
                     player,
@@ -936,8 +932,6 @@ public class OmmMap extends ClickableWidget {
         } else {
             self = drawDirectionIndicator(context, new MappablePlayer(player), !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF), OverlayVisibility.SELF);
         }
-
-        System.out.println(MinecraftClient.getInstance().player.getUuid());
 
         if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
             if (followPlayer) {

@@ -12,7 +12,6 @@ import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -174,7 +173,7 @@ public class CommandHander {
     private static int tpllto(CommandContext<FabricClientCommandSource> context) {
         String desiredPlayer = context.getArgument("player name", CoordinateValue.class).value.trim();
 
-        for (MappablePlayer knownPlayer : PlayersManager.getNearPlayers()) {
+        for (MappablePlayer knownPlayer : PlayersManager.getMappablePlayers()) {
             if (knownPlayer.outOfBounds) continue;
             try {
                 if (Objects.equals(Objects.requireNonNull(knownPlayer.name).getString(), desiredPlayer)) {
@@ -203,7 +202,7 @@ class TplltoSuggestionProvider implements SuggestionProvider<FabricClientCommand
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        for (MappablePlayer knownPlayer : PlayersManager.getNearPlayers()) {
+        for (MappablePlayer knownPlayer : PlayersManager.getMappablePlayers()) {
             if (knownPlayer.outOfBounds) continue;
             String name = knownPlayer.name.getString();
             if (name.equals(MinecraftClient.getInstance().player.getName().getString())) continue;

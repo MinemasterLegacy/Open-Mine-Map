@@ -1,8 +1,10 @@
 package net.mmly.openminemap.map;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import net.mmly.openminemap.projection.CoordinateValueError;
@@ -28,8 +30,36 @@ public class MappablePlayer {
         this(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getName(), player.getStyledDisplayName(), player.getUuid());
     }
 
-    public MappablePlayer(double x, double z, double yaw, Text name, int uuidHash) {
-        this(x, Double.NaN, z, yaw, name, name, null);
+    public MappablePlayer(double lat, double lon, double yaw, UUID uuid) {
+        this.outOfBounds = Double.isNaN(lat);
+        this.latitude = lat;
+        this.longitude = lon;
+        this.uuid = uuid;
+        this.altitude = Double.NaN;
+
+        Text name = PlayersManager.getDisplayNameOf(uuid);
+
+        if (name == null) {
+            this.stylizedName = Text.of("(unknown)");
+            this.name = stylizedName;
+        } else {
+            this.stylizedName = name;
+            this.name = Text.of(stylizedName);
+        }
+
+        double[] mcxz;
+        try {
+            mcxz = Projection.from_geo(lat, lon);
+        } catch (CoordinateValueError e) {
+            this.x = Double.NaN;
+            this.z = Double.NaN;
+            this.geoYaw = Double.NaN;
+            return;
+        }
+
+        this.x = mcxz[0];
+        this.z = mcxz[1];
+        this.geoYaw = Direction.getGeoAzimuth(x, z, yaw);
     }
 
     public MappablePlayer(double x, double y, double z, double yaw, Text name, Text stylizedName, UUID uuid) {
@@ -44,6 +74,7 @@ public class MappablePlayer {
         double[] latLon = null;
         try {
             latLon = Projection.to_geo(x, z);
+            if (Double.isNaN(latLon[0])) latLon = null;
         } catch (CoordinateValueError ignored) {}
 
         if (latLon == null) {
@@ -51,14 +82,12 @@ public class MappablePlayer {
             longitude = Double.NaN;
             geoYaw = Double.NaN;
             outOfBounds = true;
-            return;
         } else {
             latitude = latLon[0];
             longitude = latLon[1];
+            geoYaw = Direction.getGeoAzimuth(x, z, yaw);
             outOfBounds = false;
         }
-
-        geoYaw = Direction.getGeoAzimuth(x, z, yaw);
 
     }
 

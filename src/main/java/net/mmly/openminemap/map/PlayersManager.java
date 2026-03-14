@@ -1,11 +1,13 @@
 package net.mmly.openminemap.map;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.predicate.entity.EntityPredicates;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.Heightmap;
@@ -16,10 +18,12 @@ import java.util.*;
 public class PlayersManager {
 
     public static HashMap<UUID, Identifier> playerSkinList;
-    public static PlayerData lastReceivedData;
+    public static PlayerData lastReceivedData = PlayerData.empty();
 
     //MinecraftClient.getInstance().world.getPlayers()
-    public static List<MappablePlayer> getNearPlayers() {
+
+    /// Returns a list of current players that should be displayed, (TODO taking into account overlay visibility rules) and excluding the client player.
+    public static List<MappablePlayer> getMappablePlayers() {
         updatePlayerSkinList();
         ClientPlayerEntity selfPlayer = MinecraftClient.getInstance().player;
 
@@ -31,12 +35,28 @@ public class PlayersManager {
                 selfPlayer.getBlockY() - 128,
                 selfPlayer.getBlockZ() - 128
         ), EntityPredicates.VALID_ENTITY);
+        list.remove(selfPlayer);
 
-        ArrayList<MappablePlayer> returnList = new ArrayList<>();
+        HashMap<UUID, MappablePlayer> returnList = new HashMap<>();
+        //ArrayList<MappablePlayer> returnList = new ArrayList<>();
+
         for (PlayerEntity player : list.toArray(new PlayerEntity[0])) {
-            returnList.add(new MappablePlayer(player));
+            MappablePlayer mappablePlayer = new MappablePlayer(player);
+            if (!mappablePlayer.outOfBounds) returnList.put(mappablePlayer.uuid, mappablePlayer);
         }
-        return returnList.stream().toList();
+
+        for (MappablePlayer player : lastReceivedData.getMappablePlayers()) {
+            if (
+                    (!player.outOfBounds) &&
+                    (!returnList.containsKey(player.uuid)) &&
+                    !player.uuid.equals(selfPlayer.getUuid())
+            ) {
+                returnList.put(player.uuid, player);
+            }
+
+        }
+
+        return returnList.values().stream().toList();
     }
 
     private static void updatePlayerSkinList() {
@@ -53,5 +73,19 @@ public class PlayersManager {
         double altitude = MinecraftClient.getInstance().world.getTopY(Heightmap.Type.WORLD_SURFACE, (int) Math.floor(x), (int) Math.floor(z)); //get the highest point from cm heightmap
         if (altitude == MinecraftClient.getInstance().world.getBottomY()) altitude = MinecraftClient.getInstance().player.getY(); //if the calculated altitude is the world bottom, then the area is likely unrendered, so use the player's current y-value instead
         return altitude;
+    }
+
+    public static Text getDisplayNameOf(UUID uuid) {
+        PlayerListEntry entry = MinecraftClient.getInstance().player.networkHandler.getPlayerListEntry(uuid);
+        if (entry != null) {
+            System.out.println(entry.getDisplayName());
+        }
+        for (PlayerListEntry listEntry : MinecraftClient.getInstance().player.networkHandler.getPlayerList()) {
+            System.out.println("Player: " + uuid);
+            System.out.println("Entry : " + listEntry.getProfile().getId());
+            GameProfile profile = listEntry.getProfile();
+            if (profile.getId().equals(uuid)) return Text.of(profile.getName());
+        }
+        return null;
     }
 }

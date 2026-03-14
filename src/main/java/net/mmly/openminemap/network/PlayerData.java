@@ -1,7 +1,9 @@
 package net.mmly.openminemap.network;
 
 import com.google.common.collect.ImmutableList;
+import net.mmly.openminemap.map.MappablePlayer;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +14,7 @@ public class PlayerData {
     public List<UUID> uuids;
     public List<Float> latitudes;
     public List<Float> longitudes;
-    public List<Short> yaws;
+    public List<Short> encodedYaws;
 
     private static List<UUID> toUUIDs(List<Long> mostSignificant, List<Long> leastSignificant) {
         ArrayList<UUID> uuids = new ArrayList<>();
@@ -20,6 +22,10 @@ public class PlayerData {
             uuids.add(new UUID(mostSignificant.getFirst(), leastSignificant.getFirst()));
         }
         return uuids.stream().toList();
+    }
+
+    public static PlayerData empty() {
+        return new PlayerData(-1, List.of(), List.of(), List.of(), List.of());
     }
 
     public PlayerData(int packetVersion, List<Long> mostSignificant, List<Long> leastSignificant, List<Float> latitudes, List<Float> longitudes, List<Short> encodedYaws) {
@@ -31,7 +37,7 @@ public class PlayerData {
         this.uuids = uuids;
         this.latitudes = latitudes;
         this.longitudes = longitudes;
-        this.yaws = encodedYaws;
+        this.encodedYaws = encodedYaws;
     }
 
     //public PlayerEntity
@@ -52,7 +58,7 @@ public class PlayerData {
         return ImmutableList.<Float>builder().build();
     }
 
-    public ImmutableList<Short> getYaws() {
+    public ImmutableList<Short> getEncodedYaws() {
         return ImmutableList.<Short>builder().build();
     }
 
@@ -66,6 +72,20 @@ public class PlayerData {
         ArrayList<Long> longs = new ArrayList<>();
         uuids.forEach(uuid -> longs.add(uuid.getLeastSignificantBits()));
         return (ImmutableList<Long>) longs.stream().toList();
+    }
+
+    private static double CONVERSION_FACTOR = 182.0444;
+    // 0-360 -> 0-65535
+    public static double decodeDirection(short encodedYaw) {
+        return encodedYaw / CONVERSION_FACTOR;
+    }
+
+    public MappablePlayer[] getMappablePlayers() {
+        MappablePlayer[] players = new MappablePlayer[uuids.size()];
+        for (int i = 0; i < uuids.size(); i++) {
+            players[i] = new MappablePlayer(latitudes.get(i), longitudes.get(i), decodeDirection(encodedYaws.get(i)), uuids.get(i));
+        }
+        return players;
     }
 
 }

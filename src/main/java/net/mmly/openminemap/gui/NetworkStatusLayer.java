@@ -23,7 +23,7 @@ public class NetworkStatusLayer extends ClickableWidget {
     }
 
     protected void drawWidget(DrawContext context) {
-        if (MinecraftClient.getInstance().isInSingleplayer() || ConfigFile.readParameter(ConfigOptions.SHOW_CONNECTION_STATUS) != "on") return;
+        if (MinecraftClient.getInstance().isInSingleplayer() || !ConfigFile.readParameter(ConfigOptions.SHOW_CONNECTION_STATUS).equals("show")) return;
         int winWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         UContext.fillZone(winWidth - 26, 0, 26, 26, FullscreenMapScreen.backingColor);
         if (isHovered()) {

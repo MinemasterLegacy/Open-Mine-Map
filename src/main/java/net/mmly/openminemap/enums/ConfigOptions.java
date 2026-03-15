@@ -17,11 +17,11 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators", "all", "directions"),
     ALTITUDE_SHADING(0, "AltitudeShading", "on", "altitude-shading"),
     ZOOM_STRENGTH(0, "ZoomStrength", "0.4", "zoom-strength"),
-    HOVER_NAMES(0, "HoverNames", "on", "hover-names"),
+    HOVER_NAMES(0, "HoverNames", "show", "hover-names"),
     INTERFACE_OPACITY(0, "InterfaceOpacity", "0.5", "Opacity", "Set opacity of the interface backing"),
     PLAYER_SIZE(0, "PlayerSize", "normal", "Player Size", "Set the render size for players"),
     WAYPOINT_SIZE(0, "WaypointSize", "normal", "Waypoint Size", "Set the render size for waypoints"),
-    SHOW_CONNECTION_STATUS(0, "ShowConnectionStatus", "off", "Show Connection Status", "Show the map's current connection status with the server"),
+    SHOW_CONNECTION_STATUS(0, "ConnectionStatus", "hide", "Connection Status", "Show the map's current connection status with the server"),
 
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),

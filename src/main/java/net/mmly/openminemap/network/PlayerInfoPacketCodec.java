@@ -12,6 +12,7 @@ import java.util.UUID;
 
 public class PlayerInfoPacketCodec implements PacketCodec<ByteBuf, NetworkPlayerData> {
 
+    /*
     public static final Codec<NetworkPlayerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("PacketVersions").forGetter(NetworkPlayerData::getPacketVersion),
             Codec.LONG.listOf().fieldOf("MostSigOfUuids").forGetter(NetworkPlayerData::getMostSignificant),
@@ -20,6 +21,7 @@ public class PlayerInfoPacketCodec implements PacketCodec<ByteBuf, NetworkPlayer
             Codec.FLOAT.listOf().fieldOf("Longitudes").forGetter(NetworkPlayerData::getLongitudes),
             Codec.SHORT.listOf().fieldOf("EncodedYaws").forGetter(NetworkPlayerData::getEncodedYaws)
     ).apply(instance, NetworkPlayerData::new));
+    */
 
     private static final int SINGLE_PLAYER_SECTION_LENGTH = 26;
 

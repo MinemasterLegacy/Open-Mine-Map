@@ -858,10 +858,10 @@ public class OmmMap extends ClickableWidget {
     private void drawHoveredPlayerText(DrawContext context) {
 
         int textWidth = textRenderer.getWidth(hoveredPlayerName);
-        int centerX = hoveredPlayerX + 4;
+        int centerX = hoveredPlayerX + PLAYERSIZE / 2;
 
-        context.fill(centerX - (textWidth/2) - 2, hoveredPlayerY + 10, centerX + (textWidth/2) + 2, hoveredPlayerY + 10 + textRenderer.fontHeight + 4, 0x80000000);
-        context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + 13, 0xFFFFFFFF,false);
+        context.fill(centerX - (textWidth/2) - 2, hoveredPlayerY + 2 + PLAYERSIZE, centerX + (textWidth/2) + 2, hoveredPlayerY + 2 + PLAYERSIZE + textRenderer.fontHeight + 4, 0x80000000);
+        context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + PLAYERSIZE + 5, 0xFFFFFFFF,false);
     }
 
     public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
@@ -920,7 +920,7 @@ public class OmmMap extends ClickableWidget {
 
         MappablePlayer selfMappable = new MappablePlayer(player, OverlayVisibility.SELF);
         BufferedPlayer self = null;
-        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("on")) drawHoveredPlayerText(context);
+        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("show")) drawHoveredPlayerText(context);
 
         if (followPlayer) {
             DirectionIndicator.draw(

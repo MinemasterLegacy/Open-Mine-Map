@@ -64,6 +64,7 @@ public class ConfigScreen extends Screen {
     ChoiceSliderWidget transparencySlider;
 
     private final String[] onOffOptions = new String[] {"On", "Off"};
+    private final String[] showHideOptions = new String[] {"Show", "Hide"};
     private final String[] booleanOptions = new String[] {"false", "true"};
     private final String[] visibilityOptions = new String[] {"None", "Self", "Local", "All"};
     private final String[] sizeOptions = new String[] {"Small", "Normal", "Large"};
@@ -179,9 +180,6 @@ public class ConfigScreen extends Screen {
         zoomStrengthWidget = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH);
         this.addConfigOptionWidget(zoomStrengthWidget);
 
-        hoverNamesOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.HOVER_NAMES);
-        this.addConfigOptionWidget(hoverNamesOption);
-
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
 
@@ -196,6 +194,9 @@ public class ConfigScreen extends Screen {
 
         waypointSizeSlider = new ChoiceSliderWidget(sizeOptions, ConfigOptions.WAYPOINT_SIZE);
         this.addConfigOptionWidget(waypointSizeSlider);
+
+        hoverNamesOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HOVER_NAMES);
+        this.addConfigOptionWidget(hoverNamesOption);
 
         altitudeShadingOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.ALTITUDE_SHADING);
         this.addConfigOptionWidget(altitudeShadingOption);
@@ -214,7 +215,7 @@ public class ConfigScreen extends Screen {
         transparencySlider = new ChoiceSliderWidget(decimalPercentOptions, ConfigOptions.INTERFACE_OPACITY);
         this.addConfigOptionWidget(transparencySlider);
 
-        showConnectionStatusOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.SHOW_CONNECTION_STATUS);
+        showConnectionStatusOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.SHOW_CONNECTION_STATUS);
         this.addConfigOptionWidget(showConnectionStatusOption);
 
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {

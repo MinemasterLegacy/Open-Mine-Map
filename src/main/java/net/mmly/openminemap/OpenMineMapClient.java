@@ -79,16 +79,10 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
          */
 
         PayloadTypeRegistry.playS2C().register(PlayerDataS2CPayload.ID, PlayerDataS2CPayload.CODEC);
+        ClientPlayNetworking.registerGlobalReceiver(PlayerDataS2CPayload.ID, ((playerDataS2CPayload, context) -> {}));
         ClientPlayConnectionEvents.DISCONNECT.register(NetworkState::resetNetworkState);
 
         //PlayerInfoPacketCodec.CODEC.encodeStart(JsonOps.IN);
-
-        ClientLifecycleEvents.CLIENT_STARTED.register((client) -> {
-            System.out.println("start");
-        });
-        ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> {
-            System.out.println("stop");
-        });
 
     }
 }

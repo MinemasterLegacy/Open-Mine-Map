@@ -22,6 +22,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     PLAYER_SIZE(0, "PlayerSize", "normal", "Player Size", "Set the render size for players"),
     WAYPOINT_SIZE(0, "WaypointSize", "normal", "Waypoint Size", "Set the render size for waypoints"),
     SHOW_CONNECTION_STATUS(0, "ConnectionStatus", "hide", "Connection Status", "Show the map's current connection status with the server"),
+    TILE_SCALE(0, "TileScale", "128", "Tile Scale", "Change the render size of map tiles"),
 
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),

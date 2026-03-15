@@ -18,7 +18,9 @@ import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
+import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
+import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -130,9 +132,13 @@ public class OmmMap extends ClickableWidget {
         };
     }
 
-    public static void initializeConfigParameters() {
+    public static void initializeConfigParameters(boolean reloadZoom) {
         PLAYERSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.PLAYER_SIZE));
         WAYPOINTSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.WAYPOINT_SIZE));
+        baseTileSize = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.TILE_SCALE));
+        if (!reloadZoom) return;
+        FullscreenMapScreen.map.normalizeZoom(FullscreenMapScreen.map.zoom);
+        HudMap.map.normalizeZoom(HudMap.map.zoom);
     }
 
     public static void setWaypoints(Waypoint[] waypoints1) {

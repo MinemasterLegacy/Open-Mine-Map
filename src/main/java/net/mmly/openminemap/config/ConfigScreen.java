@@ -45,16 +45,16 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget artificialZoomOption;
     ChoiceNumberWidget snapAngleWidget;
     ChoiceButtonWidget rightClickMeuUsesOption;
+    ChoiceSliderWidget tileScaleSlider;
     ChoiceButtonWidget reverseScrollOption;
-    ChoiceSliderWidget zoomStrengthWidget;
-    ChoiceButtonWidget hoverNamesOption;
-    ChoiceButtonWidget showConnectionStatusOption;
+    ChoiceSliderWidget zoomStrengthSlider;
 
     CategoryLabelWidget overlayLabel;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
     ChoiceSliderWidget playerSizeSlider;
     ChoiceSliderWidget waypointSizeSlider;
+    ChoiceButtonWidget hoverNamesOption;
     ChoiceButtonWidget altitudeShadingOption;
 
     CategoryLabelWidget urlLabel;
@@ -62,6 +62,7 @@ public class ConfigScreen extends Screen {
 
     CategoryLabelWidget interfaceLabel;
     ChoiceSliderWidget transparencySlider;
+    ChoiceButtonWidget showConnectionStatusOption;
 
     private final String[] onOffOptions = new String[] {"On", "Off"};
     private final String[] showHideOptions = new String[] {"Show", "Hide"};
@@ -79,10 +80,18 @@ public class ConfigScreen extends Screen {
             "1.8", "1.85", "1.9", "1.95", "2.0"
     }; // I know this is a lazy solution, but it's also the easiest (:
     private final String[] decimalPercentOptions = new String[] {
-            "0.0", "0.05", "0.1", "0.15", "0.2", "0.25",
+            "0.0",
+            "0.05", "0.1", "0.15", "0.2", "0.25",
             "0.3", "0.35", "0.4", "0.45", "0.5",
             "0.55", "0.6", "0.65", "0.7", "0.75",
             "0.8", "0.85", "0.9", "0.95", "1.0"
+    };
+    private final String[] tileScaleOptions = new String[] {
+            "64", "72", "80", "88", "96",
+            "104", "112", "120", "128", "136",
+            "144", "152", "160", "168", "176",
+            "184", "192", "200", "208", "216",
+            "224", "232", "240", "248", "256"
     };
 
     /*
@@ -174,11 +183,14 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption = new ChoiceButtonWidget(new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
 
+        tileScaleSlider = new ChoiceSliderWidget(tileScaleOptions, ConfigOptions.TILE_SCALE);
+        this.addConfigOptionWidget(tileScaleSlider);
+
         reverseScrollOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.REVERSE_SCROLL);
         this.addConfigOptionWidget(reverseScrollOption);
 
-        zoomStrengthWidget = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH);
-        this.addConfigOptionWidget(zoomStrengthWidget);
+        zoomStrengthSlider = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH);
+        this.addConfigOptionWidget(zoomStrengthSlider);
 
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
@@ -243,7 +255,7 @@ public class ConfigScreen extends Screen {
             HudMap.clampZoom();
         }
         TileManager.initializeConfigParameters();
-        OmmMap.initializeConfigParameters();
+        OmmMap.initializeConfigParameters(true);
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();
         Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));

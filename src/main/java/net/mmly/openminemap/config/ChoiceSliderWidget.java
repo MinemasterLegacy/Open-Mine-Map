@@ -41,8 +41,12 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
     }
 
     private static String getTranslatedOption(String option) {
-        if (option.contains(".")) return option; //if a decimal number
-        return Text.translatable("omm.config.state."+(option.toLowerCase())).getString();
+        try {
+            Double.parseDouble(option); //check if a decimal number
+            return option;
+        } catch (NumberFormatException e) {
+            return Text.translatable("omm.config.state." + (option.toLowerCase())).getString();
+        }
     }
 
     @Override

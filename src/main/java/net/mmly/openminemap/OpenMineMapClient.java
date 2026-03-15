@@ -62,7 +62,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         TileUrlFile.establishUrls();
 
         TileManager.initializeConfigParameters();
-        OmmMap.initializeConfigParameters();
+        OmmMap.initializeConfigParameters(false);
 
         OpenMineMapClient.SHOWDEVELOPEROPTIONS = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS));
         //Tpll.lonLatToMcCoords(-112.07151142039129, 33.45512716304792);

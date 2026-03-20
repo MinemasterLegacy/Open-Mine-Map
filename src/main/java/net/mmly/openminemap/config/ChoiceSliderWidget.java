@@ -14,8 +14,9 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
     Text message;
     ConfigOptions configOption;
     ConfigAnchorWidget anchor;
+    boolean optionIsLiteral;
 
-    public ChoiceSliderWidget(String[] options, ConfigOptions configOption) {
+    public ChoiceSliderWidget(String[] options, ConfigOptions configOption, boolean optionIsLiteral) {
         super(0, -100, 200, 20, Text.empty(), 0);
         this.options = options;
         this.message = Text.translatable(configOption.message);
@@ -23,7 +24,12 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
         selection = getSelectedOption();
         this.value = (1F / (options.length - 1)) * selection;
         this.setTooltip(Tooltip.of(Text.translatable(configOption.tooltip)));
+        this.optionIsLiteral = optionIsLiteral;
         updateMessage();
+    }
+
+    public ChoiceSliderWidget(String[] options, ConfigOptions configOption) {
+        this(options, configOption, false);
     }
 
     @Override
@@ -40,13 +46,9 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
         return 0;
     }
 
-    private static String getTranslatedOption(String option) {
-        try {
-            Double.parseDouble(option); //check if a decimal number
-            return option;
-        } catch (NumberFormatException e) {
-            return Text.translatable("omm.config.state." + (option.toLowerCase())).getString();
-        }
+    private String getTranslatedOption(String option) {
+        if (optionIsLiteral) return option;
+        else return Text.translatable("omm.config.state." + (option.toLowerCase())).getString();
     }
 
     @Override

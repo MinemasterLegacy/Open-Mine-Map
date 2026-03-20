@@ -372,7 +372,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             if (searchElementsFocused()) toggleSearchMenu(false);
-            else this.close();
+            else close();
             return true;
         }
 

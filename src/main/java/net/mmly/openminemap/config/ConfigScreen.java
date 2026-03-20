@@ -183,13 +183,13 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption = new ChoiceButtonWidget(new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
 
-        tileScaleSlider = new ChoiceSliderWidget(tileScaleOptions, ConfigOptions.TILE_SCALE);
+        tileScaleSlider = new ChoiceSliderWidget(tileScaleOptions, ConfigOptions.TILE_SCALE, true);
         this.addConfigOptionWidget(tileScaleSlider);
 
         reverseScrollOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.REVERSE_SCROLL);
         this.addConfigOptionWidget(reverseScrollOption);
 
-        zoomStrengthSlider = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH);
+        zoomStrengthSlider = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH, true);
         this.addConfigOptionWidget(zoomStrengthSlider);
 
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
@@ -224,7 +224,7 @@ public class ConfigScreen extends Screen {
         interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer);
         this.addConfigOptionWidget(interfaceLabel);
 
-        transparencySlider = new ChoiceSliderWidget(decimalPercentOptions, ConfigOptions.INTERFACE_OPACITY);
+        transparencySlider = new ChoiceSliderWidget(decimalPercentOptions, ConfigOptions.INTERFACE_OPACITY, true);
         this.addConfigOptionWidget(transparencySlider);
 
         showConnectionStatusOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.SHOW_CONNECTION_STATUS);

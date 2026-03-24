@@ -35,8 +35,8 @@ import java.util.function.BooleanSupplier;
 public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;
-    public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
-    public static int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
+    public static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
+    private static int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
     public int tileSize = baseTileSize; //the actual size the tiles are currently being rendered at
     public static int WAYPOINTSIZE;
     public static int PLAYERSIZE;
@@ -130,10 +130,19 @@ public class OmmMap extends ClickableWidget {
         };
     }
 
+    private final static double natLogOf1d2 = Math.log(0.5);
+    private static void setBaseTileSize(int size) {
+        baseTileSize = size;
+        TILEMAXARTIFICIALZOOM = (Math.log(
+                (double) baseTileSize / Integer.MAX_VALUE
+        ) / natLogOf1d2) - 0.01;
+        System.out.println(TILEMAXARTIFICIALZOOM);
+    }
+
     public static void initializeConfigParameters(boolean reloadZoom) {
         PLAYERSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.PLAYER_SIZE));
         WAYPOINTSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.WAYPOINT_SIZE));
-        baseTileSize = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.TILE_SCALE));
+        setBaseTileSize(Integer.parseInt(ConfigFile.readParameter(ConfigOptions.TILE_SCALE)));
         if (!reloadZoom) return;
         FullscreenMapScreen.map.normalizeZoom(FullscreenMapScreen.map.zoom);
         HudMap.map.normalizeZoom(HudMap.map.zoom);
@@ -365,8 +374,8 @@ public class OmmMap extends ClickableWidget {
 
     public void resetMap() {
         followPlayer = false;
-        mapCenterY = 64;
-        mapCenterX = 64;
+        mapCenterY = (double) baseTileSize / 2;
+        mapCenterX = (double) baseTileSize / 2;
         zoom = 0;
         tileSize = baseTileSize;
     }
@@ -462,18 +471,21 @@ public class OmmMap extends ClickableWidget {
 
     public void zoomIn(double amount, boolean withMouse) {
         if (zoom + amount > maxZoom) amount = maxZoom - zoom; //change the total zoom amount if it is more than the max
+        if (amount <= 0) return;
         double originalZoom = zoom;
-        if (!followPlayer && withMouse && amount != 0) {
-            mapCenterX -= (mapCenterX - mouseTileX) * ((Math.pow(2, amount) - 1) / Math.pow(2, amount));
-            mapCenterY -= (mapCenterY - mouseTileY) * ((Math.pow(2, amount) - 1) / Math.pow(2, amount));
+        if (!followPlayer && withMouse) {
+            double v = (Math.pow(2, amount) - 1) / Math.pow(2, amount);
+            mapCenterX -= (mapCenterX - mouseTileX) * v;
+            mapCenterY -= (mapCenterY - mouseTileY) * v;
         }
         zoom += amount; //change the zoom level
         normalizeZoom(originalZoom); //normalize the zoom level
     }
     public void zoomOut(double amount, boolean withMouse) {
         if (zoom - amount < 0) amount = zoom;
+        if (amount <= 0) return;
         double originalZoom = zoom;
-        if (!followPlayer && withMouse && amount != 0) {
+        if (!followPlayer && withMouse) {
             mapCenterX += (mapCenterX - mouseTileX) * (Math.pow(2, amount) - 1);
             mapCenterY += (mapCenterY - mouseTileY) * (Math.pow(2, amount) - 1);
         }

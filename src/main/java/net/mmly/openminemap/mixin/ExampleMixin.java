@@ -3,6 +3,7 @@ package net.mmly.openminemap.mixin;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.maps.OmmMap;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,6 +21,6 @@ public class ExampleMixin {
     @Inject(at = @At("HEAD"), method = "getMatrices")
 	public void init(CallbackInfoReturnable<MatrixStack> cir) {
 		// This code is injected into the start of MinecraftServer.loadWorld()V
-        OmmMap.capturedVertexProvider = this.vertexConsumers;
+        UContext.capturedVertexProvider = this.vertexConsumers;
 	}
 }

@@ -1,16 +1,23 @@
 package net.mmly.openminemap.draw;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
+
+import java.util.TreeMap;
 
 public class UContext { //UniversalContext ; makes it easier to update draw methods per-version and allows for adding custom ones ; also eliminates the need to pass a context with draw methods
 
     static DrawContext drawContext;
     static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+    public static VertexConsumerProvider.Immediate capturedVertexProvider;
 
     public static void setContext(DrawContext context) {
         drawContext = context;
@@ -79,4 +86,57 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     public static void drawTexture(Identifier identifier, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         drawContext.drawTexture(RenderLayer::getGuiTextured, identifier, x, y, u, v, width, height, regionWidth, regionHeight, textureWidth, textureHeight);
     }
+
+    public static void drawTriangle(int[][] triangle, int fillColor) {
+        RenderSystem.disableCull();
+
+        triangle = sortTriangleToDrawOrder(triangle);
+        if (triangle == null) return;
+
+        Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
+
+        VertexConsumer vertexConsumer = capturedVertexProvider.getBuffer(RenderLayer.getGui());
+        //System.out.println(Arrays.deepToString(triangle));
+
+        for (int i = 2; i >= 0; i--) {
+            vertexConsumer.vertex(matrix4f, triangle[i][0], triangle[i][1], 0).color(fillColor);
+        }
+        vertexConsumer.vertex(matrix4f, triangle[0][0], triangle[0][1], 0).color(fillColor);
+
+    }
+
+    public static int[][] sortTriangleToDrawOrder(int[][] triangle) {
+        //System.out.println(Arrays.deepToString(triangle));
+        double[] center = getCircumcenter(triangle);
+        TreeMap<Double, int[]> points = new TreeMap<>();
+        for (int i = 0; i < 3; i++) {
+            points.put(
+                    Math.atan2(triangle[i][1] - center[1], triangle[i][0] - center[0]),
+                    triangle[i]
+            );
+        }
+        int[][] pointsArray = points.values().toArray(new int[0][]);
+        if (pointsArray.length != 3) return null;
+        int[][] sortedTriangle = new int[3][2];
+        for (int i = 0; i < pointsArray.length; i++) {
+            sortedTriangle[i][0] = pointsArray[i][0];
+            sortedTriangle[i][1] = pointsArray[i][1];
+        }
+        return sortedTriangle;
+    }
+
+    private static double[] getCircumcenter(int[][] triangle) {
+        int ax = triangle[0][0];
+        int ay = triangle[0][1];
+        int bx = triangle[1][0];
+        int by = triangle[1][1];
+        int cx = triangle[2][0];
+        int cy = triangle[2][1];
+        double d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+        double ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
+        double uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+        return new double[] {ux, uy};
+    }
+
+
 }

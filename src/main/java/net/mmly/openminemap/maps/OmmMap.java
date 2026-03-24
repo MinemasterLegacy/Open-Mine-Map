@@ -1,6 +1,5 @@
 package net.mmly.openminemap.maps;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.font.TextRenderer;
@@ -15,6 +14,7 @@ import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
@@ -29,10 +29,7 @@ import net.mmly.openminemap.util.*;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {
@@ -100,8 +97,6 @@ public class OmmMap extends ClickableWidget {
     public MethodInterface waypointClickedProcedure;
 
     private static Waypoint[] waypoints;
-
-    public static VertexConsumerProvider.Immediate capturedVertexProvider;
 
     public static boolean geoCoordsOutOfBounds(double lat, double lon) {
         return !(Math.abs(lon) < 180 && Math.abs(lat) < 85.0511287798);
@@ -670,61 +665,16 @@ public class OmmMap extends ClickableWidget {
     }
 
     private boolean drawPolygon(DrawContext drawContext, double[][] points, int fillColor, int outlineColor) {
-        RenderSystem.disableCull();
 
         double[][][] latLonTriangles = PolygonTriangulator.triangulate(points);
-        System.out.println(Arrays.deepToString(latLonTriangles));
-        int[][][] triangles;
-        if (latLonTriangles == null) triangles = null;
-        else triangles = latLonTriangleArrayToWindowRelative(latLonTriangles);
-        System.out.println(Arrays.deepToString(triangles));
+        if (latLonTriangles == null) return false;
+        int[][][] triangles = latLonTriangleArrayToWindowRelative(latLonTriangles);
 
-        /*
-        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder fillBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        BufferBuilder outlineBuilder = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
-        */
-
-
-        //if (triangles != null) for (int[][] triangle : triangles) {
-        //    for (int[] point : triangle) {
-        //        point[0] = getWindowRelativeX(Math.round(UnitConvert.longToMapX(point[0], zoom, tileSize)), 0);
-        //        point[1] = getWindowRelativeY(Math.round(UnitConvert.latToMapY(point[1], zoom, tileSize)), 0);
-        //        fillBuilder.vertex(matrix, point[0], point[1], 0).color(fillColor);
-        //    }
-        //    fillBuilder.vertex(matrix, triangle[2][0], triangle[2][1], 0).color(fillColor);
-        //}
-
-        //int[][] mapRelativePoints = latLonPointArrayToWindowRelative(points);
-        //for (int i = 0; i < points.length; i++) {
-        //    drawDiagonalLine(drawContext, mapRelativePoints[i], mapRelativePoints[i], outlineColor);
-        //}
-
-        drawContext.fill(40, 40, 50, 50, 0xFF00FF00);
-        //drawDiagonalLine(drawContext, new int[] {40, 40}, new int[] {60, 60}, 0xFF000000);
-
-        System.out.println(triangles != null);
-        if (triangles != null) for (int[][] triangle : triangles) {
-            drawTriangle(drawContext, triangle, fillColor);
+        for (int[][] triangle : triangles) {
+            UContext.drawTriangle(triangle, fillColor);
         }
 
-        //for (double[] point : points) {
-        //    point[0] = getWindowRelativeX(Math.round(UnitConvert.longToMapX(point[0], zoom, tileSize)), 0);
-        //    point[1] = getWindowRelativeY(Math.round(UnitConvert.latToMapY(point[1], zoom, tileSize)), 0);
-        //    outlineBuilder.vertex(matrix, (int) Math.round(point[0]), (int) Math.round(point[1]), 1).color(outlineColor).normal(2, 2, 2);
-        //}
-
-
-        //outlineBuilder.vertex(35, 40, 0).color(outlineColor);
-        //outlineBuilder.vertex(45, 80, 0).color(outlineColor);
-        //outlineBuilder.vertex(80, 85, 0).color(outlineColor);
-        //outlineBuilder.vertex(75, 40, 0).color(outlineColor);
-
-        //BufferRenderer.drawWithGlobalProgram(outlineBuilder.end());
-
-        RenderSystem.enableCull();
-        return triangles != null;
+        return true;
     }
 
     private static final int[] lineXModifiers = {0, 1, 1, 0, -1, -1, -1, 0, 1};
@@ -740,55 +690,6 @@ public class OmmMap extends ClickableWidget {
         }
 
         BufferRenderer.drawWithGlobalProgram(outlineBuilder.end());
-
-    }
-
-    private int[][] sortTriangleToDrawOrder(int[][] triangle) {
-
-
-
-        return triangle;
-    }
-
-    private double[] getCircumcenter(int[][] triangle) {
-        int ax = triangle[0][0];
-        int ay = triangle[0][1];
-        int bx = triangle[1][0];
-        int by = triangle[1][1];
-        int cx = triangle[2][0];
-        int cy = triangle[2][1];
-        double d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
-        double ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
-        double uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
-        return new double[] {ux, uy};
-    }
-
-    private void drawTriangle(DrawContext drawContext, int[][] triangle, int fillColor) {
-        //Code copied and adapted from DrawContext::fill
-        //Currently (as of 1.21.4) uses a mixin to acquire the vertexconsumer, may or may not be necessary in newer versions
-
-        /*
-        Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
-        VertexConsumer vertexConsumer = capturedVertexProvider.getBuffer(RenderLayer.getGui());
-
-        for (int i = 0; i < 3; i++) {
-            vertexConsumer.vertex(matrix4f, triangle[i][0], triangle[i][0], 0).color(fillColor);
-        }
-        vertexConsumer.vertex(matrix4f, triangle[0][0], triangle[0][0], 0).color(fillColor);
-
-         */
-        double[] center = getCircumcenter(triangle);
-
-        //triangle = sortTriangleToDrawOrder(triangle);
-        Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
-
-        VertexConsumer vertexConsumer = capturedVertexProvider.getBuffer(RenderLayer.getGui());
-        System.out.println(Arrays.deepToString(triangle));
-
-        for (int i = 0; i < 3;  i++) {
-            vertexConsumer.vertex(matrix4f, triangle[i][0], triangle[i][1], 0).color(fillColor);
-        }
-        vertexConsumer.vertex(matrix4f, triangle[2][0], triangle[2][1], 0).color(fillColor);
 
     }
 
@@ -992,14 +893,6 @@ public class OmmMap extends ClickableWidget {
 
         if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true")) {
 
-            RenderSystem.disableCull();
-            int[][] triangle = new int[3][2];
-            triangle[0] = new int[] {30, 50};
-            triangle[1] = new int[] {50, 100};
-            triangle[2] = new int[] {(int) mouseX, (int) mouseY};
-            drawTriangle(context, triangle, 0xFFFFFFFF);
-            RenderSystem.enableCull();
-
             double[][] poly = new double[][] {
                     {
                             -112.0724980674874,
@@ -1122,7 +1015,7 @@ public class OmmMap extends ClickableWidget {
                             33.45862324333743
                     }
             };
-            //drawPolygon(context, poly, 0x4000FF00, 0xFF000000);
+            drawPolygon(context, poly, 0x4000FF00, 0xFF000000);
         }
 
         context.disableScissor();

@@ -3,6 +3,8 @@ package net.mmly.openminemap.map;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.util.UnitConvert;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -14,10 +16,18 @@ public class DrawableClaim {
 
     public final boolean finished;
     public final double[][] vertices;
+    public final float leftmost;
+    public final float rightmost;
+    public final float topmost;
+    public final float bottommost;
 
-    DrawableClaim(double[][] vertices, boolean finished) {
+    DrawableClaim(double[][] vertices, boolean finished, double leftmost, double rightmost, double topmost, double bottommost) {
         this.finished = finished;
         this.vertices = vertices;
+        this.leftmost = (float) leftmost;
+        this.rightmost = (float) rightmost;
+        this.topmost = (float) topmost;
+        this.bottommost = (float) bottommost;
     }
 
     public static DrawableClaim[] of(InputStream stream) {
@@ -30,6 +40,7 @@ public class DrawableClaim {
             return null;
         }
         if (!returnedResult.get("type").equals("FeatureCollection")) return null;
+        //coordinates are stored as [lon, lat]
 
         JsonArray features = gson.toJsonTree(returnedResult, Map.class).getAsJsonObject().get("features").getAsJsonArray();
         DrawableClaim[] claims = new DrawableClaim[features.size()];
@@ -41,17 +52,41 @@ public class DrawableClaim {
             JsonArray verticesArray = feature.get("geometry").getAsJsonObject().get("coordinates").getAsJsonArray().get(0).getAsJsonArray();
             double[][] vertices = new double[verticesArray.size()][2];
 
+            double leftmost = 180;
+            double rightmost = -180;
+            double topmost = -90;
+            double bottommost = 90;
+
             for (int j = 0; j < vertices.length; j++) {
                 for (int k = 0; k < 2; k++) {
                     vertices[j][k] = verticesArray.get(j).getAsJsonArray().get(k).getAsDouble();
                 }
+
+                rightmost = Math.max(rightmost, vertices[j][0]);
+                leftmost = Math.min(leftmost, vertices[j][0]);
+                topmost = Math.max(topmost, vertices[j][1]);
+                bottommost = Math.min(bottommost, vertices[j][1]);
+
             }
 
-            claims[i] = new DrawableClaim(vertices, finished);
+            claims[i] = new DrawableClaim(vertices, finished, leftmost, rightmost, topmost, bottommost);
         }
 
         return claims;
 
+    }
+
+    public boolean inBoundsOf(double mapPosX, double mapPosY, int mapRenderWidth, int mapRenderHeight, double zoom, int scaledSize) {
+        double mapLeftBorder = (-mapRenderWidth / 2) + mapPosX;
+        double mapRightBorder = (mapRenderWidth / 2) + mapPosX;
+        double mapTopBorder = (-mapRenderHeight / 2) + mapPosY;
+        double mapBottomBorder = (mapRenderHeight / 2) + mapPosY;
+        return
+                UnitConvert.longToMapX(leftmost, zoom, scaledSize) < mapRightBorder &&
+                UnitConvert.longToMapX(rightmost, zoom, scaledSize) > mapLeftBorder &&
+                UnitConvert.latToMapY(topmost, zoom, scaledSize) < mapBottomBorder &&
+                UnitConvert.latToMapY(bottommost, zoom, scaledSize) > mapTopBorder
+        ;
     }
 
 }

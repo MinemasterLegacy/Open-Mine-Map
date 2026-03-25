@@ -309,14 +309,18 @@ public class OmmMap extends ClickableWidget {
         }
     }
 
+    public boolean zoomIsInClaimRenderRange() {
+        return zoom <= 18 && zoom >= 7;
+    }
+
     public void updateTimeRelatedVars() {
         int changeMs = Math.toIntExact(Math.min(1000, Util.getEpochTimeMs() - lastSavedTime));
         lastSavedTime = Util.getEpochTimeMs();
 
-        if (zoom > 18) {
-            zoomFadeAlpha = Math.max(0, zoomFadeAlpha - changeMs);
-        } else {
+        if (zoomIsInClaimRenderRange()) {
             zoomFadeAlpha = Math.min(255, zoomFadeAlpha + changeMs);
+        } else {
+            zoomFadeAlpha = Math.max(0, zoomFadeAlpha - changeMs);
         }
 
     }
@@ -814,7 +818,7 @@ public class OmmMap extends ClickableWidget {
         return newPoints;
     }
 
-    private boolean drawPolygon(DrawContext drawContext, double[][] points, int fillColor, int outlineColor) {
+    private boolean drawPolygon(double[][] points, int fillColor, int outlineColor) {
 
         double[][][] latLonTriangles = PolygonTriangulator.triangulate(points);
 
@@ -970,15 +974,15 @@ public class OmmMap extends ClickableWidget {
 
         //, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d))
 
-        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 9 && zoom < 20 && claims != null) {
+        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null) {
             for (DrawableClaim claim : claims) {
-                if (claim == null) continue;
-                drawPolygon(context, claim.vertices,
-                UnitConvert.setAlpha(zoomFadeAlpha / 2, claim.finished ? 0x0037b24d : 0x009e2f2f),
-                UnitConvert.setAlpha(zoomFadeAlpha, claim.finished ? 0x0037b24d : 0x009e2f2f));
+                if (claim == null || !claim.inBoundsOf(mapCenterX, mapCenterY, renderAreaWidth, renderAreaHeight, zoom, tileSize)) continue;
+                drawPolygon(
+                        claim.vertices,
+                        UnitConvert.setAlpha(zoomFadeAlpha / 2, claim.finished ? 0x0037b24d : 0x009e2f2f),
+                        UnitConvert.setAlpha(zoomFadeAlpha, claim.finished ? 0x0037b24d : 0x009e2f2f));
             }
         }
-
 
         //draw waypoints
 

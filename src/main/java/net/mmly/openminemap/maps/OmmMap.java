@@ -842,7 +842,7 @@ public class OmmMap extends ClickableWidget {
         context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
         drawMap(context, isHudMap); //draw the map tiles + background
 
-        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 9) {
+        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 9 && zoom < 20) {
 
             double[][] poly = new double[][] {
                     {
@@ -966,7 +966,8 @@ public class OmmMap extends ClickableWidget {
                             33.45862324333743
                     }
             };
-            drawPolygon(context, poly, UnitConvert.setAlpha(zoomFadeAlpha / 4, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d));
+            //drawPolygon(context, poly, UnitConvert.setAlpha(zoomFadeAlpha / 4, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d));
+            drawPolygon(context, poly, UnitConvert.setAlpha(zoomFadeAlpha / 4, 0x409e2f2f), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF9e2f2f));
         }
 
 
@@ -1022,7 +1023,7 @@ public class OmmMap extends ClickableWidget {
         if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("show")) drawHoveredPlayerText(context);
 
         if (followPlayer) {
-            DirectionIndicator.draw(
+            if (selfMappable.isIndicatorDrawable()) DirectionIndicator.draw(
                     context,
                     PlayerAttributes.geoYaw,
                     renderAreaX + (renderAreaWidth / 2) - (int) (PLAYERSIZE * 1.5),

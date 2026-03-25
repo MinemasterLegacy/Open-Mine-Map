@@ -21,17 +21,138 @@ import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.gui.FullscreenMapScreen;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
 import net.mmly.openminemap.hud.HudMap;
-import net.mmly.openminemap.map.MappablePlayer;
-import net.mmly.openminemap.map.PlayerAttributes;
-import net.mmly.openminemap.map.PlayersManager;
-import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.map.*;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {
+
+    double[][] poly = new double[][] {
+            {
+                    -112.0724980674874,
+                    33.45862324333743
+            },
+            {
+                    -112.07373112639085,
+                    33.45861764421596
+            },
+            {
+                    -112.073734671256,
+                    33.45763577350699
+            },
+            {
+                    -112.07374214372476,
+                    33.456650970810955
+            },
+            {
+                    -112.07351181073597,
+                    33.45664415635916
+            },
+            {
+                    -112.07247878299067,
+                    33.45664287021509
+            },
+            {
+                    -112.07248593143615,
+                    33.455598238772694
+            },
+            {
+                    -112.07121585164461,
+                    33.45559572681226
+            },
+            {
+                    -112.0712181616629,
+                    33.454586963614915
+            },
+            {
+                    -112.0700520319818,
+                    33.45458897435081
+            },
+            {
+                    -112.07004312485601,
+                    33.45663388724003
+            },
+            {
+                    -112.06879419608015,
+                    33.45661685813002
+            },
+            {
+                    -112.06879078257768,
+                    33.45765878640273
+            },
+            {
+                    -112.06754749157277,
+                    33.45766831714259
+            },
+            {
+                    -112.06754890686672,
+                    33.45800269571116
+            },
+            {
+                    -112.06810768374606,
+                    33.458001728527975
+            },
+            {
+                    -112.06816572885411,
+                    33.458005999514555
+            },
+            {
+                    -112.06816472953587,
+                    33.45841705944993
+            },
+            {
+                    -112.06754487778132,
+                    33.45841702178653
+            },
+            {
+                    -112.0675435792755,
+                    33.458599172596806
+            },
+            {
+                    -112.06914839323953,
+                    33.45861012852579
+            },
+            {
+                    -112.06973511377674,
+                    33.458613879420284
+            },
+            {
+                    -112.06988572786094,
+                    33.458613879420284
+            },
+            {
+                    -112.07004173202688,
+                    33.458620395198565
+            },
+            {
+                    -112.07132276495196,
+                    33.458625936836256
+            },
+            {
+                    -112.07133083762156,
+                    33.45899140200342
+            },
+            {
+                    -112.07134016127786,
+                    33.45994606023646
+            },
+            {
+                    -112.07195309379404,
+                    33.4599475142349
+            },
+            {
+                    -112.07248187243594,
+                    33.45995028334487
+            },
+            {
+                    -112.0724980674874,
+                    33.45862324333743
+            }
+    };
 
     public final static double TILEMAXZOOM = 18;
     public static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
@@ -100,6 +221,7 @@ public class OmmMap extends ClickableWidget {
     public MethodInterface waypointClickedProcedure;
 
     private static Waypoint[] waypoints;
+    public static DrawableClaim[] claims;
 
     public static boolean geoCoordsOutOfBounds(double lat, double lon) {
         return !(Math.abs(lon) < 180 && Math.abs(lat) < 85.0511287798);
@@ -695,11 +817,13 @@ public class OmmMap extends ClickableWidget {
     private boolean drawPolygon(DrawContext drawContext, double[][] points, int fillColor, int outlineColor) {
 
         double[][][] latLonTriangles = PolygonTriangulator.triangulate(points);
-        if (latLonTriangles == null) return false;
-        int[][][] triangles = latLonTriangleArrayToWindowRelative(latLonTriangles);
 
-        for (int[][] triangle : triangles) {
-            UContext.drawTriangle(triangle, fillColor);
+        if (latLonTriangles != null) {
+            int[][][] triangles = latLonTriangleArrayToWindowRelative(latLonTriangles);
+
+            for (int[][] triangle : triangles) {
+                UContext.drawTriangle(triangle, fillColor);
+            }
         }
 
         int[][] winRelPoints = latLonPointArrayToWindowRelative(points);
@@ -712,7 +836,9 @@ public class OmmMap extends ClickableWidget {
             UContext.square(point[0], point[1], 1, outlineColor);
         }
 
-        return true;
+        //drawContext.fill(winRelPoints[0][0] - 2, winRelPoints[0][1] - 2, winRelPoints[0][0] + 2, winRelPoints[0][1] + 2, 0xFF000000);
+
+        return latLonTriangles != null;
     }
 
     private void drawTile(DrawContext context, DrawableMapTile tile) {
@@ -842,132 +968,15 @@ public class OmmMap extends ClickableWidget {
         context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
         drawMap(context, isHudMap); //draw the map tiles + background
 
-        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 9 && zoom < 20) {
+        //, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d))
 
-            double[][] poly = new double[][] {
-                    {
-                            -112.0724980674874,
-                            33.45862324333743
-                    },
-                    {
-                            -112.07373112639085,
-                            33.45861764421596
-                    },
-                    {
-                            -112.073734671256,
-                            33.45763577350699
-                    },
-                    {
-                            -112.07374214372476,
-                            33.456650970810955
-                    },
-                    {
-                            -112.07351181073597,
-                            33.45664415635916
-                    },
-                    {
-                            -112.07247878299067,
-                            33.45664287021509
-                    },
-                    {
-                            -112.07248593143615,
-                            33.455598238772694
-                    },
-                    {
-                            -112.07121585164461,
-                            33.45559572681226
-                    },
-                    {
-                            -112.0712181616629,
-                            33.454586963614915
-                    },
-                    {
-                            -112.0700520319818,
-                            33.45458897435081
-                    },
-                    {
-                            -112.07004312485601,
-                            33.45663388724003
-                    },
-                    {
-                            -112.06879419608015,
-                            33.45661685813002
-                    },
-                    {
-                            -112.06879078257768,
-                            33.45765878640273
-                    },
-                    {
-                            -112.06754749157277,
-                            33.45766831714259
-                    },
-                    {
-                            -112.06754890686672,
-                            33.45800269571116
-                    },
-                    {
-                            -112.06810768374606,
-                            33.458001728527975
-                    },
-                    {
-                            -112.06816572885411,
-                            33.458005999514555
-                    },
-                    {
-                            -112.06816472953587,
-                            33.45841705944993
-                    },
-                    {
-                            -112.06754487778132,
-                            33.45841702178653
-                    },
-                    {
-                            -112.0675435792755,
-                            33.458599172596806
-                    },
-                    {
-                            -112.06914839323953,
-                            33.45861012852579
-                    },
-                    {
-                            -112.06973511377674,
-                            33.458613879420284
-                    },
-                    {
-                            -112.06988572786094,
-                            33.458613879420284
-                    },
-                    {
-                            -112.07004173202688,
-                            33.458620395198565
-                    },
-                    {
-                            -112.07132276495196,
-                            33.458625936836256
-                    },
-                    {
-                            -112.07133083762156,
-                            33.45899140200342
-                    },
-                    {
-                            -112.07134016127786,
-                            33.45994606023646
-                    },
-                    {
-                            -112.07195309379404,
-                            33.4599475142349
-                    },
-                    {
-                            -112.07248187243594,
-                            33.45995028334487
-                    },
-                    {
-                            -112.0724980674874,
-                            33.45862324333743
-                    }
-            };
-            //drawPolygon(context, poly, UnitConvert.setAlpha(zoomFadeAlpha / 4, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d));
-            drawPolygon(context, poly, UnitConvert.setAlpha(zoomFadeAlpha / 4, 0x409e2f2f), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF9e2f2f));
+        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 9 && zoom < 20 && claims != null) {
+            for (DrawableClaim claim : claims) {
+                if (claim == null) continue;
+                drawPolygon(context, claim.vertices,
+                UnitConvert.setAlpha(zoomFadeAlpha / 2, claim.finished ? 0x0037b24d : 0x009e2f2f),
+                UnitConvert.setAlpha(zoomFadeAlpha, claim.finished ? 0x0037b24d : 0x009e2f2f));
+            }
         }
 
 

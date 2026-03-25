@@ -376,6 +376,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             return true;
         }
 
+        //TODO not do this if in text box
         if (KeyInputHandler.getOpenFullscreenOsmMapKey().matchesKey(keyCode, scanCode)) {
             this.close();
         }

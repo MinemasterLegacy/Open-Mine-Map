@@ -1,5 +1,7 @@
 package net.mmly.openminemap.util;
 
+import java.util.Arrays;
+
 public class PolygonTriangulator {
 
     //  Coded by Darel Rex Finley, 2022; hereby given to the public domain. If you use this code in your own project,
@@ -8,6 +10,10 @@ public class PolygonTriangulator {
     //triangulate a list of [x, y] points representing a polygon into a set of [[x1, y1], [x2, y2], [x3, y3]] triangles for drawing
     // [[p1x, p1y], [p2x, p2y], ...]  ->  [[[t1x1, t1y1], [t1x2, t1y2], [t1x3, t1y3]], [[t2x1, t2y1], [t2x2, t2y2], [t2x3, t2y3]], ...]
     public static double[][][] triangulate(double[][] polygon) {
+
+        if (Arrays.equals(polygon[0], polygon[polygon.length - 1])) {
+            polygon = Arrays.copyOfRange(polygon, 0, polygon.length - 1);
+        }
 
         int corners = polygon.length;
         double[][][] triangles = new double[polygon.length - 2][3][2];

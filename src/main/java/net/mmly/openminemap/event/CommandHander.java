@@ -15,6 +15,7 @@ import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
@@ -24,6 +25,7 @@ import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -51,8 +53,19 @@ public class CommandHander {
                             .executes(CommandHander::warp)))
                     .then(ClientCommandManager.literal("distortion")
                             .executes(CommandHander::distortion))
+                    .then(ClientCommandManager.literal("loadclaims")
+                            .executes(CommandHander::loadclaims))
         );});
         //registerCommands();
+    }
+
+    private static int loadclaims(CommandContext<FabricClientCommandSource> context) {
+        try {
+            OmmMap.claims = DrawableClaim.of(MinecraftClient.getInstance().getResourceManager().open(Identifier.of("openminemap", "claims.json")));
+        } catch (IOException e) {
+            System.out.println("D:");;
+        }
+        return 0;
     }
 
     private static int distortion(CommandContext<FabricClientCommandSource> context) {

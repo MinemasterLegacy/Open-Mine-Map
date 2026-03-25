@@ -477,6 +477,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             chatToBeOpened = false;
         }
 
+        FullscreenMapScreen.map.updateTimeRelatedVars();
+
         updateScreenDims(); //update screen dimension variables in case window has been resized
         PlayerAttributes.updatePlayerAttributes(mClient);
 
@@ -559,6 +561,8 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             toggleAltScreenMap(false);
             return;
         }
+
+        FullscreenMapScreen.map.updateTimeRelatedVars();
 
         //context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x22FF0000);
         UContext.setContext(context);

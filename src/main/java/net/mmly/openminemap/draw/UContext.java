@@ -69,6 +69,10 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         drawContext.fill(x, y, x + width, y + height, color);
     }
 
+    public static void square(int x, int y, int radius, int color) {
+        drawContext.fill(x - radius, y - radius, x + radius, y + radius, color);
+    }
+
     public static void fillAndDrawText(Text text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor, boolean shadow) {
         fillZone(x, y, (marginWidth * 2) + textRenderer.getWidth(text), (marginHeight * 2) + textRenderer.fontHeight, fillColor);
         drawJustifiedText(text, Justify.LEFT, x + marginWidth, y + marginHeight, textColor, shadow);
@@ -154,37 +158,20 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         MatrixStack matrixStack = drawContext.getMatrices();
         matrixStack.push();
 
-        double boundsX = Math.abs(start[0] - end[0]);
-        double boundsY = Math.abs(start[1] - end[1]);
+        double boundsX = start[0] - end[0];
+        double boundsY = start[1] - end[1];
         float length = (float) Math.sqrt(boundsX * boundsX + boundsY * boundsY);
-
-
-        //rotateDeg(matrixStack, (float) Math.atan2(boundsY, boundsX));
 
         matrixStack.translate(
                 (float) (start[0] + end[0]) / 2,
                 (float) (start[1] + end[1]) / 2,
                 0
         );
+        rotateRad(matrixStack, (float) Math.atan2(boundsY, boundsX));
+        matrixStack.scale(length / 2, thickness / 2, 1);
 
-        rotateDeg(matrixStack, 45);
-
-        matrixStack.scale(
-                length,
-                thickness,
-                1
-        );
-
-
-        /*
-         - translations are affected by rotations
-         */
-
-        drawContext.fill(0, 0, 1, 1, color);
+        drawContext.fill(-1, -1, 1, 1, color);
         matrixStack.pop();
-
-        drawContext.fill(start[0] - 2, start[1] - 2, start[0] + 2, start[1] + 2, 0xFF000000);
-        drawContext.fill(end[0] - 2, end[1] - 2, end[0] + 2, end[1] + 2, 0xFF000000);
 
     }
 

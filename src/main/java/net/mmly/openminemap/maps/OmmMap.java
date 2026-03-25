@@ -9,11 +9,11 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.*;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
@@ -26,7 +26,6 @@ import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.*;
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -81,6 +80,10 @@ public class OmmMap extends ClickableWidget {
     private int backgroundColor = 0x00000000;
     private int tintColor = 0x00000000;
 
+    private long lastSavedTime;
+    //private static final int ZOOM_FADE_TIME_MS = 1000;
+    public int zoomFadeAlpha = 255;
+
     private boolean doArtificialZoom = false;
     private boolean cropMapTiles = true;
     private boolean cropPlayers = true;
@@ -120,6 +123,7 @@ public class OmmMap extends ClickableWidget {
         this.mapCenterX = mapCenterX;
         this.mapCenterY = mapCenterY;
         this.tileSize = (int) Math.floor(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
+        this.lastSavedTime = Util.getEpochTimeMs();
     }
 
     private static int parseSize(String size) {
@@ -181,6 +185,18 @@ public class OmmMap extends ClickableWidget {
         if (zoom < zoom1) {
             zoomIn(zoom1 - zoom);
         }
+    }
+
+    public void updateTimeRelatedVars() {
+        int changeMs = Math.toIntExact(Math.min(1000, Util.getEpochTimeMs() - lastSavedTime));
+        lastSavedTime = Util.getEpochTimeMs();
+
+        if (zoom > 18) {
+            zoomFadeAlpha = Math.max(0, zoomFadeAlpha - changeMs);
+        } else {
+            zoomFadeAlpha = Math.min(255, zoomFadeAlpha + changeMs);
+        }
+
     }
 
     public int getTileSize() {
@@ -688,11 +704,13 @@ public class OmmMap extends ClickableWidget {
 
         int[][] winRelPoints = latLonPointArrayToWindowRelative(points);
 
-        //for (int i = 0; i < winRelPoints.length; i++) {
-        //    UContext.drawDiagonalLine(winRelPoints[i], winRelPoints[i + 1 > winRelPoints.length ? 0 : i + 1], outlineColor);
-        //}
+        for (int i = 0; i < winRelPoints.length; i++) {
+            UContext.drawDiagonalLine(winRelPoints[i], winRelPoints[i + 1 >= winRelPoints.length ? 0 : i + 1], Math.clamp((int) Math.ceil((zoom - 9) / 3), 1, 3), outlineColor);
+        }
 
-        UContext.drawDiagonalLine(new int[] {30, 30}, new int[] {40, 40}, 3, outlineColor);
+        if (zoom > 12) for (int[] point : winRelPoints) {
+            UContext.square(point[0], point[1], 1, outlineColor);
+        }
 
         return true;
     }
@@ -824,78 +842,7 @@ public class OmmMap extends ClickableWidget {
         context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
         drawMap(context, isHudMap); //draw the map tiles + background
 
-        //draw waypoints
-
-        hoveredWaypoint = null;
-        for (Waypoint waypoint : waypoints) {
-
-            if (!waypoint.visible) continue;
-
-            int x = getWindowRelativeX(UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize), WAYPOINTSIZE / 2);
-            int y = getWindowRelativeY(UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize), WAYPOINTSIZE / 2);
-            //int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
-            //int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
-
-            if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
-                hoveredWaypoint = waypoint;
-            }
-
-            context.drawTexture(
-                    RenderLayer::getGuiTextured,
-                    waypoint.identifier,
-                    x,
-                    y,
-                    0,
-                    0,
-                    WAYPOINTSIZE,
-                    WAYPOINTSIZE,
-                    WAYPOINTSIZE,
-                    WAYPOINTSIZE,
-                    WAYPOINTSIZE,
-                    WAYPOINTSIZE
-            );
-
-        }
-
-        hoveredPlayerY = -250;
-
-        ArrayList<BufferedPlayer> players = new ArrayList<>();
-        //draw other players' direction indicators
-        for (MappablePlayer player : PlayersManager.getMappablePlayers()) {
-            players.add(drawDirectionIndicator(context, player));
-        }
-
-        //draw other players
-        for (BufferedPlayer bufferedPlayer : players) {
-            if (bufferedPlayer == null) continue;
-            drawBufferedPlayer(context, bufferedPlayer);
-        }
-
-        MappablePlayer selfMappable = new MappablePlayer(player, OverlayVisibility.SELF);
-        BufferedPlayer self = null;
-        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("show")) drawHoveredPlayerText(context);
-
-        if (followPlayer) {
-            DirectionIndicator.draw(
-                    context,
-                    PlayerAttributes.geoYaw,
-                    renderAreaX + (renderAreaWidth / 2) - (int) (PLAYERSIZE * 1.5),
-                    renderAreaY + (renderAreaHeight / 2) - (int) (PLAYERSIZE * 1.5),
-                    !selfMappable.isPlayerDrawable()
-            );
-        } else {
-            self = drawDirectionIndicator(context, selfMappable);
-        }
-
-        if (selfMappable.isPlayerDrawable()) {
-            if (followPlayer) {
-                drawClientPlayerCentered(context);
-            } else {
-                if (self != null) drawBufferedPlayer(context, self);
-            }
-        }
-
-        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoom <= 18) {
+        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 9) {
 
             double[][] poly = new double[][] {
                     {
@@ -1019,7 +966,79 @@ public class OmmMap extends ClickableWidget {
                             33.45862324333743
                     }
             };
-            drawPolygon(context, poly, 0x4000FF00, 0xFFFF0000);
+            drawPolygon(context, poly, UnitConvert.setAlpha(zoomFadeAlpha / 4, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d));
+        }
+
+
+        //draw waypoints
+
+        hoveredWaypoint = null;
+        for (Waypoint waypoint : waypoints) {
+
+            if (!waypoint.visible) continue;
+
+            int x = getWindowRelativeX(UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize), WAYPOINTSIZE / 2);
+            int y = getWindowRelativeY(UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize), WAYPOINTSIZE / 2);
+            //int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
+            //int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
+
+            if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
+                hoveredWaypoint = waypoint;
+            }
+
+            context.drawTexture(
+                    RenderLayer::getGuiTextured,
+                    waypoint.identifier,
+                    x,
+                    y,
+                    0,
+                    0,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE,
+                    WAYPOINTSIZE
+            );
+
+        }
+
+        hoveredPlayerY = -250;
+
+        ArrayList<BufferedPlayer> players = new ArrayList<>();
+        //draw other players' direction indicators
+        for (MappablePlayer player : PlayersManager.getMappablePlayers()) {
+            players.add(drawDirectionIndicator(context, player));
+        }
+
+        //draw other players
+        for (BufferedPlayer bufferedPlayer : players) {
+            if (bufferedPlayer == null) continue;
+            drawBufferedPlayer(context, bufferedPlayer);
+        }
+
+        MappablePlayer selfMappable = new MappablePlayer(player, OverlayVisibility.SELF);
+        BufferedPlayer self = null;
+        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("show")) drawHoveredPlayerText(context);
+
+        if (followPlayer) {
+            DirectionIndicator.draw(
+                    context,
+                    PlayerAttributes.geoYaw,
+                    renderAreaX + (renderAreaWidth / 2) - (int) (PLAYERSIZE * 1.5),
+                    renderAreaY + (renderAreaHeight / 2) - (int) (PLAYERSIZE * 1.5),
+                    !selfMappable.isPlayerDrawable()
+            );
+        } else {
+            self = drawDirectionIndicator(context, selfMappable);
+        }
+
+        if (selfMappable.isPlayerDrawable()) {
+            if (followPlayer) {
+                drawClientPlayerCentered(context);
+            } else {
+                if (self != null) drawBufferedPlayer(context, self);
+            }
         }
 
         context.disableScissor();

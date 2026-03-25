@@ -132,4 +132,8 @@ public class UnitConvert {
     public static int argb(int alpha, int green, int blue, int red) {
         return (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
+
+    public static int setAlpha(int alpha, int argb) {
+        return (alpha << 24) | (argb & 0x00FFFFFF);
+    }
 }

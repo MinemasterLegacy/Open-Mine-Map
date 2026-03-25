@@ -7,8 +7,11 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
 
 import java.util.TreeMap;
@@ -138,5 +141,51 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         return new double[] {ux, uy};
     }
 
+    private static void rotateRad(MatrixStack matrixStack, float radians) {
+        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotation(radians));
+    }
+
+    private static void rotateDeg(MatrixStack matrixStack, float degrees) {
+        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(degrees));
+    }
+
+    public static void drawDiagonalLine(int[] start, int[] end, float thickness, int color) {
+
+        MatrixStack matrixStack = drawContext.getMatrices();
+        matrixStack.push();
+
+        double boundsX = Math.abs(start[0] - end[0]);
+        double boundsY = Math.abs(start[1] - end[1]);
+        float length = (float) Math.sqrt(boundsX * boundsX + boundsY * boundsY);
+
+
+        //rotateDeg(matrixStack, (float) Math.atan2(boundsY, boundsX));
+
+        matrixStack.translate(
+                (float) (start[0] + end[0]) / 2,
+                (float) (start[1] + end[1]) / 2,
+                0
+        );
+
+        rotateDeg(matrixStack, 45);
+
+        matrixStack.scale(
+                length,
+                thickness,
+                1
+        );
+
+
+        /*
+         - translations are affected by rotations
+         */
+
+        drawContext.fill(0, 0, 1, 1, color);
+        matrixStack.pop();
+
+        drawContext.fill(start[0] - 2, start[1] - 2, start[0] + 2, start[1] + 2, 0xFF000000);
+        drawContext.fill(end[0] - 2, end[1] - 2, end[0] + 2, end[1] + 2, 0xFF000000);
+
+    }
 
 }

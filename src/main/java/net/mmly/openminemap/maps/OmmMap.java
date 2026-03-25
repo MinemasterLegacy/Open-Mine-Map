@@ -136,7 +136,7 @@ public class OmmMap extends ClickableWidget {
         TILEMAXARTIFICIALZOOM = (Math.log(
                 (double) baseTileSize / Integer.MAX_VALUE
         ) / natLogOf1d2) - 0.01;
-        System.out.println(TILEMAXARTIFICIALZOOM);
+        //System.out.println(TILEMAXARTIFICIALZOOM);
     }
 
     public static void initializeConfigParameters(boolean reloadZoom) {
@@ -686,23 +686,15 @@ public class OmmMap extends ClickableWidget {
             UContext.drawTriangle(triangle, fillColor);
         }
 
+        int[][] winRelPoints = latLonPointArrayToWindowRelative(points);
+
+        //for (int i = 0; i < winRelPoints.length; i++) {
+        //    UContext.drawDiagonalLine(winRelPoints[i], winRelPoints[i + 1 > winRelPoints.length ? 0 : i + 1], outlineColor);
+        //}
+
+        UContext.drawDiagonalLine(new int[] {30, 30}, new int[] {40, 40}, 3, outlineColor);
+
         return true;
-    }
-
-    private static final int[] lineXModifiers = {0, 1, 1, 0, -1, -1, -1, 0, 1};
-    private static final int[] lineYModifiers = {0, 0, 1, 1, 1, 0, -1, -1, -1};
-    private void drawDiagonalLine(DrawContext drawContext, int[] point1, int[] point2, int outlineColor) {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder outlineBuilder = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
-        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
-
-        for (int i = 0; i < 9; i++) {
-            outlineBuilder.vertex(matrix, point1[0] + lineXModifiers[i], point1[1] + lineYModifiers[i], 0).color(outlineColor);
-            outlineBuilder.vertex(matrix, point2[0] + lineXModifiers[i], point2[1] + lineYModifiers[i], 0).color(outlineColor);
-        }
-
-        BufferRenderer.drawWithGlobalProgram(outlineBuilder.end());
-
     }
 
     private void drawTile(DrawContext context, DrawableMapTile tile) {
@@ -903,7 +895,7 @@ public class OmmMap extends ClickableWidget {
             }
         }
 
-        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true")) {
+        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoom <= 18) {
 
             double[][] poly = new double[][] {
                     {
@@ -1027,7 +1019,7 @@ public class OmmMap extends ClickableWidget {
                             33.45862324333743
                     }
             };
-            drawPolygon(context, poly, 0x4000FF00, 0xFF000000);
+            drawPolygon(context, poly, 0x4000FF00, 0xFFFF0000);
         }
 
         context.disableScissor();

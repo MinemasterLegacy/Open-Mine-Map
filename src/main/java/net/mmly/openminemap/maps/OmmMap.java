@@ -25,7 +25,6 @@ import net.mmly.openminemap.map.*;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 
@@ -818,19 +817,17 @@ public class OmmMap extends ClickableWidget {
         return newPoints;
     }
 
-    private boolean drawPolygon(double[][] points, int fillColor, int outlineColor) {
+    private void drawClaim(DrawableClaim drawableClaim, int fillColor, int outlineColor) {
 
-        double[][][] latLonTriangles = PolygonTriangulator.triangulate(points);
-
-        if (latLonTriangles != null) {
-            int[][][] triangles = latLonTriangleArrayToWindowRelative(latLonTriangles);
+        if (drawableClaim.triangulationSucceeded()) {
+            int[][][] triangles = latLonTriangleArrayToWindowRelative(drawableClaim.triangles);
 
             for (int[][] triangle : triangles) {
                 UContext.drawTriangle(triangle, fillColor);
             }
         }
 
-        int[][] winRelPoints = latLonPointArrayToWindowRelative(points);
+        int[][] winRelPoints = latLonPointArrayToWindowRelative(drawableClaim.vertices);
 
         for (int i = 0; i < winRelPoints.length; i++) {
             UContext.drawDiagonalLine(winRelPoints[i], winRelPoints[i + 1 >= winRelPoints.length ? 0 : i + 1], Math.clamp((int) Math.ceil((zoom - 9) / 3), 1, 3), outlineColor);
@@ -842,7 +839,6 @@ public class OmmMap extends ClickableWidget {
 
         //drawContext.fill(winRelPoints[0][0] - 2, winRelPoints[0][1] - 2, winRelPoints[0][0] + 2, winRelPoints[0][1] + 2, 0xFF000000);
 
-        return latLonTriangles != null;
     }
 
     private void drawTile(DrawContext context, DrawableMapTile tile) {
@@ -977,8 +973,8 @@ public class OmmMap extends ClickableWidget {
         if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null) {
             for (DrawableClaim claim : claims) {
                 if (claim == null || !claim.inBoundsOf(mapCenterX, mapCenterY, renderAreaWidth, renderAreaHeight, zoom, tileSize)) continue;
-                drawPolygon(
-                        claim.vertices,
+                drawClaim(
+                        claim,
                         UnitConvert.setAlpha(zoomFadeAlpha / 2, claim.finished ? 0x0037b24d : 0x009e2f2f),
                         UnitConvert.setAlpha(zoomFadeAlpha, claim.finished ? 0x0037b24d : 0x009e2f2f));
             }

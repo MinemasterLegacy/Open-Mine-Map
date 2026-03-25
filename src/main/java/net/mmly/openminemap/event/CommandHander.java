@@ -15,6 +15,8 @@ import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayerAttributes;
@@ -22,6 +24,7 @@ import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 
@@ -60,10 +63,17 @@ public class CommandHander {
     }
 
     private static int loadclaims(CommandContext<FabricClientCommandSource> context) {
+        if (!ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true")) {
+            MinecraftClient.getInstance().player.sendMessage(Text.literal("Experimental Claim Rendering is not enabled."), false);
+            return 0;
+        }
+
         try {
+            DrawableClaim.succeededTriangulations = 0;
             OmmMap.claims = DrawableClaim.of(MinecraftClient.getInstance().getResourceManager().open(Identifier.of("openminemap", "claims.json")));
+            MinecraftClient.getInstance().player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
         } catch (IOException e) {
-            System.out.println("D:");;
+            System.out.println("D:");
         }
         return 0;
     }

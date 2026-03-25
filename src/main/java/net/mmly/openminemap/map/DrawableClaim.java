@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.util.PolygonTriangulator;
 import net.mmly.openminemap.util.UnitConvert;
 
 import java.io.BufferedReader;
@@ -14,12 +15,14 @@ import java.util.Map;
 
 public class DrawableClaim {
 
+    public static int succeededTriangulations = 0;
     public final boolean finished;
     public final double[][] vertices;
     public final float leftmost;
     public final float rightmost;
     public final float topmost;
     public final float bottommost;
+    public final double[][][] triangles;
 
     DrawableClaim(double[][] vertices, boolean finished, double leftmost, double rightmost, double topmost, double bottommost) {
         this.finished = finished;
@@ -28,6 +31,8 @@ public class DrawableClaim {
         this.rightmost = (float) rightmost;
         this.topmost = (float) topmost;
         this.bottommost = (float) bottommost;
+        this.triangles = PolygonTriangulator.triangulate(vertices);
+        if (this.triangles != null) succeededTriangulations++;
     }
 
     public static DrawableClaim[] of(InputStream stream) {
@@ -37,9 +42,9 @@ public class DrawableClaim {
         try {
             returnedResult = gson.fromJson(new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)), Map.class);
         } catch (NullPointerException e) {
-            return null;
+            return new DrawableClaim[0];
         }
-        if (!returnedResult.get("type").equals("FeatureCollection")) return null;
+        if (!returnedResult.get("type").equals("FeatureCollection")) return new DrawableClaim[0];
         //coordinates are stored as [lon, lat]
 
         JsonArray features = gson.toJsonTree(returnedResult, Map.class).getAsJsonObject().get("features").getAsJsonArray();
@@ -74,6 +79,10 @@ public class DrawableClaim {
 
         return claims;
 
+    }
+
+    public boolean triangulationSucceeded() {
+        return triangles != null;
     }
 
     public boolean inBoundsOf(double mapPosX, double mapPosY, int mapRenderWidth, int mapRenderHeight, double zoom, int scaledSize) {

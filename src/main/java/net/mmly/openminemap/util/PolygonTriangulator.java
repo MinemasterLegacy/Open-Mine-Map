@@ -20,7 +20,7 @@ public class PolygonTriangulator {
             polygon = Arrays.copyOfRange(polygon, 0, polygon.length - 1);
         }
 
-        if (isClockwise(polygon)) {
+        if (!isClockwise(polygon)) {
             Collections.reverse(Arrays.asList(polygon));
         }
         //System.out.println(polygon.length);
@@ -84,15 +84,19 @@ public class PolygonTriangulator {
     }
 
     private static boolean isClockwise(double[][] polygon) {
-        int sum = 0;
+        double area = 0;
         for (int i = 0; i < polygon.length; i++) {
-            sum += (int) ((polygon[i][0] + polygon[i + 1 == polygon.length ? 0 : i + 1][0]) * (polygon[i][1] + polygon[i + 1 == polygon.length ? 0 : i + 1][1]));
+            area += (
+                    (
+                            polygon[(i + 1) % polygon.length][0] -
+                                    polygon[i][0]
+                    ) * (
+                            polygon[(i + 1) % polygon.length][1] +
+                                    polygon[i][1]
+                    )
+            );
         }
-        return !(sum < 0);
-    }
-
-    private static double[][] flipArray(double[][] polygon) {
-        return null;
+        return area < 0;
     }
 
     private static double[][] toXY(double[][] polygonArray) {

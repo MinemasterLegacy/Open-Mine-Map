@@ -1,7 +1,6 @@
 package net.mmly.openminemap.maps;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.Mouse;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -10,7 +9,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -30,129 +28,6 @@ import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {
 
-    double[][] poly = new double[][] {
-            {
-                    -112.0724980674874,
-                    33.45862324333743
-            },
-            {
-                    -112.07373112639085,
-                    33.45861764421596
-            },
-            {
-                    -112.073734671256,
-                    33.45763577350699
-            },
-            {
-                    -112.07374214372476,
-                    33.456650970810955
-            },
-            {
-                    -112.07351181073597,
-                    33.45664415635916
-            },
-            {
-                    -112.07247878299067,
-                    33.45664287021509
-            },
-            {
-                    -112.07248593143615,
-                    33.455598238772694
-            },
-            {
-                    -112.07121585164461,
-                    33.45559572681226
-            },
-            {
-                    -112.0712181616629,
-                    33.454586963614915
-            },
-            {
-                    -112.0700520319818,
-                    33.45458897435081
-            },
-            {
-                    -112.07004312485601,
-                    33.45663388724003
-            },
-            {
-                    -112.06879419608015,
-                    33.45661685813002
-            },
-            {
-                    -112.06879078257768,
-                    33.45765878640273
-            },
-            {
-                    -112.06754749157277,
-                    33.45766831714259
-            },
-            {
-                    -112.06754890686672,
-                    33.45800269571116
-            },
-            {
-                    -112.06810768374606,
-                    33.458001728527975
-            },
-            {
-                    -112.06816572885411,
-                    33.458005999514555
-            },
-            {
-                    -112.06816472953587,
-                    33.45841705944993
-            },
-            {
-                    -112.06754487778132,
-                    33.45841702178653
-            },
-            {
-                    -112.0675435792755,
-                    33.458599172596806
-            },
-            {
-                    -112.06914839323953,
-                    33.45861012852579
-            },
-            {
-                    -112.06973511377674,
-                    33.458613879420284
-            },
-            {
-                    -112.06988572786094,
-                    33.458613879420284
-            },
-            {
-                    -112.07004173202688,
-                    33.458620395198565
-            },
-            {
-                    -112.07132276495196,
-                    33.458625936836256
-            },
-            {
-                    -112.07133083762156,
-                    33.45899140200342
-            },
-            {
-                    -112.07134016127786,
-                    33.45994606023646
-            },
-            {
-                    -112.07195309379404,
-                    33.4599475142349
-            },
-            {
-                    -112.07248187243594,
-                    33.45995028334487
-            },
-            {
-                    -112.0724980674874,
-                    33.45862324333743
-            }
-    };
-
     public final static double TILEMAXZOOM = 18;
     public static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
     private static int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
@@ -162,9 +37,7 @@ public class OmmMap extends ClickableWidget {
 
     private boolean fieldsInitialized = false;
     private MinecraftClient client;
-    private Window window;
     private ClientPlayerEntity player;
-    private Mouse mouse;
     private TextRenderer textRenderer;
 
     private Waypoint hoveredWaypoint = null;
@@ -186,8 +59,6 @@ public class OmmMap extends ClickableWidget {
     private double playerMapX = 64;
     private double playerMapY = 64;
 
-    private double mousePixelX;
-    private double mousePixelY;
     private double mouseX = 0;
     private double mouseY = 0;
     private double mouseTileX = 0;
@@ -221,15 +92,35 @@ public class OmmMap extends ClickableWidget {
 
     private static Waypoint[] waypoints;
     public static DrawableClaim[] claims;
+    public static boolean renderClaimsToggle = true;
 
     public static boolean geoCoordsOutOfBounds(double lat, double lon) {
         return !(Math.abs(lon) < 180 && Math.abs(lat) < 85.0511287798);
     }
 
     private void initFields() {
+        //System.out.println("init called");
         client = MinecraftClient.getInstance();
-        window = client.getWindow();
         player = client.player;
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && OmmMap.claims == null && !fieldsInitialized) {
+            fieldsInitialized = true;
+            /*
+            try {
+                DrawableClaim.succeededTriangulations = 0;
+                DrawableClaim.Loader.reloadClaimData(
+                        client.getResourceManager().open(Identifier.of("openminemap", "claims.json")),
+                        false
+                );
+                if (ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS).equals("true")) player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
+            } catch (IOException e) {
+                player.sendMessage(Text.translatable("omm.error.load-claims"), false);
+            }
+
+             */
+            DrawableClaim.Loader.reloadClaimData(false);
+        } else {
+            fieldsInitialized = true;
+        }
     }
 
     public OmmMap(int x, int y, int width, int height) {
@@ -505,10 +396,6 @@ public class OmmMap extends ClickableWidget {
     protected void renderWidget(DrawContext context, int mX, int mY, float delta) {
         mouseX = mX;
         mouseY = mY;
-        if (fieldsInitialized){
-            mousePixelX = mouse.getX();
-            mousePixelY = mouse.getY();
-        }
 
         mouseIsOutOfBounds = mouseTileX < 0 || mouseTileY < 0 || mouseTileX > Math.pow(2, zoom + 7) || mouseTileY > Math.pow(2, zoom + 7);
     }
@@ -970,7 +857,7 @@ public class OmmMap extends ClickableWidget {
 
         //, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d))
 
-        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true") && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null) {
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null && renderClaimsToggle) {
             for (DrawableClaim claim : claims) {
                 if (claim == null || !claim.inBoundsOf(mapCenterX, mapCenterY, renderAreaWidth, renderAreaHeight, zoom, tileSize)) continue;
                 drawClaim(

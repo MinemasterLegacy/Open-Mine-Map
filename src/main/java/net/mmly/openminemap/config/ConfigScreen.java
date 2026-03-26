@@ -50,6 +50,7 @@ public class ConfigScreen extends Screen {
     ChoiceSliderWidget zoomStrengthSlider;
 
     CategoryLabelWidget overlayLabel;
+    ChoiceButtonWidget renderClaimsOption;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
     ChoiceSliderWidget playerSizeSlider;
@@ -195,6 +196,9 @@ public class ConfigScreen extends Screen {
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
 
+        renderClaimsOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.CLAIMS_RENDERING);
+        this.addConfigOptionWidget(renderClaimsOption);
+
         playerShowSlider = new ChoiceSliderWidget(visibilityOptions, ConfigOptions.SHOW_PLAYERS);
         this.addConfigOptionWidget(playerShowSlider);
 
@@ -234,7 +238,6 @@ public class ConfigScreen extends Screen {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
-            this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING, true));
         }
 
         configList.restoreScroll();

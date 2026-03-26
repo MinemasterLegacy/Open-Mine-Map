@@ -15,7 +15,6 @@ import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.map.MappablePlayer;
@@ -28,7 +27,6 @@ import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -56,25 +54,20 @@ public class CommandHander {
                             .executes(CommandHander::warp)))
                     .then(ClientCommandManager.literal("distortion")
                             .executes(CommandHander::distortion))
-                    .then(ClientCommandManager.literal("loadclaims")
-                            .executes(CommandHander::loadclaims))
+                    .then(ClientCommandManager.literal("reloadclaims")
+                            .executes(CommandHander::reloadclaims))
         );});
         //registerCommands();
     }
 
-    private static int loadclaims(CommandContext<FabricClientCommandSource> context) {
-        if (!ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true")) {
-            MinecraftClient.getInstance().player.sendMessage(Text.literal("Experimental Claim Rendering is not enabled."), false);
+    private static int reloadclaims(CommandContext<FabricClientCommandSource> context) {
+        if (!ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on")) {
+            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.claims.not-enabled"), false);
             return 0;
         }
-
-        try {
-            DrawableClaim.succeededTriangulations = 0;
-            OmmMap.claims = DrawableClaim.of(MinecraftClient.getInstance().getResourceManager().open(Identifier.of("openminemap", "claims.json")));
-            MinecraftClient.getInstance().player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
-        } catch (IOException e) {
-            System.out.println("D:");
-        }
+        DrawableClaim.Loader.reloadClaimData(false);
+        //TODO add time restriction
+        MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.claims.reloading"), false);
         return 0;
     }
 

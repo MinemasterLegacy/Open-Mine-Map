@@ -3,11 +3,17 @@ package net.mmly.openminemap.map;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.PolygonTriangulator;
 import net.mmly.openminemap.util.UnitConvert;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -96,6 +102,34 @@ public class DrawableClaim {
                 UnitConvert.latToMapY(topmost, zoom, scaledSize) < mapBottomBorder &&
                 UnitConvert.latToMapY(bottommost, zoom, scaledSize) > mapTopBorder
         ;
+    }
+
+    public static class Loader extends Thread {
+        @Override
+        public void run() {
+            loadClaims();
+        }
+
+        private static boolean notify = false;
+
+        private void loadClaims() {
+            try {
+                DrawableClaim.succeededTriangulations = 0;
+                OmmMap.claims = null;
+                OmmMap.claims = DrawableClaim.of(
+                        MinecraftClient.getInstance().getResourceManager().open(Identifier.of("openminemap", "claims.json"))
+                );
+                if (ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS).equals("true")) MinecraftClient.getInstance().player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
+            } catch (IOException e) {
+                MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.load-claims"), false);
+            }
+        }
+
+        public static void reloadClaimData(boolean notify) {
+            System.out.println("reload claim data called");
+            Loader.notify = notify;
+            new Loader().start();
+        }
     }
 
 }

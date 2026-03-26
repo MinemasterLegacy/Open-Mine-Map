@@ -23,7 +23,9 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     WAYPOINT_SIZE(0, "WaypointSize", "normal", "Waypoint Size", "Set the render size for waypoints"),
     SHOW_CONNECTION_STATUS(0, "ConnectionStatus", "hide", "Connection Status", "Show the map's current connection status with the server"),
     TILE_SCALE(0, "TileScale", "128", "Tile Scale", "Change the render size of map tiles"),
+    CLAIMS_RENDERING(0, "ClaimsRendering", "off", "claims"),
 
+    _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),
     _HUD_LAST_ZOOM(1, "§hudlastzoom", "0"),
@@ -33,8 +35,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
 
     __SHOW_DEVELOPER_OPTIONS(2, "ShowDeveloperOptions", "false"),
     __DISABLE_WEB_REQUESTS(2, "DisableWebRequests", "false", "DisableWebRequests", ""),
-    __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", ""),
-    __EXPERIMENTAL_CLAIMS_RENDERING(2, "ExperimentalClaimsRendering", "false", "ExperimentalClaimsRendering", "");
+    __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", "");
 
     private final String defaultValue;
     private final String rawText;

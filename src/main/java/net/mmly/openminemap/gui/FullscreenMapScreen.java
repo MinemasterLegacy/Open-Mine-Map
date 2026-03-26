@@ -66,12 +66,14 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
+    private static ToggleClaimRenderingButtonLayer toggleClaimRenderingButtonLayer;
     private static SearchButtonLayer searchButtonLayer;
     private static SearchBoxLayer searchBoxLayer;
     private static NetworkStatusLayer networkStatusLayer;
     public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[7];
     private static PinnedWaypointsLayer pinnedWaypointsLayer;
-    private static final Identifier[][] showIdentifiers = new Identifier[2][2];
+    private static final Identifier[][] showHudmapIdentifiers = new Identifier[2][2];
+    private static final Identifier[][] showClaimsIdentifiers = new Identifier[2][2];
     String playerDisplayLon = "0.00000";
     String playerDisplayLat = "0.00000";
     static FullscreenMapScreen instance;
@@ -130,7 +132,14 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         String[] names = new String[] {"mapoff.png", "mapon.png"};
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
-                showIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
+                showHudmapIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
+            }
+        }
+
+        names = new String[] {"claimsoff.png", "claimson.png"};
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                showClaimsIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
             }
         }
     }
@@ -256,6 +265,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             this.addDrawableChild(buttonlayers.get(ButtonFunction.getEnumOf(i)));
         }
 
+        toggleClaimRenderingButtonLayer = new ToggleClaimRenderingButtonLayer(windowScaledWidth - 50, windowScaledHeight - 57);
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on")) this.addDrawableChild(toggleClaimRenderingButtonLayer);
+
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
@@ -335,6 +347,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
 
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
+        toggleClaimRenderingButtonLayer.setPosition(windowScaledWidth - 50, windowScaledHeight - 57);
         attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
         bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
     }
@@ -509,9 +522,15 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         int buttonStyle = HudMap.hudEnabled ? 1 : 0;
         context.drawTexture(RenderLayer::getGuiTextured, toggleHudMapButtonLayer.isHovered() ?
-                showIdentifiers[1][buttonStyle] :
-                showIdentifiers[0][buttonStyle],
+                showHudmapIdentifiers[1][buttonStyle] :
+                showHudmapIdentifiers[0][buttonStyle],
                 toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
+
+        buttonStyle = OmmMap.renderClaimsToggle ? 1 : 0;
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on"))  context.drawTexture(RenderLayer::getGuiTextured, toggleClaimRenderingButtonLayer.isHovered() ?
+                        showClaimsIdentifiers[1][buttonStyle] :
+                        showClaimsIdentifiers[0][buttonStyle],
+                toggleClaimRenderingButtonLayer.getX(), toggleClaimRenderingButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         //draws the Mouse and player coordinates text fields
         String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";

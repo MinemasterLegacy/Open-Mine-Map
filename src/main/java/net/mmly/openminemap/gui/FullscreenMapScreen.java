@@ -376,11 +376,6 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             return true;
         }
 
-        //TODO not do this if in text box
-        if (KeyInputHandler.getOpenFullscreenOsmMapKey().matchesKey(keyCode, scanCode)) {
-            this.close();
-        }
-
         if (searchElementsFocused()) {
             if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN) {
                 arrowNavigateSearch(keyCode);
@@ -388,6 +383,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             } else {
                 return super.keyPressed(keyCode, scanCode, modifiers);
             }
+        }
+
+        if (KeyInputHandler.getOpenFullscreenOsmMapKey().matchesKey(keyCode, scanCode)) {
+            this.close();
         }
 
         if (mClient.options.chatKey.matchesKey(keyCode, 0)) {

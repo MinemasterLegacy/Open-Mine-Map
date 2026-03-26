@@ -10,8 +10,8 @@ import net.minecraft.util.Formatting;
 import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.UnitConvert;
 
-import static net.mmly.openminemap.gui.FullscreenMapScreen.windowScaledHeight;
-import static net.mmly.openminemap.gui.FullscreenMapScreen.windowScaledWidth;
+import static net.mmly.openminemap.gui.MapScreen.windowScaledHeight;
+import static net.mmly.openminemap.gui.MapScreen.windowScaledWidth;
 
 public class AttributionLayer extends ClickableWidget {
 
@@ -44,7 +44,7 @@ public class AttributionLayer extends ClickableWidget {
         calculateSelection();
 
         textWidth = textRenderer.getWidth(attribution);
-        context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, FullscreenMapScreen.backingColor);
+        context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, MapScreen.backingColor);
 
         int y = windowScaledHeight + 7 -textRenderer.fontHeight - 10;
         int drawCursorX = windowScaledWidth - textWidth - 3;
@@ -102,6 +102,6 @@ public class AttributionLayer extends ClickableWidget {
         String link;
         if (selection == 0) link = TileUrlFile.osmAttributionUrl;
         else link = TileUrlFile.getCurrentUrl().attribution_links[selection - 1];
-        FullscreenMapScreen.openLinkScreen(link, new FullscreenMapScreen(), true);
+        MapScreen.openLinkScreen(link, new MapScreen(), true);
     }
 }

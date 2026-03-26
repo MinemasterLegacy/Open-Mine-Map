@@ -5,7 +5,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.RequestManager;
@@ -55,7 +55,7 @@ public class SearchBoxLayer extends TextFieldWidget {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (searching) return true;
         if (keyCode == GLFW.GLFW_KEY_ENTER) {
-            FullscreenMapScreen.getInstance().jumpToBestOption();
+            MapScreen.getInstance().jumpToBestOption();
             //RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return true;
         } else {
@@ -69,14 +69,14 @@ public class SearchBoxLayer extends TextFieldWidget {
             searchResults = RequestManager.searchResultReturn;
             numResults = RequestManager.searchResultReturn.length;
             RequestManager.searchResultReturn = null;
-            FullscreenMapScreen.getInstance().jumpToSearchBox();
+            MapScreen.getInstance().jumpToSearchBox();
             updateResultElements();
         } else if (!previousText.equals(getText()) && !searching) {
             previousText = getText();
             recalculateResults();
         }
 
-        setEditableColor(getText().isEmpty() && !isFocused() ? 0xFF404040 : 0xFFFFFFFF);
+        setEditableColor(getText().isEmpty() && !isFocused() ? MapScreen.getDarkTextColor() : MapScreen.getPlainTextColor());
         if (searching) setPlaceholder(Text.translatable("omm.notification.searching"));
         else setPlaceholder(Text.translatable("omm.search.anything"));
 
@@ -96,8 +96,8 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     private void clearSearchResults() {
         Arrays.fill(searchResults, null);
-        for (int i = 0; i < FullscreenMapScreen.searchResultLayers.length; i++) {
-            FullscreenMapScreen.searchResultLayers[i].setResult(null);
+        for (int i = 0; i < MapScreen.searchResultLayers.length; i++) {
+            MapScreen.searchResultLayers[i].setResult(null);
         }
         numResults = 0;
     }
@@ -219,8 +219,8 @@ public class SearchBoxLayer extends TextFieldWidget {
     }
 
     private static void updateResultElements() {
-        for (int i = 0; i < FullscreenMapScreen.searchResultLayers.length; i++) {
-            FullscreenMapScreen.searchResultLayers[i].setResult(searchResults[i]);
+        for (int i = 0; i < MapScreen.searchResultLayers.length; i++) {
+            MapScreen.searchResultLayers[i].setResult(searchResults[i]);
         }
     }
 

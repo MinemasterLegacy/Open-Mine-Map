@@ -5,7 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
@@ -139,18 +139,18 @@ public class Requester extends Thread {
         SearchResult result = reverseSearchRequest(RequestManager.reverseSearchLat, RequestManager.reverseSearchLong);
         RequestManager.resetReverseSearchCandidate();
         if (result == null) {
-            FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+            MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
         } else {
             try {
                 String location = "";
-                if (result.name != null && FullscreenMapScreen.map.getTileZoom() >= 14) location += result.name + ", ";
+                if (result.name != null && MapScreen.map.getTileZoom() >= 14) location += result.name + ", ";
                 if (result.context != null) location += result.context + ", ";
                 if (!location.isEmpty()) location = location.substring(0, location.length() - 2);
 
                 MinecraftClient.getInstance().keyboard.setClipboard(location);
-                FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.location-copied")));
+                MapScreen.addNotification(new Notification(Text.translatable("omm.notification.location-copied")));
             } catch (HeadlessException e) {
-                FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+                MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
             }
         }
     }

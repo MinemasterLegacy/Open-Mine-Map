@@ -8,7 +8,7 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.mmly.openminemap.OpenMineMap;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.util.UnitConvert;
@@ -44,7 +44,7 @@ public class KeyInputHandler {
                 //client.player.sendMessage(Text.literal("Key pressed!")); //send message in chat
                 System.out.println("key");
                 MinecraftClient.getInstance().setScreen(
-                        new FullscreenMapScreen()
+                        new MapScreen()
                 );
 
             }

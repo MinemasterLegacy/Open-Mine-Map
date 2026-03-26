@@ -1,6 +1,6 @@
 package net.mmly.openminemap.util;
 
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 
 import java.text.DecimalFormat;
 
@@ -42,11 +42,11 @@ public class UnitConvert {
     }
 
     public static float scaledToPixelCoords(float x) {
-        return (x*((float)FullscreenMapScreen.windowHeight/FullscreenMapScreen.windowScaledHeight));
+        return (x*((float) MapScreen.windowHeight/ MapScreen.windowScaledHeight));
     }
 
     public static float pixelToScaledCoords(float x) {
-        return (x*((float)FullscreenMapScreen.windowScaledHeight/FullscreenMapScreen.windowHeight));
+        return (x*((float) MapScreen.windowScaledHeight/ MapScreen.windowHeight));
     }
 
     public static double[] toDecimalDegrees(String lat, String lon) {
@@ -129,11 +129,5 @@ public class UnitConvert {
         }
     }
 
-    public static int argb(int alpha, int green, int blue, int red) {
-        return (alpha << 24) | (red << 16) | (green << 8) | blue;
-    }
-
-    public static int setAlpha(int alpha, int argb) {
-        return (alpha << 24) | (argb & 0x00FFFFFF);
-    }
+    //-1 - 1 / black - white
 }

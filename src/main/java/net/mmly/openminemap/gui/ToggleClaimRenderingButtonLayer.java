@@ -6,8 +6,6 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
-import net.mmly.openminemap.event.CommandHander;
-import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.Notification;
@@ -49,7 +47,7 @@ public class ToggleClaimRenderingButtonLayer extends ClickableWidget {
         if (lastCheckedButton == 1) {
             long neededTime = (lastReloaded + 60000);
             if (Util.getMeasuringTimeMs() < neededTime) {
-                FullscreenMapScreen.addNotification(new Notification(Text.literal(
+                MapScreen.addNotification(new Notification(Text.literal(
                         Text.translatable("omm.claims.wait-start").getString() +
                             ((int) (neededTime - Util.getMeasuringTimeMs()) / 1000) +
                         Text.translatable("omm.claims.wait-end").getString()
@@ -57,7 +55,7 @@ public class ToggleClaimRenderingButtonLayer extends ClickableWidget {
                 return;
             }
             DrawableClaim.Loader.reloadClaimData(true);
-            FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.claims.reloading")));
+            MapScreen.addNotification(new Notification(Text.translatable("omm.claims.reloading")));
             lastReloaded = Util.getMeasuringTimeMs();
         }
     }

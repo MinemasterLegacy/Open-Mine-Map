@@ -9,7 +9,6 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.network.NetworkState;
-import net.mmly.openminemap.network.PlayerInfoPacketCodec;
 import net.mmly.openminemap.util.ConfigFile;
 
 public class NetworkStatusLayer extends ClickableWidget {
@@ -25,7 +24,7 @@ public class NetworkStatusLayer extends ClickableWidget {
     protected void drawWidget(DrawContext context) {
         if (MinecraftClient.getInstance().isInSingleplayer() || !ConfigFile.readParameter(ConfigOptions.SHOW_CONNECTION_STATUS).equals("show")) return;
         int winWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
-        UContext.fillZone(winWidth - 26, 0, 26, 26, FullscreenMapScreen.backingColor);
+        UContext.fillZone(winWidth - 26, 0, 26, 26, MapScreen.backingColor);
         if (isHovered()) {
             UContext.drawTexture(NetworkState.getNetworkState().selectionIdentifier, winWidth - 24, 2, 22, 22, 22, 22);
             setTooltip(Tooltip.of(Text.translatable(NetworkState.getNetworkState().translationKey)));

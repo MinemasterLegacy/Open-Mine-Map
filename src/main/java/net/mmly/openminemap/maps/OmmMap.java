@@ -16,7 +16,7 @@ import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.*;
@@ -160,7 +160,7 @@ public class OmmMap extends ClickableWidget {
         WAYPOINTSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.WAYPOINT_SIZE));
         setBaseTileSize(Integer.parseInt(ConfigFile.readParameter(ConfigOptions.TILE_SCALE)));
         if (!reloadZoom) return;
-        FullscreenMapScreen.map.normalizeZoom(FullscreenMapScreen.map.zoom);
+        MapScreen.map.normalizeZoom(MapScreen.map.zoom);
         HudMap.map.normalizeZoom(HudMap.map.zoom);
     }
 
@@ -623,13 +623,13 @@ public class OmmMap extends ClickableWidget {
         if (altitudeOffset > 0) {
             context.fill(
                     relativeX, relativeY, relativeX + width, relativeY + height,
-                    UnitConvert.argb(alpha, 255, 255, 255)
+                    ColorUtil.setAlpha(alpha, 0xFFFFFFFF)
             );
         } else {
             context.fill(
                     relativeX, relativeY, relativeX + width, relativeY + height,
-                    UnitConvert.argb(alpha, 0, 0, 0)
-            );
+                    ColorUtil.setAlpha(alpha, 0xFF000000)
+                    );
         }
 
 
@@ -862,8 +862,8 @@ public class OmmMap extends ClickableWidget {
                 if (claim == null || !claim.inBoundsOf(mapCenterX, mapCenterY, renderAreaWidth, renderAreaHeight, zoom, tileSize)) continue;
                 drawClaim(
                         claim,
-                        UnitConvert.setAlpha(zoomFadeAlpha / 2, claim.finished ? 0x0037b24d : 0x009e2f2f),
-                        UnitConvert.setAlpha(zoomFadeAlpha, claim.finished ? 0x0037b24d : 0x009e2f2f));
+                        ColorUtil.setAlpha(zoomFadeAlpha / 2, claim.finished ? 0x0037b24d : 0x009e2f2f),
+                        ColorUtil.setAlpha(zoomFadeAlpha, claim.finished ? 0x0037b24d : 0x009e2f2f));
             }
         }
 

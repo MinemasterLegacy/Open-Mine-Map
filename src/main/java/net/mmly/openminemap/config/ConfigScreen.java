@@ -15,7 +15,7 @@ import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
@@ -110,7 +110,7 @@ public class ConfigScreen extends Screen {
     @Override
     public void close() {
         MinecraftClient.getInstance().setScreen(
-                new FullscreenMapScreen()
+                new MapScreen()
         );
     }
 
@@ -167,7 +167,7 @@ public class ConfigScreen extends Screen {
         configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
-                FullscreenMapScreen.toggleAltScreenMap(false);
+                MapScreen.toggleAltScreenMap(false);
         }).dimensions(15, windowScaledHeight - 35, 120, 20).build();
         configHud.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.configure-hud")));
         this.addDrawableChild(configHud);
@@ -241,7 +241,7 @@ public class ConfigScreen extends Screen {
         }
 
         configList.restoreScroll();
-        FullscreenMapScreen.toggleAltScreenMap(true);
+        MapScreen.toggleAltScreenMap(true);
 
     }
 
@@ -254,7 +254,7 @@ public class ConfigScreen extends Screen {
             ((ConfigChoice) widget).writeParameterToFile();
         }
         if (!ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on")) {
-            FullscreenMapScreen.clampZoom();
+            MapScreen.clampZoom();
             HudMap.clampZoom();
         }
         TileManager.initializeConfigParameters();
@@ -278,6 +278,6 @@ public class ConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
         //context.disableScissor();
         wikiLinkLayer.drawWidget(context, textRenderer);
-        UContext.drawJustifiedText(Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF);
+        UContext.drawJustifiedText(Text.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF);
     }
 }

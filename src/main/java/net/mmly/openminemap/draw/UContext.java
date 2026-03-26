@@ -8,6 +8,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -54,7 +55,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
             }
         }
     }
-    public static void drawJustifiedText(Text text, Justify justify, int x, int y, int color) {
+    public static void drawJustifiedText(MutableText text, Justify justify, int x, int y, int color) {
         drawJustifiedText(text, justify, x, y, color, false);
     }
 

@@ -8,11 +8,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.DrawableMapTile;
-import net.mmly.openminemap.util.TileUrlFile;
-import net.mmly.openminemap.util.UnitConvert;
+import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.util.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -371,7 +368,8 @@ public class TileManager {
         doReverseScroll = ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on");
         showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
         showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));
-        FullscreenMapScreen.backingColor = UnitConvert.argb((int) (Double.parseDouble(ConfigFile.readParameter(ConfigOptions.INTERFACE_OPACITY)) * 255), 0, 0, 0);
+        MapScreen.backingColor = ColorUtil.argb((int) (Double.parseDouble(ConfigFile.readParameter(ConfigOptions.INTERFACE_OPACITY)) * 255), 0, 0, 0);
+        MapScreen.setPlainTextColor(0xFFFFFFFF);
     }
 
 }

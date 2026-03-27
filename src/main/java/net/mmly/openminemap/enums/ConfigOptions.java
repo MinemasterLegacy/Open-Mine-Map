@@ -34,6 +34,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     _FS_LAST_ZOOM(1, "§fslastzoom", "0"),
     _FS_LAST_X(1, "§fslastx", "64"),
     _FS_LAST_Y(1, "§fslasty", "64"),
+    _FS_LAST_TILE_SIZE(1, "§fslasttilesize", "128"),
 
     __SHOW_DEVELOPER_OPTIONS(2, "ShowDeveloperOptions", "false"),
     __DISABLE_WEB_REQUESTS(2, "DisableWebRequests", "false", "DisableWebRequests", ""),

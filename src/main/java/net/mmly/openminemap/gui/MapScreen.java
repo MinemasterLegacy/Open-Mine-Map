@@ -82,7 +82,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
             480,
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM)),
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)),
-            Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y))
+            Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y)),
+            Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_TILE_SIZE))
     );
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
@@ -127,11 +128,16 @@ public class MapScreen extends Screen { //Screen object that represents the full
     @Override
     public void close() {
         RightClickMenu.disableMenu();
-        ConfigFile.writeParameter(ConfigOptions._FS_LAST_ZOOM, Double.toString(map.getZoom()));
-        ConfigFile.writeParameter(ConfigOptions._FS_LAST_X, Double.toString(map.getMapCenterX()));
-        ConfigFile.writeParameter(ConfigOptions._FS_LAST_Y, Double.toString(map.getMapCenterY()));
+        writeParameters();
         ConfigFile.writeToFile();
         this.client.setScreen(null);
+    }
+
+    public static void writeParameters() {
+        ConfigOptions._FS_LAST_ZOOM.write(Double.toString(map.getZoom()));
+        ConfigOptions._FS_LAST_X.write(Double.toString(map.getMapCenterX()));
+        ConfigOptions._FS_LAST_Y.write(Double.toString(map.getMapCenterY()));
+        ConfigOptions._FS_LAST_TILE_SIZE.write(Integer.toString(map.getTileSize()));
     }
 
     private void updateScreenDims() {

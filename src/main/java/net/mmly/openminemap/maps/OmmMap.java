@@ -26,6 +26,8 @@ import org.lwjgl.glfw.GLFW;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 
+//TODO something is going on where map state is not being saved properly
+
 public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;
@@ -68,7 +70,7 @@ public class OmmMap extends ClickableWidget {
     private double mouseHoldY = 64;
     private double mouseHoldX = 64;
 
-    private double maxZoom = TILEMAXZOOM;
+    private double maxZoom = TILEMAXARTIFICIALZOOM;
     private int backgroundColor = 0x00000000;
     private int tintColor = 0x00000000;
 
@@ -76,7 +78,7 @@ public class OmmMap extends ClickableWidget {
     //private static final int ZOOM_FADE_TIME_MS = 1000;
     public int zoomFadeAlpha = 255;
 
-    private boolean doArtificialZoom = false;
+    private boolean doArtificialZoom = true;
     private boolean cropMapTiles = true;
     private boolean cropPlayers = true;
     private boolean draggable = false;
@@ -103,6 +105,7 @@ public class OmmMap extends ClickableWidget {
         //System.out.println("init called");
         client = MinecraftClient.getInstance();
         player = client.player;
+        if (player == null) return;
         tryLoadClaims();
         fieldsInitialized = true;
     }
@@ -130,16 +133,22 @@ public class OmmMap extends ClickableWidget {
     public OmmMap(int x, int y, int width, int height) {
         super(x, y, width, height, Text.of(""));
         this.setRenderPositionAndSize(x, y, width, height);
-
     }
 
-    public OmmMap(int x, int y, int width, int height, double zoom, double mapCenterX, double mapCenterY) {
+    /*
+22.38
+1.3216084634700358E8
+2.810939433006437E8
+167
+     */
+
+    public OmmMap(int x, int y, int width, int height, double zoom, double mapCenterX, double mapCenterY, int tileSize) {
         this(x, y, width, height);
-        this.zoom = zoom;
-        this.mapCenterX = mapCenterX;
-        this.mapCenterY = mapCenterY;
+        this.setMapZoom(zoom);
+        this.setMapPosition(mapCenterX, mapCenterY);
         this.tileSize = (int) Math.floor(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
         this.lastSavedTime = Util.getEpochTimeMs();
+        this.tileSize = tileSize;
     }
 
     private static int parseSize(String size) {
@@ -189,10 +198,10 @@ public class OmmMap extends ClickableWidget {
         this.mapCenterX = UnitConvert.longToMapX(lon, zoom, tileSize);
         this.mapCenterY = UnitConvert.latToMapY(lat, zoom, tileSize);
     }
-    public void setMapPosition(double x, double y) {
-        if (Double.isNaN(x) || Double.isNaN(y)) return;
-        this.mapCenterX = x;
-        this.mapCenterY = y;
+    public void setMapPosition(double mapPosX, double mapPosY) {
+        if (Double.isNaN(mapPosX) || Double.isNaN(mapPosY)) return;
+        this.mapCenterX = mapPosX;
+        this.mapCenterY = mapPosY;
     }
     public void setMapZoom(double zoom1) {
         zoom1 = Math.clamp(zoom1, 0, maxZoom);
@@ -797,14 +806,17 @@ public class OmmMap extends ClickableWidget {
 
         //update player map position
         if (!fieldsInitialized) initFields();
-        PlayerAttributes.updatePlayerAttributes(client);
-        if (!PlayerAttributes.positionIsValid()) {
-            playerMapX = -9999;
-            playerMapY = -9999;
-        } else {
-            playerMapX = (int) (UnitConvert.longToMapX(PlayerAttributes.getLongitude(), zoom, tileSize) - mapCenterX - 4 + ((double) renderAreaWidth / 2));
-            playerMapY = (int) (UnitConvert.latToMapY(PlayerAttributes.getLatitude(), zoom, tileSize) - mapCenterY - 4 + ((double) renderAreaHeight / 2));
+        if (player != null) {
+            PlayerAttributes.updatePlayerAttributes(client);
+            if (!PlayerAttributes.positionIsValid()) {
+                playerMapX = -9999;
+                playerMapY = -9999;
+            } else {
+                playerMapX = (int) (UnitConvert.longToMapX(PlayerAttributes.getLongitude(), zoom, tileSize) - mapCenterX - 4 + ((double) renderAreaWidth / 2));
+                playerMapY = (int) (UnitConvert.latToMapY(PlayerAttributes.getLatitude(), zoom, tileSize) - mapCenterY - 4 + ((double) renderAreaHeight / 2));
+            }
         }
+
 
         if (mapCenterX < 0) 
             mapCenterX = 0;

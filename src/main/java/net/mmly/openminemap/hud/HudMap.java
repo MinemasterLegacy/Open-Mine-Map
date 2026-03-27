@@ -18,6 +18,8 @@ import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
+import net.mmly.openminemap.search.SearchResultLayer;
+import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.WaypointFile;
 
@@ -44,6 +46,7 @@ public class HudMap {
     );
 
     public static Identifier playerIdentifier;
+    public static boolean showBorder;
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
@@ -76,6 +79,8 @@ public class HudMap {
 
         initialized = true;
         WaypointFile.setWaypointsOfThisWorld(true);
+
+        showBorder = ConfigOptions.HUDMAP_BORDER.read().equals("show");
     }
 
     public static void zoomIn() {
@@ -102,7 +107,7 @@ public class HudMap {
         ConfigFile.writeToFile();
     }
 
-    private static void drawCompass(DrawContext context) {
+    private static void drawCompass(DrawContext context) { //TODO add config toggle
         drawCompassBackground(context);
         PlayerEntity player = MinecraftClient.getInstance().player;
         //draw the compass
@@ -168,6 +173,26 @@ public class HudMap {
         //0xD9D9D9
         if (PlayerAttributes.positionIsValid()) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)
             drawCompass(context);
+        }
+
+        if (showBorder) {
+            int blue = ColorUtil.darken(0xFF0447D8, 0.35);
+            int green = ColorUtil.darken(0xFF0BD604, 0.35);
+
+            int x = map.getRenderAreaX();
+            int y = map.getRenderAreaY();
+            int x2 = map.getRenderAreaX2();
+            int y2 = map.getRenderAreaY2();
+
+            context.fill(x + 1, y2 - 2, x2 - 1, y2, green); //bottom
+            context.fill(x2 - 2, y + 1, x2, y2 - 1, green); //right
+            context.fill(x + 1, y, x2 - 1, y + 2, blue); //top
+            context.fill(x, y + 1, x + 2, y2 - 1, blue); //left
+
+            UContext.fillZone(x + 2, y + 2, 1, 1, blue);
+            UContext.fillZone(x2 - 3, y + 2, 1, 1, blue);
+            UContext.fillZone(x + 2, y2 - 3, 1, 1, blue);
+            UContext.fillZone(x2 - 3, y2 - 3, 1, 1, green);
         }
 
     }

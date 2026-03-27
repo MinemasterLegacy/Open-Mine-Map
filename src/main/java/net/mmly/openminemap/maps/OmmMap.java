@@ -869,7 +869,9 @@ public class OmmMap extends ClickableWidget {
 
         updateFields();
 
-        context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
+        if (isHudMap && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
+        else context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
+
         drawMap(context, isHudMap); //draw the map tiles + background
 
         //, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d))

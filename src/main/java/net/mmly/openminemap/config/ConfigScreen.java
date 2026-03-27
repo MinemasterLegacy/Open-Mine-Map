@@ -62,6 +62,7 @@ public class ConfigScreen extends Screen {
     CategoryLabelWidget interfaceLabel;
     ChoiceSliderWidget transparencySlider;
     ChoiceButtonWidget showConnectionStatusOption;
+    ChoiceButtonWidget hudmapBorderOption;
 
     private final String[] onOffOptions = new String[] {"On", "Off"};
     private final String[] showHideOptions = new String[] {"Show", "Hide"};
@@ -232,6 +233,9 @@ public class ConfigScreen extends Screen {
         showConnectionStatusOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.SHOW_CONNECTION_STATUS);
         this.addConfigOptionWidget(showConnectionStatusOption);
 
+        hudmapBorderOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HUDMAP_BORDER);
+        this.addConfigOptionWidget(hudmapBorderOption);
+
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
@@ -259,6 +263,7 @@ public class ConfigScreen extends Screen {
         OmmMap.initializeConfigParameters(true);
         MapScreen.map.tryLoadClaims();
         HudMap.setSnapAngle();
+        HudMap.showBorder = ConfigOptions.HUDMAP_BORDER.read().equals("show");
         ConfigFile.writeToFile();
         Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));
     }

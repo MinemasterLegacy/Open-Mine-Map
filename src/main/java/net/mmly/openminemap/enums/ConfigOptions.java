@@ -26,6 +26,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SHOW_CONNECTION_STATUS(0, "ConnectionStatus", "hide", "Connection Status", "Show the map's current connection status with the server"),
     TILE_SCALE(0, "TileScale", "128", "Tile Scale", "Change the render size of map tiles"),
     CLAIMS_RENDERING(0, "ClaimsRendering", "off", "claims"),
+    HUDMAP_BORDER(0, "HudmapBorder", "show", "border"),
 
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),

@@ -31,8 +31,6 @@ public class ToggleClaimRenderingButtonLayer extends ClickableWidget {
         )));
     }
 
-    //TODO implement rendering toggle config option
-
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 

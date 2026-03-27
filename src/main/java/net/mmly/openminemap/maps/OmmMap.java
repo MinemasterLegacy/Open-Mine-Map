@@ -26,8 +26,6 @@ import org.lwjgl.glfw.GLFW;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 
-//TODO something is going on where map state is not being saved properly
-
 public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;

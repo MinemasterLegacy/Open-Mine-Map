@@ -27,7 +27,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     TILE_SCALE(0, "TileScale", "128", "Tile Scale", "Change the render size of map tiles"),
     CLAIMS_RENDERING(0, "ClaimsRendering", "off", "claims"),
     HUDMAP_BORDER(0, "HudmapBorder", "show", "border"),
-
+    COMPASS(0, "ShowCompass", "show", "compass"),
+    //TODO reset player+DI shows for 1.7
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),

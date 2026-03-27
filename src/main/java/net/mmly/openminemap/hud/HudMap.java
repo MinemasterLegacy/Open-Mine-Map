@@ -46,11 +46,18 @@ public class HudMap {
     );
 
     public static Identifier playerIdentifier;
-    public static boolean showBorder;
+    public static boolean showBorder = true;
+    public static boolean showCompass = true;
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
        map.clampZoom();
+    }
+
+    public static void loadConfigParameters() {
+        setSnapAngle();
+        showBorder = ConfigOptions.HUDMAP_BORDER.read().equals("show");
+        showCompass = ConfigOptions.COMPASS.read().equals("show");
     }
 
     public static void setSnapAngle() {
@@ -62,12 +69,12 @@ public class HudMap {
             snapAngleInput = Double.parseDouble(receivedSnapAngle);
             snapAngle = ((-snapAngleInput) % 90) - (90 * (((-snapAngleInput) % 90) > 0 ? 1 : 0));
         }
-
     }
 
     public static void initialize(DrawContext context) {
         //TileManager.initializeConfigParameters();
         setSnapAngle();
+        loadConfigParameters();
 
         map.setFollowPlayer(true);
         map.setArtificialZoom(TileManager.doArtificialZoom);
@@ -171,7 +178,7 @@ public class HudMap {
         map.renderMap(context, null, true);
 
         //0xD9D9D9
-        if (PlayerAttributes.positionIsValid()) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)
+        if (PlayerAttributes.positionIsValid() && showCompass) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)
             drawCompass(context);
         }
 

@@ -63,6 +63,7 @@ public class ConfigScreen extends Screen {
     ChoiceSliderWidget transparencySlider;
     ChoiceButtonWidget showConnectionStatusOption;
     ChoiceButtonWidget hudmapBorderOption;
+    ChoiceButtonWidget hudmapCompassOption;
 
     private final String[] onOffOptions = new String[] {"On", "Off"};
     private final String[] showHideOptions = new String[] {"Show", "Hide"};
@@ -233,6 +234,9 @@ public class ConfigScreen extends Screen {
         showConnectionStatusOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.SHOW_CONNECTION_STATUS);
         this.addConfigOptionWidget(showConnectionStatusOption);
 
+        hudmapCompassOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.COMPASS);
+        this.addConfigOptionWidget(hudmapCompassOption);
+
         hudmapBorderOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HUDMAP_BORDER);
         this.addConfigOptionWidget(hudmapBorderOption);
 
@@ -262,8 +266,7 @@ public class ConfigScreen extends Screen {
         TileManager.initializeConfigParameters();
         OmmMap.initializeConfigParameters(true);
         MapScreen.map.tryLoadClaims();
-        HudMap.setSnapAngle();
-        HudMap.showBorder = ConfigOptions.HUDMAP_BORDER.read().equals("show");
+        HudMap.loadConfigParameters();
         ConfigFile.writeToFile();
         Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));
     }

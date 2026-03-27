@@ -452,7 +452,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private void purgeNotifiations() {
         int i = 0;
         while (i < notifications.size()) {
-            if (notifications.get(i).expirationTime < Util.getMeasuringTimeMs()) {
+            if (notifications.get(i).timeToExpirationMs() < 0) {
                 notifications.remove(i);
             } else {
                 i++;
@@ -464,23 +464,24 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (notifications.isEmpty()) return;
         int maxY = buttonPositions[1][0] - 13; //top of button row
         int yPos = maxY;
-        for (int i = 0; i < notifications.size(); i++) {
-            Text text = notifications.get(i).text;
+        for (Notification notification : notifications) {
+            Text text = notification.text;
             int textWidth = textRenderer.getWidth(text);
             int centerX = windowScaledWidth / 2;
+            float alphaPercent = Math.clamp((float) notification.timeToExpirationMs() / 1000, 0, 1);
             context.fill(
                     centerX - (textWidth / 2) - 3,
                     yPos - 3,
                     centerX + (textWidth / 2) + 3,
                     yPos + 1 + textRenderer.fontHeight,
-                    Math.clamp((int) Math.max(notifications.get(i).expirationTime - Util.getMeasuringTimeMs(), 0) / (1000 / 127), 0, 127) << 24
+                    ColorUtil.setAlpha((int) (alphaPercent * ColorUtil.decompose(backingColor)[0]), backingColor)
             );
-            context.drawText(
+            if (alphaPercent > 0.02) context.drawText( //under 0.02 makes it draw the text fully opaque for some reason
                     textRenderer,
                     text,
                     centerX - (textWidth / 2),
                     yPos,
-                    (Math.clamp((int) Math.max(notifications.get(i).expirationTime - Util.getMeasuringTimeMs(), 0) / (1000 / 255), 0, 255) << 24) | 0x00FFFFFF,
+                    ColorUtil.setAlpha((int) (alphaPercent * 255), plainTextColor),
                     false);
             yPos -= 13;
         }
@@ -565,7 +566,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_MEMORY_CACHE_SIZE))) {
             Text text = Text.literal(TileLoader.getStylizedCacheSize()).formatted(Formatting.BOLD);
             int width = textRenderer.getWidth(text);
-            UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, backingColor, 0xFFD0D0D0, false);
+            UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, backingColor, plainTextColor, false);
         }
 
         //draws the attribution and report bug text fields

@@ -36,6 +36,7 @@ public class OmmMap extends ClickableWidget {
     public static int PLAYERSIZE;
 
     private boolean fieldsInitialized = false;
+    private static boolean claimInitStarted = false;
     private MinecraftClient client;
     private ClientPlayerEntity player;
     private TextRenderer textRenderer;
@@ -102,8 +103,13 @@ public class OmmMap extends ClickableWidget {
         //System.out.println("init called");
         client = MinecraftClient.getInstance();
         player = client.player;
-        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && OmmMap.claims == null && !fieldsInitialized) {
-            fieldsInitialized = true;
+        tryLoadClaims();
+        fieldsInitialized = true;
+    }
+
+    public void tryLoadClaims() {
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && OmmMap.claims == null && !claimInitStarted) {
+            claimInitStarted = true;
             /*
             try {
                 DrawableClaim.succeededTriangulations = 0;
@@ -117,9 +123,7 @@ public class OmmMap extends ClickableWidget {
             }
 
              */
-            DrawableClaim.Loader.reloadClaimData(false);
-        } else {
-            fieldsInitialized = true;
+            DrawableClaim.reloadClaimData(false, false, false);
         }
     }
 
@@ -159,6 +163,7 @@ public class OmmMap extends ClickableWidget {
         PLAYERSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.PLAYER_SIZE));
         WAYPOINTSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.WAYPOINT_SIZE));
         setBaseTileSize(Integer.parseInt(ConfigFile.readParameter(ConfigOptions.TILE_SCALE)));
+        renderClaimsToggle = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._CLAIMS_TOGGLE));
         if (!reloadZoom) return;
         MapScreen.map.normalizeZoom(MapScreen.map.zoom);
         HudMap.map.normalizeZoom(HudMap.map.zoom);

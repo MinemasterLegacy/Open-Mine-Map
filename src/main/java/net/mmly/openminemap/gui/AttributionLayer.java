@@ -55,7 +55,7 @@ public class AttributionLayer extends ClickableWidget {
         for (char currentChar : attributionString) {
             //System.out.println(currentChar+"\t"+drawCursorX);
             if (currentChar == '{') {
-                context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, 0xFFFFFFFF, true);
+                context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, MapScreen.getPlainTextColor(), true);
             } else if (currentChar == '}') {
                 context.drawText(textRenderer,
                         selection == attributionsCount ?
@@ -75,7 +75,7 @@ public class AttributionLayer extends ClickableWidget {
             //System.out.println("StartX -> "+startX);
             bufferedText = new StringBuilder();
         }
-        context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, 0xFFFFFFFF, true);
+        context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, MapScreen.getPlainTextColor(), true);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package net.mmly.openminemap.enums;
 
+import net.mmly.openminemap.util.ConfigFile;
+
 public enum ConfigOptions { //no underscore for standard config option, one for session variables (Ex: map positioning and zoom), two for development variables
     HUD_MAP_X(0, "HudMapX", "10"),
     HUD_MAP_Y(0, "HudMapY", "10"),
@@ -84,5 +86,13 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
 
     public static int length() {
         return ConfigOptions.values().length;
+    }
+
+    public String read() {
+        return ConfigFile.readParameter(this);
+    }
+
+    public void write(String value) {
+        ConfigFile.writeParameter(this, value);
     }
 }

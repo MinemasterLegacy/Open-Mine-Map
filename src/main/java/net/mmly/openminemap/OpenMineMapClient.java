@@ -33,7 +33,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
     private static final Identifier HUD_MAP_LAYER_FS = Identifier.of("openminemap", "hud-example-layer-fs");
-
+    //TODO use proper loggers throughout the project instead of sysout
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
 

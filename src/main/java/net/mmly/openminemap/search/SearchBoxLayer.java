@@ -32,7 +32,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         this.setEditable(true);
         this.setMaxLength(1000);
         instance = this;
-        this.setUneditableColor(0xFF404040);
+        this.setUneditableColor(MapScreen.getDarkTextColor());
     }
 
     public static SearchBoxLayer getInstance() {

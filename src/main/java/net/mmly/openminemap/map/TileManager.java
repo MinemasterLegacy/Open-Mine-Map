@@ -369,7 +369,7 @@ public class TileManager {
         showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
         showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));
         MapScreen.backingColor = ColorUtil.argb((int) (Double.parseDouble(ConfigFile.readParameter(ConfigOptions.INTERFACE_OPACITY)) * 255), 0, 0, 0);
-        MapScreen.setPlainTextColor(0xFFFFFFFF);
+        MapScreen.setPlainTextColor(0xffffffff);
     }
 
 }

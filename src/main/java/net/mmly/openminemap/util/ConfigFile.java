@@ -12,39 +12,8 @@ import java.util.Objects;
 public class ConfigFile {
     public static File configFile;
     public static boolean isConfigLoaded = false;
-    private static HashMap<ConfigOptions, String> configParams = new HashMap<>();
+    private static final HashMap<ConfigOptions, String> configParams = new HashMap<>();
     private static final String[] defaultValues = ConfigOptions.defaultValues;
-    /*new String[] { //default values for every config option / parameter
-            "10", //hudmapx
-            "10", //hudmapy
-            "144", //hudmapwidth
-            "81", //hudmapheight
-            "10", //hudcompassx
-            "96", //hudcompassy
-            "144", //hudcompasswidth
-            "OpenStreetMap", //tilemapurl, was "https://tile.openstreetmap.org/{z}/{x}/{y}.png" in 1.3.0
-            "false", //ArtificialZoom
-            "", //SnapAngle
-            "/tpll", //RightClickMenuUses
-            "off", //ReverseScroll
-            "local", //ShowPlayers
-            "local", //ShowDirectionIndicators
-            "on", //AltitudeShading
-            "0.4", //ZoomStrength
-            "on", //HoverNames
-
-            "true", //hudtoggle
-            "true", //hudenabled
-            "0", //hudlastzoom
-            "0", //fslastzoom
-            "64", //fslastx
-            "64", //fslasty
-
-            "false", //ShowDeveloperOptions
-            "false", //DisableWebRequests
-            "false", //ShowMemoryCacheSize
-            "false"
-    };*/
     private static final int numOfArgs = ConfigOptions.length();
 
     public static void establishConfigFile() {
@@ -63,8 +32,8 @@ public class ConfigFile {
         return configParams.replace(parameter, value) != null;
     }
 
-    public static boolean writeDefaultParameter(ConfigOptions parameter) {
-        return configParams.replace(parameter, defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))]) != null;
+    public static void writeDefaultParameter(ConfigOptions parameter) {
+        configParams.replace(parameter, defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))]);
     }
 
     public static String readDefaultParameter(ConfigOptions parameter) {
@@ -75,16 +44,9 @@ public class ConfigFile {
         String value = configParams.get(parameter);
         //System.out.println("Value for key "+parameter+" is "+value);
         if (value.equals("null")) { //failsafe in case a value is somehow set to null
-            for (int i = 0; i < ConfigOptions.length(); i++) {
-                if (ConfigOptions.values()[i] == parameter) {
-                    System.out.println("Null value for valid parameter detected; possible error occoured");
-                    writeParameter(parameter, defaultValues[i]);
-                    writeToFile();
-                    return defaultValues[i];
-                }
-            }
-            System.out.println("A parameter was not found when reading the ConfigFile");
-            return null;
+            System.out.println("Null value for valid parameter detected; possible error occoured");
+            writeDefaultParameter(parameter);
+            return configParams.get(parameter);
         } else {
             return value;
         }

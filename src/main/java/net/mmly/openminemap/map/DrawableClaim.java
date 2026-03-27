@@ -4,11 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.event.CommandHander;
+import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.gui.WebAppSelectLayer;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.Notification;
 import net.mmly.openminemap.util.PolygonTriangulator;
 import net.mmly.openminemap.util.UnitConvert;
 
@@ -21,7 +27,9 @@ import java.util.Map;
 
 public class DrawableClaim {
 
+    private static long lastReloaded = -60000;
     public static int succeededTriangulations = 0;
+
     public final boolean finished;
     public final double[][] vertices;
     public final float leftmost;
@@ -104,13 +112,32 @@ public class DrawableClaim {
         ;
     }
 
+    //TODO make load from web
+    public static void reloadClaimData(boolean notifyMapScreen, boolean notifyChat, boolean considerTimeLimit) {
+        if (considerTimeLimit) {
+            long neededTime = (lastReloaded + 60000);
+            if (Util.getMeasuringTimeMs() < neededTime) {
+                MutableText waitNotifyText = Text.literal(
+                        Text.translatable("omm.claims.wait-start").getString() +
+                                ((int) (neededTime - Util.getMeasuringTimeMs() + 1000) / 1000) +
+                                Text.translatable("omm.claims.wait-end").getString()
+                );
+                if (notifyMapScreen) MapScreen.addNotification(new Notification(waitNotifyText));
+                if (notifyChat) MinecraftClient.getInstance().player.sendMessage(waitNotifyText.formatted(CommandHander.ERROR_COLOR), false);
+                return;
+            }
+        }
+        if (notifyMapScreen) MapScreen.addNotification(new Notification(Text.translatable("omm.claims.reloading")));
+        if (notifyChat) MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.claims.reloading").formatted(CommandHander.FEEDBACK_COLOR), false);
+        new Loader().start();
+        if (considerTimeLimit) lastReloaded = Util.getMeasuringTimeMs();
+    }
+
     public static class Loader extends Thread {
         @Override
         public void run() {
             loadClaims();
         }
-
-        private static boolean notify = false;
 
         private void loadClaims() {
             try {
@@ -123,12 +150,6 @@ public class DrawableClaim {
             } catch (IOException e) {
                 MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.load-claims"), false);
             }
-        }
-
-        public static void reloadClaimData(boolean notify) {
-            System.out.println("reload claim data called");
-            Loader.notify = notify;
-            new Loader().start();
         }
     }
 

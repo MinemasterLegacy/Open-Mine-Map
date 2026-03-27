@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
@@ -38,7 +37,6 @@ public class ConfigScreen extends Screen {
     private static WikiLinkLayer wikiLinkLayer;
     private static ButtonLayer exitButtonLayer;
     private static ButtonLayer checkButtonLayer;
-    TextWidget versionLabel;
     ButtonWidget configHud;
 
     CategoryLabelWidget generalLabel;
@@ -259,6 +257,7 @@ public class ConfigScreen extends Screen {
         }
         TileManager.initializeConfigParameters();
         OmmMap.initializeConfigParameters(true);
+        MapScreen.map.tryLoadClaims();
         HudMap.setSnapAngle();
         ConfigFile.writeToFile();
         Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));

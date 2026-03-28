@@ -1,5 +1,7 @@
 package net.mmly.openminemap.util;
 
+import java.awt.*;
+
 public class ColorUtil {
 
     /// Input values range 0-255
@@ -45,6 +47,41 @@ public class ColorUtil {
     public static int setAlpha(int alpha, int argb) {
         alpha = Math.clamp(alpha, 0, 255);
         return (alpha << 24) | (argb & 0x00FFFFFF);
+    }
+
+    public static int average(int argb1, int argb2) {
+        int[] color1 = decompose(argb1);
+        int[] color2 = decompose(argb2);
+
+        return argb(
+                (color1[0] + color2[0]) / 2,
+                (color1[1] + color2[1]) / 2,
+                (color1[2] + color2[2]) / 2,
+                (color1[3] + color2[3]) / 2
+        );
+
+    }
+
+    /// Alpha: 0-255
+    /// Hue: 0-360
+    /// Saturation: 0-1
+    /// Brightness: 0-1
+    public static int hsb(int alpha, int hue, float saturation, float brightness) {
+        return setAlpha(alpha, Color.HSBtoRGB(hue, saturation, brightness));
+    }
+
+    /// Alpha: 0-255
+    /// Hue: 0-360
+    /// Saturation: 0-1
+    /// Value: 0-1
+    public static int hsv(int alpha, int hue, float saturation, float value) {
+        float light = value * (1 - saturation / 2);
+        return hsb(
+                alpha,
+                hue,
+                light % 1 == 0 ? 0 : (value - light) / Math.min(light, 1 - light),
+                light
+        );
     }
 
 }

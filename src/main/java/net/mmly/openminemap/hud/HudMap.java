@@ -114,7 +114,7 @@ public class HudMap {
         ConfigFile.writeToFile();
     }
 
-    private static void drawCompass(DrawContext context) { //TODO add config toggle
+    private static void drawCompass(DrawContext context) {
         drawCompassBackground(context);
         PlayerEntity player = MinecraftClient.getInstance().player;
         //draw the compass
@@ -185,6 +185,7 @@ public class HudMap {
         if (showBorder) {
             int blue = ColorUtil.darken(0xFF0447D8, 0.35);
             int green = ColorUtil.darken(0xFF0BD604, 0.35);
+            int mid = ColorUtil.average(blue, green);
 
             int x = map.getRenderAreaX();
             int y = map.getRenderAreaY();
@@ -196,10 +197,15 @@ public class HudMap {
             context.fill(x + 1, y, x2 - 1, y + 2, blue); //top
             context.fill(x, y + 1, x + 2, y2 - 1, blue); //left
 
-            UContext.fillZone(x + 2, y + 2, 1, 1, blue);
-            UContext.fillZone(x2 - 3, y + 2, 1, 1, blue);
-            UContext.fillZone(x + 2, y2 - 3, 1, 1, blue);
-            UContext.fillZone(x2 - 3, y2 - 3, 1, 1, green);
+            UContext.fillZone(x + 2, y + 2, 1, 1, blue); //top-left
+            UContext.fillZone(x2 - 3, y2 - 3, 1, 1, green); //bottom-right
+
+            UContext.fillZone(x2 - 3, y + 2, 1, 1, mid); //top-right inner
+            UContext.fillZone(x + 2, y2 - 3, 1, 1, mid); //bottom-left inner
+
+            UContext.fillZone(x2 - 2, y + 1, 1, 1, mid); //top-right outer
+            UContext.fillZone(x + 1, y2 - 2, 1, 1, mid); //bottom-left outer
+
         }
 
     }

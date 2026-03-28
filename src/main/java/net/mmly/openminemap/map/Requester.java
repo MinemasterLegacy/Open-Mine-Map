@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
@@ -227,7 +228,7 @@ public class Requester extends Thread {
     private InputStream get(String url) {
         try {
             URL url1 = new URI(url).toURL();
-            URLConnection connection = url1.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) url1.openConnection();
 
             connection.setRequestProperty("User-Agent", "Java/21.0.8 OpenMineMap (contact: minemasterlegacy@gmail.com)");
             connection.setRequestProperty("cache-control", "max-age=7");
@@ -235,6 +236,10 @@ public class Requester extends Thread {
             connection.setRequestProperty("Retry-After", "3");
 
             connection.connect();
+            if (connection.getResponseCode() != Math.clamp(connection.getResponseCode(), 200, 299)) {
+                OpenMineMap.LOGGER.error("Error during url request: Code " + connection.getResponseCode() + " received.");
+                return null;
+            }
             return connection.getInputStream();
         } catch (Exception e) {
             OpenMineMap.LOGGER.error("Error during url request: " + e.getMessage());

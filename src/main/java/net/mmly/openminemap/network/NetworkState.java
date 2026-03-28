@@ -1,7 +1,6 @@
 package net.mmly.openminemap.network;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;

@@ -2,8 +2,6 @@ package net.mmly.openminemap.config;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.MaceItem;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ColorUtil;

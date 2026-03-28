@@ -2,9 +2,8 @@ package net.mmly.openminemap.hud;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -18,7 +17,6 @@ import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
-import net.mmly.openminemap.search.SearchResultLayer;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.WaypointFile;

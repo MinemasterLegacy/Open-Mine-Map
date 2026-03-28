@@ -6,7 +6,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.util.WorldSavePath;
 import net.mmly.openminemap.OpenMineMap;
-import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 

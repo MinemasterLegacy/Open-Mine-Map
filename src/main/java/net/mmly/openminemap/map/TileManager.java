@@ -4,13 +4,15 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.MapScreen;
-import net.mmly.openminemap.util.*;
+import net.mmly.openminemap.util.ColorUtil;
+import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.DrawableMapTile;
+import net.mmly.openminemap.util.TileUrlFile;
 
 import java.awt.*;
 import java.io.File;

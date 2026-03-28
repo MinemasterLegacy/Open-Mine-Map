@@ -3,7 +3,6 @@ package net.mmly.openminemap.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;

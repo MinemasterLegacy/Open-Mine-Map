@@ -20,12 +20,9 @@ import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.UnitConvert;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
 
 public class ConfigScreen extends Screen {
     public ConfigScreen() {

@@ -23,7 +23,8 @@ import net.mmly.openminemap.map.*;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {

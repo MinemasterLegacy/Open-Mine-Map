@@ -14,7 +14,10 @@ import net.minecraft.world.Heightmap;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.network.NetworkPlayerData;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public class PlayersManager {
 

@@ -1,12 +1,10 @@
 package net.mmly.openminemap.util;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.TileManager;
-import net.mmly.openminemap.maps.OmmMap;
 
 import java.io.*;
 import java.util.HashMap;

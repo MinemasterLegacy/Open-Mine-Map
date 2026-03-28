@@ -5,12 +5,10 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
-import net.minecraft.util.Util;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.Notification;
 
 public class ToggleClaimRenderingButtonLayer extends ClickableWidget {
 

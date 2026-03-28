@@ -18,7 +18,6 @@ import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 public class SearchResultLayer extends ClickableWidget {
 

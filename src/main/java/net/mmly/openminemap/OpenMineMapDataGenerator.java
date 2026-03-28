@@ -320,6 +320,48 @@ abstract class OmmSpanishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.rcm.reverse-search", "Búsqueda inversa");
         translationBuilder.add("omm.error.distortion", "No se puede calcular la distorsión: fuera de los límites");
         translationBuilder.add("omm.text.distortion", "Distorsión:");
+        translationBuilder.add("omm.config.state.small", "Pequeño");
+        translationBuilder.add("omm.config.state.normal", "Normal");
+        translationBuilder.add("omm.config.state.large", "Grande");
+        translationBuilder.add("omm.config.state.all", "Todo");
+        translationBuilder.add("omm.config.category.interface", "Interfaz");
+        translationBuilder.add("omm.config.option.player-size", "Tamaño del jugador");
+        translationBuilder.add("omm.config.option.waypoint-size", "Tamaño de los waypoint");
+        translationBuilder.add("omm.config.option.interface-opacity", "Opacidad");
+        translationBuilder.add("omm.network.disconnected", "Plugin del servidor no detectado");
+        translationBuilder.add("omm.network.warning", "Advertencia: Se recibió un paquete malformado. ¿El cliente está desactualizado?");
+        translationBuilder.add("omm.network.connected", "Conectado al servidor");
+        translationBuilder.add("omm.config.tooltip.player-size", "Ajustar el tamaño de renderizado de jugadores");
+        translationBuilder.add("omm.config.tooltip.waypoint-size", "Ajustar el tamaño de renderizado de los waypoints");
+        translationBuilder.add("omm.config.tooltip.interface-opacity", "Ajustar la opacidad del fondo de la interfaz");
+        translationBuilder.add("omm.config.option.connection-status", "Estado de conexión");
+        translationBuilder.add("omm.config.tooltip.connection-status", "Mostrar el estado actual de conexión del mapa con el servidor");
+        translationBuilder.add("omm.config.state.show", "Mostrar");
+        translationBuilder.add("omm.config.state.hide", "Ocultar");
+        translationBuilder.add("omm.config.option.player-coords", "Coordenadas del jugador");
+        translationBuilder.add("omm.config.option.mouse-coords", "Coordenadas del mouse");
+        translationBuilder.add("omm.config.tooltip.player-coords", "Mostrar las coordenadas del jugador en la esquina inferior izquierda del mapa en pantalla completa");
+        translationBuilder.add("omm.config.tooltip.mouse-coords", "Mostrar las coordenadas del mouse en la esquina inferior izquierda del mapa en pantalla completa");
+        translationBuilder.add("omm.config.option.tile-scale", "Escala de los tiles");
+        translationBuilder.add("omm.config.tooltip.tile-scale", "Cambiar el tamaño de renderizado de los tiles del mapa");
+        translationBuilder.add("omm.search.places-global", "Buscar lugares globalmente");
+        translationBuilder.add("omm.search.places-local", "Buscar lugares localmente");
+        translationBuilder.add("omm.claims.toggle", "Click izquierdo para activar/desactivar claims");
+        translationBuilder.add("omm.claims.reload", "Click derecho para recargar claims");
+        translationBuilder.add("omm.claims.wait-start", "Por favor espera ");
+        translationBuilder.add("omm.claims.wait-end", " segundos antes de recargar los claims nuevamente");
+        translationBuilder.add("omm.config.option.claims", "Claims");
+        translationBuilder.add("omm.config.tooltip.claims", "Obtener y muestra claims del mapa de BuildTheEarth");
+        translationBuilder.add("omm.error.load-claims", "Error al cargar los claims");
+        translationBuilder.add("omm.claims.reloading", "Recargando claims, por favor espera...");
+        translationBuilder.add("omm.claims.not-enabled", "El renderizado de claims no está habilitado");
+        translationBuilder.add("omm.config.option.text-color", "Color del texto");
+        translationBuilder.add("omm.config.tooltip.text-color", "Cambiar el color general usado para el texto en todo el mod");
+        translationBuilder.add("omm.config.option.compass", "Brújula");
+        translationBuilder.add("omm.config.tooltip.compass", "Mostrar la brújula en el HUD");
+        translationBuilder.add("omm.config.option.border", "Borde del mapa HUD");
+        translationBuilder.add("omm.config.tooltip.border", "Mostrar un borde alrededor del mapa HUD");
+        translationBuilder.add("omm.config.state.rainbow", "Arcoíris");
     }
 }
 class OmmArgentinianSpanishLanguageProvider extends OmmSpanishLanguageProvider {

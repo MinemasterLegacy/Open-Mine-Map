@@ -28,6 +28,7 @@ public class PlayersManager {
 
     /// Returns a list of current players that should be displayed, taking into account overlay visibility rules and excluding the client player.
     public static List<MappablePlayer> getMappablePlayers() {
+        //System.out.println("Stored data length: " + lastReceivedData.getMappablePlayers().length);
         updatePlayerSkinList();
         ClientPlayerEntity selfPlayer = MinecraftClient.getInstance().player;
 
@@ -39,6 +40,7 @@ public class PlayersManager {
                 selfPlayer.getBlockY() - 128,
                 selfPlayer.getBlockZ() - 128
         ), EntityPredicates.VALID_ENTITY);
+        //System.out.println("near list: " + list.size());
         list.remove(selfPlayer);
 
         HashMap<UUID, MappablePlayer> returnList = new HashMap<>();
@@ -60,6 +62,7 @@ public class PlayersManager {
 
         }
 
+        //System.out.println("return list length: " + returnList.size());
         return returnList.values().stream().toList();
     }
 

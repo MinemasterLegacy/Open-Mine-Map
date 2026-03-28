@@ -281,6 +281,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     protected void init() { //called when screen is being initialized
         instance = this;
         setIdentifiers();
+        map.initFields();
 
         rightClickLayer = new RightClickMenu(this.textRenderer);
         this.addDrawableChild(rightClickLayer);

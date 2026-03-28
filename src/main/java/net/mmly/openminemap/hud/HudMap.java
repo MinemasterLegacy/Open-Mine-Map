@@ -74,6 +74,7 @@ public class HudMap {
         setSnapAngle();
         loadConfigParameters();
 
+        map.initFields();
         map.setFollowPlayer(true);
         map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMapZoom(

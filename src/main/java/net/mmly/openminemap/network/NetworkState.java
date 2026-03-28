@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.map.PlayersManager;
 
 public enum NetworkState {
     NOT_CONNECTED("disconnected"),
@@ -35,6 +36,7 @@ public enum NetworkState {
     }
 
     public static void resetNetworkState(ClientPlayNetworkHandler clientPlayNetworkHandler, MinecraftClient client) {
+        PlayersManager.lastReceivedData = NetworkPlayerData.empty();
         currentNetworkState = NOT_CONNECTED;
     }
 

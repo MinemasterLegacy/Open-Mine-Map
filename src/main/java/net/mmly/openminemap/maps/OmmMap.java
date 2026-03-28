@@ -36,7 +36,7 @@ public class OmmMap extends ClickableWidget {
     public static int WAYPOINTSIZE;
     public static int PLAYERSIZE;
 
-    private boolean fieldsInitialized = false;
+    //public boolean fieldsInitialized = false;
     private static boolean claimInitStarted = false;
     private MinecraftClient client;
     private ClientPlayerEntity player;
@@ -100,13 +100,13 @@ public class OmmMap extends ClickableWidget {
         return !(Math.abs(lon) < 180 && Math.abs(lat) < 85.0511287798);
     }
 
-    private void initFields() {
+    public void initFields() {
         //System.out.println("init called");
         client = MinecraftClient.getInstance();
         player = client.player;
         if (player == null) return;
         tryLoadClaims();
-        fieldsInitialized = true;
+        //fieldsInitialized = true;
     }
 
     public void tryLoadClaims() {
@@ -791,7 +791,7 @@ public class OmmMap extends ClickableWidget {
         }
 
         //update player map position
-        if (!fieldsInitialized) initFields();
+        //if (!fieldsInitialized) initFields();
         if (player != null) {
             PlayerAttributes.updatePlayerAttributes(client);
             if (!PlayerAttributes.positionIsValid()) {

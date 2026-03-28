@@ -160,6 +160,48 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.rcm.reverse-search", "Reverse Search");
         translationBuilder.add("omm.error.distortion", "Cannot calculate distortion: Out of Bounds");
         translationBuilder.add("omm.text.distortion", "Distortion:");
+        translationBuilder.add("omm.config.state.small", "Small");
+        translationBuilder.add("omm.config.state.normal", "Normal");
+        translationBuilder.add("omm.config.state.large", "Large");
+        translationBuilder.add("omm.config.state.all", "All");
+        translationBuilder.add("omm.config.category.interface", "Interface");
+        translationBuilder.add("omm.config.option.player-size", "Player Size");
+        translationBuilder.add("omm.config.option.waypoint-size", "Waypoint Size");
+        translationBuilder.add("omm.config.option.interface-opacity", "Opacity");
+        translationBuilder.add("omm.network.disconnected", "Server plugin not detected");
+        translationBuilder.add("omm.network.warning", "Warning: Malformed packet received. Is the client out of date?");
+        translationBuilder.add("omm.network.connected", "Connected to Server");
+        translationBuilder.add("omm.config.tooltip.player-size", "Set the render size for players");
+        translationBuilder.add("omm.config.tooltip.waypoint-size", "Set the render size for waypoints");
+        translationBuilder.add("omm.config.tooltip.interface-opacity", "Set opacity of the interface backing");
+        translationBuilder.add("omm.config.option.connection-status", "Connection Status");
+        translationBuilder.add("omm.config.tooltip.connection-status", "Show the map's current connection status with the server");
+        translationBuilder.add("omm.config.state.show", "Show");
+        translationBuilder.add("omm.config.state.hide", "Hide");
+        translationBuilder.add("omm.config.option.player-coords", "Player Coordinates");
+        translationBuilder.add("omm.config.option.mouse-coords", "Mouse Coordinates");
+        translationBuilder.add("omm.config.tooltip.player-coords", "Show player coordinates in the bottom-left of the fullscreen map");
+        translationBuilder.add("omm.config.tooltip.mouse-coords", "Show mouse coordinates in the bottom-left of the fullscreen map");
+        translationBuilder.add("omm.config.option.tile-scale", "Tile Scale");
+        translationBuilder.add("omm.config.tooltip.tile-scale", "Change the render size of map tiles");
+        translationBuilder.add("omm.search.places-global", "Search Places Globally ");
+        translationBuilder.add("omm.search.places-local", "Search Places Locally");
+        translationBuilder.add("omm.claims.toggle", "Left click to toggle claims");
+        translationBuilder.add("omm.claims.reload", "Right click to reload claims");
+        translationBuilder.add("omm.claims.wait-start", "Please wait ");
+        translationBuilder.add("omm.claims.wait-end", " seconds before reloading claims again");
+        translationBuilder.add("omm.config.option.claims", "Claims");
+        translationBuilder.add("omm.config.tooltip.claims", "Get and show claims from the BuildTheEarth claim map");
+        translationBuilder.add("omm.error.load-claims", "Claims failed to load.");
+        translationBuilder.add("omm.claims.reloading", "Reloading claims, please wait...");
+        translationBuilder.add("omm.claims.not-enabled", "Claim rendering is not enabled.");
+        translationBuilder.add("omm.config.option.text-color", "Text color");
+        translationBuilder.add("omm.config.tooltip.text-color", "Change the common color used for text throughout the mod");
+        translationBuilder.add("omm.config.option.compass", "Compass");
+        translationBuilder.add("omm.config.tooltip.compass", "Show the strip compass in the HUD");
+        translationBuilder.add("omm.config.option.border", "HudMap Border");
+        translationBuilder.add("omm.config.tooltip.border", "Show a border around the HudMap");
+        translationBuilder.add("omm.config.state.rainbow", "Rainbow");
     }
 }
 

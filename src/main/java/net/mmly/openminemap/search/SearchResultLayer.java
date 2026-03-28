@@ -185,7 +185,7 @@ public class SearchResultLayer extends ClickableWidget {
         );
         */
 
-        System.out.println(Arrays.toString(bounds));
+        //System.out.println(Arrays.toString(bounds));
 
         map.setMapZoom(
                 Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2

@@ -15,6 +15,7 @@ import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.map.MappablePlayer;
@@ -196,7 +197,7 @@ public class CommandHander {
                     return 1;
                 }
             } catch (NullPointerException e) {
-                System.out.println("NullPointerException thrown for /tpllto");
+                OpenMineMapClient.debugMessages.add(Text.translatable("omm.notification.something-wrong").getString());
                 return 0;
             }
         }

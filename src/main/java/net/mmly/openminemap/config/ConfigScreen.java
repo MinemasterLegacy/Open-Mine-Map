@@ -135,7 +135,6 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        System.out.println(Arrays.toString(tileScaleOptions));
         configScreen = this;
 
         updateScreenDims();

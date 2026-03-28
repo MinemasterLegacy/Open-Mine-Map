@@ -145,7 +145,7 @@ public class WebAppSelectLayer extends ClickableWidget {
         } catch (IOException e) {
             return;
         }
-        System.out.println(file.exists());
+        //System.out.println(file.exists());
         Util.getOperatingSystem().open(file);
     }
 

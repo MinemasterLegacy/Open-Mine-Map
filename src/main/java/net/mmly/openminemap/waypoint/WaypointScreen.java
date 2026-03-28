@@ -270,7 +270,7 @@ public class WaypointScreen extends Screen {
         int sat = (int) (ColorSliderWidget.saturation * 255);
         int val = (int) (ColorSliderWidget.value * 255);
 
-        System.out.println(hue +"\t"+ sat +"\t"+ val);
+        //System.out.println(hue +"\t"+ sat +"\t"+ val);
 
         return hue << 16 | sat << 8 | val;
     }

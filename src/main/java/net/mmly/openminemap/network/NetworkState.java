@@ -32,12 +32,10 @@ public enum NetworkState {
     }
 
     public static void connectionErrored() {
-        System.out.println("errored");
         currentNetworkState = BAD_CONNECTION;
     }
 
     public static void resetNetworkState(ClientPlayNetworkHandler clientPlayNetworkHandler, MinecraftClient client) {
-        System.out.println("reset");
         currentNetworkState = NOT_CONNECTED;
     }
 

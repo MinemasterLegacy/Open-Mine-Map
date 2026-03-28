@@ -2,6 +2,7 @@ package net.mmly.openminemap.util;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.TileManager;
@@ -26,7 +27,7 @@ public class ConfigFile {
             isConfigLoaded = true;
             writeToFile();
         } catch (IOException e) {
-            System.out.println("Could not discover/create openminemap/config.txt ; Configuration options will not be loaded or saved");
+            OpenMineMap.LOGGER.warn("Could not discover/create openminemap/config.txt ; Configuration options will not be loaded or saved");
         }
     }
 
@@ -46,7 +47,7 @@ public class ConfigFile {
         String value = configParams.get(parameter);
         //System.out.println("Value for key "+parameter+" is "+value);
         if (value.equals("null")) { //failsafe in case a value is somehow set to null
-            System.out.println("Null value for valid parameter detected; possible error occoured");
+            OpenMineMap.LOGGER.warn("Null value for valid parameter " + parameter.toString() + "detected; possible error occured. Will revert to default parameter.");
             writeDefaultParameter(parameter);
             return configParams.get(parameter);
         } else {
@@ -69,7 +70,7 @@ public class ConfigFile {
             }
             writer.close();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            OpenMineMap.LOGGER.error("Could not write to config file: " + e.getMessage());
             return false;
         }
         return true;
@@ -90,7 +91,7 @@ public class ConfigFile {
                 int searchResult = searchFor(kvPair[0]);
                 if (searchResult >= 0) {
                     configParams.put(ConfigOptions.getOptionOf(kvPair[0]), kvPair[1]);
-                    System.out.println("set "+kvPair[0]+" to "+kvPair[1]);
+                    //System.out.println("set "+kvPair[0]+" to "+kvPair[1]);
                     foundParameter[searchResult] = true;
                 }
             }
@@ -100,8 +101,9 @@ public class ConfigFile {
                     configParams.put(ConfigOptions.values()[i], defaultValues[i]);
                 }
             }
+            OpenMineMap.LOGGER.info("Loaded " + configParams.size() + " configuration options");
         } catch (IOException e) {
-            System.out.println("readFromFile Error: "+e.getMessage());
+            OpenMineMap.LOGGER.error("Could not read from config file: " + e.getMessage());
             return false;
         }
         return true;

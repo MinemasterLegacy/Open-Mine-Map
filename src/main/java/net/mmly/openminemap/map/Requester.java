@@ -3,6 +3,7 @@ package net.mmly.openminemap.map;
 import com.google.gson.Gson;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
@@ -182,7 +183,7 @@ public class Requester extends Thread {
         if (!OmmMap.geoCoordsOutOfBounds(latFocus, lonFocus)) {
             urlPattern += "&lat=" + latFocus + "&lon=" + lonFocus;
         }
-        System.out.println(urlPattern);
+        //System.out.println(urlPattern);
 
         InputStream stream = get(urlPattern);
         if (stream == null) return null;
@@ -219,8 +220,7 @@ public class Requester extends Thread {
             RequestManager.pendingRequest = null;
             requestCounter = 0;
         } catch (IOException e) {
-            System.out.println("Error during tile write: " + e);
-            e.printStackTrace();
+            OpenMineMap.LOGGER.error("Error during tile write: " + e.getMessage());
         }
     }
 
@@ -237,8 +237,7 @@ public class Requester extends Thread {
             connection.connect();
             return connection.getInputStream();
         } catch (Exception e) {
-            System.out.println("Error during url request: " + e);
-            e.printStackTrace();
+            OpenMineMap.LOGGER.error("Error during url request: " + e.getMessage());
             return null;
         }
     }

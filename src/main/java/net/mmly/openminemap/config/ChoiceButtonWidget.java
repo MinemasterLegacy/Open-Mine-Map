@@ -46,7 +46,6 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
 
     @Override
     public void onPress() {
-        System.out.println("Press");
         cycleOption();
     }
 

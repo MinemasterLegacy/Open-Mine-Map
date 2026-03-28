@@ -276,7 +276,7 @@ public class RightClickMenu extends ClickableWidget {
                         }
                     }
                 } catch (CoordinateValueError error) {
-                    System.out.println("Error with teleport here");
+                    MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
                 }
                 break;
             }
@@ -286,7 +286,7 @@ public class RightClickMenu extends ClickableWidget {
                     MinecraftClient.getInstance().keyboard.setClipboard(savedMouseLat + " " + savedMouseLong);
                     MapScreen.addNotification(new Notification(Text.translatable("omm.key.execute.copy-coordinates")));
                 } catch (HeadlessException e) {
-                    System.out.println("Unable to write to clipboard; System does not support it.");
+                    MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
                 }
                 break;
             }
@@ -320,7 +320,7 @@ public class RightClickMenu extends ClickableWidget {
             }
             case UNPIN: {
                 if (!WaypointFile.setWaypointPinned(selectedWaypoint.name, false)) {
-                    OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoint property change failed");
+                    OpenMineMapClient.debugMessages.add(Text.translatable("omm.error.waypoint-property-failiure").getString());
                 }
                 break;
             }

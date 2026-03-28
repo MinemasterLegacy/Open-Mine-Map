@@ -115,7 +115,7 @@ public class TileUrlFile {
             for (int i = 0; i < tileUrls.length; i++) {
                 if (tileUrls[i].name.equals(setUrl)) {
                     currentUrlId = i;
-                    System.out.println("Current Tile Url set to \""+tileUrls[currentUrlId].name+"\"");
+                    //System.out.println("Current Tile Url set to \""+tileUrls[currentUrlId].name+"\"");
                     TileManager.setCacheDir();
                     return;
                 }

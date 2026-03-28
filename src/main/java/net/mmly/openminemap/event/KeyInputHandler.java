@@ -42,7 +42,6 @@ public class KeyInputHandler {
             if(openFullscreenOsmMapKey.wasPressed()) {
                 //what to do when key is pressed
                 //client.player.sendMessage(Text.literal("Key pressed!")); //send message in chat
-                System.out.println("key");
                 MinecraftClient.getInstance().setScreen(
                         new MapScreen()
                 );
@@ -174,14 +173,10 @@ public class KeyInputHandler {
                         .formatted(Formatting.ITALIC), false);
             }
         } catch (Exception e) {
-            try {
                 minecraftClient.player.sendMessage(Text.translatable("omm.key.execute.error.copy-coordinates")
                         .formatted(Formatting.RED)
                         //.formatted(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/say e"))));
                         .formatted(Formatting.ITALIC), false);
-            } catch (Exception e2) {
-                OpenMineMap.somethingF__kedUpReallyBadIfThisMethodIsBeingCalled();
-            }
         }
     }
 

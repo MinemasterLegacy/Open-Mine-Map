@@ -15,8 +15,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SNAP_ANGLE(0, "SnapAngle", "", "snap-angle"),
     RIGHT_CLICK_MENU_USES(0, "RightClickMenuUses", "/tpll", "rcm-uses"),
     REVERSE_SCROLL(0, "ReverseScroll", "off", "reverse-scroll"),
-    SHOW_PLAYERS(0, "ShowPlayers", "all", "players"),
-    SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators", "all", "directions"),
+    SHOW_PLAYERS(0, "ShowPlayers2", "all", "players"),
+    SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators2", "all", "directions"),
     ALTITUDE_SHADING(0, "AltitudeShading", "on", "altitude-shading"),
     ZOOM_STRENGTH(0, "ZoomStrength", "0.40", "zoom-strength"),
     HOVER_NAMES(0, "HoverNames", "show", "hover-names"),
@@ -30,7 +30,6 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     COMPASS(0, "ShowCompass", "show", "compass"),
     TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),
 
-    //TODO reset player+DI shows for 1.7
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),

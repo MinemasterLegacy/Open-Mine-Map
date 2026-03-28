@@ -51,6 +51,9 @@ public class Requester extends Thread {
             else if (!Double.isNaN(RequestManager.reverseSearchLat)) {
                 doReverseSearch();
             }
+            else if (RequestManager.needToLoadClaims()) {
+                RequestManager.setClaims(getClaims());
+            }
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
                 this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url, request.cacheName);
@@ -83,6 +86,10 @@ public class Requester extends Thread {
                 ),
                 null, null, null, null, null, null
         };
+    }
+
+    private InputStream getClaims() {
+        return get("https://api.buildtheearth.net/api/v1/claims/geojson?active=true");
     }
 
     private SearchResult[] parseLocationJson(InputStream stream) {

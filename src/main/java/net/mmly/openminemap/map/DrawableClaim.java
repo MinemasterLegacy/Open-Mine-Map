@@ -106,13 +106,12 @@ public class DrawableClaim {
         double mapBottomBorder = (mapRenderHeight / 2) + mapPosY;
         return
                 UnitConvert.longToMapX(leftmost, zoom, scaledSize) < mapRightBorder &&
-                UnitConvert.longToMapX(rightmost, zoom, scaledSize) > mapLeftBorder &&
-                UnitConvert.latToMapY(topmost, zoom, scaledSize) < mapBottomBorder &&
-                UnitConvert.latToMapY(bottommost, zoom, scaledSize) > mapTopBorder
-        ;
+                        UnitConvert.longToMapX(rightmost, zoom, scaledSize) > mapLeftBorder &&
+                        UnitConvert.latToMapY(topmost, zoom, scaledSize) < mapBottomBorder &&
+                        UnitConvert.latToMapY(bottommost, zoom, scaledSize) > mapTopBorder
+                ;
     }
 
-    //TODO make load from web
     public static void reloadClaimData(boolean notifyMapScreen, boolean notifyChat, boolean considerTimeLimit) {
         if (considerTimeLimit) {
             long neededTime = (lastReloaded + 60000);
@@ -143,11 +142,14 @@ public class DrawableClaim {
             try {
                 DrawableClaim.succeededTriangulations = 0;
                 OmmMap.claims = null;
-                OmmMap.claims = DrawableClaim.of(
-                        MinecraftClient.getInstance().getResourceManager().open(Identifier.of("openminemap", "claims.json"))
-                );
+                RequestManager.loadClaims();
+                while (!RequestManager.claimsLoaded()) {
+                    Thread.sleep(100);
+                }
+                if (RequestManager.claims == null) throw new Exception();
+                OmmMap.claims = DrawableClaim.of(RequestManager.claims);
                 if (ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS).equals("true")) MinecraftClient.getInstance().player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.load-claims"), false);
             }
         }

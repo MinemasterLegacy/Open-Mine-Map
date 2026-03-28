@@ -111,19 +111,6 @@ public class OmmMap extends ClickableWidget {
     public void tryLoadClaims() {
         if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && OmmMap.claims == null && !claimInitStarted) {
             claimInitStarted = true;
-            /*
-            try {
-                DrawableClaim.succeededTriangulations = 0;
-                DrawableClaim.Loader.reloadClaimData(
-                        client.getResourceManager().open(Identifier.of("openminemap", "claims.json")),
-                        false
-                );
-                if (ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS).equals("true")) player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
-            } catch (IOException e) {
-                player.sendMessage(Text.translatable("omm.error.load-claims"), false);
-            }
-
-             */
             DrawableClaim.reloadClaimData(false, false, false);
         }
     }

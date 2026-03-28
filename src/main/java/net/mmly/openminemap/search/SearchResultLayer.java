@@ -69,9 +69,9 @@ public class SearchResultLayer extends ClickableWidget {
         if (isFocused()) context.drawBorder(getX(), getY(), width, height, getResultColor());
 
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
-        context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), false);
+        context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), true);
         if (!myResult.context.isBlank()) {
-            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : MapScreen.getSemiDarkTextColor(), false);
+            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : MapScreen.getSemiDarkTextColor(), true);
             //renderer.fontHeight = 5;
             //context.drawText();
         }

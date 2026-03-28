@@ -90,11 +90,13 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static LinkedList<Notification> notifications = new LinkedList<>();
     private static boolean hudWasHidden;
     public static int backingColor = 0x80000000;
-    private static int plainTextColor = 0xFFFFFFFF; //TODO add config option for
+    public static boolean textIsRainbow = false;
+    private static int plainTextColor = 0xFFFFFFFF;
     private static int semiDarkTextColor = 0xFF7f7f7f;
     private static int darkTextColor = 0xFF3f3f3f;
 
-    public static void setPlainTextColor(int argb) {
+    public static void setPlainTextColor(int argb, boolean checkForRainbowText) {
+        if (checkForRainbowText) textIsRainbow = (argb == 0xFF7f7f7f);
         plainTextColor = argb;
         semiDarkTextColor = ColorUtil.darken(argb, 0.5);
         darkTextColor = ColorUtil.darken(argb, 0.75);
@@ -519,6 +521,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         updateScreenDims(); //update screen dimension variables in case window has been resized
         PlayerAttributes.updatePlayerAttributes(mClient);
+        if (textIsRainbow) setPlainTextColor(ColorUtil.getCurrentRainbowColor(), false);
 
         if (map.mouseIsOutOfBounds()) {
             mouseDisplayLat = "-.-";

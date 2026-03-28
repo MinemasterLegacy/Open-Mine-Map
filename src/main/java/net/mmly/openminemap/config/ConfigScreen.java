@@ -20,8 +20,12 @@ import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.UnitConvert;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 
 public class ConfigScreen extends Screen {
     public ConfigScreen() {
@@ -64,36 +68,16 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget showConnectionStatusOption;
     ChoiceButtonWidget hudmapBorderOption;
     ChoiceButtonWidget hudmapCompassOption;
+    ColorChoiceSliderWidget textColorSlider;
 
     private final String[] onOffOptions = new String[] {"On", "Off"};
     private final String[] showHideOptions = new String[] {"Show", "Hide"};
     private final String[] booleanOptions = new String[] {"false", "true"};
     private final String[] visibilityOptions = new String[] {"None", "Self", "Local", "All"};
     private final String[] sizeOptions = new String[] {"Small", "Normal", "Large"};
-    private final String[] zoomStrengthOptions = new String[] {
-            "0.05", "0.1", "0.15", "0.2", "0.25",
-            "0.3", "0.35", "0.4", "0.45", "0.5",
-            "0.55", "0.6", "0.65", "0.7", "0.75",
-            "0.8", "0.85", "0.9", "0.95", "1.0",
-            "1.05", "1.1", "1.15", "1.2", "1.25",
-            "1.3", "1.35", "1.4", "1.45", "1.5",
-            "1.55", "1.6", "1.65", "1.7", "1.75",
-            "1.8", "1.85", "1.9", "1.95", "2.0"
-    }; // I know this is a lazy solution, but it's also the easiest (:
-    private final String[] decimalPercentOptions = new String[] {
-            "0.0",
-            "0.05", "0.1", "0.15", "0.2", "0.25",
-            "0.3", "0.35", "0.4", "0.45", "0.5",
-            "0.55", "0.6", "0.65", "0.7", "0.75",
-            "0.8", "0.85", "0.9", "0.95", "1.0"
-    };
-    private final String[] tileScaleOptions = new String[] {
-            "64", "72", "80", "88", "96",
-            "104", "112", "120", "128", "136",
-            "144", "152", "160", "168", "176",
-            "184", "192", "200", "208", "216",
-            "224", "232", "240", "248", "256"
-    };
+    private final String[] zoomStrengthOptions = range(0.05f, 2, 0.05f, 2);
+    private final String[] decimalPercentOptions = range(0, 1.01f, 0.05f, 2);
+    private final String[] tileScaleOptions = range(64, 256, 8, 0);
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -139,8 +123,19 @@ public class ConfigScreen extends Screen {
         anchor.setWidget(widget);
     }
 
+    private static String[] range(float start, float end, float step, int roundToPlace) {
+           String[] values = new String[(int) ((end - start) / step) + 1];
+           int index = 0;
+           for (float i = start; i <= end; i += step) {
+               values[index] = new DecimalFormat("0." + "0".repeat(roundToPlace) + "#").format(i);
+               index++;
+           }
+           return values;
+    }
+
     @Override
     protected void init() {
+        System.out.println(Arrays.toString(tileScaleOptions));
         configScreen = this;
 
         updateScreenDims();
@@ -240,6 +235,9 @@ public class ConfigScreen extends Screen {
         hudmapBorderOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HUDMAP_BORDER);
         this.addConfigOptionWidget(hudmapBorderOption);
 
+        textColorSlider = new ColorChoiceSliderWidget(ConfigOptions.TEXT_COLOR);
+        this.addConfigOptionWidget(textColorSlider);
+
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
@@ -269,6 +267,7 @@ public class ConfigScreen extends Screen {
         HudMap.loadConfigParameters();
         ConfigFile.writeToFile();
         Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));
+        MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
     }
 
     @Override

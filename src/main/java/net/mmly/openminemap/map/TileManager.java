@@ -11,6 +11,7 @@ import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.util.*;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -369,7 +370,9 @@ public class TileManager {
         showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
         showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));
         MapScreen.backingColor = ColorUtil.argb((int) (Double.parseDouble(ConfigFile.readParameter(ConfigOptions.INTERFACE_OPACITY)) * 255), 0, 0, 0);
-        MapScreen.setPlainTextColor(0xffffffff);
+        String textColor = ConfigOptions.TEXT_COLOR.read();
+        if (textColor.equals("rainbow")) MapScreen.setPlainTextColor(0xFF7f7f7f, true);
+        else MapScreen.setPlainTextColor(Color.decode(textColor).getRGB(), false);
     }
 
 }

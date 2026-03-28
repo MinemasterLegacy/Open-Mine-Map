@@ -18,9 +18,9 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SHOW_PLAYERS(0, "ShowPlayers", "all", "players"),
     SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators", "all", "directions"),
     ALTITUDE_SHADING(0, "AltitudeShading", "on", "altitude-shading"),
-    ZOOM_STRENGTH(0, "ZoomStrength", "0.4", "zoom-strength"),
+    ZOOM_STRENGTH(0, "ZoomStrength", "0.40", "zoom-strength"),
     HOVER_NAMES(0, "HoverNames", "show", "hover-names"),
-    INTERFACE_OPACITY(0, "InterfaceOpacity", "0.5", "Opacity", "Set opacity of the interface backing"),
+    INTERFACE_OPACITY(0, "InterfaceOpacity", "0.50", "Opacity", "Set opacity of the interface backing"),
     PLAYER_SIZE(0, "PlayerSize", "normal", "Player Size", "Set the render size for players"),
     WAYPOINT_SIZE(0, "WaypointSize", "normal", "Waypoint Size", "Set the render size for waypoints"),
     SHOW_CONNECTION_STATUS(0, "ConnectionStatus", "hide", "Connection Status", "Show the map's current connection status with the server"),
@@ -28,6 +28,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     CLAIMS_RENDERING(0, "ClaimsRendering", "off", "claims"),
     HUDMAP_BORDER(0, "HudmapBorder", "show", "border"),
     COMPASS(0, "ShowCompass", "show", "compass"),
+    TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),
+
     //TODO reset player+DI shows for 1.7
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),

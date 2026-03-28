@@ -38,9 +38,9 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
         //System.out.println(message.getString() + ": " + options[selection]);
     }
 
-    private int getSelectedOption() {
-        String selectedOption = ConfigFile.readParameter(configOption);
-        for (int i = 0; i <= options.length; i++) {
+    protected int getSelectedOption() {
+        String selectedOption = configOption.read();
+        for (int i = 0; i < options.length; i++) {
             if (selectedOption.equalsIgnoreCase(options[i])) return i;
         }
         return 0;

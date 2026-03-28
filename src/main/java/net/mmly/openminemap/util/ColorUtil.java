@@ -1,5 +1,7 @@
 package net.mmly.openminemap.util;
 
+import net.minecraft.util.Util;
+
 import java.awt.*;
 
 public class ColorUtil {
@@ -62,12 +64,22 @@ public class ColorUtil {
 
     }
 
+    /// Same as ::hsl
     /// Alpha: 0-255
     /// Hue: 0-360
     /// Saturation: 0-1
     /// Brightness: 0-1
     public static int hsb(int alpha, int hue, float saturation, float brightness) {
-        return setAlpha(alpha, Color.HSBtoRGB(hue, saturation, brightness));
+        return setAlpha(alpha, Color.HSBtoRGB((float) hue / 360, saturation, brightness));
+    }
+
+    /// Same as ::hsb
+    /// Alpha: 0-255
+    /// Hue: 0-360
+    /// Saturation: 0-1
+    /// Brightness: 0-1
+    public static int hsl(int alpha, int hue, float saturation, float brightness) {
+        return hsb(alpha, hue, saturation, brightness);
     }
 
     /// Alpha: 0-255
@@ -82,6 +94,10 @@ public class ColorUtil {
                 light % 1 == 0 ? 0 : (value - light) / Math.min(light, 1 - light),
                 light
         );
+    }
+
+    public static int getCurrentRainbowColor() {
+        return hsl(255, (int) ((Util.getEpochTimeMs() >>> 4) % 360), 0.95f, 0.75f);
     }
 
 }

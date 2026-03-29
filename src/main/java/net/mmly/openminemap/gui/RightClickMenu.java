@@ -7,6 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -157,7 +158,7 @@ public class RightClickMenu extends ClickableWidget {
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(getX(), getY(), getX() + width, getY() + height, 0x00000000);
+        //context.fill(getX(), getY(), getX() + width, getY() + height, 0x00000000);
         if (this.isMouseOver(mouseX, mouseY)) {
             hoverOn = (int) Math.ceil((mouseY - this.getY() + UnitConvert.pixelToScaledCoords(1))/16);
         } else {
@@ -185,7 +186,7 @@ public class RightClickMenu extends ClickableWidget {
         if (type.isWaypointType) {
             instance.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
         } else {
-            instance.setSavedMouseLatLong(FullscreenMapScreen.map.getMouseLong(), FullscreenMapScreen.map.getMouseLat());
+            instance.setSavedMouseLatLong(MapScreen.map.getMouseLong(), MapScreen.map.getMouseLat());
         }
 
         if (!(MinecraftClient.getInstance().currentScreen instanceof WaypointScreen)) instance.repositionForOverflow();
@@ -227,7 +228,7 @@ public class RightClickMenu extends ClickableWidget {
         } else verticalSize = 1;
     }
 
-    private Text getTextFor(RightClickMenuOption option) {
+    private MutableText getTextFor(RightClickMenuOption option) {
         if (option == null) return Text.literal("[null]").formatted(Formatting.GRAY);
         if (option == RightClickMenuOption.NAME) return Text.literal(selectedWaypoint.name).formatted(Formatting.BOLD);
         else return Text.translatable(option.getTranslationKey());
@@ -235,17 +236,20 @@ public class RightClickMenu extends ClickableWidget {
 
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         if (displayType == RightClickMenuType.HIDDEN) return;
-        context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
+        context.fill(getX(), getY(), getX() + width, getY() + height, MapScreen.backingColor);
 
         for (int i = 0; i < menuOptions.length; i++) {
+            boolean selected = hoverOn == i + 1 && !(firstOptionIsBold && i == 0);
+            MutableText text = getTextFor(menuOptions[i]);
             UContext.drawJustifiedText(
-                    getTextFor(menuOptions[i]),
+                    selected && MapScreen.getPlainTextColor() != 0xFFFFFFFF ? text.formatted(Formatting.UNDERLINE) : text,
                     horizontalSide == -1 ? Justify.RIGHT : Justify.LEFT,
                     horizontalSide == -1 ? getX() + width - 4 : getX() + 4,
                     getY() + 4 + (16 * i),
-                    hoverOn == i + 1 && !(firstOptionIsBold && i == 0) ?
-                            0xFFa8afff :
-                            0xFFFFFFFF
+                    selected ?
+                            (MapScreen.getPlainTextColor() == 0xFFFFFFFF ? 0xFFa8afff : MapScreen.getPlainTextColor()) :
+                            MapScreen.getPlainTextColor()
+
             );
         }
 
@@ -267,12 +271,12 @@ public class RightClickMenu extends ClickableWidget {
                             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong);
                         }
                         if (MinecraftClient.getInstance().currentScreen instanceof WaypointScreen) {
-                            MinecraftClient.getInstance().setScreen(new FullscreenMapScreen());
-                            FullscreenMapScreen.map.setMapLatLong(selectedWaypoint.latitude, selectedWaypoint.longitude);
+                            MinecraftClient.getInstance().setScreen(new MapScreen());
+                            MapScreen.map.setMapLatLong(selectedWaypoint.latitude, selectedWaypoint.longitude);
                         }
                     }
                 } catch (CoordinateValueError error) {
-                    System.out.println("Error with teleport here");
+                    MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
                 }
                 break;
             }
@@ -280,9 +284,9 @@ public class RightClickMenu extends ClickableWidget {
                 try {
                     //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection("test"), null);
                     MinecraftClient.getInstance().keyboard.setClipboard(savedMouseLat + " " + savedMouseLong);
-                    FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.key.execute.copy-coordinates")));
+                    MapScreen.addNotification(new Notification(Text.translatable("omm.key.execute.copy-coordinates")));
                 } catch (HeadlessException e) {
-                    System.out.println("Unable to write to clipboard; System does not support it.");
+                    MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
                 }
                 break;
             }
@@ -293,7 +297,7 @@ public class RightClickMenu extends ClickableWidget {
                 if (horizontalSide == -1) modX -= width + 8 + 14;
                 if (verticalSize == -1) modY -= (98 - height);
 
-                FullscreenMapScreen.webAppSelectLayer.setPosition(getX() + width + 4 + modX, getY() + modY);
+                MapScreen.webAppSelectLayer.setPosition(getX() + width + 4 + modX, getY() + modY);
                 return;
             }
             case CREATE_WAYPOINT: {
@@ -310,26 +314,26 @@ public class RightClickMenu extends ClickableWidget {
                 break;
             }
             case VIEW_ON_MAP: {
-                FullscreenMapScreen.followPlayer(false);
-                FullscreenMapScreen.map.setMapLatLong(selectedWaypoint.latitude, selectedWaypoint.longitude);
+                MapScreen.followPlayer(false);
+                MapScreen.map.setMapLatLong(selectedWaypoint.latitude, selectedWaypoint.longitude);
                 break;
             }
             case UNPIN: {
                 if (!WaypointFile.setWaypointPinned(selectedWaypoint.name, false)) {
-                    OpenMineMapClient.debugMessages.add("OpenMineMap: Waypoint property change failed");
+                    OpenMineMapClient.debugMessages.add(Text.translatable("omm.error.waypoint-property-failiure").getString());
                 }
                 break;
             }
             case SET_SNAP_ANGLE: {
                 setSnapAngle();
-                FullscreenMapScreen.addNotification(new Notification(Text.of(
+                MapScreen.addNotification(new Notification(Text.of(
                         Text.translatable("omm.notification.snap-angle-set").getString() +
                         UnitConvert.floorToPlace(HudMap.snapAngle,3) +
                         "°")));
                 break;
             }
             case REVERSE_SEARCH: {
-                FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.searching")));
+                MapScreen.addNotification(new Notification(Text.translatable("omm.notification.searching")));
                 RequestManager.setReverseSearchRequest(savedMouseLat, savedMouseLong);
                 break;
             }

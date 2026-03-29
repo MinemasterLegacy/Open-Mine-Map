@@ -5,8 +5,8 @@ import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.Waypoint;
 
@@ -45,16 +45,16 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         if (!visible) return;
         setHeight(Math.min(maxHeight, pinnedWaypoints.length * width));
 
-        context.fill(getX(), getY(), getX() + width, getY() + height, 0x88000000);
+        context.fill(getX(), getY(), getX() + width, getY() + height, MapScreen.backingColor);
 
-        if (FullscreenMapScreen.getRightClickMenuWaypoint() == null) menuSelection = -1;
+        if (MapScreen.getRightClickMenuWaypoint() == null) menuSelection = -1;
         if (menuSelection > -1 )context.drawBorder(getX() + margin - 1, getY() + margin - 1 + (menuSelection * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFCA8);
 
         if (isHovered()) {
             int selection = ((mouseY - getY()) / waypointHitboxSize);
             context.drawBorder(getX() + margin - 1, getY() + margin - 1 + (selection * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFFFF);
             if (RightClickMenu.getDisplayType() == RightClickMenuType.HIDDEN) {
-                fill(context, getX() + width + 3, getY() + (selection * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2) - 2, textRenderer.getWidth(pinnedWaypoints[selection].name) + 3, textRenderer.fontHeight + 3, 0x80000000);
+                UContext.fillZone(getX() + width + 3, getY() + (selection * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2) - 2, textRenderer.getWidth(pinnedWaypoints[selection].name) + 3, textRenderer.fontHeight + 3, MapScreen.backingColor);
                 context.drawText(textRenderer, pinnedWaypoints[selection].name, getX() + width + 5, getY() + (selection * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2), RGBof(pinnedWaypoints[selection].color), false);
             }
         }
@@ -81,10 +81,6 @@ public class PinnedWaypointsLayer extends ClickableWidget {
                 (float) (HSB & 0xFF) / 256);
     }
 
-    private void fill(DrawContext context, int x, int y, int width, int height, int color) {
-        context.fill(x, y, x + width, y + height, color);
-    }
-
     public Waypoint getSelectedWaypoint() {
         return pinnedWaypoints[((((int) mouseY) - getY()) / waypointHitboxSize)];
     }
@@ -92,7 +88,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         int selection = ((((int) mouseY) - getY()) / waypointHitboxSize);
-        if (RightClickMenu.getDisplayType() == RightClickMenuType.PINNED_WAYPOINT && FullscreenMapScreen.getRightClickMenuWaypoint().name.equals(pinnedWaypoints[selection].name)) {
+        if (RightClickMenu.getDisplayType() == RightClickMenuType.PINNED_WAYPOINT && MapScreen.getRightClickMenuWaypoint().name.equals(pinnedWaypoints[selection].name)) {
             RightClickMenu.disableMenu();
         } else {
             RightClickMenu.enableMenu(

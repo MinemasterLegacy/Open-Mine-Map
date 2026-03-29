@@ -5,7 +5,6 @@ import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.config.ConfigScreen;
@@ -71,16 +70,16 @@ public class ButtonLayer extends ClickableWidget {
         RightClickMenu.disableMenu();
         switch (function) {
             case ButtonFunction.ZOOMIN: //zoom in
-                FullscreenMapScreen.zoomIn();
+                MapScreen.zoomIn();
                 break;
             case ButtonFunction.ZOOMOUT: //zoom out
-                FullscreenMapScreen.zoomOut();
+                MapScreen.zoomOut();
                 break;
             case ButtonFunction.RESET: //reset
-                FullscreenMapScreen.resetMap();
+                MapScreen.resetMap();
                 break;
             case ButtonFunction.FOLLOW: //follow
-                if (PlayerAttributes.positionIsValid()) FullscreenMapScreen.followPlayer(true);
+                if (PlayerAttributes.positionIsValid()) MapScreen.followPlayer(true);
                 break;
             case ButtonFunction.CONFIG: //config
                 MinecraftClient.getInstance().setScreen(
@@ -97,7 +96,7 @@ public class ButtonLayer extends ClickableWidget {
                 }
                 if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
                     MinecraftClient.getInstance().setScreen(
-                            new FullscreenMapScreen()
+                            new MapScreen()
                     );
                     break;
                 }
@@ -112,7 +111,7 @@ public class ButtonLayer extends ClickableWidget {
                 if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
                     ConfigScreen.getInstance().saveChanges();
                     MinecraftClient.getInstance().setScreen(
-                            new FullscreenMapScreen()
+                            new MapScreen()
                     );
                     break;
                 } else if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {

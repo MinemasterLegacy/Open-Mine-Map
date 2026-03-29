@@ -1,5 +1,7 @@
 package net.mmly.openminemap.enums;
 
+import net.mmly.openminemap.util.ConfigFile;
+
 public enum ConfigOptions { //no underscore for standard config option, one for session variables (Ex: map positioning and zoom), two for development variables
     HUD_MAP_X(0, "HudMapX", "10"),
     HUD_MAP_Y(0, "HudMapY", "10"),
@@ -13,23 +15,33 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SNAP_ANGLE(0, "SnapAngle", "", "snap-angle"),
     RIGHT_CLICK_MENU_USES(0, "RightClickMenuUses", "/tpll", "rcm-uses"),
     REVERSE_SCROLL(0, "ReverseScroll", "off", "reverse-scroll"),
-    SHOW_PLAYERS(0, "ShowPlayers", "local", "players"),
-    SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators", "local", "directions"),
+    SHOW_PLAYERS(0, "ShowPlayers2", "all", "players"),
+    SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators2", "all", "directions"),
     ALTITUDE_SHADING(0, "AltitudeShading", "on", "altitude-shading"),
-    ZOOM_STRENGTH(0, "ZoomStrength", "0.4", "zoom-strength"),
-    HOVER_NAMES(0, "HoverNames", "on", "hover-names"),
+    ZOOM_STRENGTH(0, "ZoomStrength", "0.40", "zoom-strength"),
+    HOVER_NAMES(0, "HoverNames", "show", "hover-names"),
+    INTERFACE_OPACITY(0, "InterfaceOpacity", "0.50", "interface-opacity"),
+    PLAYER_SIZE(0, "PlayerSize", "normal", "player-size"),
+    WAYPOINT_SIZE(0, "WaypointSize", "normal", "waypoint-size"),
+    SHOW_CONNECTION_STATUS(0, "ConnectionStatus", "hide", "connection-status"),
+    TILE_SCALE(0, "TileScale", "128", "tile-scale"),
+    CLAIMS_RENDERING(0, "ClaimsRendering", "off", "claims"),
+    HUDMAP_BORDER(0, "HudmapBorder", "show", "border"),
+    COMPASS(0, "ShowCompass", "show", "compass"),
+    TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),
 
+    _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),
     _HUD_LAST_ZOOM(1, "§hudlastzoom", "0"),
     _FS_LAST_ZOOM(1, "§fslastzoom", "0"),
     _FS_LAST_X(1, "§fslastx", "64"),
     _FS_LAST_Y(1, "§fslasty", "64"),
+    _FS_LAST_TILE_SIZE(1, "§fslasttilesize", "128"),
 
     __SHOW_DEVELOPER_OPTIONS(2, "ShowDeveloperOptions", "false"),
     __DISABLE_WEB_REQUESTS(2, "DisableWebRequests", "false", "DisableWebRequests", ""),
-    __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", ""),
-    __EXPERIMENTAL_CLAIMS_RENDERING(2, "ExperimentalClaimsRendering", "false", "ExperimentalClaimsRendering", "");
+    __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", "");
 
     private final String defaultValue;
     private final String rawText;
@@ -78,5 +90,13 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
 
     public static int length() {
         return ConfigOptions.values().length;
+    }
+
+    public String read() {
+        return ConfigFile.readParameter(this);
+    }
+
+    public void write(String value) {
+        ConfigFile.writeParameter(this, value);
     }
 }

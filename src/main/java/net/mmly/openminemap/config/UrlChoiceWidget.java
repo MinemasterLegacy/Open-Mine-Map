@@ -2,17 +2,15 @@ package net.mmly.openminemap.config;
 
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -84,7 +82,7 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Configuration#tile-source", ConfigScreen.getInstance(), false);
+        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Configuration#tile-source", ConfigScreen.getInstance(), false);
     }
 
     @Override

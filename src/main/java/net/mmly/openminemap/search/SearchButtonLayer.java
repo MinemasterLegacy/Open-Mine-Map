@@ -4,10 +4,9 @@ import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 
 public class SearchButtonLayer extends ClickableWidget {
     public SearchButtonLayer(int x, int y) {
@@ -19,7 +18,7 @@ public class SearchButtonLayer extends ClickableWidget {
                 RenderPipelines.GUI_TEXTURED,
                 isHovered() ?
                         Identifier.of("openminemap", "buttons/vanilla/hover/search.png") :
-                        (FullscreenMapScreen.getSearchMenuState() ?
+                        (MapScreen.getSearchMenuState() ?
                                 Identifier.of("openminemap", "buttons/vanilla/locked/search.png") :
                                 Identifier.of("openminemap", "buttons/vanilla/default/search.png")),
                 getX(),
@@ -40,13 +39,13 @@ public class SearchButtonLayer extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        FullscreenMapScreen.toggleSearchMenu(!FullscreenMapScreen.getSearchMenuState());
-        FullscreenMapScreen.getInstance().jumpToSearchBox();
+        MapScreen.toggleSearchMenu(!MapScreen.getSearchMenuState());
+        MapScreen.getInstance().jumpToSearchBox();
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        FullscreenMapScreen.getInstance().jumpToSearchBox(keyCode, scanCode, modifiers);
+        MapScreen.getInstance().jumpToSearchBox(keyCode, scanCode, modifiers);
         return true;
     }
 

@@ -3,10 +3,12 @@ package net.mmly.openminemap.map;
 import com.google.gson.Gson;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
@@ -17,9 +19,9 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
@@ -51,6 +53,9 @@ public class Requester extends Thread {
             else if (!Double.isNaN(RequestManager.reverseSearchLat)) {
                 doReverseSearch();
             }
+            else if (RequestManager.needToLoadClaims()) {
+                RequestManager.setClaims(getClaims());
+            }
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
                 this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url, request.cacheName);
@@ -71,7 +76,7 @@ public class Requester extends Thread {
     }
 
     private SearchResult[] getErrorResult() {
-        return new SearchResult[] {
+        return (new SearchResult[] {
                 new SearchResult(
                         SearchResultType.LOCATION,
                         Double.NaN,
@@ -81,13 +86,17 @@ public class Requester extends Thread {
                         Text.translatable("omm.notification.something-wrong").getString(),
                         0
                 ),
-                null, null, null, null, null, null
-        };
+                null, null, null, null, null, null, null
+        });
+    }
+
+    private InputStream getClaims() {
+        return get("https://api.buildtheearth.net/api/v1/claims/geojson?active=true");
     }
 
     private SearchResult[] parseLocationJson(InputStream stream) {
         Gson gson = new Gson();
-        SearchResult[] results = new SearchResult[7];
+        SearchResult[] results = new SearchResult[SearchBoxLayer.MAX_SEARCH_RESULTS];
         Map returnedResult;
 
         try {
@@ -139,18 +148,18 @@ public class Requester extends Thread {
         SearchResult result = reverseSearchRequest(RequestManager.reverseSearchLat, RequestManager.reverseSearchLong);
         RequestManager.resetReverseSearchCandidate();
         if (result == null) {
-            FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+            MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
         } else {
             try {
                 String location = "";
-                if (result.name != null && FullscreenMapScreen.map.getTileZoom() >= 14) location += result.name + ", ";
+                if (result.name != null && MapScreen.map.getTileZoom() >= 14) location += result.name + ", ";
                 if (result.context != null) location += result.context + ", ";
                 if (!location.isEmpty()) location = location.substring(0, location.length() - 2);
 
                 MinecraftClient.getInstance().keyboard.setClipboard(location);
-                FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.location-copied")));
+                MapScreen.addNotification(new Notification(Text.translatable("omm.notification.location-copied")));
             } catch (HeadlessException e) {
-                FullscreenMapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+                MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
             }
         }
     }
@@ -175,7 +184,7 @@ public class Requester extends Thread {
         if (!OmmMap.geoCoordsOutOfBounds(latFocus, lonFocus)) {
             urlPattern += "&lat=" + latFocus + "&lon=" + lonFocus;
         }
-        System.out.println(urlPattern);
+        //System.out.println(urlPattern);
 
         InputStream stream = get(urlPattern);
         if (stream == null) return null;
@@ -212,15 +221,14 @@ public class Requester extends Thread {
             RequestManager.pendingRequest = null;
             requestCounter = 0;
         } catch (IOException e) {
-            System.out.println("Error during tile write: " + e);
-            e.printStackTrace();
+            OpenMineMap.LOGGER.error("Error during tile write: " + e.getMessage());
         }
     }
 
     private InputStream get(String url) {
         try {
             URL url1 = new URI(url).toURL();
-            URLConnection connection = url1.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) url1.openConnection();
 
             connection.setRequestProperty("User-Agent", "Java/21.0.8 OpenMineMap (contact: minemasterlegacy@gmail.com)");
             connection.setRequestProperty("cache-control", "max-age=7");
@@ -228,10 +236,13 @@ public class Requester extends Thread {
             connection.setRequestProperty("Retry-After", "3");
 
             connection.connect();
+            if (connection.getResponseCode() != Math.clamp(connection.getResponseCode(), 200, 299)) {
+                OpenMineMap.LOGGER.error("Error during url request: Code " + connection.getResponseCode() + " received.");
+                return null;
+            }
             return connection.getInputStream();
         } catch (Exception e) {
-            System.out.println("Error during url request: " + e);
-            e.printStackTrace();
+            OpenMineMap.LOGGER.error("Error during url request: " + e.getMessage());
             return null;
         }
     }

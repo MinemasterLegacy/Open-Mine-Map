@@ -14,14 +14,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 public class SearchResultLayer extends ClickableWidget {
 
@@ -61,20 +60,20 @@ public class SearchResultLayer extends ClickableWidget {
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFFFF0000);
 
-        if (!FullscreenMapScreen.getSearchMenuState() || myResult == null) {
+        if (!MapScreen.getSearchMenuState() || myResult == null) {
             visible = false;
             return;
         }
         visible = true;
 
-        context.fill(getX(), getY(), getX() + width, getY() + height, 0x80000000);
+        context.fill(getX(), getY(), getX() + width, getY() + height, MapScreen.backingColor);
         context.fill(getX(), getY(), getX() + 4, getY() + height, getResultColor());
         if (isFocused()) UContext.drawBorder(getX(), getY(), width, height, getResultColor());
 
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
-        context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, 0xFFFFFFFF, false);
+        context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), true);
         if (!myResult.context.isBlank()) {
-            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : 0xFFB0B0B0, false);
+            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : MapScreen.getSemiDarkTextColor(), true);
             //renderer.fontHeight = 5;
             //context.drawText();
         }
@@ -135,38 +134,38 @@ public class SearchResultLayer extends ClickableWidget {
     private void goToResult() {
 
         if (myResult.resultType == SearchResultType.SEARCH) {
-            RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
+            RequestManager.setSearchRequest(MapScreen.getInstance().getSearchBoxContents());
             return;
         }
 
         if (myResult.resultType == SearchResultType.SEARCHLOCAL) {
             RequestManager.setSearchRequest(
-                    FullscreenMapScreen.getInstance().getSearchBoxContents(),
-                    FullscreenMapScreen.map.getMapCenterLat(),
-                    FullscreenMapScreen.map.getMapCenterLon()
+                    MapScreen.getInstance().getSearchBoxContents(),
+                    MapScreen.map.getMapCenterLat(),
+                    MapScreen.map.getMapCenterLon()
             );
             return;
         }
 
-        FullscreenMapScreen.followPlayer(false);
+        MapScreen.followPlayer(false);
 
         if (myResult.bounds != null) {
             goAndZoomToResult(myResult.bounds);
             return;
         }
 
-        FullscreenMapScreen.map.setMapLatLong(myResult.latitude, myResult.longitude);
+        MapScreen.map.setMapLatLong(myResult.latitude, myResult.longitude);
 
         if (myResult.zoom != -1) {
-            FullscreenMapScreen.map.setMapZoom(myResult.zoom);
+            MapScreen.map.setMapZoom(myResult.zoom);
         }
-        FullscreenMapScreen.map.clampZoom();
+        MapScreen.map.clampZoom();
 
     }
 
     private static final double log2 = Math.log(2);
     private void goAndZoomToResult(double[] bounds) { // for bounds: length is 4, first 2 are lat, last 2 are long
-        OmmMap map = FullscreenMapScreen.map;
+        OmmMap map = MapScreen.map;
 
         double areaWidth = Math.abs(
                 UnitConvert.longToMapX(bounds[2], 0, 128) -
@@ -188,7 +187,7 @@ public class SearchResultLayer extends ClickableWidget {
         );
         */
 
-        System.out.println(Arrays.toString(bounds));
+        //System.out.println(Arrays.toString(bounds));
 
         map.setMapZoom(
                 Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2
@@ -208,7 +207,7 @@ public class SearchResultLayer extends ClickableWidget {
             return true;
         }
 
-        FullscreenMapScreen.getInstance().jumpToSearchBox(input);
+        MapScreen.getInstance().jumpToSearchBox(input);
         return true;
 
         //return super.keyPressed(keyCode, scanCode, modifiers);

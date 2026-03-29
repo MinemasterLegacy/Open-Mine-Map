@@ -8,7 +8,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -60,7 +59,7 @@ public class WebAppSelectLayer extends ClickableWidget {
     protected void drawWidget(DrawContext context) {
         if (!RightClickMenu.selectingSite) return;
 
-        context.fill(getX(), getY(), getX() + getWidth(), getY()+getHeight(), 0x88000000);
+        context.fill(getX(), getY(), getX() + getWidth(), getY()+getHeight(), MapScreen.backingColor);
 
         if (selection != -1) context.drawTexture(RenderPipelines.GUI_TEXTURED, iconSelections.get(WebIcon.getUsingId(selection)), getX() + 2 - 1, getY() + 2 + (selection * 16) - 1, 0, 0, 12, 16, 12, 16);
 
@@ -75,7 +74,7 @@ public class WebAppSelectLayer extends ClickableWidget {
         super.onClick(click, doubled);
         float lat = RightClickMenu.savedMouseLat;
         float lon = RightClickMenu.savedMouseLong;
-        int zoom = FullscreenMapScreen.map.getTileZoom();
+        int zoom = MapScreen.map.getTileZoom();
         switch (selection) {
             case 0: {
                 openUrl("https://google.com/maps/@"+lat+","+lon+","+Math.max(2, zoom)+"z", false);
@@ -109,7 +108,7 @@ public class WebAppSelectLayer extends ClickableWidget {
                         if (isGep) openInGep();
                         else Util.getOperatingSystem().open(url);
                     }
-                    MinecraftClient.getInstance().setScreen(new FullscreenMapScreen());
+                    MinecraftClient.getInstance().setScreen(new MapScreen());
                 }
             }, url, true)
 
@@ -134,7 +133,7 @@ public class WebAppSelectLayer extends ClickableWidget {
                                 "\t\t\t<altitude>0</altitude>\n" +
                                 "\t\t\t<heading>-11.42103893546798</heading>\n" +
                                 "\t\t\t<tilt>0</tilt>\n" +
-                                "\t\t\t<range>"+zoomToMetersAbove(FullscreenMapScreen.map.getTileZoom())+"</range>\n" +
+                                "\t\t\t<range>"+zoomToMetersAbove(MapScreen.map.getTileZoom())+"</range>\n" +
                                 "\t\t\t<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>\n" +
                                 "\t\t</LookAt>\n" +
                                 "\t\t<Point>\n" +
@@ -148,7 +147,7 @@ public class WebAppSelectLayer extends ClickableWidget {
         } catch (IOException e) {
             return;
         }
-        System.out.println(file.exists());
+        //System.out.println(file.exists());
         Util.getOperatingSystem().open(file);
     }
 

@@ -5,7 +5,7 @@ import net.minecraft.util.Util;
 
 public class Notification {
     public Text text;
-    public double expirationTime;
+    private double expirationTime;
 
     public Notification(Text text, double durationMs) {
         this.text = text;
@@ -14,6 +14,10 @@ public class Notification {
 
     public Notification(Text text) {
         this(text, 3000);
+    }
+
+    public int timeToExpirationMs() {
+        return (int) (expirationTime - Util.getMeasuringTimeMs());
     }
 
 }

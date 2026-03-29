@@ -15,7 +15,7 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     net.minecraft.text.Text message;
     ConfigOptions configOption;
     ConfigAnchorWidget anchor;
-    boolean optionIsLiteral = false;
+    boolean optionIsLiteral;
 
     protected ChoiceButtonWidget(String[] options, ConfigOptions configOption, boolean optionIsLiteral) {
         super(0, -100, 120, 20, net.minecraft.text.Text.empty(), (buttonWidget) -> {buttonWidget.onPress(null);}, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);

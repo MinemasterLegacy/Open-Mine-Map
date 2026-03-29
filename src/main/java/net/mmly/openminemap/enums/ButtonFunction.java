@@ -5,9 +5,9 @@ public enum ButtonFunction {
     ZOOMOUT("zoomout.png"),
     RESET("reset.png"),
     FOLLOW("follow.png"),
+    WAYPOINTS("waypoint.png"),
     CONFIG("config.png"),
     EXIT("exit.png"),
-    WAYPOINTS("waypoint.png"),
     CHECKMARK("check.png"),
     RESETCONFIG("resetconfig.png");
 

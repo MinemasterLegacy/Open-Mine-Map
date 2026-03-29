@@ -1,5 +1,6 @@
 package net.mmly.openminemap.map;
 
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.util.UnitConvert;
 
 import javax.imageio.ImageIO;
@@ -54,8 +55,7 @@ public class TileLoader extends Thread {
             memoryCacheSize += is.available();
             return is;
         } catch(IOException e) {
-            System.out.println("Error while getting tile: " + e);
-            e.printStackTrace();
+            OpenMineMap.LOGGER.warn("Error while loading tile from disk: " + e.getMessage());
             return null;
         }
 

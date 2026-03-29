@@ -9,8 +9,8 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import static net.mmly.openminemap.gui.FullscreenMapScreen.windowScaledHeight;
-import static net.mmly.openminemap.gui.FullscreenMapScreen.windowScaledWidth;
+import static net.mmly.openminemap.gui.MapScreen.windowScaledHeight;
+import static net.mmly.openminemap.gui.MapScreen.windowScaledWidth;
 
 public class BugReportLayer extends ClickableWidget {
 
@@ -29,7 +29,7 @@ public class BugReportLayer extends ClickableWidget {
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
         MutableText text = Text.translatable("omm.fullscreen.report-bugs");
         int textWidth = textRenderer.getWidth(text);
-        context.fill(windowScaledWidth - (textWidth + 10), windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
+        context.fill(windowScaledWidth - (textWidth + 10), windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, MapScreen.backingColor);
         setX(windowScaledWidth - (textWidth + 10));
         setWidth(windowScaledWidth - getX());
         context.drawText(textRenderer,
@@ -45,6 +45,6 @@ public class BugReportLayer extends ClickableWidget {
     @Override
     public void onClick(Click click, boolean doubled) {
         //FullscreenMapScreen.openBugReportScreen();
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new FullscreenMapScreen(), true);
+        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new MapScreen(), true);
     }
 }

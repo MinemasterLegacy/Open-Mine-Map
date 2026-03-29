@@ -1,0 +1,17 @@
+{
+  "omm.config.category.general": "Ogólne",
+  "omm.config.gui.exit-without-saving": "Wyjdź bez zapisywania",
+  "omm.config.gui.save-and-exit": "Zapisz i wyjdź",
+  "omm.config.option.artificial-zoom": "Sztuczny zoom",
+  "omm.config.option.configure-hud": "Konfiguruj HUD...",
+  "omm.config.option.players": "Gracze",
+  "omm.config.option.rcm-uses": "Użycie RCM",
+  "omm.config.option.reverse-scroll": "Odwróć scroll",
+  "omm.config.option.snap-angle": "Przyciąganie do kąta",
+  "omm.config.state.off": "Wyłącz",
+  "omm.config.state.on": "Włącz",
+  "omm.config.tooltip.artificial-zoom": "Sztuczny zoom pozwala na większe przybliżenie niż normalnie (+6 poziomów), przez powiększanie najmniejszych kafelków mapy",
+  "omm.config.tooltip.configure-hud": "Zmień pozycję i rozmiar elementów HUD",
+  "omm.config.tooltip.snap-angle": "Ustaw kąt przyciągania (skrót klawiszowy). Pomaga rysować proste linie (kąt jak w Minecraft)",
+  "oom.config.tooltip.rcm-uses": "Komenda używana do teleportu z menu prawego przycisku (pełny ekran)"
+}

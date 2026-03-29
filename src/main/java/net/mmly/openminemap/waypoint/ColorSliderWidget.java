@@ -5,7 +5,6 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
@@ -84,7 +83,7 @@ public class ColorSliderWidget extends ClickableWidget {
         ColorSliderWidget.hue = (float) ((hsb & 0xFF0000) >> 16) / 255;
         ColorSliderWidget.saturation = (float) ((hsb & 0x00FF00) >> 8)  / 255;
         ColorSliderWidget.value = (float )(hsb & 0x0000FF) / 255;
-        System.out.println(ColorSliderWidget.hue +"\t"+ ColorSliderWidget.saturation +"\t"+ ColorSliderWidget.value +"\t");
+        //System.out.println(ColorSliderWidget.hue +"\t"+ ColorSliderWidget.saturation +"\t"+ ColorSliderWidget.value +"\t");
     }
 
 }

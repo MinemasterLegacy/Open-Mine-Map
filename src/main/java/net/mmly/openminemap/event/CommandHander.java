@@ -12,23 +12,29 @@ import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.map.DrawableClaim;
+import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class CommandHander {
+
+    public static final Formatting FEEDBACK_COLOR = Formatting.BLUE;
+    public static final Formatting ERROR_COLOR = Formatting.RED;
 
     public static void register() { //this chaining is f***ing horrible
         ArgumentTypeRegistry.registerArgumentType(Identifier.of("openminemap", "coordinateargument"), CoordinateArgumentType.class, ConstantArgumentSerializer.of(CoordinateArgumentType::coordinateArgumentType));
@@ -51,12 +57,23 @@ public class CommandHander {
                             .executes(CommandHander::warp)))
                     .then(ClientCommandManager.literal("distortion")
                             .executes(CommandHander::distortion))
+                    .then(ClientCommandManager.literal("reloadclaims")
+                            .executes(CommandHander::reloadclaims))
         );});
         //registerCommands();
     }
 
-    private static int distortion(CommandContext<FabricClientCommandSource> context) {
+    private static int reloadclaims(CommandContext<FabricClientCommandSource> context) {
+        if (!ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on")) {
+            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.claims.not-enabled").formatted(ERROR_COLOR), false);
+            return 0;
+        }
+        DrawableClaim.reloadClaimData(false, true, true);
+        return 0;
+    }
 
+    private static int distortion(CommandContext<FabricClientCommandSource> context) {
+        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
         try {
             double[] distortion = Projection.getDistortion(PlayerAttributes.getLongitude(), PlayerAttributes.getLatitude());
             MinecraftClient.getInstance().player.sendMessage(Text.literal(
@@ -65,9 +82,9 @@ public class CommandHander {
                         " ± " +
                         UnitConvert.floorToPlace(Math.toDegrees(distortion[1]), 10) +
                         "°"
-            ).formatted(Formatting.ITALIC), false);
+            ).formatted(Formatting.ITALIC).formatted(FEEDBACK_COLOR), false);
         } catch (CoordinateValueError e) {
-            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.distortion"), false);
+            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.distortion").formatted(ERROR_COLOR).formatted(Formatting.ITALIC), false);
         }
 
         return 0;
@@ -98,7 +115,7 @@ public class CommandHander {
 
         String[] coords = context.getArgument("latitude longitude [altitude]", CoordinateValue.class).value.split(" ");
         if (coords.length < 2) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.incomplete-coordinates").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.incomplete-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
             return 0;
         }
         String lat = coords[0];
@@ -109,7 +126,7 @@ public class CommandHander {
 
         double[] convertedCoords = UnitConvert.toDecimalDegrees(lat, lon);
         if (convertedCoords == null) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
             return 0;
         }
         /*
@@ -136,8 +153,6 @@ public class CommandHander {
     private static int tpwtpll(CommandContext<FabricClientCommandSource> context) {
         String[] xyzStrings = context.getArgument("x y z", CoordinateValue.class).value.split(" ");
 
-        System.out.println(Arrays.toString(xyzStrings));
-
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         double[] xyz = new double[3];
         double[] xyzPlayer = new double[] {player.getX(), player.getY(), player.getZ()};
@@ -152,20 +167,20 @@ public class CommandHander {
                 }
             }
         } catch (NumberFormatException error) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
             return 0;
         }
 
         try {
             double[] coordsToTp = Projection.to_geo(xyz[0], xyz[2]);
             if (Double.isNaN(coordsToTp[0])) {
-                context.getSource().sendFeedback(Text.translatable("omm.error.out-of-bounds").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+                context.getSource().sendFeedback(Text.translatable("omm.error.out-of-bounds").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
                 return 0;
             }
             player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", coordsToTp[0])+" "+String.format("%.7f", coordsToTp[1])+" "+xyz[1]);
             return 1;
         } catch (CoordinateValueError e) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.invalid-or-out-of-bounds").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Text.translatable("omm.error.invalid-or-out-of-bounds").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
             return 0;
         }
     }
@@ -173,19 +188,16 @@ public class CommandHander {
     private static int tpllto(CommandContext<FabricClientCommandSource> context) {
         String desiredPlayer = context.getArgument("player name", CoordinateValue.class).value.trim();
 
-        for (PlayerEntity knownPlayer : PlayersManager.getNearPlayers()) {
+        for (MappablePlayer knownPlayer : PlayersManager.getMappablePlayers()) {
+            if (knownPlayer.outOfBounds) continue;
             try {
-                if (Objects.equals(Objects.requireNonNull(knownPlayer.getName()).getString(), desiredPlayer)) {
-                    double desiredY = knownPlayer.getY();
-                    double[] longLat = Projection.to_geo(knownPlayer.getX(), knownPlayer.getZ());
-                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", longLat[0])+" "+String.format("%.7f", longLat[1])+" "+desiredY);
+                if (Objects.equals(Objects.requireNonNull(knownPlayer.name).getString(), desiredPlayer)) {
+                    double desiredY = knownPlayer.altitude;
+                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", knownPlayer.latitude)+" "+String.format("%.7f", knownPlayer.longitude)+" "+desiredY);
                     return 1;
                 }
             } catch (NullPointerException e) {
-                System.out.println("NullPointerException thrown for /tpllto");
-                return 0;
-            } catch (CoordinateValueError e) {
-                context.getSource().sendFeedback(Text.translatable("omm.error.player-out-of-bounds"));
+                OpenMineMapClient.debugMessages.add(Text.translatable("omm.notification.something-wrong").getString());
                 return 0;
             }
         }
@@ -194,7 +206,7 @@ public class CommandHander {
                 Text.translatable("omm.error.cannot-find-player-start").getString()
                     +desiredPlayer+
                     Text.translatable("omm.error.cannot-find-player-end").getString()
-        ).formatted(Formatting.RED).formatted(Formatting.ITALIC));
+        ).formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
 
         return 1;
     }
@@ -205,8 +217,9 @@ class TplltoSuggestionProvider implements SuggestionProvider<FabricClientCommand
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        for (PlayerEntity knownPlayer : PlayersManager.getNearPlayers()) {
-            String name = knownPlayer.getName().getString();
+        for (MappablePlayer knownPlayer : PlayersManager.getMappablePlayers()) {
+            if (knownPlayer.outOfBounds) continue;
+            String name = knownPlayer.name.getString();
             if (name.equals(MinecraftClient.getInstance().player.getName().getString())) continue;
             builder.suggest(name);
         }

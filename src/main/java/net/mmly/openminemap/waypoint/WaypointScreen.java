@@ -12,7 +12,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.gui.RightClickMenu;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
@@ -231,7 +231,7 @@ public class WaypointScreen extends Screen {
         initInEditMode = false;
 
         updateWidgetPositions();
-        FullscreenMapScreen.toggleAltScreenMap(true);
+        MapScreen.toggleAltScreenMap(true);
     }
 
     public static void deleteEditingWaypoint() {
@@ -272,7 +272,7 @@ public class WaypointScreen extends Screen {
         int sat = (int) (ColorSliderWidget.saturation * 255);
         int val = (int) (ColorSliderWidget.value * 255);
 
-        System.out.println(hue +"\t"+ sat +"\t"+ val);
+        //System.out.println(hue +"\t"+ sat +"\t"+ val);
 
         return hue << 16 | sat << 8 | val;
     }
@@ -507,7 +507,7 @@ public class WaypointScreen extends Screen {
     public void close() {
         //super.close();
         MinecraftClient.getInstance().setScreen(
-                new FullscreenMapScreen()
+                new MapScreen()
         );
         WaypointFile.save();
     }

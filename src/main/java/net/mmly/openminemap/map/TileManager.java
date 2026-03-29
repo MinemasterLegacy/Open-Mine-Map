@@ -4,17 +4,19 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
+import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.DrawableMapTile;
 import net.mmly.openminemap.util.TileUrlFile;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -136,12 +138,12 @@ public class TileManager {
         try { // create or open the base openminemap file for caching
             File ommDirectory = new File(TileManager.getRootFile() + "openminemap");
             if (ommDirectory.mkdir()) { //if directory does not exist
-                System.out.println("OMM Directory Creation Success: " + ommDirectory.getAbsolutePath());
+                OpenMineMap.LOGGER.info("Created openminemap directory at " + ommDirectory.getAbsolutePath());
             } else { //if directory does exist
                 //System.out.println(Text.literal("OMM Directory Exists: " + ommDirectory.getAbsolutePath()));
             }
         } catch (Exception e) {
-            System.out.println(Text.literal("OMM Directory Error: " + e));
+            OpenMineMap.LOGGER.error("Could not create openminemap directory: " + e.getMessage());
         }
 
         /*
@@ -172,23 +174,23 @@ public class TileManager {
         try { // create or open the base openminemap file for caching
             File cacheDirectory = new File(TileManager.getRootFile() + "openminemap/"+cacheName+"/");
             if (cacheDirectory.mkdir()) { //if directory does not exist
-                System.out.println("Cache Directory Creation Success: " + cacheDirectory.getAbsolutePath());
+                OpenMineMap.LOGGER.info("Created tile cache directory at " + cacheDirectory.getAbsolutePath());
             } else { //if directory does exist
                 //System.out.println(Text.literal("Cache Directory Exists: " + cacheDirectory.getAbsolutePath()));
             }
         } catch (Exception e) {
-            System.out.println(Text.literal("Cache Directory Error: " + e));
+            OpenMineMap.LOGGER.error("Could not create tile cache directory: " + e.getMessage());
         }
         for (int i = 0; i < 19; i++) { //create subdirectories for osm zoom levels 0-18
             try {
                 File zoomDirectory = new File(TileManager.getRootFile() + "openminemap/" + cacheName + "/" + i);
                 if (zoomDirectory.mkdir()) { //if directory does not exist
-                    System.out.println("Zoom Directory Creation Success: " + zoomDirectory.getAbsolutePath());
+                    OpenMineMap.LOGGER.info("Created tile cache subdirectory at " + zoomDirectory.getAbsolutePath());
                 } else { //if directory does exist
                     //System.out.println(Text.literal("Zoom Directory Exists: " + zoomDirectory.getAbsolutePath()));
                 }
             } catch (Exception e) {
-                System.out.println(Text.literal("Zoom Directory Error: " + e));
+                OpenMineMap.LOGGER.error("Could not create tile cache subdirectory: " + e.getMessage());
             }
         }
         //System.out.println("Clearing loaded tiles...");
@@ -198,22 +200,6 @@ public class TileManager {
         }
         dyLoadedTiles.clear();
         TileLoader.resetCacheSize();
-    }
-
-    public static void purgeOldFiles() {
-        File cacheDirectory = new File(TileManager.getRootFile() + "openminemap");
-        for (File f : cacheDirectory.listFiles()) {
-            if (isPurgeable(f.getName())) {
-                for (File file : f.listFiles()) {
-                    file.delete();
-                }
-                if (f.delete()) {
-                    System.out.println("Success purging file/directory: "+f.getName());
-                } else {
-                    System.out.println("Error purging file/directory: "+f.getName());
-                }
-            }
-        }
     }
 
     private static final String[] toPurge = new String[] {
@@ -226,24 +212,16 @@ public class TileManager {
             "15", "16", "17", "18"
     };
 
-    private static boolean isPurgeable(String fileName) {
-        for (String purgeName : toPurge) {
-            if (purgeName.equals(fileName)) return true;
-        }
-        return false;
-    }
-
     public static void clearCacheDir() {
         try {
-            File cacheDirectory = new File(TileManager.getRootFile() + "openminemap");
             for (int i = 0; i < 19; i++) {
                 try {
-                    cacheDirectory = new File(TileManager.getRootFile() + "openminemap/" + i);
+                    File cacheDirectory = new File(TileManager.getRootFile() + "openminemap/" + i);
                     for (File subfile : cacheDirectory.listFiles()) {
                         subfile.delete();
                     }
                 } catch (Exception e) {
-                    System.out.println(Text.literal("OMM Directory Error: " + e));
+                    //System.out.println(Text.literal("OMM Directory Error: " + e));
                 }
             }
         } catch (Exception e) {
@@ -332,7 +310,7 @@ public class TileManager {
             //throw new Exception(); //to trigger the catch code and return an error tile
 
         } catch (Exception e) {
-            System.out.println("Error while getting tile: " + e);
+            OpenMineMap.LOGGER.warn("Error while getting tile: " + e);
             e.printStackTrace();
             return new DrawableMapTile(
                 getErrorIdentifier(),
@@ -371,6 +349,10 @@ public class TileManager {
         doReverseScroll = ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on");
         showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
         showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));
+        MapScreen.backingColor = ColorUtil.argb((int) (Double.parseDouble(ConfigFile.readParameter(ConfigOptions.INTERFACE_OPACITY)) * 255), 0, 0, 0);
+        String textColor = ConfigOptions.TEXT_COLOR.read();
+        if (textColor.equals("rainbow")) MapScreen.setPlainTextColor(0xFF7f7f7f, true);
+        else MapScreen.setPlainTextColor(Color.decode(textColor).getRGB(), false);
     }
 
 }

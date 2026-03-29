@@ -2,7 +2,6 @@ package net.mmly.openminemap.gui;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
@@ -10,7 +9,6 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
@@ -22,6 +20,7 @@ import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileLoader;
@@ -31,10 +30,7 @@ import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
 import net.mmly.openminemap.search.SearchResultType;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.Notification;
-import net.mmly.openminemap.util.UnitConvert;
-import net.mmly.openminemap.util.Waypoint;
+import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 import org.lwjgl.glfw.GLFW;
 
@@ -42,8 +38,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.function.BooleanSupplier;
 
-public class FullscreenMapScreen extends Screen { //Screen object that represents the fullscreen map
-    public FullscreenMapScreen() {
+public class MapScreen extends Screen { //Screen object that represents the fullscreen map
+    public MapScreen() {
         super(Text.of("OMM Fullscreen Map"));
     }
 
@@ -68,14 +64,17 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
+    private static ToggleClaimRenderingButtonLayer toggleClaimRenderingButtonLayer;
     private static SearchButtonLayer searchButtonLayer;
     private static SearchBoxLayer searchBoxLayer;
+    private static NetworkStatusLayer networkStatusLayer;
     public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[7];
     private static PinnedWaypointsLayer pinnedWaypointsLayer;
-    private static final Identifier[][] showIdentifiers = new Identifier[2][2];
+    private static final Identifier[][] showHudmapIdentifiers = new Identifier[2][2];
+    private static final Identifier[][] showClaimsIdentifiers = new Identifier[2][2];
     String playerDisplayLon = "0.00000";
     String playerDisplayLat = "0.00000";
-    static FullscreenMapScreen instance;
+    static MapScreen instance;
     private static int attributionOffset = 0;
     public static final OmmMap map = new OmmMap(
             0,
@@ -84,12 +83,37 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             480,
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM)),
             Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)),
-            Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y))
+            Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y)),
+            Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_TILE_SIZE))
     );
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
     private static LinkedList<Notification> notifications = new LinkedList<>();
     private static boolean hudWasHidden;
+    public static int backingColor = 0x80000000;
+    public static boolean textIsRainbow = false;
+    private static int plainTextColor = 0xFFFFFFFF;
+    private static int semiDarkTextColor = 0xFF7f7f7f;
+    private static int darkTextColor = 0xFF3f3f3f;
+
+    public static void setPlainTextColor(int argb, boolean checkForRainbowText) {
+        if (checkForRainbowText) textIsRainbow = (argb == 0xFF7f7f7f);
+        plainTextColor = argb;
+        semiDarkTextColor = ColorUtil.darken(argb, 0.5);
+        darkTextColor = ColorUtil.darken(argb, 0.75);
+    }
+
+    public static int getPlainTextColor() {
+        return plainTextColor;
+    }
+
+    public static int getSemiDarkTextColor() {
+        return semiDarkTextColor;
+    }
+
+    public static int getDarkTextColor() {
+        return darkTextColor;
+    }
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
@@ -100,18 +124,23 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         map.setFollowPlayer(follow);
     }
 
-    public static FullscreenMapScreen getInstance() {
+    public static MapScreen getInstance() {
         return instance;
     }
 
     @Override
     public void close() {
         RightClickMenu.disableMenu();
-        ConfigFile.writeParameter(ConfigOptions._FS_LAST_ZOOM, Double.toString(map.getZoom()));
-        ConfigFile.writeParameter(ConfigOptions._FS_LAST_X, Double.toString(map.getMapCenterX()));
-        ConfigFile.writeParameter(ConfigOptions._FS_LAST_Y, Double.toString(map.getMapCenterY()));
+        writeParameters();
         ConfigFile.writeToFile();
         this.client.setScreen(null);
+    }
+
+    public static void writeParameters() {
+        ConfigOptions._FS_LAST_ZOOM.write(Double.toString(map.getZoom()));
+        ConfigOptions._FS_LAST_X.write(Double.toString(map.getMapCenterX()));
+        ConfigOptions._FS_LAST_Y.write(Double.toString(map.getMapCenterY()));
+        ConfigOptions._FS_LAST_TILE_SIZE.write(Integer.toString(map.getTileSize()));
     }
 
     private void updateScreenDims() {
@@ -130,7 +159,14 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         String[] names = new String[] {"mapoff.png", "mapon.png"};
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
-                showIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
+                showHudmapIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
+            }
+        }
+
+        names = new String[] {"claimsoff.png", "claimson.png"};
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                showClaimsIdentifiers[i][j] = Identifier.of("openminemap", path + states[i] + names[j]);
             }
         }
     }
@@ -192,9 +228,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         searchBoxLayer.visible = toggle;
         if (toggle) {
             RightClickMenu.disableMenu();
-            FullscreenMapScreen.getInstance().setFocused(searchBoxLayer);
+            MapScreen.getInstance().setFocused(searchBoxLayer);
             searchBoxLayer.recalculateResults();
-            FullscreenMapScreen.getInstance().jumpToSearchBox();
+            MapScreen.getInstance().jumpToSearchBox();
         } else {
             SearchBoxLayer.setValueStore("");
             SearchBoxLayer.toggleSearching(false);
@@ -246,6 +282,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     protected void init() { //called when screen is being initialized
         instance = this;
         setIdentifiers();
+        map.initFields();
 
         rightClickLayer = new RightClickMenu(this.textRenderer);
         this.addDrawableChild(rightClickLayer);
@@ -256,6 +293,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             this.addDrawableChild(buttonlayers.get(ButtonFunction.getEnumOf(i)));
         }
 
+        toggleClaimRenderingButtonLayer = new ToggleClaimRenderingButtonLayer(windowScaledWidth - 50, windowScaledHeight - 57);
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on")) this.addDrawableChild(toggleClaimRenderingButtonLayer);
+
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
@@ -263,6 +303,9 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             searchResultLayers[i] = new SearchResultLayer(26, 23 + (i * 20), 250, i);
             this.addDrawableChild(searchResultLayers[i]);
         }
+
+        networkStatusLayer = new NetworkStatusLayer(width - 26, 0);
+        this.addDrawableChild(networkStatusLayer);
 
         searchButtonLayer = new SearchButtonLayer(3, 3);
         this.addDrawableChild(searchButtonLayer);
@@ -285,10 +328,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         this.addDrawableChild(map); //added last so it's checked last for clicking
 
         map.setDraggable(true);
-        map.rightClickProcedure = FullscreenMapScreen::onRightClick;
-        map.leftClickProcedure = FullscreenMapScreen::onLeftClick;
-        map.blockZoomProcedure = FullscreenMapScreen::blockZoomOnZoom;
-        map.waypointClickedProcedure = FullscreenMapScreen::onRightClick;
+        map.rightClickProcedure = MapScreen::onRightClick;
+        map.leftClickProcedure = MapScreen::onLeftClick;
+        map.blockZoomProcedure = MapScreen::blockZoomOnZoom;
+        map.waypointClickedProcedure = MapScreen::onRightClick;
         map.setTextRenderer(this.textRenderer);
         map.doPlayerTooltipNames(true);
 
@@ -332,6 +375,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         }
 
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
+        toggleClaimRenderingButtonLayer.setPosition(windowScaledWidth - 50, windowScaledHeight - 57);
         attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
         bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
     }
@@ -369,7 +413,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             if (searchElementsFocused()) toggleSearchMenu(false);
-            else this.close();
+            else close();
             return true;
         }
 
@@ -380,6 +424,10 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             } else {
                 return super.keyPressed(keyCode, scanCode, modifiers);
             }
+        }
+
+        if (KeyInputHandler.getOpenFullscreenOsmMapKey().matchesKey(keyCode, scanCode)) {
+            this.close();
         }
 
         if (mClient.options.chatKey.matchesKey(keyCode, 0)) {
@@ -414,7 +462,7 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
     private void purgeNotifiations() {
         int i = 0;
         while (i < notifications.size()) {
-            if (notifications.get(i).expirationTime < Util.getMeasuringTimeMs()) {
+            if (notifications.get(i).timeToExpirationMs() < 0) {
                 notifications.remove(i);
             } else {
                 i++;
@@ -426,23 +474,24 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (notifications.isEmpty()) return;
         int maxY = buttonPositions[1][0] - 13; //top of button row
         int yPos = maxY;
-        for (int i = 0; i < notifications.size(); i++) {
-            Text text = notifications.get(i).text;
+        for (Notification notification : notifications) {
+            Text text = notification.text;
             int textWidth = textRenderer.getWidth(text);
             int centerX = windowScaledWidth / 2;
+            float alphaPercent = Math.clamp((float) notification.timeToExpirationMs() / 1000, 0, 1);
             context.fill(
                     centerX - (textWidth / 2) - 3,
                     yPos - 3,
                     centerX + (textWidth / 2) + 3,
                     yPos + 1 + textRenderer.fontHeight,
-                    Math.clamp((int) Math.max(notifications.get(i).expirationTime - Util.getMeasuringTimeMs(), 0) / (1000 / 127), 0, 127) << 24
+                    ColorUtil.setAlpha((int) (alphaPercent * ColorUtil.decompose(backingColor)[0]), backingColor)
             );
-            context.drawText(
+            if (alphaPercent > 0.02) context.drawText( //under 0.02 makes it draw the text fully opaque for some reason
                     textRenderer,
                     text,
                     centerX - (textWidth / 2),
                     yPos,
-                    (Math.clamp((int) Math.max(notifications.get(i).expirationTime - Util.getMeasuringTimeMs(), 0) / (1000 / 255), 0, 255) << 24) | 0x00FFFFFF,
+                    ColorUtil.setAlpha((int) (alphaPercent * 255), plainTextColor),
                     false);
             yPos -= 13;
         }
@@ -470,8 +519,11 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
             chatToBeOpened = false;
         }
 
+        MapScreen.map.updateTimeRelatedVars();
+
         updateScreenDims(); //update screen dimension variables in case window has been resized
         PlayerAttributes.updatePlayerAttributes(mClient);
+        if (textIsRainbow) setPlainTextColor(ColorUtil.getCurrentRainbowColor(), false);
 
         if (map.mouseIsOutOfBounds()) {
             mouseDisplayLat = "-.-";
@@ -500,17 +552,23 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
 
         int buttonStyle = HudMap.hudEnabled ? 1 : 0;
         context.drawTexture(RenderPipelines.GUI_TEXTURED, toggleHudMapButtonLayer.isHovered() ?
-                showIdentifiers[1][buttonStyle] :
-                showIdentifiers[0][buttonStyle],
+                showHudmapIdentifiers[1][buttonStyle] :
+                showHudmapIdentifiers[0][buttonStyle],
                 toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
+
+        buttonStyle = OmmMap.renderClaimsToggle ? 1 : 0;
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on"))  context.drawTexture(RenderPipelines.GUI_TEXTURED, toggleClaimRenderingButtonLayer.isHovered() ?
+                        showClaimsIdentifiers[1][buttonStyle] :
+                        showClaimsIdentifiers[0][buttonStyle],
+                toggleClaimRenderingButtonLayer.getX(), toggleClaimRenderingButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         //draws the Mouse and player coordinates text fields
         String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";
         String playerLabelText = Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°";
-        context.fill(0, windowScaledHeight - 16 - attributionOffset, 8 + textRenderer.getWidth(mouseLabelText), windowScaledHeight - attributionOffset, 0x88000000);
-        context.drawText(this.textRenderer, mouseLabelText, 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, 0xFFFFFFFF, true);
-        context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, 0x88000000);
-        context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, 0xFFFFFFFF, true);
+        context.fill(0, windowScaledHeight - 16 - attributionOffset, 8 + textRenderer.getWidth(mouseLabelText), windowScaledHeight - attributionOffset, backingColor);
+        context.drawText(this.textRenderer, mouseLabelText, 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, plainTextColor, true);
+        context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, backingColor);
+        context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, plainTextColor, true);
 
         pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset - pinnedWaypointsLayer.getY());
         purgeNotifiations();
@@ -519,12 +577,14 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_MEMORY_CACHE_SIZE))) {
             Text text = Text.literal(TileLoader.getStylizedCacheSize()).formatted(Formatting.BOLD);
             int width = textRenderer.getWidth(text);
-            UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, 0x80000000, 0xFFD0D0D0, false);
+            UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, backingColor, plainTextColor, false);
         }
 
         //draws the attribution and report bug text fields
         attributionLayer.drawWidget(context, this.textRenderer);
         bugReportLayer.drawWidget(context, this.textRenderer);
+
+        networkStatusLayer.drawWidget(context);
 
         //draws the right click menu
         rightClickLayer.drawWidget(context, this.textRenderer);
@@ -545,15 +605,17 @@ public class FullscreenMapScreen extends Screen { //Screen object that represent
         if (!renderAltMap) return;
         if (!currentScreenIsValidAltMapScreen()) {
             MinecraftClient.getInstance().setScreen(
-                    new FullscreenMapScreen()
+                    new MapScreen()
             );
             toggleAltScreenMap(false);
             return;
         }
 
+        MapScreen.map.updateTimeRelatedVars();
+
         //context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x22FF0000);
         UContext.setContext(context);
-        if (MinecraftClient.getInstance().currentScreen instanceof ChatScreen) FullscreenMapScreen.instance.renderBackground(context, 0, 0, 0);
+        if (MinecraftClient.getInstance().currentScreen instanceof ChatScreen) MapScreen.instance.renderBackground(context, 0, 0, 0);
 
         map.setRenderSize(
                 MinecraftClient.getInstance().getWindow().getScaledWidth(),

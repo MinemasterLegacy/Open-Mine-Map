@@ -1,8 +1,6 @@
 package net.mmly.openminemap.maps;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.Mouse;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -10,44 +8,38 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.*;
 import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.util.Window;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
-import net.mmly.openminemap.map.PlayerAttributes;
-import net.mmly.openminemap.map.PlayersManager;
-import net.mmly.openminemap.map.TileManager;
-import net.mmly.openminemap.projection.CoordinateValueError;
-import net.mmly.openminemap.projection.Direction;
-import net.mmly.openminemap.projection.Projection;
+import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.map.*;
 import net.mmly.openminemap.util.*;
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {
 
     public final static double TILEMAXZOOM = 18;
-    public final static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
-    public static int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
+    public static double TILEMAXARTIFICIALZOOM = 23.99; //band-aid fix for integer overflow (map size at zoom 24 calculates to be over 2^31)
+    private static int baseTileSize = 128; // the default size of the tiles (size when zoom is an integer)
     public int tileSize = baseTileSize; //the actual size the tiles are currently being rendered at
-    public final static int WAYPOINTSIZE = 8;
+    public static int WAYPOINTSIZE;
+    public static int PLAYERSIZE;
 
-    private boolean fieldsInitialized = false;
+    //public boolean fieldsInitialized = false;
+    private static boolean claimInitStarted = false;
     private MinecraftClient client;
-    private Window window;
     private ClientPlayerEntity player;
-    private Mouse mouse;
     private TextRenderer textRenderer;
 
     private Waypoint hoveredWaypoint = null;
@@ -69,8 +61,6 @@ public class OmmMap extends ClickableWidget {
     private double playerMapX = 64;
     private double playerMapY = 64;
 
-    private double mousePixelX;
-    private double mousePixelY;
     private double mouseX = 0;
     private double mouseY = 0;
     private double mouseTileX = 0;
@@ -79,11 +69,15 @@ public class OmmMap extends ClickableWidget {
     private double mouseHoldY = 64;
     private double mouseHoldX = 64;
 
-    private double maxZoom = TILEMAXZOOM;
+    private double maxZoom = TILEMAXARTIFICIALZOOM;
     private int backgroundColor = 0x00000000;
     private int tintColor = 0x00000000;
 
-    private boolean doArtificialZoom = false;
+    private long lastSavedTime;
+    //private static final int ZOOM_FADE_TIME_MS = 1000;
+    public int zoomFadeAlpha = 255;
+
+    private boolean doArtificialZoom = true;
     private boolean cropMapTiles = true;
     private boolean cropPlayers = true;
     private boolean draggable = false;
@@ -99,29 +93,75 @@ public class OmmMap extends ClickableWidget {
     public MethodInterface waypointClickedProcedure;
 
     private static Waypoint[] waypoints;
+    public static DrawableClaim[] claims;
+    public static boolean renderClaimsToggle = true;
 
     public static boolean geoCoordsOutOfBounds(double lat, double lon) {
         return !(Math.abs(lon) < 180 && Math.abs(lat) < 85.0511287798);
     }
 
-    private void initFields() {
+    public void initFields() {
+        //System.out.println("init called");
         client = MinecraftClient.getInstance();
-        window = client.getWindow();
         player = client.player;
+        if (player == null) return;
+        tryLoadClaims();
+        //fieldsInitialized = true;
+    }
+
+    public void tryLoadClaims() {
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && OmmMap.claims == null && !claimInitStarted) {
+            claimInitStarted = true;
+            DrawableClaim.reloadClaimData(false, false, false);
+        }
     }
 
     public OmmMap(int x, int y, int width, int height) {
         super(x, y, width, height, Text.of(""));
         this.setRenderPositionAndSize(x, y, width, height);
-
     }
 
-    public OmmMap(int x, int y, int width, int height, double zoom, double mapCenterX, double mapCenterY) {
+    /*
+22.38
+1.3216084634700358E8
+2.810939433006437E8
+167
+     */
+
+    public OmmMap(int x, int y, int width, int height, double zoom, double mapCenterX, double mapCenterY, int tileSize) {
         this(x, y, width, height);
-        this.zoom = zoom;
-        this.mapCenterX = mapCenterX;
-        this.mapCenterY = mapCenterY;
+        this.setMapZoom(zoom);
+        this.setMapPosition(mapCenterX, mapCenterY);
         this.tileSize = (int) Math.floor(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
+        this.lastSavedTime = Util.getEpochTimeMs();
+        this.tileSize = tileSize;
+    }
+
+    private static int parseSize(String size) {
+        return switch (size) {
+            case "small" -> 8;
+            case "large" -> 12;
+            default -> 10;
+        };
+    }
+
+    private final static double natLogOf1d2 = Math.log(0.5);
+    private static void setBaseTileSize(int size) {
+        baseTileSize = size;
+        TILEMAXARTIFICIALZOOM = (Math.log(
+                (double) baseTileSize / Integer.MAX_VALUE
+        ) / natLogOf1d2) - 0.01;
+        //System.out.println(TILEMAXARTIFICIALZOOM);
+    }
+
+    public static void initializeConfigParameters(boolean reloadZoom) {
+        PLAYERSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.PLAYER_SIZE));
+        WAYPOINTSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.WAYPOINT_SIZE));
+        setBaseTileSize(Integer.parseInt(ConfigFile.readParameter(ConfigOptions.TILE_SCALE)));
+        renderClaimsToggle = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._CLAIMS_TOGGLE));
+        if (!reloadZoom) return;
+        MapScreen.map.normalizeZoom(MapScreen.map.zoom);
+        HudMap.map.normalizeZoom(HudMap.map.zoom);
     }
 
     public static void setWaypoints(Waypoint[] waypoints1) {
@@ -144,10 +184,10 @@ public class OmmMap extends ClickableWidget {
         this.mapCenterX = UnitConvert.longToMapX(lon, zoom, tileSize);
         this.mapCenterY = UnitConvert.latToMapY(lat, zoom, tileSize);
     }
-    public void setMapPosition(double x, double y) {
-        if (Double.isNaN(x) || Double.isNaN(y)) return;
-        this.mapCenterX = x;
-        this.mapCenterY = y;
+    public void setMapPosition(double mapPosX, double mapPosY) {
+        if (Double.isNaN(mapPosX) || Double.isNaN(mapPosY)) return;
+        this.mapCenterX = mapPosX;
+        this.mapCenterY = mapPosY;
     }
     public void setMapZoom(double zoom1) {
         zoom1 = Math.clamp(zoom1, 0, maxZoom);
@@ -157,6 +197,22 @@ public class OmmMap extends ClickableWidget {
         if (zoom < zoom1) {
             zoomIn(zoom1 - zoom);
         }
+    }
+
+    public boolean zoomIsInClaimRenderRange() {
+        return zoom <= 18 && zoom >= 7;
+    }
+
+    public void updateTimeRelatedVars() {
+        int changeMs = Math.toIntExact(Math.min(1000, Util.getEpochTimeMs() - lastSavedTime));
+        lastSavedTime = Util.getEpochTimeMs();
+
+        if (zoomIsInClaimRenderRange()) {
+            zoomFadeAlpha = Math.min(255, zoomFadeAlpha + changeMs);
+        } else {
+            zoomFadeAlpha = Math.max(0, zoomFadeAlpha - changeMs);
+        }
+
     }
 
     public int getTileSize() {
@@ -340,18 +396,14 @@ public class OmmMap extends ClickableWidget {
     protected void renderWidget(DrawContext context, int mX, int mY, float delta) {
         mouseX = mX;
         mouseY = mY;
-        if (fieldsInitialized){
-            mousePixelX = mouse.getX();
-            mousePixelY = mouse.getY();
-        }
 
         mouseIsOutOfBounds = mouseTileX < 0 || mouseTileY < 0 || mouseTileX > Math.pow(2, zoom + 7) || mouseTileY > Math.pow(2, zoom + 7);
     }
 
     public void resetMap() {
         followPlayer = false;
-        mapCenterY = 64;
-        mapCenterX = 64;
+        mapCenterY = (double) baseTileSize / 2;
+        mapCenterX = (double) baseTileSize / 2;
         zoom = 0;
         tileSize = baseTileSize;
     }
@@ -447,18 +499,21 @@ public class OmmMap extends ClickableWidget {
 
     public void zoomIn(double amount, boolean withMouse) {
         if (zoom + amount > maxZoom) amount = maxZoom - zoom; //change the total zoom amount if it is more than the max
+        if (amount <= 0) return;
         double originalZoom = zoom;
-        if (!followPlayer && withMouse && amount != 0) {
-            mapCenterX -= (mapCenterX - mouseTileX) * ((Math.pow(2, amount) - 1) / Math.pow(2, amount));
-            mapCenterY -= (mapCenterY - mouseTileY) * ((Math.pow(2, amount) - 1) / Math.pow(2, amount));
+        if (!followPlayer && withMouse) {
+            double v = (Math.pow(2, amount) - 1) / Math.pow(2, amount);
+            mapCenterX -= (mapCenterX - mouseTileX) * v;
+            mapCenterY -= (mapCenterY - mouseTileY) * v;
         }
         zoom += amount; //change the zoom level
         normalizeZoom(originalZoom); //normalize the zoom level
     }
     public void zoomOut(double amount, boolean withMouse) {
         if (zoom - amount < 0) amount = zoom;
+        if (amount <= 0) return;
         double originalZoom = zoom;
-        if (!followPlayer && withMouse && amount != 0) {
+        if (!followPlayer && withMouse) {
             mapCenterX += (mapCenterX - mouseTileX) * (Math.pow(2, amount) - 1);
             mapCenterY += (mapCenterY - mouseTileY) * (Math.pow(2, amount) - 1);
         }
@@ -536,15 +591,15 @@ public class OmmMap extends ClickableWidget {
     private void drawBufferedPlayer(DrawContext context, BufferedPlayer bufferedPlayer) {
 
         //get position of player relative to te screen (number passed to draw methods)
-        int relativeX = getWindowRelativeX(bufferedPlayer.mapX, 4);
-        int relativeY = getWindowRelativeY(bufferedPlayer.mapY, 4);
+        int relativeX = getWindowRelativeX(bufferedPlayer.mapX, PLAYERSIZE / 2);
+        int relativeY = getWindowRelativeY(bufferedPlayer.mapY, PLAYERSIZE / 2);
 
         //if outside render area in positive direction (right/down), return
         if (relativeX > renderAreaX2 || relativeY > renderAreaY2) return;
 
         //variable initialization
-        int width = 8;
-        int height = 8;
+        int width = PLAYERSIZE;
+        int height = PLAYERSIZE;
         int u = 8;
         int v = 8;
         int regionWidth = 8;
@@ -568,13 +623,13 @@ public class OmmMap extends ClickableWidget {
         if (altitudeOffset > 0) {
             context.fill(
                     relativeX, relativeY, relativeX + width, relativeY + height,
-                    UnitConvert.argb(alpha, 255, 255, 255)
+                    ColorUtil.setAlpha(alpha, 0xFFFFFFFF)
             );
         } else {
             context.fill(
                     relativeX, relativeY, relativeX + width, relativeY + height,
-                    UnitConvert.argb(alpha, 0, 0, 0)
-            );
+                    ColorUtil.setAlpha(alpha, 0xFF000000)
+                    );
         }
 
 
@@ -585,41 +640,33 @@ public class OmmMap extends ClickableWidget {
         return hoveredWaypoint;
     }
 
-    private BufferedPlayer drawDirectionIndicator(DrawContext context, PlayerEntity playerDraw, boolean indicatorsOnly, OverlayVisibility requiredPermission) {
+    private BufferedPlayer drawDirectionIndicator(DrawContext context, MappablePlayer playerDraw) {
         //Draws a direction indicator
         //May also return a BufferedPlayer if other players are to be drawn
 
         //Convert mc coordinates to geo coordinates, returning null if the conversion fails
-        double[] geoCoords;
-        try {
-            geoCoords = Projection.to_geo(playerDraw.getX(), playerDraw.getZ());
-        } catch (CoordinateValueError e) {
-            return null;
-        }
-        if (Double.isNaN(geoCoords[0])) return null;
+        if (playerDraw.outOfBounds) return null;
 
         //convert geo coordinates to map coordinates
-        double mapX = UnitConvert.longToMapX(geoCoords[1], zoom, tileSize); ///MAPXY
-        double mapY = UnitConvert.latToMapY(geoCoords[0], zoom, tileSize);
+        double mapX = UnitConvert.longToMapX(playerDraw.longitude, zoom, tileSize); ///MAPXY
+        double mapY = UnitConvert.latToMapY(playerDraw.latitude, zoom, tileSize);
 
         //get player texture
-        Identifier playerTexture = PlayersManager.playerSkinList.get(playerDraw.getUuid());
+        Identifier playerTexture = PlayersManager.playerSkinList.get(playerDraw.uuid);
         if (playerTexture == null) playerTexture = Identifier.of("openminemap", "skinbackup.png");
 
-        //calculate the direction the player is facing
-        double direction = Direction.getGeoAzimuth(playerDraw.getX(), playerDraw.getZ(), playerDraw.getYaw());
-
         //Draw a direction indicator if the direction is a valid number and visibility permission is adequete
-        if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, requiredPermission) && !Double.isNaN(direction))
+        if (playerDraw.isIndicatorDrawable() && !Double.isNaN(playerDraw.geoYaw))
             DirectionIndicator.draw(
                     context,
-                    direction,
-                    getWindowRelativeX(mapX, 12),
-                    getWindowRelativeY(mapY, 12),
-                    indicatorsOnly
+                    playerDraw.geoYaw,
+                    getWindowRelativeX(mapX, (int) (PLAYERSIZE * 1.5)),
+                    getWindowRelativeY(mapY, (int) (PLAYERSIZE * 1.5)),
+                    !playerDraw.isPlayerDrawable()
             );
 
-        return new BufferedPlayer(mapX, mapY, playerTexture, playerDraw.getY(), playerDraw.getStyledDisplayName());
+        if (playerDraw.isPlayerDrawable()) return new BufferedPlayer(mapX, mapY, playerTexture, playerDraw.altitude, playerDraw.stylizedName);
+        else return null;
     }
 
     private static int roundTowardsZero(double num) {
@@ -657,64 +704,28 @@ public class OmmMap extends ClickableWidget {
         return newPoints;
     }
 
-    private boolean drawPolygon(DrawContext drawContext, double[][] points, int fillColor, int outlineColor) {
-        return true;
-        /*
-        RenderSystem.disableCull();
+    private void drawClaim(DrawableClaim drawableClaim, int fillColor, int outlineColor) {
 
-        double[][][] latLonTriangles = PolygonTriangulator.triangulate(points);
-        System.out.println(Arrays.deepToString(latLonTriangles));
-        int[][][] triangles;
-        if (latLonTriangles == null) triangles = null;
-        else triangles = latLonTriangleArrayToWindowRelative(latLonTriangles);
-        System.out.println(Arrays.deepToString(triangles));
+        if (drawableClaim.triangulationSucceeded()) {
+            int[][][] triangles = latLonTriangleArrayToWindowRelative(drawableClaim.triangles);
 
-        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
-        Tessellator tessellator = Tessellator.getInstance();
-        //BufferBuilder fillBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        BufferBuilder outlineBuilder = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
-
-        drawDiagonalLine(drawContext, new int[] {40, 40}, new int[] {60, 60}, 0xFF000000);
-
-        if (triangles != null) for (int[][] triangle : triangles) {
-            drawTriangle(drawContext, triangle, fillColor);
+            for (int[][] triangle : triangles) {
+                UContext.drawTriangle(triangle, fillColor);
+            }
         }
 
-        RenderSystem.enableCull();
-        return triangles != null;
-        */
-    }
+        int[][] winRelPoints = latLonPointArrayToWindowRelative(drawableClaim.vertices);
 
-    private static final int[] lineXModifiers = {0, 1, 1, 0, -1, -1, -1, 0, 1};
-    private static final int[] lineYModifiers = {0, 0, 1, 1, 1, 0, -1, -1, -1};
-    private void drawDiagonalLine(DrawContext drawContext, int[] point1, int[] point2, int outlineColor) {
-        return;
-        /*
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder outlineBuilder = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
-        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
-
-        for (int i = 0; i < 9; i++) {
-            outlineBuilder.vertex(matrix, point1[0] + lineXModifiers[i], point1[1] + lineYModifiers[i], 0).color(outlineColor);
-            outlineBuilder.vertex(matrix, point2[0] + lineXModifiers[i], point2[1] + lineYModifiers[i], 0).color(outlineColor);
+        for (int i = 0; i < winRelPoints.length; i++) {
+            UContext.drawDiagonalLine(winRelPoints[i], winRelPoints[i + 1 >= winRelPoints.length ? 0 : i + 1], Math.clamp((int) Math.ceil((zoom - 9) / 3), 1, 3), outlineColor);
         }
 
-        BufferRenderer.drawWithGlobalProgram(outlineBuilder.end());
-        */
-    }
-
-    private void drawTriangle(DrawContext drawContext, int[][] triangle, int fillColor) {
-        return;
-        /*
-        Matrix4f matrix = drawContext.getMatrices().peek().getPositionMatrix();
-        VertexConsumer consumer = drawContext.getVertexConsumers().getBuffer(RenderLayer.getGui());
-        for (int[] point : triangle) {
-            //fillBuilder.vertex(matrix, point[0], point[1], 0).color(fillColor);
-            consumer.vertex(matrix, point[0], point[1], 0).color(fillColor);
+        if (zoom > 12) for (int[] point : winRelPoints) {
+            UContext.square(point[0], point[1], 1, outlineColor);
         }
-        consumer.vertex(matrix, triangle[2][0], triangle[2][1], 0).color(fillColor);
-        drawContext.draw();
-         */
+
+        //drawContext.fill(winRelPoints[0][0] - 2, winRelPoints[0][1] - 2, winRelPoints[0][0] + 2, winRelPoints[0][1] + 2, 0xFF000000);
+
     }
 
     private void drawTile(DrawContext context, DrawableMapTile tile) {
@@ -780,15 +791,18 @@ public class OmmMap extends ClickableWidget {
         }
 
         //update player map position
-        if (!fieldsInitialized) initFields();
-        PlayerAttributes.updatePlayerAttributes(client);
-        if (!PlayerAttributes.positionIsValid()) {
-            playerMapX = -9999;
-            playerMapY = -9999;
-        } else {
-            playerMapX = (int) (UnitConvert.longToMapX(PlayerAttributes.getLongitude(), zoom, tileSize) - mapCenterX - 4 + ((double) renderAreaWidth / 2));
-            playerMapY = (int) (UnitConvert.latToMapY(PlayerAttributes.getLatitude(), zoom, tileSize) - mapCenterY - 4 + ((double) renderAreaHeight / 2));
+        //if (!fieldsInitialized) initFields();
+        if (player != null) {
+            PlayerAttributes.updatePlayerAttributes(client);
+            if (!PlayerAttributes.positionIsValid()) {
+                playerMapX = -9999;
+                playerMapY = -9999;
+            } else {
+                playerMapX = (int) (UnitConvert.longToMapX(PlayerAttributes.getLongitude(), zoom, tileSize) - mapCenterX - 4 + ((double) renderAreaWidth / 2));
+                playerMapY = (int) (UnitConvert.latToMapY(PlayerAttributes.getLatitude(), zoom, tileSize) - mapCenterY - 4 + ((double) renderAreaHeight / 2));
+            }
         }
+
 
         if (mapCenterX < 0) 
             mapCenterX = 0;
@@ -809,10 +823,10 @@ public class OmmMap extends ClickableWidget {
         context.drawTexture(
                 RenderLayer::getGuiTextured,
                 PlayerAttributes.getIdentifier(),
-                renderAreaX + (renderAreaWidth / 2) - 4,
-                renderAreaY + (renderAreaHeight / 2) - 4,
+                renderAreaX + (renderAreaWidth / 2) - (PLAYERSIZE / 2),
+                renderAreaY + (renderAreaHeight / 2) - (PLAYERSIZE / 2),
                 8, 8,
-                8, 8,
+                PLAYERSIZE, PLAYERSIZE,
                 8, 8,
                 64, 64
         );
@@ -822,7 +836,7 @@ public class OmmMap extends ClickableWidget {
                 renderAreaX + (renderAreaWidth / 2) - 4,
                 renderAreaY + (renderAreaHeight / 2) - 4,
                 40, 8,
-                8, 8,
+                PLAYERSIZE, PLAYERSIZE,
                 8, 8,
                 64, 64
         );
@@ -831,18 +845,32 @@ public class OmmMap extends ClickableWidget {
     private void drawHoveredPlayerText(DrawContext context) {
 
         int textWidth = textRenderer.getWidth(hoveredPlayerName);
-        int centerX = hoveredPlayerX + 4;
+        int centerX = hoveredPlayerX + PLAYERSIZE / 2;
 
-        context.fill(centerX - (textWidth/2) - 2, hoveredPlayerY + 10, centerX + (textWidth/2) + 2, hoveredPlayerY + 10 + textRenderer.fontHeight + 4, 0x80000000);
-        context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + 13, 0xFFFFFFFF,false);
+        context.fill(centerX - (textWidth/2) - 2, hoveredPlayerY + 2 + PLAYERSIZE, centerX + (textWidth/2) + 2, hoveredPlayerY + 2 + PLAYERSIZE + textRenderer.fontHeight + 4, 0x80000000);
+        context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + PLAYERSIZE + 5, 0xFFFFFFFF,false);
     }
 
     public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
 
         updateFields();
 
-        context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
+        if (isHudMap && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
+        else context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
+
         drawMap(context, isHudMap); //draw the map tiles + background
+
+        //, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d))
+
+        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null && renderClaimsToggle) {
+            for (DrawableClaim claim : claims) {
+                if (claim == null || !claim.inBoundsOf(mapCenterX, mapCenterY, renderAreaWidth, renderAreaHeight, zoom, tileSize)) continue;
+                drawClaim(
+                        claim,
+                        ColorUtil.setAlpha(zoomFadeAlpha / 2, claim.finished ? 0x0037b24d : 0x009e2f2f),
+                        ColorUtil.setAlpha(zoomFadeAlpha, claim.finished ? 0x0037b24d : 0x009e2f2f));
+            }
+        }
 
         //draw waypoints
 
@@ -851,8 +879,8 @@ public class OmmMap extends ClickableWidget {
 
             if (!waypoint.visible) continue;
 
-            int x = getWindowRelativeX(UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize), 4);
-            int y = getWindowRelativeY(UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize), 4);
+            int x = getWindowRelativeX(UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize), WAYPOINTSIZE / 2);
+            int y = getWindowRelativeY(UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize), WAYPOINTSIZE / 2);
             //int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
             //int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
 
@@ -877,188 +905,42 @@ public class OmmMap extends ClickableWidget {
 
         }
 
-
         hoveredPlayerY = -250;
 
         ArrayList<BufferedPlayer> players = new ArrayList<>();
         //draw other players' direction indicators
-        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
-            if (player.getUuid().equals(client.player.getUuid())) continue; //self player should be drawn last so that it's on top, so don't draw it here
-            players.add(drawDirectionIndicator(
-                    context,
-                    player,
-                    !OverlayVisibility.checkPermissionFor(
-                            TileManager.showPlayers,
-                            OverlayVisibility.LOCAL
-                    ),
-                    OverlayVisibility.LOCAL
-            ));
+        for (MappablePlayer player : PlayersManager.getMappablePlayers()) {
+            players.add(drawDirectionIndicator(context, player));
         }
 
         //draw other players
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.LOCAL)) {
-            for (BufferedPlayer bufferedPlayer : players) {
-                if (bufferedPlayer == null) continue;
-                drawBufferedPlayer(context, bufferedPlayer);
-            }
+        for (BufferedPlayer bufferedPlayer : players) {
+            if (bufferedPlayer == null) continue;
+            drawBufferedPlayer(context, bufferedPlayer);
         }
 
+        MappablePlayer selfMappable = new MappablePlayer(player, OverlayVisibility.SELF);
         BufferedPlayer self = null;
-        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("on")) drawHoveredPlayerText(context);
+        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("show")) drawHoveredPlayerText(context);
 
         if (followPlayer) {
-            if (OverlayVisibility.checkPermissionFor(TileManager.showDirectionIndicators, OverlayVisibility.SELF)) {
-                DirectionIndicator.draw(
-                        context,
-                        PlayerAttributes.geoYaw,
-                        renderAreaX + (renderAreaWidth / 2) - 12,
-                        renderAreaY + (renderAreaHeight / 2) - 12,
-                        !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)
-                );
-            }
-
+            if (selfMappable.isIndicatorDrawable()) DirectionIndicator.draw(
+                    context,
+                    PlayerAttributes.geoYaw,
+                    renderAreaX + (renderAreaWidth / 2) - (int) (PLAYERSIZE * 1.5),
+                    renderAreaY + (renderAreaHeight / 2) - (int) (PLAYERSIZE * 1.5),
+                    !selfMappable.isPlayerDrawable()
+            );
         } else {
-            self = drawDirectionIndicator(context, player, !OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF), OverlayVisibility.SELF);
+            self = drawDirectionIndicator(context, selfMappable);
         }
 
-        if (OverlayVisibility.checkPermissionFor(TileManager.showPlayers, OverlayVisibility.SELF)) {
+        if (selfMappable.isPlayerDrawable()) {
             if (followPlayer) {
                 drawClientPlayerCentered(context);
             } else {
                 if (self != null) drawBufferedPlayer(context, self);
             }
-        }
-
-        if (ConfigFile.readParameter(ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING).equals("true")) {
-            double[][] poly = new double[][] {
-                    {
-                            -112.0724980674874,
-                            33.45862324333743
-                    },
-                    {
-                            -112.07373112639085,
-                            33.45861764421596
-                    },
-                    {
-                            -112.073734671256,
-                            33.45763577350699
-                    },
-                    {
-                            -112.07374214372476,
-                            33.456650970810955
-                    },
-                    {
-                            -112.07351181073597,
-                            33.45664415635916
-                    },
-                    {
-                            -112.07247878299067,
-                            33.45664287021509
-                    },
-                    {
-                            -112.07248593143615,
-                            33.455598238772694
-                    },
-                    {
-                            -112.07121585164461,
-                            33.45559572681226
-                    },
-                    {
-                            -112.0712181616629,
-                            33.454586963614915
-                    },
-                    {
-                            -112.0700520319818,
-                            33.45458897435081
-                    },
-                    {
-                            -112.07004312485601,
-                            33.45663388724003
-                    },
-                    {
-                            -112.06879419608015,
-                            33.45661685813002
-                    },
-                    {
-                            -112.06879078257768,
-                            33.45765878640273
-                    },
-                    {
-                            -112.06754749157277,
-                            33.45766831714259
-                    },
-                    {
-                            -112.06754890686672,
-                            33.45800269571116
-                    },
-                    {
-                            -112.06810768374606,
-                            33.458001728527975
-                    },
-                    {
-                            -112.06816572885411,
-                            33.458005999514555
-                    },
-                    {
-                            -112.06816472953587,
-                            33.45841705944993
-                    },
-                    {
-                            -112.06754487778132,
-                            33.45841702178653
-                    },
-                    {
-                            -112.0675435792755,
-                            33.458599172596806
-                    },
-                    {
-                            -112.06914839323953,
-                            33.45861012852579
-                    },
-                    {
-                            -112.06973511377674,
-                            33.458613879420284
-                    },
-                    {
-                            -112.06988572786094,
-                            33.458613879420284
-                    },
-                    {
-                            -112.07004173202688,
-                            33.458620395198565
-                    },
-                    {
-                            -112.07132276495196,
-                            33.458625936836256
-                    },
-                    {
-                            -112.07133083762156,
-                            33.45899140200342
-                    },
-                    {
-                            -112.07134016127786,
-                            33.45994606023646
-                    },
-                    {
-                            -112.07195309379404,
-                            33.4599475142349
-                    },
-                    {
-                            -112.07248187243594,
-                            33.45995028334487
-                    },
-                    {
-                            -112.0724980674874,
-                            33.45862324333743
-                    }
-            };
-            /*drawPolygon(context, new double[][] {
-                    {-112.07134016127786, 33.45994606023646},
-                    {-112.07195309379404, 33.4599475142349},
-                    {-112.07248187243594, 33.45995028334487},
-                    {-112.0724980674874, 33.45862324333743}
-            }, 0x4000FF00, 0xFF000000);*/
-            drawPolygon(context, poly, 0x4000FF00, 0xFF000000);
         }
 
         context.disableScissor();

@@ -7,7 +7,7 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 
 import static net.mmly.openminemap.config.ConfigScreen.windowScaledHeight;
 import static net.mmly.openminemap.config.ConfigScreen.windowScaledWidth;
@@ -44,7 +44,7 @@ public class WikiLinkLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         //FullscreenMapScreen.openBugReportScreen();
-        FullscreenMapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", ConfigScreen.getInstance(), false);
+        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", ConfigScreen.getInstance(), false);
     }
 
 }

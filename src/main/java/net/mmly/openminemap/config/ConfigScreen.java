@@ -6,8 +6,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.OpenMineMapClient;
@@ -16,12 +14,14 @@ import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.ButtonLayer;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class ConfigScreen extends Screen {
@@ -38,38 +38,43 @@ public class ConfigScreen extends Screen {
     private static WikiLinkLayer wikiLinkLayer;
     private static ButtonLayer exitButtonLayer;
     private static ButtonLayer checkButtonLayer;
-    TextWidget versionLabel;
     ButtonWidget configHud;
 
     CategoryLabelWidget generalLabel;
     ChoiceButtonWidget artificialZoomOption;
     ChoiceNumberWidget snapAngleWidget;
     ChoiceButtonWidget rightClickMeuUsesOption;
+    ChoiceSliderWidget tileScaleSlider;
     ChoiceButtonWidget reverseScrollOption;
-    ChoiceSliderWidget zoomStrengthWidget;
-    ChoiceButtonWidget hoverNamesOption;
+    ChoiceSliderWidget zoomStrengthSlider;
 
-    TextWidget overlayLabel;
+    CategoryLabelWidget overlayLabel;
+    ChoiceButtonWidget renderClaimsOption;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
+    ChoiceSliderWidget playerSizeSlider;
+    ChoiceSliderWidget waypointSizeSlider;
+    ChoiceButtonWidget hoverNamesOption;
     ChoiceButtonWidget altitudeShadingOption;
 
-    TextWidget urlLabel;
+    CategoryLabelWidget urlLabel;
     private static UrlChoiceWidget definedUrlWidget;
 
+    CategoryLabelWidget interfaceLabel;
+    ChoiceSliderWidget transparencySlider;
+    ColorChoiceSliderWidget textColorSlider;
+    ChoiceButtonWidget showConnectionStatusOption;
+    ChoiceButtonWidget hudmapBorderOption;
+    ChoiceButtonWidget hudmapCompassOption;
+
     private final String[] onOffOptions = new String[] {"On", "Off"};
+    private final String[] showHideOptions = new String[] {"Show", "Hide"};
     private final String[] booleanOptions = new String[] {"false", "true"};
-    private final String[] visibilityOptions = new String[] {"None", "Self", "Local"};
-    private final String[] zoomStrengthOptions = new String[] {
-            "0.05", "0.1", "0.15", "0.2", "0.25",
-            "0.3", "0.35", "0.4", "0.45", "0.5",
-            "0.55", "0.6", "0.65", "0.7", "0.75",
-            "0.8", "0.85", "0.9", "0.95", "1.0",
-            "1.05", "1.1", "1.15", "1.2", "1.25",
-            "1.3", "1.35", "1.4", "1.45", "1.5",
-            "1.55", "1.6", "1.65", "1.7", "1.75",
-            "1.8", "1.85", "1.9", "1.95", "2.0"
-    }; // I know this is a lazy solution, but it's also the easiest (:
+    private final String[] visibilityOptions = new String[] {"None", "Self", "Local", "All"};
+    private final String[] sizeOptions = new String[] {"Small", "Normal", "Large"};
+    private final String[] zoomStrengthOptions = range(0.05f, 2, 0.05f, 2);
+    private final String[] decimalPercentOptions = range(0, 1.01f, 0.05f, 2);
+    private final String[] tileScaleOptions = range(64, 256, 8, 0);
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -86,7 +91,7 @@ public class ConfigScreen extends Screen {
     @Override
     public void close() {
         MinecraftClient.getInstance().setScreen(
-                new FullscreenMapScreen()
+                new MapScreen()
         );
     }
 
@@ -113,6 +118,16 @@ public class ConfigScreen extends Screen {
         anchorWidgets.add(anchor);
         ((ConfigChoice) widget).setAnchor(anchor);
         anchor.setWidget(widget);
+    }
+
+    private static String[] range(float start, float end, float step, int roundToPlace) {
+           String[] values = new String[(int) ((end - start) / step) + 1];
+           int index = 0;
+           for (float i = start; i <= end; i += step) {
+               values[index] = new DecimalFormat("0." + "0".repeat(roundToPlace) + "#").format(i);
+               index++;
+           }
+           return values;
     }
 
     @Override
@@ -143,7 +158,7 @@ public class ConfigScreen extends Screen {
         configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
-                FullscreenMapScreen.toggleAltScreenMap(false);
+                MapScreen.toggleAltScreenMap(false);
         }).dimensions(15, windowScaledHeight - 35, 120, 20).build();
         configHud.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.configure-hud")));
         this.addDrawableChild(configHud);
@@ -160,23 +175,35 @@ public class ConfigScreen extends Screen {
         rightClickMeuUsesOption = new ChoiceButtonWidget(new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
 
+        tileScaleSlider = new ChoiceSliderWidget(tileScaleOptions, ConfigOptions.TILE_SCALE, true);
+        this.addConfigOptionWidget(tileScaleSlider);
+
         reverseScrollOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.REVERSE_SCROLL);
         this.addConfigOptionWidget(reverseScrollOption);
 
-        zoomStrengthWidget = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH);
-        this.addConfigOptionWidget(zoomStrengthWidget);
-
-        hoverNamesOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.HOVER_NAMES);
-        this.addConfigOptionWidget(hoverNamesOption);
+        zoomStrengthSlider = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH, true);
+        this.addConfigOptionWidget(zoomStrengthSlider);
 
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
+
+        renderClaimsOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.CLAIMS_RENDERING);
+        this.addConfigOptionWidget(renderClaimsOption);
 
         playerShowSlider = new ChoiceSliderWidget(visibilityOptions, ConfigOptions.SHOW_PLAYERS);
         this.addConfigOptionWidget(playerShowSlider);
 
         directionIndicatorShowSlider = new ChoiceSliderWidget(visibilityOptions, ConfigOptions.SHOW_DIRECTION_INDICATORS);
         this.addConfigOptionWidget(directionIndicatorShowSlider);
+
+        playerSizeSlider = new ChoiceSliderWidget(sizeOptions, ConfigOptions.PLAYER_SIZE);
+        this.addConfigOptionWidget(playerSizeSlider);
+
+        waypointSizeSlider = new ChoiceSliderWidget(sizeOptions, ConfigOptions.WAYPOINT_SIZE);
+        this.addConfigOptionWidget(waypointSizeSlider);
+
+        hoverNamesOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HOVER_NAMES);
+        this.addConfigOptionWidget(hoverNamesOption);
 
         altitudeShadingOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.ALTITUDE_SHADING);
         this.addConfigOptionWidget(altitudeShadingOption);
@@ -189,15 +216,32 @@ public class ConfigScreen extends Screen {
         this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
         this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
 
+        interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer);
+        this.addConfigOptionWidget(interfaceLabel);
+
+        transparencySlider = new ChoiceSliderWidget(decimalPercentOptions, ConfigOptions.INTERFACE_OPACITY, true);
+        this.addConfigOptionWidget(transparencySlider);
+
+        textColorSlider = new ColorChoiceSliderWidget(ConfigOptions.TEXT_COLOR);
+        this.addConfigOptionWidget(textColorSlider);
+
+        showConnectionStatusOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.SHOW_CONNECTION_STATUS);
+        this.addConfigOptionWidget(showConnectionStatusOption);
+
+        hudmapCompassOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.COMPASS);
+        this.addConfigOptionWidget(hudmapCompassOption);
+
+        hudmapBorderOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HUDMAP_BORDER);
+        this.addConfigOptionWidget(hudmapBorderOption);
+
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
-            this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__EXPERIMENTAL_CLAIMS_RENDERING, true));
         }
 
         configList.restoreScroll();
-        FullscreenMapScreen.toggleAltScreenMap(true);
+        MapScreen.toggleAltScreenMap(true);
 
     }
 
@@ -210,13 +254,16 @@ public class ConfigScreen extends Screen {
             ((ConfigChoice) widget).writeParameterToFile();
         }
         if (!ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on")) {
-            FullscreenMapScreen.clampZoom();
+            MapScreen.clampZoom();
             HudMap.clampZoom();
         }
         TileManager.initializeConfigParameters();
-        HudMap.setSnapAngle();
+        OmmMap.initializeConfigParameters(true);
+        MapScreen.map.tryLoadClaims();
+        HudMap.loadConfigParameters();
         ConfigFile.writeToFile();
         Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));
+        MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
     }
 
     @Override
@@ -233,6 +280,6 @@ public class ConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
         //context.disableScissor();
         wikiLinkLayer.drawWidget(context, textRenderer);
-        UContext.drawJustifiedText(Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF);
+        UContext.drawJustifiedText(Text.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF, true);
     }
 }

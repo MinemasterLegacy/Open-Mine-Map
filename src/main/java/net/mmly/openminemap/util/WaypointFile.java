@@ -5,7 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.util.WorldSavePath;
-import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 
@@ -42,15 +42,13 @@ public class WaypointFile {
                 writer.flush();
                 writer.close();
 
-                System.out.println("write call success to "+waypointsFile.getAbsolutePath());
-
             } catch (JsonSyntaxException e) {
-                OpenMineMapClient.debugMessages.add("Waypoints file save failed: "+e.getMessage());
+                OpenMineMap.LOGGER.error("Waypoints file save failed: "+e.getMessage());
                 throw new WaypointFileFormatException();
             }
 
         } catch (IOException | WaypointFileFormatException e) {
-            System.out.println("Waypoints file save failed: "+e.getMessage());
+            OpenMineMap.LOGGER.error("Waypoints file save failed: "+e.getMessage());
         }
     }
 
@@ -73,7 +71,7 @@ public class WaypointFile {
                 throw new WaypointFileFormatException();
             }
         } catch (IOException | WaypointFileFormatException e) {
-            OpenMineMapClient.debugMessages.add("OpenMineMap: Error while loading waypoints.json, Waypoints will not appear");
+            OpenMineMap.LOGGER.warn("Error while loading waypoints.json, Waypoints will not appear");
             loadWasFailed = true;
         }
 
@@ -91,12 +89,10 @@ public class WaypointFile {
                 worldName = MinecraftClient.getInstance().getServer().getSavePath(WorldSavePath.ROOT).getParent().getFileName().toString();
                 worldType = WorldType.SINGLEPLAYER;
             } catch (NullPointerException ex) { //if both checks fail to product a name, load no waypoints and give an error in chat
-                OpenMineMapClient.debugMessages.add("OpenMineMap: Unable to determine level identifier.");
+                OpenMineMap.LOGGER.warn("Unable to determine level identifier.");
                 return false;
             }
         }
-
-        System.out.println("World Name resolved to \""+worldName+"\"");
 
         return true;
     }

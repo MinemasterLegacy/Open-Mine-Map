@@ -280,6 +280,6 @@ public class ConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
         //context.disableScissor();
         wikiLinkLayer.drawWidget(context, textRenderer);
-        UContext.drawJustifiedText(Text.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF);
+        UContext.drawJustifiedText(Text.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF, true);
     }
 }

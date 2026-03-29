@@ -1,7 +1,6 @@
 package net.mmly.openminemap.config;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -124,13 +123,15 @@ public class MapConfigScreen extends Screen {
         this.addDrawableChild(leftResize);
         this.addDrawableChild(downResize);
         this.addDrawableChild(upResize);
-        this.addDrawableChild(compassLeftResize);
-        this.addDrawableChild(compassRightResize);
+        if (HudMap.showCompass) {
+            this.addDrawableChild(compassLeftResize);
+            this.addDrawableChild(compassRightResize);
+        }
 
         repositionElement = new RepositionElement(RepositionType.MAP);
         compassRepositionElement = new RepositionElement(RepositionType.COMPASS);
         this.addDrawableChild(repositionElement);
-        this.addDrawableChild(compassRepositionElement);
+        if (HudMap.showCompass) this.addDrawableChild(compassRepositionElement);
 
     }
 
@@ -149,6 +150,8 @@ public class MapConfigScreen extends Screen {
         leftResize.drawWidget(context);
         upResize.drawWidget(context);
         downResize.drawWidget(context);
+
+        if (!HudMap.showCompass) return;
         compassLeftResize.drawWidget(context);
         compassRightResize.drawWidget(context);
     }

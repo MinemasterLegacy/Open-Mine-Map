@@ -1,8 +1,9 @@
 package net.mmly.openminemap.util;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.TileManager;
 
 import java.io.*;
@@ -12,39 +13,8 @@ import java.util.Objects;
 public class ConfigFile {
     public static File configFile;
     public static boolean isConfigLoaded = false;
-    private static HashMap<ConfigOptions, String> configParams = new HashMap<>();
+    private static final HashMap<ConfigOptions, String> configParams = new HashMap<>();
     private static final String[] defaultValues = ConfigOptions.defaultValues;
-    /*new String[] { //default values for every config option / parameter
-            "10", //hudmapx
-            "10", //hudmapy
-            "144", //hudmapwidth
-            "81", //hudmapheight
-            "10", //hudcompassx
-            "96", //hudcompassy
-            "144", //hudcompasswidth
-            "OpenStreetMap", //tilemapurl, was "https://tile.openstreetmap.org/{z}/{x}/{y}.png" in 1.3.0
-            "false", //ArtificialZoom
-            "", //SnapAngle
-            "/tpll", //RightClickMenuUses
-            "off", //ReverseScroll
-            "local", //ShowPlayers
-            "local", //ShowDirectionIndicators
-            "on", //AltitudeShading
-            "0.4", //ZoomStrength
-            "on", //HoverNames
-
-            "true", //hudtoggle
-            "true", //hudenabled
-            "0", //hudlastzoom
-            "0", //fslastzoom
-            "64", //fslastx
-            "64", //fslasty
-
-            "false", //ShowDeveloperOptions
-            "false", //DisableWebRequests
-            "false", //ShowMemoryCacheSize
-            "false"
-    };*/
     private static final int numOfArgs = ConfigOptions.length();
 
     public static void establishConfigFile() {
@@ -55,7 +25,7 @@ public class ConfigFile {
             isConfigLoaded = true;
             writeToFile();
         } catch (IOException e) {
-            System.out.println("Could not discover/create openminemap/config.txt ; Configuration options will not be loaded or saved");
+            OpenMineMap.LOGGER.warn("Could not discover/create openminemap/config.txt ; Configuration options will not be loaded or saved");
         }
     }
 
@@ -63,8 +33,8 @@ public class ConfigFile {
         return configParams.replace(parameter, value) != null;
     }
 
-    public static boolean writeDefaultParameter(ConfigOptions parameter) {
-        return configParams.replace(parameter, defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))]) != null;
+    public static void writeDefaultParameter(ConfigOptions parameter) {
+        configParams.replace(parameter, defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))]);
     }
 
     public static String readDefaultParameter(ConfigOptions parameter) {
@@ -75,22 +45,16 @@ public class ConfigFile {
         String value = configParams.get(parameter);
         //System.out.println("Value for key "+parameter+" is "+value);
         if (value.equals("null")) { //failsafe in case a value is somehow set to null
-            for (int i = 0; i < ConfigOptions.length(); i++) {
-                if (ConfigOptions.values()[i] == parameter) {
-                    System.out.println("Null value for valid parameter detected; possible error occoured");
-                    writeParameter(parameter, defaultValues[i]);
-                    writeToFile();
-                    return defaultValues[i];
-                }
-            }
-            System.out.println("A parameter was not found when reading the ConfigFile");
-            return null;
+            OpenMineMap.LOGGER.warn("Null value for valid parameter " + parameter.toString() + "detected; possible error occured. Will revert to default parameter.");
+            writeDefaultParameter(parameter);
+            return configParams.get(parameter);
         } else {
             return value;
         }
     }
 
-    public static void writeOnClose(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
+    public static void writeOnClose(MinecraftClient client) {
+        MapScreen.writeParameters();
         writeToFile();
     }
 
@@ -104,7 +68,7 @@ public class ConfigFile {
             }
             writer.close();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            OpenMineMap.LOGGER.error("Could not write to config file: " + e.getMessage());
             return false;
         }
         return true;
@@ -125,7 +89,7 @@ public class ConfigFile {
                 int searchResult = searchFor(kvPair[0]);
                 if (searchResult >= 0) {
                     configParams.put(ConfigOptions.getOptionOf(kvPair[0]), kvPair[1]);
-                    System.out.println("set "+kvPair[0]+" to "+kvPair[1]);
+                    //System.out.println("set "+kvPair[0]+" to "+kvPair[1]);
                     foundParameter[searchResult] = true;
                 }
             }
@@ -135,8 +99,9 @@ public class ConfigFile {
                     configParams.put(ConfigOptions.values()[i], defaultValues[i]);
                 }
             }
+            OpenMineMap.LOGGER.info("Loaded " + configParams.size() + " configuration options");
         } catch (IOException e) {
-            System.out.println("readFromFile Error: "+e.getMessage());
+            OpenMineMap.LOGGER.error("Could not read from config file: " + e.getMessage());
             return false;
         }
         return true;

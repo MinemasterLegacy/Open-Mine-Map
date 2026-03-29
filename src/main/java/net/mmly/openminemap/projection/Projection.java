@@ -3,6 +3,7 @@ package net.mmly.openminemap.projection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import net.mmly.openminemap.OpenMineMap;
 
 import java.io.*;
 
@@ -70,7 +71,8 @@ public class Projection {
             //System.out.println(new BufferedReader(new InputStreamReader(stream, "UTF-8")).readLine());
             available = stream.available();
         } catch (IOException e) {
-            System.out.println("Required conformal correction file not found: openminemap:conformal2.txt");
+            //System.out.println("Required conformal correction file not found: openminemap:conformal2.txt");
+            OpenMineMap.LOGGER.error("Conformal correction file failed to load");
             throw new RuntimeException(e);
             //System.out.println("error: "+e.getMessage());
         }
@@ -94,10 +96,10 @@ public class Projection {
                 return x;
             } catch (Exception r) {
                 //r.printStackTrace();
-                System.out.println("Failed to load conformal data from: openminemap:conformal2.txt");
+                OpenMineMap.LOGGER.error("Failed to read conformal correction file");
             }
         } else {
-            System.out.println("Required conformal correction file not found: openminemap:conformal2.txt");
+            OpenMineMap.LOGGER.error("Conformal correction file was not found");
         }
         return null;
     }

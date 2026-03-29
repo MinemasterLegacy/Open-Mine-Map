@@ -8,8 +8,7 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.mmly.openminemap.OpenMineMap;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.util.UnitConvert;
@@ -33,15 +32,18 @@ public class KeyInputHandler {
     private static KeyBinding snapAngleKey;
     private static int stopIt = 0;
 
+    public static KeyBinding getOpenFullscreenOsmMapKey() {
+        return openFullscreenOsmMapKey;
+    }
+
     //event handling for when the keys are pressed
     public static void registerKeyInputs() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if(openFullscreenOsmMapKey.wasPressed()) {
                 //what to do when key is pressed
                 //client.player.sendMessage(Text.literal("Key pressed!")); //send message in chat
-
                 MinecraftClient.getInstance().setScreen(
-                        new FullscreenMapScreen()
+                        new MapScreen()
                 );
 
             }
@@ -171,14 +173,10 @@ public class KeyInputHandler {
                         .formatted(Formatting.ITALIC), false);
             }
         } catch (Exception e) {
-            try {
                 minecraftClient.player.sendMessage(Text.translatable("omm.key.execute.error.copy-coordinates")
                         .formatted(Formatting.RED)
                         //.formatted(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/say e"))));
                         .formatted(Formatting.ITALIC), false);
-            } catch (Exception e2) {
-                OpenMineMap.somethingF__kedUpReallyBadIfThisMethodIsBeingCalled();
-            }
         }
     }
 

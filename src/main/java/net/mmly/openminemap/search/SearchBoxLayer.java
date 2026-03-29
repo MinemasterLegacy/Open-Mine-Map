@@ -5,14 +5,12 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.input.KeyInput;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
-import net.mmly.openminemap.gui.FullscreenMapScreen;
+import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.projection.CoordinateValueError;
-import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import org.lwjgl.glfw.GLFW;
@@ -21,7 +19,7 @@ import java.util.Arrays;
 
 public class SearchBoxLayer extends TextFieldWidget {
 
-    private static final int MAX_SEARCH_RESULTS = 8;
+    public static final int MAX_SEARCH_RESULTS = 8;
     private static SearchResult[] searchResults = new SearchResult[8];
     private static int scroll = 0;
     private static String previousText = "";
@@ -35,7 +33,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         this.setEditable(true);
         this.setMaxLength(1000);
         instance = this;
-        this.setUneditableColor(0xFF404040);
+        this.setUneditableColor(MapScreen.getDarkTextColor());
     }
 
     public static SearchBoxLayer getInstance() {
@@ -58,7 +56,7 @@ public class SearchBoxLayer extends TextFieldWidget {
     public boolean keyPressed(KeyInput input) {
         if (searching) return true;
         if (input.getKeycode() == GLFW.GLFW_KEY_ENTER) {
-            FullscreenMapScreen.getInstance().jumpToBestOption();
+            MapScreen.getInstance().jumpToBestOption();
             //RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return true;
         } else {
@@ -72,14 +70,14 @@ public class SearchBoxLayer extends TextFieldWidget {
             searchResults = RequestManager.searchResultReturn;
             numResults = RequestManager.searchResultReturn.length;
             RequestManager.searchResultReturn = null;
-            FullscreenMapScreen.getInstance().jumpToSearchBox();
+            MapScreen.getInstance().jumpToSearchBox();
             updateResultElements();
         } else if (!previousText.equals(getText()) && !searching) {
             previousText = getText();
             recalculateResults();
         }
 
-        setEditableColor(getText().isEmpty() && !isFocused() ? 0xFF404040 : 0xFFFFFFFF);
+        setEditableColor(getText().isEmpty() && !isFocused() ? MapScreen.getDarkTextColor() : MapScreen.getPlainTextColor());
         if (searching) setPlaceholder(Text.translatable("omm.notification.searching"));
         else setPlaceholder(Text.translatable("omm.search.anything"));
 
@@ -99,8 +97,8 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     private void clearSearchResults() {
         Arrays.fill(searchResults, null);
-        for (int i = 0; i < FullscreenMapScreen.searchResultLayers.length; i++) {
-            FullscreenMapScreen.searchResultLayers[i].setResult(null);
+        for (int i = 0; i < MapScreen.searchResultLayers.length; i++) {
+            MapScreen.searchResultLayers[i].setResult(null);
         }
         numResults = 0;
     }
@@ -171,19 +169,19 @@ public class SearchBoxLayer extends TextFieldWidget {
         }
 
         //If the search text is a player, add them
-        for (PlayerEntity player : PlayersManager.getNearPlayers()) {
+        for (MappablePlayer player : PlayersManager.getMappablePlayers()) {
             try {
-                if (player.getDisplayName().getString().toLowerCase().contains(getText().toLowerCase()) && player != MinecraftClient.getInstance().player) {
-                    double[] latLong = Projection.to_geo(player.getX(), player.getZ());
+                if (player.outOfBounds) continue;
+                if (player.stylizedName.getString().toLowerCase().contains(getText().toLowerCase()) && player.uuid != MinecraftClient.getInstance().player.getUuid()) {
                     addSearchResult(new SearchResult(
                             SearchResultType.PLAYER,
-                            latLong[0],
-                            latLong[1],
+                            player.latitude,
+                            player.longitude,
                             false,
-                            player.getDisplayName().getString(),
+                            player.stylizedName.getString(),
                             ((int) player.distanceTo(MinecraftClient.getInstance().player)) + Text.translatable("omm.search.blocks-away").getString()));
                 }
-            } catch (NullPointerException | CoordinateValueError ignored) {}
+            } catch (NullPointerException ignored) {}
         }
 
         for (SearchResult result : getSearchHistory()) {
@@ -222,8 +220,8 @@ public class SearchBoxLayer extends TextFieldWidget {
     }
 
     private static void updateResultElements() {
-        for (int i = 0; i < FullscreenMapScreen.searchResultLayers.length; i++) {
-            FullscreenMapScreen.searchResultLayers[i].setResult(searchResults[i]);
+        for (int i = 0; i < MapScreen.searchResultLayers.length; i++) {
+            MapScreen.searchResultLayers[i].setResult(searchResults[i]);
         }
     }
 

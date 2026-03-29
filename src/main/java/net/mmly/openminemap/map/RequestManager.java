@@ -3,6 +3,8 @@ package net.mmly.openminemap.map;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 
+import java.io.InputStream;
+
 public class RequestManager {
 
     static RequestableTile pendingRequest;
@@ -16,6 +18,26 @@ public class RequestManager {
     static double reverseSearchLat = Double.NaN;
     static double reverseSearchLong = Double.NaN;
     public static SearchResult[] searchResultReturn = null;
+
+    public static boolean claimsLoaded = true;
+    public static InputStream claims = null;
+
+    public static boolean claimsLoaded() {
+        return claimsLoaded;
+    }
+
+    public static void setClaims(InputStream claimStream) {
+        claims = claimStream;
+        claimsLoaded = true;
+    }
+
+    public static void loadClaims() {
+        claimsLoaded = false;
+    }
+
+    public static boolean needToLoadClaims() {
+        return !claimsLoaded;
+    }
 
     //there has to be a better way of doing this then passing booleans around
     public static void setMapCenter(int x, int y, boolean isHudMap) {

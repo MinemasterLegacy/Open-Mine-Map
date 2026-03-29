@@ -2,11 +2,8 @@ package net.mmly.openminemap.hud;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -22,6 +19,7 @@ import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
+import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.WaypointFile;
 
@@ -48,10 +46,18 @@ public class HudMap {
     );
 
     public static Identifier playerIdentifier;
+    public static boolean showBorder = true;
+    public static boolean showCompass = true;
 
     public static void clampZoom() {
         //used to decrease zoom level (if needed) when artificial zoom is disabled
        map.clampZoom();
+    }
+
+    public static void loadConfigParameters() {
+        setSnapAngle();
+        showBorder = ConfigOptions.HUDMAP_BORDER.read().equals("show");
+        showCompass = ConfigOptions.COMPASS.read().equals("show");
     }
 
     public static void setSnapAngle() {
@@ -63,13 +69,14 @@ public class HudMap {
             snapAngleInput = Double.parseDouble(receivedSnapAngle);
             snapAngle = ((-snapAngleInput) % 90) - (90 * (((-snapAngleInput) % 90) > 0 ? 1 : 0));
         }
-
     }
 
     public static void initialize(DrawContext context) {
         //TileManager.initializeConfigParameters();
         setSnapAngle();
+        loadConfigParameters();
 
+        map.initFields();
         map.setFollowPlayer(true);
         map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMapZoom(
@@ -80,6 +87,8 @@ public class HudMap {
 
         initialized = true;
         WaypointFile.setWaypointsOfThisWorld(true);
+
+        showBorder = ConfigOptions.HUDMAP_BORDER.read().equals("show");
     }
 
     public static void zoomIn() {
@@ -172,16 +181,37 @@ public class HudMap {
         map.renderMap(context, null, true);
 
         //0xD9D9D9
-        if (PlayerAttributes.positionIsValid()) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)
+        if (PlayerAttributes.positionIsValid() && showCompass) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)
             drawCompass(context);
+        }
+
+        if (showBorder) {
+            int blue = ColorUtil.darken(0xFF0447D8, 0.35);
+            int green = ColorUtil.darken(0xFF0BD604, 0.35);
+            int mid = ColorUtil.average(blue, green);
+
+            int x = map.getRenderAreaX();
+            int y = map.getRenderAreaY();
+            int x2 = map.getRenderAreaX2();
+            int y2 = map.getRenderAreaY2();
+
+            context.fill(x + 1, y2 - 2, x2 - 1, y2, green); //bottom
+            context.fill(x2 - 2, y + 1, x2, y2 - 1, green); //right
+            context.fill(x + 1, y, x2 - 1, y + 2, blue); //top
+            context.fill(x, y + 1, x + 2, y2 - 1, blue); //left
+
+            UContext.fillZone(x + 2, y + 2, 1, 1, blue); //top-left
+            UContext.fillZone(x2 - 3, y2 - 3, 1, 1, green); //bottom-right
+
+            UContext.fillZone(x2 - 3, y + 2, 1, 1, mid); //top-right inner
+            UContext.fillZone(x + 2, y2 - 3, 1, 1, mid); //bottom-left inner
+
+            UContext.fillZone(x2 - 2, y + 1, 1, 1, mid); //top-right outer
+            UContext.fillZone(x + 1, y2 - 2, 1, 1, mid); //bottom-left outer
+
         }
 
     }
 
-    public static void deinitialize(ClientLoginNetworkHandler clientLoginNetworkHandler, MinecraftClient minecraftClient) {
-        initialized = false;
-        //System.out.println("deinitialize hudmap");
-
-    }
 }
 

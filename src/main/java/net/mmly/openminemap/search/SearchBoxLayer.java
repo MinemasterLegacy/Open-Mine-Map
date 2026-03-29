@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 public class SearchBoxLayer extends TextFieldWidget {
 
-    private static final int MAX_SEARCH_RESULTS = 8;
+    public static final int MAX_SEARCH_RESULTS = 8;
     private static SearchResult[] searchResults = new SearchResult[8];
     private static int scroll = 0;
     private static String previousText = "";

@@ -8,6 +8,7 @@ import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.ConfigFile;
@@ -76,7 +77,7 @@ public class Requester extends Thread {
     }
 
     private SearchResult[] getErrorResult() {
-        return new SearchResult[] {
+        return (new SearchResult[] {
                 new SearchResult(
                         SearchResultType.LOCATION,
                         Double.NaN,
@@ -86,8 +87,8 @@ public class Requester extends Thread {
                         Text.translatable("omm.notification.something-wrong").getString(),
                         0
                 ),
-                null, null, null, null, null, null
-        };
+                null, null, null, null, null, null, null
+        });
     }
 
     private InputStream getClaims() {
@@ -96,7 +97,7 @@ public class Requester extends Thread {
 
     private SearchResult[] parseLocationJson(InputStream stream) {
         Gson gson = new Gson();
-        SearchResult[] results = new SearchResult[7];
+        SearchResult[] results = new SearchResult[SearchBoxLayer.MAX_SEARCH_RESULTS];
         Map returnedResult;
 
         try {

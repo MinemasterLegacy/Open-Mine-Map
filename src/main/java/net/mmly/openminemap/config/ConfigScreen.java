@@ -62,10 +62,10 @@ public class ConfigScreen extends Screen {
 
     CategoryLabelWidget interfaceLabel;
     ChoiceSliderWidget transparencySlider;
+    ColorChoiceSliderWidget textColorSlider;
     ChoiceButtonWidget showConnectionStatusOption;
     ChoiceButtonWidget hudmapBorderOption;
     ChoiceButtonWidget hudmapCompassOption;
-    ColorChoiceSliderWidget textColorSlider;
 
     private final String[] onOffOptions = new String[] {"On", "Off"};
     private final String[] showHideOptions = new String[] {"Show", "Hide"};
@@ -222,6 +222,9 @@ public class ConfigScreen extends Screen {
         transparencySlider = new ChoiceSliderWidget(decimalPercentOptions, ConfigOptions.INTERFACE_OPACITY, true);
         this.addConfigOptionWidget(transparencySlider);
 
+        textColorSlider = new ColorChoiceSliderWidget(ConfigOptions.TEXT_COLOR);
+        this.addConfigOptionWidget(textColorSlider);
+
         showConnectionStatusOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.SHOW_CONNECTION_STATUS);
         this.addConfigOptionWidget(showConnectionStatusOption);
 
@@ -230,9 +233,6 @@ public class ConfigScreen extends Screen {
 
         hudmapBorderOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HUDMAP_BORDER);
         this.addConfigOptionWidget(hudmapBorderOption);
-
-        textColorSlider = new ColorChoiceSliderWidget(ConfigOptions.TEXT_COLOR);
-        this.addConfigOptionWidget(textColorSlider);
 
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));

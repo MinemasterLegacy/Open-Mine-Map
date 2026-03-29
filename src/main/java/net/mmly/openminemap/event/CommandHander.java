@@ -73,7 +73,7 @@ public class CommandHander {
     }
 
     private static int distortion(CommandContext<FabricClientCommandSource> context) {
-
+        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
         try {
             double[] distortion = Projection.getDistortion(PlayerAttributes.getLongitude(), PlayerAttributes.getLatitude());
             MinecraftClient.getInstance().player.sendMessage(Text.literal(

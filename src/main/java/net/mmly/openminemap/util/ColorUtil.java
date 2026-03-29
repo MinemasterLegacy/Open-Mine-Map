@@ -97,7 +97,7 @@ public class ColorUtil {
     }
 
     public static int getCurrentRainbowColor() {
-        return hsl(255, (int) ((Util.getEpochTimeMs() >>> 4) % 360), 0.95f, 0.75f);
+        return hsl(255, (int) ((Util.getEpochTimeMs() >>> 6) % 360), 0.95f, 0.75f);
     }
 
 }

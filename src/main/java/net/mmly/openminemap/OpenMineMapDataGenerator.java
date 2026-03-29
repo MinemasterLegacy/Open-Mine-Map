@@ -36,6 +36,7 @@ public class OpenMineMapDataGenerator implements DataGeneratorEntrypoint {
         pack.addProvider(OmmPreReformIndonesianLanguageProvider::new);
         pack.addProvider(OmmJapaneseLanguageProvider::new);
         pack.addProvider(OmmItalianLanguageProvider::new);
+        pack.addProvider(OmmPolishLanguageProvider::new);
     }
 }
 
@@ -1447,5 +1448,33 @@ class OmmItalianLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.rcm.unpin", "Stacca");
         translationBuilder.add("omm.rcm.create-waypoint", "Crea Waypoint");
         translationBuilder.add("omm.error.tile-url.parse", "Errore Parsing Sorgente Tile");
+    }
+}
+
+class OmmPolishLanguageProvider extends FabricLanguageProvider {
+    protected OmmPolishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, "pl_pl", registryLookup);
+    }
+
+    // ----- POLISH -----
+    @Override
+    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+        translationBuilder.add("omm.config.state.on", "Włącz");
+        translationBuilder.add("omm.config.state.off", "Wyłącz");
+        translationBuilder.add("omm.config.option.artificial-zoom", "Sztuczny zoom");
+        translationBuilder.add("omm.config.tooltip.artificial-zoom", "Sztuczny zoom pozwala na większe przybliżenie niż normalnie (+6 poziomów), przez powiększanie najmniejszych kafelków mapy");
+        translationBuilder.add("omm.config.gui.exit-without-saving", "Wyjdź bez zapisywania");
+        translationBuilder.add("omm.config.gui.save-and-exit", "Zapisz i wyjdź");
+        translationBuilder.add("omm.config.option.configure-hud", "Konfiguruj HUD...");
+        translationBuilder.add("omm.config.tooltip.configure-hud", "Zmień pozycję i rozmiar elementów HUD");
+        translationBuilder.add("omm.config.category.general", "Ogólne");
+        translationBuilder.add("omm.config.option.snap-angle", "Przyciąganie do kąta");
+        translationBuilder.add("omm.config.tooltip.snap-angle", "Ustaw kąt przyciągania (skrót klawiszowy). Pomaga rysować proste linie (kąt jak w Minecraft)");
+        translationBuilder.add("omm.config.option.rcm-uses", "Użycie RCM");
+        translationBuilder.add("oom.config.tooltip.rcm-uses", "Komenda używana do teleportu z menu prawego przycisku (pełny ekran)");
+        translationBuilder.add("omm.config.option.reverse-scroll", "Odwróć scroll");
+        //translationBuilder.add("omm.config.tooltip.reverse-scroll", "");
+        //translationBuilder.add("omm.config.category.overlays", "");
+        translationBuilder.add("omm.config.option.players", "Gracze");
     }
 }

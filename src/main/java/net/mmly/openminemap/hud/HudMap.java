@@ -25,11 +25,11 @@ public class HudMap {
 
     public static final int MIN_SIZE = 20;
     static boolean initialized = false;
-    public static boolean renderHud = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_TOGGLE)); //is toggled by the keybind
-    public static boolean hudEnabled = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._HUD_ENABLED)); //is toggled by the fullscreen map button and is dominant over the keybind
-    public static int hudCompassX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_X));
-    public static int hudCompassY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_Y));
-    public static int hudCompassWidth = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_WIDTH));
+    public static boolean renderHud = ConfigOptions._HUD_TOGGLE.getAsBoolean(); //is toggled by the keybind
+    public static boolean hudEnabled = ConfigOptions._HUD_ENABLED.getAsBoolean(); //is toggled by the fullscreen map button and is dominant over the keybind
+    public static int hudCompassX = ConfigOptions.HUD_COMPASS_X.getAsInt();
+    public static int hudCompassY = ConfigOptions.HUD_COMPASS_Y.getAsInt();
+    public static int hudCompassWidth = ConfigOptions.HUD_COMPASS_WIDTH.getAsInt();
     protected static Identifier compassIdentifier = Identifier.of("openminemap", "stripcompass.png");
     protected static Identifier snapAngleIdentifier = Identifier.of("openminemap", "snapangle.png");
     protected static int hudCompassCenter;
@@ -37,10 +37,10 @@ public class HudMap {
     public static double snapAngle; //range: (-90, 0]
     public static boolean doSnapAngle = false;
     public static final OmmMap map = new OmmMap(
-            Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_X)),
-            Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_Y)),
-            Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_WIDTH)),
-            Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_HEIGHT))
+            ConfigOptions.HUD_MAP_X.getAsInt(),
+            ConfigOptions.HUD_MAP_Y.getAsInt(),
+            ConfigOptions.HUD_MAP_WIDTH.getAsInt(),
+            ConfigOptions.HUD_MAP_HEIGHT.getAsInt()
     );
 
     public static Identifier playerIdentifier;
@@ -54,12 +54,12 @@ public class HudMap {
 
     public static void loadConfigParameters() {
         setSnapAngle();
-        showBorder = ConfigOptions.HUDMAP_BORDER.read().equals("show");
-        showCompass = ConfigOptions.COMPASS.read().equals("show");
+        showBorder = ConfigOptions.HUDMAP_BORDER.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
+        showCompass = ConfigOptions.COMPASS.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
     }
 
     public static void setSnapAngle() {
-        String receivedSnapAngle = ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE);
+        String receivedSnapAngle = ConfigFile.readOption(ConfigOptions.SNAP_ANGLE);
         if (receivedSnapAngle.isEmpty()) {
             doSnapAngle = false;
         } else {
@@ -78,7 +78,7 @@ public class HudMap {
         map.setFollowPlayer(true);
         map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMapZoom(
-                Double.parseDouble(ConfigFile.readParameter(ConfigOptions._HUD_LAST_ZOOM))
+                ConfigOptions._HUD_LAST_ZOOM.getAsDouble()
         );
         map.setTextRenderer(MinecraftClient.getInstance().textRenderer);
         map.doPlayerTooltipNames(false);
@@ -86,7 +86,7 @@ public class HudMap {
         initialized = true;
         WaypointFile.setWaypointsOfThisWorld(true);
 
-        showBorder = ConfigOptions.HUDMAP_BORDER.read().equals("show");
+        showBorder = ConfigOptions.HUDMAP_BORDER.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
     }
 
     public static void zoomIn() {

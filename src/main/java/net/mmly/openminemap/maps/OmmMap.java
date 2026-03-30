@@ -110,7 +110,7 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void tryLoadClaims() {
-        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && OmmMap.claims == null && !claimInitStarted) {
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) && OmmMap.claims == null && !claimInitStarted) {
             claimInitStarted = true;
             DrawableClaim.reloadClaimData(false, false, false);
         }
@@ -155,10 +155,10 @@ public class OmmMap extends ClickableWidget {
     }
 
     public static void initializeConfigParameters(boolean reloadZoom) {
-        PLAYERSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.PLAYER_SIZE));
-        WAYPOINTSIZE = parseSize(ConfigFile.readParameter(ConfigOptions.WAYPOINT_SIZE));
-        setBaseTileSize(Integer.parseInt(ConfigFile.readParameter(ConfigOptions.TILE_SCALE)));
-        renderClaimsToggle = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions._CLAIMS_TOGGLE));
+        PLAYERSIZE = parseSize(ConfigOptions.PLAYER_SIZE.getAsStringFromValues(ConfigOptions.Values.SIZES));
+        WAYPOINTSIZE = parseSize(ConfigOptions.WAYPOINT_SIZE.getAsStringFromValues(ConfigOptions.Values.SIZES));
+        setBaseTileSize(ConfigOptions.TILE_SCALE.getAsInt());
+        renderClaimsToggle = ConfigOptions._CLAIMS_TOGGLE.getAsBoolean();
         if (!reloadZoom) return;
         MapScreen.map.normalizeZoom(MapScreen.map.zoom);
         HudMap.map.normalizeZoom(HudMap.map.zoom);
@@ -617,7 +617,7 @@ public class OmmMap extends ClickableWidget {
         }
 
         //do altitude shading if enabled, return early if not enabled
-        if (!Objects.equals("on", ConfigFile.readParameter(ConfigOptions.ALTITUDE_SHADING)) || Double.isNaN(bufferedPlayer.y)) return;
+        if (!ConfigOptions.ALTITUDE_SHADING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) || Double.isNaN(bufferedPlayer.y)) return;
         double altitudeOffset = bufferedPlayer.y - PlayerAttributes.altitude;
         int alpha = (int) (Math.clamp(Math.abs(altitudeOffset) -16, 0, 80) * 1.5);
         if (altitudeOffset > 0) {
@@ -862,7 +862,7 @@ public class OmmMap extends ClickableWidget {
 
         //, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d))
 
-        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on") && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null && renderClaimsToggle) {
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null && renderClaimsToggle) {
             for (DrawableClaim claim : claims) {
                 if (claim == null || !claim.inBoundsOf(mapCenterX, mapCenterY, renderAreaWidth, renderAreaHeight, zoom, tileSize)) continue;
                 drawClaim(
@@ -921,7 +921,7 @@ public class OmmMap extends ClickableWidget {
 
         MappablePlayer selfMappable = new MappablePlayer(player, OverlayVisibility.SELF);
         BufferedPlayer self = null;
-        if (ConfigFile.readParameter(ConfigOptions.HOVER_NAMES).equals("show")) drawHoveredPlayerText(context);
+        if (ConfigOptions.HOVER_NAMES.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE)) drawHoveredPlayerText(context);
 
         if (followPlayer) {
             if (selfMappable.isIndicatorDrawable()) DirectionIndicator.draw(

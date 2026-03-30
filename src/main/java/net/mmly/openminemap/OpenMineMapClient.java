@@ -63,19 +63,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         TileManager.initializeConfigParameters();
         OmmMap.initializeConfigParameters(false);
 
-        OpenMineMapClient.SHOWDEVELOPEROPTIONS = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS));
-        //Tpll.lonLatToMcCoords(-112.07151142039129, 33.45512716304792);
-        //test t = new test();
-        /*
-        try {
-            double[] ll = tpll.from_geo(40.651480098863274, -74.32489167373383);
-            System.out.println(ll[0]);
-            System.out.println(ll[1]);
-        } catch (Exception e) {
-            System.out.println("tpll failed");
-        }
-
-         */
+        OpenMineMapClient.SHOWDEVELOPEROPTIONS = ConfigOptions.__SHOW_DEVELOPER_OPTIONS.getAsBoolean();
 
         PayloadTypeRegistry.playS2C().register(PlayerDataS2CPayload.ID, PlayerDataS2CPayload.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(PlayerDataS2CPayload.ID, ((playerDataS2CPayload, context) -> {}));

@@ -343,13 +343,13 @@ public class TileManager {
     }
 
     public static void initializeConfigParameters() {
-        doArtificialZoom = ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on");
-        mouseZoomStrength = Double.parseDouble(ConfigFile.readParameter(ConfigOptions.ZOOM_STRENGTH));
-        doReverseScroll = ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on");
-        showPlayers = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_PLAYERS));
-        showDirectionIndicators = OverlayVisibility.fromString(ConfigFile.readParameter(ConfigOptions.SHOW_DIRECTION_INDICATORS));
-        MapScreen.backingColor = ColorUtil.argb((int) (Double.parseDouble(ConfigFile.readParameter(ConfigOptions.INTERFACE_OPACITY)) * 255), 0, 0, 0);
-        String textColor = ConfigOptions.TEXT_COLOR.read();
+        doArtificialZoom = ConfigOptions.ARTIFICIAL_ZOOM.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF);
+        mouseZoomStrength = ConfigOptions.ZOOM_STRENGTH.getAsDouble();
+        doReverseScroll = ConfigOptions.REVERSE_SCROLL.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF);
+        showPlayers = OverlayVisibility.fromString(ConfigOptions.SHOW_PLAYERS.getAsStringFromValues(ConfigOptions.Values.VISIBILITY));
+        showDirectionIndicators = OverlayVisibility.fromString(ConfigOptions.SHOW_DIRECTION_INDICATORS.getAsStringFromValues(ConfigOptions.Values.VISIBILITY));
+        MapScreen.backingColor = ColorUtil.argb((int) (ConfigOptions.INTERFACE_OPACITY.getAsDouble() * 255), 0, 0, 0);
+        String textColor = ConfigOptions.TEXT_COLOR.getAsString();
         if (textColor.equals("rainbow")) MapScreen.setPlainTextColor(0xFF7f7f7f, true);
         else MapScreen.setPlainTextColor(Color.decode(textColor).getRGB(), false);
     }

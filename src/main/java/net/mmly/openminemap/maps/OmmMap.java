@@ -833,8 +833,8 @@ public class OmmMap extends ClickableWidget {
         context.drawTexture(
                 RenderLayer::getGuiTextured,
                 PlayerAttributes.getIdentifier(),
-                renderAreaX + (renderAreaWidth / 2) - 4,
-                renderAreaY + (renderAreaHeight / 2) - 4,
+                renderAreaX + (renderAreaWidth / 2) - (PLAYERSIZE / 2),
+                renderAreaY + (renderAreaHeight / 2) - (PLAYERSIZE / 2),
                 40, 8,
                 PLAYERSIZE, PLAYERSIZE,
                 8, 8,

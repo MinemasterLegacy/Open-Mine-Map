@@ -95,7 +95,6 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     }
 
     public static void drawTriangle(int[][] triangle, int fillColor) {
-        RenderSystem.disableCull();
 
         triangle = sortTriangleToDrawOrder(triangle);
         if (triangle == null) return;

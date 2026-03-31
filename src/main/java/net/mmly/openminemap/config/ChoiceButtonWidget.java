@@ -8,16 +8,18 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
+import java.util.List;
+
 public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
 
-    String[] options;
+    List<String> options;
     int selection;
     net.minecraft.text.Text message;
     ConfigOptions configOption;
     ConfigAnchorWidget anchor;
     boolean optionIsLiteral;
 
-    protected ChoiceButtonWidget(String[] options, ConfigOptions configOption, boolean optionIsLiteral) {
+    protected ChoiceButtonWidget(List<String> options, ConfigOptions configOption, boolean optionIsLiteral) {
         super(0, -100, 120, 20, net.minecraft.text.Text.empty(), (buttonWidget) -> {buttonWidget.onPress(null);}, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
         this.options = options;
         this.message = net.minecraft.text.Text.translatable(configOption.message);
@@ -28,14 +30,14 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
         refreshMessage();
     }
 
-    protected ChoiceButtonWidget(String[] options, ConfigOptions configOption) {
+    protected ChoiceButtonWidget(List<String> options, ConfigOptions configOption) {
         this(options, configOption, false);
     }
 
     private int getSelectedOption() {
-        String selectedOption = ConfigFile.readParameter(configOption);
-        for (int i = 0; i < options.length; i++) {
-            if (selectedOption.equals(options[i].toLowerCase())) return i;
+        String selectedOption = configOption.getAsString();
+        for (int i = 0; i < options.size(); i++) {
+            if (selectedOption.equals(options.get(i).toLowerCase())) return i;
         }
         return 0;
     }
@@ -51,12 +53,12 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     }
 
     private void refreshMessage() {
-        this.setMessage(net.minecraft.text.Text.of(message.getString() + ": " + getTranslatedOption(options[selection])));
+        this.setMessage(net.minecraft.text.Text.of(message.getString() + ": " + getTranslatedOption(options.get(selection))));
     }
 
     private void cycleOption() {
         selection++;
-        selection %= options.length;
+        selection %= options.size();
         refreshMessage();
     }
 
@@ -71,7 +73,7 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     }
 
     public void writeParameterToFile() {
-        ConfigFile.writeParameter(configOption, options[selection].toLowerCase());
+        ConfigFile.writeParameter(configOption, options.get(selection).toLowerCase());
     }
 
     @Override

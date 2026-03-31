@@ -3,6 +3,7 @@ package net.mmly.openminemap.util;
 import net.mmly.openminemap.gui.MapScreen;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 public class UnitConvert {
 
@@ -37,9 +38,8 @@ public class UnitConvert {
     }
 
     public static String floorToPlace(double n, int place) { //rounds a decimal number to a certain digit, always rounding down
-        if (place == 0) return Integer.toString((int) n);
-        DecimalFormat df = new DecimalFormat("0."+ ("0".repeat(place)));
-        return df.format(n);
+        String format = "%." + place + "f";
+        return String.format(Locale.US, format, n);
     }
 
     public static float scaledToPixelCoords(float x) {

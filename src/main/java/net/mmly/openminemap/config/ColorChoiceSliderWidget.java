@@ -9,19 +9,7 @@ import net.mmly.openminemap.util.ColorUtil;
 
 public class ColorChoiceSliderWidget extends ChoiceSliderWidget {
     public ColorChoiceSliderWidget(ConfigOptions configOption) {
-        super(genColorRange(), configOption, true);
-    }
-
-    private static String[] genColorRange() {
-        String[] choices = new String[22];
-        choices[0] = "#FFFFFF";
-        choices[21] = "Rainbow";
-        int index = 0;
-        for (int i = 0; i < 360; i += 18) {
-            index += 1;
-            choices[index] = "#" + Integer.toHexString(ColorUtil.hsl(255, i, 0.95f, 0.75f)).substring(2, 8);
-        }
-        return choices;
+        super(ConfigOptions.Values.COLORS, configOption, true);
     }
 
     @Override

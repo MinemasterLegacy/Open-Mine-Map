@@ -6,6 +6,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.draw.Justify;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayersManager;
@@ -82,6 +84,16 @@ public class SearchBoxLayer extends TextFieldWidget {
         else setPlaceholder(Text.translatable("omm.search.anything"));
 
         this.render(context, 0, 0, 0);
+
+        if (this.getText().isEmpty() && this.isVisible() && !this.isSelected()) UContext.drawJustifiedText(
+                Text.translatable("omm.search.anything"),
+                Justify.LEFT,
+                getX() + 4,
+                getY() + 6,
+                MapScreen.getDarkTextColor(),
+                true
+        );
+
         /*
         if (searching) {
             context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, Text.translatable("omm.notification.searching"), getX() + 4, getY() + 6, 0xFF404040);

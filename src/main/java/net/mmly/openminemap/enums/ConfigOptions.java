@@ -1,6 +1,12 @@
 package net.mmly.openminemap.enums;
 
+import net.mmly.openminemap.OpenMineMap;
+import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public enum ConfigOptions { //no underscore for standard config option, one for session variables (Ex: map positioning and zoom), two for development variables
     HUD_MAP_X(0, "HudMapX", "10"),
@@ -92,11 +98,90 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
         return ConfigOptions.values().length;
     }
 
-    public String read() {
-        return ConfigFile.readParameter(this);
-    }
-
     public void write(String value) {
         ConfigFile.writeParameter(this, value);
     }
+
+    public int getAsInt() {
+        try {
+            return Integer.parseInt(ConfigFile.readOption(this));
+        } catch (NumberFormatException e) {
+            OpenMineMap.LOGGER.warn("Failed to parse config option " + this + " with value " + ConfigFile.readOption(this) + "to integer.");
+            return Integer.parseInt(ConfigFile.readDefaultParameter(this));
+        }
+    }
+
+    public double getAsDouble() {
+        try {
+            return Double.parseDouble(ConfigFile.readOption(this));
+        } catch (NumberFormatException | NullPointerException e) {
+            OpenMineMap.LOGGER.warn("Failed to parse config option " + this + " with value " + ConfigFile.readOption(this) + "to double.");
+            return Double.parseDouble(ConfigFile.readDefaultParameter(this));
+        }
+    }
+
+    public boolean getAsBoolean() {
+        return Boolean.parseBoolean(ConfigFile.readOption(this));
+    }
+
+    public String getAsString() {
+        return ConfigFile.readOption(this);
+    }
+
+    public boolean getAsBooleanFromValues(List<String> values) {
+        String value = ConfigFile.readOption(this);
+        if (values.getFirst().equalsIgnoreCase(value)) return true;
+        else if (values.get(1).equalsIgnoreCase(value)) return false;
+        else {
+            OpenMineMap.LOGGER.warn("Config option " + this + " with value " + ConfigFile.readOption(this) + " could not be parsed to boolean from values list.");
+            return false;
+        }
+    }
+
+    public String getAsStringFromValues(List<String> values) {
+        String value = ConfigFile.readOption(this);
+        for (String string : values) {
+            if (string.equalsIgnoreCase(value)) return value;
+        }
+
+        OpenMineMap.LOGGER.warn("Config option " + this + " with value " + ConfigFile.readOption(this) + " was not contained in values list.");
+        return ConfigFile.readDefaultParameter(this);
+    }
+
+    public static class Values {
+        public static final List<String> ON_OFF = Arrays.stream(new String[] {"On", "Off"}).toList();
+        public static final List<String> SHOW_HIDE = Arrays.stream(new String[] {"Show", "Hide"}).toList();
+        public static final List<String> TRUE_FALSE = Arrays.stream(new String[] {"true", "false"}).toList();
+        public static final List<String> VISIBILITY = Arrays.stream(new String[] {"None", "Self", "Local", "All"}).toList();
+        public static final List<String> SIZES = Arrays.stream(new String[] {"Small", "Normal", "Large"}).toList();
+        public static final List<String> TP_COMMANDS = Arrays.stream(new String[] {"/tpll", "/tp"}).toList();
+        public static final List<String> ZOOM_STRENGTHS = Arrays.stream(range(0.05f, 2, 0.05f, 2)).toList();
+        public static final List<String> DECIMAL_PERCENT = Arrays.stream(range(0, 1.01f, 0.05f, 2)).toList();
+        public static final List<String> TILE_SCALES = Arrays.stream(range(64, 256, 8, 0)).toList();
+        public static final List<String> COLORS = Arrays.stream(genColorRange()).toList();
+
+        private static String[] range(float start, float end, float step, int roundToPlace) {
+            String format = "%." + roundToPlace + "f";
+            String[] values = new String[(int) ((end - start) / step) + 1];
+            int index = 0;
+            for (float i = start; i <= end; i += step) {
+                values[index] = String.format(Locale.US, format, i);
+                index++;
+            }
+            return values;
+        }
+
+        private static String[] genColorRange() {
+            String[] choices = new String[22];
+            choices[0] = "#FFFFFF";
+            choices[21] = "Rainbow";
+            int index = 0;
+            for (int i = 0; i < 360; i += 18) {
+                index += 1;
+                choices[index] = "#" + Integer.toHexString(ColorUtil.hsl(255, i, 0.95f, 0.75f)).substring(2, 8);
+            }
+            return choices;
+        }
+    }
+
 }

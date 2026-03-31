@@ -28,7 +28,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
     public static boolean SHOWDEVELOPEROPTIONS = false;
-    public static final String MODVERSION = "1.7.0";
+    public static final String MODVERSION = "1.7.1";
     public static final int MAX_PACKET_VERSION = 1;
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
@@ -64,19 +64,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         TileManager.initializeConfigParameters();
         OmmMap.initializeConfigParameters(false);
 
-        OpenMineMapClient.SHOWDEVELOPEROPTIONS = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS));
-        //Tpll.lonLatToMcCoords(-112.07151142039129, 33.45512716304792);
-        //test t = new test();
-        /*
-        try {
-            double[] ll = tpll.from_geo(40.651480098863274, -74.32489167373383);
-            System.out.println(ll[0]);
-            System.out.println(ll[1]);
-        } catch (Exception e) {
-            System.out.println("tpll failed");
-        }
-
-         */
+        OpenMineMapClient.SHOWDEVELOPEROPTIONS = ConfigOptions.__SHOW_DEVELOPER_OPTIONS.getAsBoolean();
 
         PayloadTypeRegistry.playS2C().register(PlayerDataS2CPayload.ID, PlayerDataS2CPayload.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(PlayerDataS2CPayload.ID, ((playerDataS2CPayload, context) -> {}));

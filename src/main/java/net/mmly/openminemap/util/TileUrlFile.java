@@ -110,7 +110,7 @@ public class TileUrlFile {
                 }
             }
 
-            String setUrl = ConfigFile.readParameter(ConfigOptions.TILE_MAP_URL);
+            String setUrl = ConfigOptions.TILE_MAP_URL.getAsString();
             for (int i = 0; i < tileUrls.length; i++) {
                 if (tileUrls[i].name.equals(setUrl)) {
                     currentUrlId = i;

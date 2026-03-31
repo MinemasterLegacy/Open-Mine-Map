@@ -41,6 +41,13 @@ public class ConfigFile {
         return defaultValues[searchFor(ConfigOptions.getRawTextOf(parameter))];
     }
 
+    public static String readOption(ConfigOptions parameter) {
+        return configParams.get(parameter);
+        //Erroneous value handling is now handled in the ConfigOptions enum
+    }
+
+    /*
+    @Deprecated
     public static String readParameter(ConfigOptions parameter) {
         String value = configParams.get(parameter);
         //System.out.println("Value for key "+parameter+" is "+value);
@@ -52,6 +59,8 @@ public class ConfigFile {
             return value;
         }
     }
+
+     */
 
     public static void writeOnClose(MinecraftClient client) {
         MapScreen.writeParameters();

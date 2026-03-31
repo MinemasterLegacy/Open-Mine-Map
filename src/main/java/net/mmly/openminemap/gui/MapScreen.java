@@ -81,10 +81,10 @@ public class MapScreen extends Screen { //Screen object that represents the full
             0,
             640,
             480,
-            Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_ZOOM)),
-            Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_X)),
-            Double.parseDouble(ConfigFile.readParameter(ConfigOptions._FS_LAST_Y)),
-            Integer.parseInt(ConfigFile.readParameter(ConfigOptions._FS_LAST_TILE_SIZE))
+            ConfigOptions._FS_LAST_ZOOM.getAsDouble(),
+            ConfigOptions._FS_LAST_X.getAsDouble(),
+            ConfigOptions._FS_LAST_Y.getAsDouble(),
+            ConfigOptions._FS_LAST_TILE_SIZE.getAsInt()
     );
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
@@ -294,7 +294,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
 
         toggleClaimRenderingButtonLayer = new ToggleClaimRenderingButtonLayer(windowScaledWidth - 50, windowScaledHeight - 57);
-        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on")) this.addDrawableChild(toggleClaimRenderingButtonLayer);
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) this.addDrawableChild(toggleClaimRenderingButtonLayer);
 
         toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
         this.addDrawableChild(toggleHudMapButtonLayer);
@@ -557,7 +557,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
                 toggleHudMapButtonLayer.getX(), toggleHudMapButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
         buttonStyle = OmmMap.renderClaimsToggle ? 1 : 0;
-        if (ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on"))  context.drawTexture(RenderPipelines.GUI_TEXTURED, toggleClaimRenderingButtonLayer.isHovered() ?
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF))  context.drawTexture(RenderPipelines.GUI_TEXTURED, toggleClaimRenderingButtonLayer.isHovered() ?
                         showClaimsIdentifiers[1][buttonStyle] :
                         showClaimsIdentifiers[0][buttonStyle],
                 toggleClaimRenderingButtonLayer.getX(), toggleClaimRenderingButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
@@ -574,7 +574,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         purgeNotifiations();
         drawNotificationText(context);
 
-        if (Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__SHOW_MEMORY_CACHE_SIZE))) {
+        if (ConfigOptions.__SHOW_MEMORY_CACHE_SIZE.getAsBoolean()) {
             Text text = Text.literal(TileLoader.getStylizedCacheSize()).formatted(Formatting.BOLD);
             int width = textRenderer.getWidth(text);
             UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, backingColor, plainTextColor, false);

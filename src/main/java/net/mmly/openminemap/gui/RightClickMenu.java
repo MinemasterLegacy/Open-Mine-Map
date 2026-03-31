@@ -146,7 +146,7 @@ public class RightClickMenu extends ClickableWidget {
     public RightClickMenu(TextRenderer textRenderer) {
         super(-500, -500, 0, 0, Text.empty());
         instance = this;
-        useTp = Objects.equals(ConfigFile.readParameter(ConfigOptions.RIGHT_CLICK_MENU_USES), "/tp");
+        useTp = !ConfigOptions.RIGHT_CLICK_MENU_USES.getAsBooleanFromValues(ConfigOptions.Values.TP_COMMANDS);
         this.textRenderer = textRenderer;
 
         this.menuOptions = getMenuOptions(RightClickMenuType.DEFAULT);

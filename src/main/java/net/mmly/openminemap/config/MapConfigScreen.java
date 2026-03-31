@@ -75,14 +75,14 @@ public class MapConfigScreen extends Screen {
 
     public static void revertChanges() {
         HudMap.map.setRenderPositionAndSize(
-                Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_X)),
-                Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_Y)),
-                Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_WIDTH)),
-                Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_MAP_HEIGHT))
+                ConfigOptions.HUD_MAP_X.getAsInt(),
+                ConfigOptions.HUD_MAP_Y.getAsInt(),
+                ConfigOptions.HUD_MAP_WIDTH.getAsInt(),
+                ConfigOptions.HUD_MAP_HEIGHT.getAsInt()
         );
-        HudMap.hudCompassX = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_X));
-        HudMap.hudCompassY = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_Y));
-        HudMap.hudCompassWidth = Integer.parseInt(ConfigFile.readParameter(ConfigOptions.HUD_COMPASS_WIDTH));
+        HudMap.hudCompassX = ConfigOptions.HUD_COMPASS_X.getAsInt();
+        HudMap.hudCompassY = ConfigOptions.HUD_COMPASS_Y.getAsInt();
+        HudMap.hudCompassWidth = ConfigOptions.HUD_COMPASS_WIDTH.getAsInt();
     }
 
     private void updateScreenDims() {

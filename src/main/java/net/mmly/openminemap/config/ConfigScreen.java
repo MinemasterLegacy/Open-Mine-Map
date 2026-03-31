@@ -21,7 +21,6 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ConfigFile;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class ConfigScreen extends Screen {
@@ -67,15 +66,6 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget hudmapBorderOption;
     ChoiceButtonWidget hudmapCompassOption;
 
-    private final String[] onOffOptions = new String[] {"On", "Off"};
-    private final String[] showHideOptions = new String[] {"Show", "Hide"};
-    private final String[] booleanOptions = new String[] {"false", "true"};
-    private final String[] visibilityOptions = new String[] {"None", "Self", "Local", "All"};
-    private final String[] sizeOptions = new String[] {"Small", "Normal", "Large"};
-    private final String[] zoomStrengthOptions = range(0.05f, 2, 0.05f, 2);
-    private final String[] decimalPercentOptions = range(0, 1.01f, 0.05f, 2);
-    private final String[] tileScaleOptions = range(64, 256, 8, 0);
-
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
         The top and bottom of the screen have a padding of 20.
@@ -120,16 +110,6 @@ public class ConfigScreen extends Screen {
         anchor.setWidget(widget);
     }
 
-    private static String[] range(float start, float end, float step, int roundToPlace) {
-           String[] values = new String[(int) ((end - start) / step) + 1];
-           int index = 0;
-           for (float i = start; i <= end; i += step) {
-               values[index] = new DecimalFormat("0." + "0".repeat(roundToPlace) + "#").format(i);
-               index++;
-           }
-           return values;
-    }
-
     @Override
     protected void init() {
         configScreen = this;
@@ -166,46 +146,46 @@ public class ConfigScreen extends Screen {
         generalLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.general"), this.textRenderer);
         this.addConfigOptionWidget(generalLabel);
 
-        artificialZoomOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.ARTIFICIAL_ZOOM);
+        artificialZoomOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.ARTIFICIAL_ZOOM);
         this.addConfigOptionWidget(artificialZoomOption);
 
         snapAngleWidget = new ChoiceNumberWidget(textRenderer);
         this.addConfigOptionWidget(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(new String[] {"/tpll", "/tp"}, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(ConfigOptions.Values.TP_COMMANDS, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
 
-        tileScaleSlider = new ChoiceSliderWidget(tileScaleOptions, ConfigOptions.TILE_SCALE, true);
+        tileScaleSlider = new ChoiceSliderWidget(ConfigOptions.Values.TILE_SCALES, ConfigOptions.TILE_SCALE, true);
         this.addConfigOptionWidget(tileScaleSlider);
 
-        reverseScrollOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.REVERSE_SCROLL);
+        reverseScrollOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.REVERSE_SCROLL);
         this.addConfigOptionWidget(reverseScrollOption);
 
-        zoomStrengthSlider = new ChoiceSliderWidget(zoomStrengthOptions, ConfigOptions.ZOOM_STRENGTH, true);
+        zoomStrengthSlider = new ChoiceSliderWidget(ConfigOptions.Values.ZOOM_STRENGTHS, ConfigOptions.ZOOM_STRENGTH, true);
         this.addConfigOptionWidget(zoomStrengthSlider);
 
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
 
-        renderClaimsOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.CLAIMS_RENDERING);
+        renderClaimsOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.CLAIMS_RENDERING);
         this.addConfigOptionWidget(renderClaimsOption);
 
-        playerShowSlider = new ChoiceSliderWidget(visibilityOptions, ConfigOptions.SHOW_PLAYERS);
+        playerShowSlider = new ChoiceSliderWidget(ConfigOptions.Values.VISIBILITY, ConfigOptions.SHOW_PLAYERS);
         this.addConfigOptionWidget(playerShowSlider);
 
-        directionIndicatorShowSlider = new ChoiceSliderWidget(visibilityOptions, ConfigOptions.SHOW_DIRECTION_INDICATORS);
+        directionIndicatorShowSlider = new ChoiceSliderWidget(ConfigOptions.Values.VISIBILITY, ConfigOptions.SHOW_DIRECTION_INDICATORS);
         this.addConfigOptionWidget(directionIndicatorShowSlider);
 
-        playerSizeSlider = new ChoiceSliderWidget(sizeOptions, ConfigOptions.PLAYER_SIZE);
+        playerSizeSlider = new ChoiceSliderWidget(ConfigOptions.Values.SIZES, ConfigOptions.PLAYER_SIZE);
         this.addConfigOptionWidget(playerSizeSlider);
 
-        waypointSizeSlider = new ChoiceSliderWidget(sizeOptions, ConfigOptions.WAYPOINT_SIZE);
+        waypointSizeSlider = new ChoiceSliderWidget(ConfigOptions.Values.SIZES, ConfigOptions.WAYPOINT_SIZE);
         this.addConfigOptionWidget(waypointSizeSlider);
 
-        hoverNamesOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HOVER_NAMES);
+        hoverNamesOption = new ChoiceButtonWidget(ConfigOptions.Values.SHOW_HIDE, ConfigOptions.HOVER_NAMES);
         this.addConfigOptionWidget(hoverNamesOption);
 
-        altitudeShadingOption = new ChoiceButtonWidget(onOffOptions, ConfigOptions.ALTITUDE_SHADING);
+        altitudeShadingOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.ALTITUDE_SHADING);
         this.addConfigOptionWidget(altitudeShadingOption);
 
         urlLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.tile-source"), this.textRenderer);
@@ -219,25 +199,25 @@ public class ConfigScreen extends Screen {
         interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer);
         this.addConfigOptionWidget(interfaceLabel);
 
-        transparencySlider = new ChoiceSliderWidget(decimalPercentOptions, ConfigOptions.INTERFACE_OPACITY, true);
+        transparencySlider = new ChoiceSliderWidget(ConfigOptions.Values.DECIMAL_PERCENT, ConfigOptions.INTERFACE_OPACITY, true);
         this.addConfigOptionWidget(transparencySlider);
 
         textColorSlider = new ColorChoiceSliderWidget(ConfigOptions.TEXT_COLOR);
         this.addConfigOptionWidget(textColorSlider);
 
-        showConnectionStatusOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.SHOW_CONNECTION_STATUS);
+        showConnectionStatusOption = new ChoiceButtonWidget(ConfigOptions.Values.SHOW_HIDE, ConfigOptions.SHOW_CONNECTION_STATUS);
         this.addConfigOptionWidget(showConnectionStatusOption);
 
-        hudmapCompassOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.COMPASS);
+        hudmapCompassOption = new ChoiceButtonWidget(ConfigOptions.Values.SHOW_HIDE, ConfigOptions.COMPASS);
         this.addConfigOptionWidget(hudmapCompassOption);
 
-        hudmapBorderOption = new ChoiceButtonWidget(showHideOptions, ConfigOptions.HUDMAP_BORDER);
+        hudmapBorderOption = new ChoiceButtonWidget(ConfigOptions.Values.SHOW_HIDE, ConfigOptions.HUDMAP_BORDER);
         this.addConfigOptionWidget(hudmapBorderOption);
 
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
-            this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
-            this.addConfigOptionWidget(new ChoiceButtonWidget(booleanOptions, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
         }
 
         configList.restoreScroll();
@@ -253,7 +233,7 @@ public class ConfigScreen extends Screen {
         for (ClickableWidget widget : choiceWidgets) {
             ((ConfigChoice) widget).writeParameterToFile();
         }
-        if (!ConfigFile.readParameter(ConfigOptions.ARTIFICIAL_ZOOM).equals("on")) {
+        if (!ConfigOptions.ARTIFICIAL_ZOOM.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
             MapScreen.clampZoom();
             HudMap.clampZoom();
         }
@@ -262,7 +242,7 @@ public class ConfigScreen extends Screen {
         MapScreen.map.tryLoadClaims();
         HudMap.loadConfigParameters();
         ConfigFile.writeToFile();
-        Requester.disableWebRequests = Boolean.parseBoolean(ConfigFile.readParameter(ConfigOptions.__DISABLE_WEB_REQUESTS));
+        Requester.disableWebRequests = ConfigOptions.__DISABLE_WEB_REQUESTS.getAsBoolean();
         MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
     }
 

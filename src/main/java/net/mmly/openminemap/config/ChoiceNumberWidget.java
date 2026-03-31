@@ -17,7 +17,7 @@ public class ChoiceNumberWidget extends TextFieldWidget implements ConfigChoice{
     public ChoiceNumberWidget(TextRenderer textRenderer) {
         super(textRenderer, 0, -100, 20, 20, Text.empty());
         this.setMaxLength(50);
-        this.setText(ConfigFile.readParameter(ConfigOptions.SNAP_ANGLE));
+        this.setText(ConfigOptions.SNAP_ANGLE.getAsString());
         setTooltip(Tooltip.of(Text.translatable(ConfigOptions.SNAP_ANGLE.tooltip)));
         this.setEditable(true);
         this.placeholder = Text.translatable(ConfigOptions.SNAP_ANGLE.message);

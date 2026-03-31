@@ -55,7 +55,7 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        if (ConfigFile.readParameter(ConfigOptions.REVERSE_SCROLL).equals("on")) verticalAmount *= -1;
+        if (ConfigOptions.REVERSE_SCROLL.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) verticalAmount *= -1;
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 }

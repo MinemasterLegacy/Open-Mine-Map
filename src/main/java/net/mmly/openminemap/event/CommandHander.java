@@ -64,7 +64,7 @@ public class CommandHander {
     }
 
     private static int reloadclaims(CommandContext<FabricClientCommandSource> context) {
-        if (!ConfigFile.readParameter(ConfigOptions.CLAIMS_RENDERING).equals("on")) {
+        if (!ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
             MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.claims.not-enabled").formatted(ERROR_COLOR), false);
             return 0;
         }

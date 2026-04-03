@@ -8,7 +8,7 @@ public class LoadableTile {
     String cache;
     String key;
 
-    LoadableTile(int tileX, int tileY, int tileZoom, String tileCache, String tileKey) {
+    public LoadableTile(int tileX, int tileY, int tileZoom, String tileCache, String tileKey) {
         this.x = tileX;
         this.y = tileY;
         this.zoom = tileZoom;

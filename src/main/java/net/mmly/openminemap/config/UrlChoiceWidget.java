@@ -10,6 +10,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
@@ -21,7 +22,7 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
     private final SelectArrow upArrowWidget;
     private final SelectArrow downArrowWidget;
     protected int currentUrlId;
-    ConfigAnchorWidget anchor;
+    AnchorWidget anchor;
 
     public UrlChoiceWidget(TextRenderer textRenderer) {
         super(textRenderer, 0, -100, 200, 20, Text.of(""));
@@ -36,7 +37,7 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
     }
 
     @Override
-    public void setAnchor(ConfigAnchorWidget anchor) {
+    public void setAnchor(AnchorWidget anchor) {
         this.anchor = anchor;
     }
 

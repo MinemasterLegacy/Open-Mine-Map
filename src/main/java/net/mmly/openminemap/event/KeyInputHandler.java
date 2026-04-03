@@ -10,6 +10,7 @@ import net.minecraft.util.Formatting;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.raster.RasterScreen;
 import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
@@ -21,6 +22,7 @@ public class KeyInputHandler {
     public static final String KEY_TOGGLE_HUD_OSM_MAP = "omm.key.toggle-map";
     public static final String KEY_COPY_COORDINATES = "omm.key.copy-coordinates";
     public static final String KEY_SNAP_ANGLE = "omm.key.snap-angle";
+    public static final String KEY_RASTER_SCREEN = "omm.key.open-raster-screen"; //TODO translate
 
     //objects for all custom keybindings
     private static KeyBinding openFullscreenOsmMapKey;
@@ -29,6 +31,7 @@ public class KeyInputHandler {
     private static KeyBinding hudMapToggleKey;
     private static KeyBinding copyCoordinatesKey;
     private static KeyBinding snapAngleKey;
+    private static KeyBinding rasterScreenKey;
     private static int stopIt = 0;
 
     public static KeyBinding getOpenFullscreenOsmMapKey() {
@@ -65,6 +68,10 @@ public class KeyInputHandler {
 
             if(snapAngleKey.wasPressed()) {
                 if (HudMap.doSnapAngle) snapToAngle();
+            }
+
+            if (rasterScreenKey.wasPressed()) {
+                MinecraftClient.getInstance().setScreen(new RasterScreen());
             }
 
         });
@@ -108,6 +115,13 @@ public class KeyInputHandler {
 
         snapAngleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 KEY_SNAP_ANGLE,
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_UNKNOWN,
+                KEY_CATEGORY_OPENMINEMAP
+        ));
+
+        rasterScreenKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                KEY_RASTER_SCREEN,
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
                 KEY_CATEGORY_OPENMINEMAP

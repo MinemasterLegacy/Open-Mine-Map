@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.RightClickMenu;
 import net.mmly.openminemap.gui.RightClickMenuType;
 import net.mmly.openminemap.util.Waypoint;
@@ -42,7 +43,7 @@ public class WaypointEntryWidget extends ClickableWidget {
     private int mx = 0;
     private int my = 0;
 
-    private WaypointAnchorWidget anchor;
+    private AnchorWidget anchor;
     private int lastCheckedButton = 0;
 
     private static final Text[] tooltipMessages = new Text[] {
@@ -83,7 +84,7 @@ public class WaypointEntryWidget extends ClickableWidget {
         WaypointScreen.getInstance().enableEditMode(waypoint);
     }
 
-    public void setAnchor(WaypointAnchorWidget anchor) {
+    public void setAnchor(AnchorWidget anchor) {
         this.anchor = anchor;
     }
 

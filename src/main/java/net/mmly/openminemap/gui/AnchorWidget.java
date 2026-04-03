@@ -1,11 +1,11 @@
-package net.mmly.openminemap.config;
+package net.mmly.openminemap.gui;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 
-public class ConfigAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<ConfigAnchorWidget> {
+public class AnchorWidget extends AlwaysSelectedEntryListWidget.Entry<AnchorWidget> {
 
     private int yStore = 0;
     private int xStore = 0;
@@ -27,7 +27,7 @@ public class ConfigAnchorWidget extends AlwaysSelectedEntryListWidget.Entry<Conf
     }
 
     public int getWidth() {
-        return widthStore - 4;
+        return widthStore;
     }
 
     public void setWidget(ClickableWidget widget) {

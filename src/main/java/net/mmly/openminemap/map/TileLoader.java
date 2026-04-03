@@ -11,9 +11,15 @@ public class TileLoader extends Thread {
 
     private final LoadableTile[] tilesToLoad;
     private static long memoryCacheSize;
+    private final RegisterableTile.Queuer destination;
 
-    TileLoader(LoadableTile[] tilesToLoad) {
+    public TileLoader(LoadableTile[] tilesToLoad) {
+        this(tilesToLoad, RegisterableTile.TILE_MANAGER);
+    }
+
+    public TileLoader(LoadableTile[] tilesToLoad, RegisterableTile.Queuer destination) {
         this.tilesToLoad = tilesToLoad;
+        this.destination = destination;
     }
 
     public static long getMemoryCacheSize() {
@@ -39,7 +45,7 @@ public class TileLoader extends Thread {
         for (LoadableTile tile : tilesToLoad) {
             InputStream in = loadTileFromDisk(tile);
             if (in != null) {
-                TileManager.tileRegisteringQueue.addLast(new RegisterableTile(in, tile.key, tile.cache));
+                new RegisterableTile(in, tile.key, tile.cache, destination).queue();
             }
         }
     }

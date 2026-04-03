@@ -5,9 +5,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
 
-public class WaypointList extends EntryListWidget<WaypointAnchorWidget> {
+public class WaypointList extends EntryListWidget<AnchorWidget> {
 
     private static double savedScrollAmount;
 
@@ -26,7 +27,7 @@ public class WaypointList extends EntryListWidget<WaypointAnchorWidget> {
     }
 
     @Override
-    public int addEntry(WaypointAnchorWidget entry) {
+    public int addEntry(AnchorWidget entry) {
         return super.addEntry(entry);
     }
 

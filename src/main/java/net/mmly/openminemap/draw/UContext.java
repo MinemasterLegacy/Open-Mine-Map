@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -63,6 +64,14 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     }
     public static void drawBorderZone(int x, int y, int x2, int y2, int color) {
         drawBorder(x, y, x2 - x, y2 - y, color);
+    }
+
+    public static void fillWidget(Widget widget, int color) {
+        UContext.fillZone(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), color);
+    }
+
+    public static void borderWidget(Widget widget, int color) {
+        UContext.drawBorder(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), color);
     }
 
     public static void fillZone(int x, int y, int width, int height, int color) {
@@ -146,10 +155,6 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
 
     private static void rotateRad(MatrixStack matrixStack, float radians) {
         matrixStack.multiply(RotationAxis.POSITIVE_Z.rotation(radians));
-    }
-
-    private static void rotateDeg(MatrixStack matrixStack, float degrees) {
-        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(degrees));
     }
 
     public static void drawDiagonalLine(int[] start, int[] end, float thickness, int color) {

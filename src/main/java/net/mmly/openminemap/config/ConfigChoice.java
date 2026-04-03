@@ -1,8 +1,10 @@
 package net.mmly.openminemap.config;
 
+import net.mmly.openminemap.gui.AnchorWidget;
+
 public interface ConfigChoice {
 
-    void setAnchor(ConfigAnchorWidget anchor);
+    void setAnchor(AnchorWidget anchor);
 
     void writeParameterToFile();
 

@@ -11,6 +11,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.gui.RightClickMenu;
 import net.mmly.openminemap.map.TileManager;
@@ -65,7 +66,7 @@ public class WaypointScreen extends Screen {
 
     public WaypointStyle styleSelection = WaypointStyle.DIAMOND;
     ArrayList<WaypointEntryWidget> waypointWidgets = new ArrayList<>();
-    ArrayList<WaypointAnchorWidget> anchorWidgets = new ArrayList<>();
+    ArrayList<AnchorWidget> anchorWidgets = new ArrayList<>();
 
     private static final Identifier[] styleIdentifiers = new Identifier[] {
             Identifier.of("openminemap", "waypoints/diamond.png"),
@@ -301,7 +302,7 @@ public class WaypointScreen extends Screen {
 
     private void addWaypointWidget(WaypointEntryWidget widget) {
         waypointWidgets.add(widget);
-        WaypointAnchorWidget anchor = new WaypointAnchorWidget();
+        AnchorWidget anchor = new AnchorWidget();
         this.addDrawableChild(widget);
 
         waypointList.addEntry(anchor);

@@ -13,6 +13,7 @@ import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
@@ -76,7 +77,7 @@ public class ConfigScreen extends Screen {
 
     static ConfigList configList;
     ArrayList<ClickableWidget> choiceWidgets = new ArrayList<>();
-    ArrayList<ConfigAnchorWidget> anchorWidgets = new ArrayList<>();
+    ArrayList<AnchorWidget> anchorWidgets = new ArrayList<>();
 
     @Override
     public void close() {
@@ -101,7 +102,12 @@ public class ConfigScreen extends Screen {
     private void addConfigOptionWidget(ClickableWidget widget) {
         if (!ConfigChoice.class.isAssignableFrom(widget.getClass())) return;
         choiceWidgets.add(widget);
-        ConfigAnchorWidget anchor = new ConfigAnchorWidget();
+        AnchorWidget anchor = new AnchorWidget() {
+            @Override
+            public int getWidth() {
+                return super.getWidth() - 4;
+            }
+        };
         this.addDrawableChild(widget);
 
         configList.addEntry(anchor);

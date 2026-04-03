@@ -133,6 +133,9 @@ public class ButtonLayer extends ClickableWidget {
                 HudMap.hudCompassWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_WIDTH));
                 MapConfigScreen.updateResizePos();
                 break;
+            case ButtonFunction.RASTER:
+                //TODO
+                break;
         }
     }
 

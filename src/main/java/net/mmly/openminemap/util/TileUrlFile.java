@@ -26,7 +26,8 @@ public class TileUrlFile {
 
     private static TileUrlErrorType loadError = TileUrlErrorType.NO_ERROR;
     private static TileUrl errorUrl;
-
+    //TODO make sure names must be custom
+    //TODO validate if name is valid for file path
     private static TileUrl[] tileUrls;
     private static final TileUrl defaultUrl = new TileUrl(
             "OpenStreetMap",
@@ -58,6 +59,10 @@ public class TileUrlFile {
 
     public static void initOsmAttribution() {
         osmAttribution = Text.translatable("omm.osm-attribution").getString();
+    }
+
+    public static TileUrl[] getTileUrls() {
+        return tileUrls;
     }
 
     private static void setError(TileUrlErrorType errorType, TileUrl url) {
@@ -195,6 +200,13 @@ public class TileUrlFile {
 
     public static TileUrl getTileUrl(int id) {
         return tileUrls[id];
+    }
+
+    public static TileUrl getUrlByName(String name) {
+        for (TileUrl url : tileUrls) {
+            if (url.name.equals(name)) return url;
+        }
+        return null;
     }
 
     public static TileUrl getCurrentUrl() {

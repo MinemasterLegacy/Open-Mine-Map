@@ -6,17 +6,18 @@ import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.gui.AnchorWidget;
 
 public class CategoryLabelWidget extends TextWidget implements ConfigChoice {
 
-    ConfigAnchorWidget anchor;
+    AnchorWidget anchor;
 
     public CategoryLabelWidget( Text message, TextRenderer textRenderer) {
         super(0, -100, 200, 20, message, textRenderer);
     }
 
     @Override
-    public void setAnchor(ConfigAnchorWidget anchor) {
+    public void setAnchor(AnchorWidget anchor) {
         this.anchor = anchor;
     }
 

@@ -1,5 +1,6 @@
 package net.mmly.openminemap.raster;
 
+import com.google.common.collect.Maps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -10,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.AnchorWidget;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -28,10 +30,19 @@ public class RasterScreen extends Screen {
     public static RasterScreen instance;
     public static LinkedList<RegisterableTile> tileRegisteringQueue = new LinkedList<>();
     public static HashMap<String, Identifier> backgroundTiles = new HashMap<>();
+    public static boolean returnToHud = false; //if false, return to mapscreen
 
-    public RasterScreen() {
+    public RasterScreen(boolean returnToMapElseHud) {
         this(Text.of(""));
         instance = this;
+        RasterScreen.returnToHud = returnToMapElseHud;
+        MapScreen.toggleAltScreenMap(!returnToMapElseHud);
+
+    }
+
+    @Override
+    public void close() {
+        MinecraftClient.getInstance().setScreen(returnToHud ? null : new MapScreen());
     }
 
     private void registerQueue() {

@@ -71,7 +71,7 @@ public class KeyInputHandler {
             }
 
             if (rasterScreenKey.wasPressed()) {
-                MinecraftClient.getInstance().setScreen(new RasterScreen());
+                MinecraftClient.getInstance().setScreen(new RasterScreen(true));
             }
 
         });

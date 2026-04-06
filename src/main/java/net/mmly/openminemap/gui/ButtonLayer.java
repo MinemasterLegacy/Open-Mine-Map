@@ -14,6 +14,7 @@ import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.raster.RasterScreen;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
@@ -134,7 +135,9 @@ public class ButtonLayer extends ClickableWidget {
                 MapConfigScreen.updateResizePos();
                 break;
             case ButtonFunction.RASTER:
-                //TODO
+                MinecraftClient.getInstance().setScreen(
+                        new RasterScreen(false)
+                );
                 break;
         }
     }

@@ -25,6 +25,7 @@ import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileLoader;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.raster.RasterScreen;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
@@ -33,7 +34,9 @@ import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 import org.lwjgl.glfw.GLFW;
 
+import java.awt.*;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.function.BooleanSupplier;
 
@@ -50,8 +53,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     protected static String mouseDisplayLat = "0.00000";
     private static final int buttonSize = 20;
     private static final int buttonMargin = 4;
-    private static final int numHotbarButtons = 7; //determines number of buttons expected for the bottom bar of the screen
-    private static int[][] buttonPositions = new int[2][numHotbarButtons];
+    private static final int[][] buttonPositions = new int[2][10];
     // modifiers used to offset the map so it can be moved relative to the screen
     // these modifiers should be scaled when the screen is zoomed in or zoomed out
     // Ex: zoom 0, range -128 - 127 | zoom 1, range -256 - 255 | zoom 2, range -512 - 511 | etc.
@@ -61,7 +63,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
     public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
     private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
-    private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
+    private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonCenterShelf = new LinkedHashMap<>();
+    private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonLeftShelf = new LinkedHashMap<>();
     private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
     private static ToggleClaimRenderingButtonLayer toggleClaimRenderingButtonLayer;
     private static SearchButtonLayer searchButtonLayer;
@@ -87,7 +90,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     );
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
-    private static LinkedList<Notification> notifications = new LinkedList<>();
+    private static final LinkedList<Notification> notifications = new LinkedList<>();
     private static boolean hudWasHidden;
     public static int backingColor = 0x80000000;
     public static boolean textIsRainbow = false;
@@ -258,7 +261,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     private static boolean blockZoomOnZoom() {
-        return rightClickLayer.getDisplayType() != RightClickMenuType.HIDDEN;
+        return RightClickMenu.getDisplayType() != RightClickMenuType.HIDDEN;
     }
 
     @Override
@@ -268,13 +271,12 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     private BooleanSupplier getDisableConditionOf(ButtonFunction f) {
-        switch (f) {
-            case ZOOMIN: return () -> map.getZoom() >= map.getMaxZoom();
-            case ZOOMOUT: return () -> map.getZoom() <= 0;
-            case FOLLOW: return () -> !PlayerAttributes.positionIsValid() || map.followingPlayer();
-            case null:
-            default: return null;
-        }
+        return switch (f) {
+            case ZOOMIN -> () -> map.getZoom() >= map.getMaxZoom();
+            case ZOOMOUT -> () -> map.getZoom() <= 0;
+            case FOLLOW -> () -> !PlayerAttributes.positionIsValid() || map.followingPlayer();
+            case null, default -> null;
+        };
     }
 
     @Override
@@ -286,10 +288,16 @@ public class MapScreen extends Screen { //Screen object that represents the full
         rightClickLayer = new RightClickMenu(this.textRenderer);
         this.addDrawableChild(rightClickLayer);
 
-        for (int i = 0; i < numHotbarButtons; i++) {
-            ButtonFunction f = ButtonFunction.getEnumOf(i);
-            buttonlayers.put(ButtonFunction.getEnumOf(i), new ButtonLayer(0, 0, f, getDisableConditionOf(f)));
-            this.addDrawableChild(buttonlayers.get(ButtonFunction.getEnumOf(i)));
+        ButtonFunction[] shelfFunctions = ButtonFunction.getCenterShelf();
+        for (ButtonFunction function : shelfFunctions) {
+            buttonCenterShelf.put(function, new ButtonLayer(0, 0, function, getDisableConditionOf(function)));
+            this.addDrawableChild(buttonCenterShelf.get(function));
+        }
+
+        shelfFunctions = ButtonFunction.getLeftShelf();
+        for (ButtonFunction function : shelfFunctions) {
+            buttonLeftShelf.put(function, new ButtonLayer(0, 0, function, getDisableConditionOf(function)));
+            this.addDrawableChild(buttonLeftShelf.get(function));
         }
 
         toggleClaimRenderingButtonLayer = new ToggleClaimRenderingButtonLayer(windowScaledWidth - 50, windowScaledHeight - 57);
@@ -339,38 +347,52 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     private static void drawButtons(DrawContext context) {
-        for (int i = 0; i < numHotbarButtons; i++) {
-            buttonlayers.get(ButtonFunction.getEnumOf(i)).drawWidget(context);
+        for (ButtonFunction function : buttonCenterShelf.keySet()) {
+            buttonCenterShelf.get(function).drawWidget(context);
+        }
+        for (ButtonFunction function : buttonLeftShelf.keySet()) {
+            buttonLeftShelf.get(function).drawWidget(context);
         }
     }
 
+    private static final String maxString = "-99.99999°, -999.99999°";
     private static void updateWidgetPositions(TextRenderer textRenderer) {
         //if attribution would overlay the coordinate display
         //coordinate sample is meant to simulate the longest possible case so movement doesn't occur when the mouse is moved
-        if (attributionLayer.getWidth() + textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + "-99.99999°, -999.99999°") + 8 > windowScaledWidth) {
+        if (attributionLayer.getWidth() + textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + maxString) + 8 > windowScaledWidth) { //if attribution and coordinates would overlap
             attributionOffset = attributionLayer.getHeight();
         } else {
             attributionOffset = 0;
         }
 
-        int buttonShelfWidth = (buttonSize * buttonlayers.size()) + (buttonMargin * (buttonlayers.size() - 1));
+        int buttonShelfWidth = (buttonSize * buttonCenterShelf.size()) + (buttonMargin * (buttonCenterShelf.size() - 1));
         int shelfX = (int) ((float) (windowScaledWidth - buttonShelfWidth) / 2);
         int buttonX = shelfX;
         int buttonY = windowScaledHeight - (buttonSize + 20);
 
-        if (textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + "-99.99999°, -999.99999°") + 8 > shelfX) {
+        if (textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + maxString) + 8 > shelfX) {
             buttonY -= attributionOffset != 0 ? 32 : 16;
         }
 
-        for (int i = 0; i < buttonlayers.size(); i++) { //calculate button positions
-            buttonPositions[0][i] = buttonX;
-            buttonPositions[1][i] = buttonY;
+        //calculate button positions
+        for (ButtonFunction function : buttonCenterShelf.keySet()) {
+            buttonPositions[0][function.id] = buttonX;
+            buttonPositions[1][function.id] = buttonY;
             buttonX += buttonSize + buttonMargin;
         }
 
         //Set positions of elements
-        for (int i = 0; i < numHotbarButtons; i++) { //update button positions (in case screen size has changed)
-            buttonlayers.get(ButtonFunction.getEnumOf(i)).setPosition(buttonPositions[0][i], buttonPositions[1][i]);
+        for (ButtonFunction function : buttonCenterShelf.keySet()) { //update button positions (in case screen size has changed)
+            buttonCenterShelf.get(function).setPosition(buttonPositions[0][function.id], buttonPositions[1][function.id]);
+        }
+
+        int i = 0;
+        for (ButtonFunction function : buttonLeftShelf.keySet()) {
+            buttonLeftShelf.get(function).setPosition(
+                    4 + (i * 24),
+                    windowScaledHeight - (20 + 36 + attributionOffset)
+            );
+            i++;
         }
 
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
@@ -502,6 +524,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (current instanceof ConfirmLinkScreen) return true;
         if (current instanceof ConfigScreen) return true;
         if (current instanceof WaypointScreen) return true;
+        if (current instanceof RasterScreen && !RasterScreen.returnToHud) return true;
         return false;
     }
 

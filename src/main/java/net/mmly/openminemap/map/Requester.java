@@ -92,6 +92,7 @@ public class Requester extends Thread {
     }
 
     private InputStream getClaims() {
+        if (disableWebRequests) return null;
         return get("https://api.buildtheearth.net/api/v1/claims/geojson?active=true");
     }
 

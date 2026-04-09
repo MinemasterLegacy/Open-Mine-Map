@@ -10,7 +10,9 @@ import net.minecraft.client.texture.Scaling;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.gui.AnchorWidget;
+import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.util.TileUrl;
@@ -19,6 +21,7 @@ import net.mmly.openminemap.util.TileUrlFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.function.BooleanSupplier;
 
 public class RasterScreen extends Screen {
 
@@ -31,9 +34,10 @@ public class RasterScreen extends Screen {
     public static LinkedList<RegisterableTile> tileRegisteringQueue = new LinkedList<>();
     public static HashMap<String, Identifier> backgroundTiles = new HashMap<>();
     public static boolean returnToHud = false; //if false, return to mapscreen
+    private ButtonLayer addRasterLayer;
 
     public RasterScreen(boolean returnToMapElseHud) {
-        this(Text.of(""));
+        super(Text.of(""));
         instance = this;
         RasterScreen.returnToHud = returnToMapElseHud;
         MapScreen.toggleAltScreenMap(!returnToMapElseHud);
@@ -109,6 +113,9 @@ public class RasterScreen extends Screen {
         rasterList = new RasterList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
         this.addDrawableChild(rasterList);
 
+        addRasterLayer = new ButtonLayer(0, 0, ButtonFunction.ADD, () -> false);
+        this.addDrawableChild(addRasterLayer);
+
         for (TileUrl url : TileUrlFile.getTileUrls()) {
             addRaster(new RasterLayerWidget(Text.of(url.name), url));
         }
@@ -119,6 +126,8 @@ public class RasterScreen extends Screen {
     private void updateWidgetPositions() {
         rasterList.setWidth(width);
         rasterList.setHeight(height - BOTTOM_SPACE);
+
+        addRasterLayer.setPosition(10, height - 30);
     }
 
     @Override

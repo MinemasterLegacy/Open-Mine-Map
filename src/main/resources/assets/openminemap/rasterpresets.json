@@ -28,6 +28,35 @@
                 "https://leafletjs.com",
                 "https://www.cyclosm.org"
             ]
+        },
+        {
+            "templateID": 3,
+            "name": "ÖPNVKarte"
+        },
+        {
+            "templateID": 4,
+            "name": "OpenTopoMap"
+        },
+        {
+            "templateID": 5,
+            "name": "MapBox"
+        },
+        {
+            "templateID": 6,
+            "name": "MapBox Satellite"
+        },
+        {
+            "templateID": 7,
+            "name": "MapBox Unlabeled Satellite"
+        },
+        {
+            "templateID": 8,
+            "name": "Alidade Smooth"
+        },
+      {
+            "templateID": 8,
+            "name": "Alidade Smooth Dark"
         }
+
     ]
 }

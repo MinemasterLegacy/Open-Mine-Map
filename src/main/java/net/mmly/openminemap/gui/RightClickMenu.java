@@ -168,8 +168,10 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     public static void disableMenu() {
-        instance.setDisplayType(RightClickMenuType.HIDDEN, null);
-        instance.setPosition(-500, 500);
+        if (instance != null) {
+            instance.setDisplayType(RightClickMenuType.HIDDEN, null);
+            instance.setPosition(-500, 500);
+        }
         selectingSite = false;
         PinnedWaypointsLayer.menuSelection = -1;
     }

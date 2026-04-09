@@ -34,8 +34,6 @@ import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.*;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.function.BooleanSupplier;
@@ -65,8 +63,9 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonCenterShelf = new LinkedHashMap<>();
     private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonLeftShelf = new LinkedHashMap<>();
-    private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
-    private static ToggleClaimRenderingButtonLayer toggleClaimRenderingButtonLayer;
+    private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonRightShelf = new LinkedHashMap<>();
+    private static ToggleButtonLayer toggleHudMapButtonLayer;
+    private static ToggleButtonLayer toggleClaimRenderingButtonLayer;
     private static SearchButtonLayer searchButtonLayer;
     private static SearchBoxLayer searchBoxLayer;
     private static NetworkStatusLayer networkStatusLayer;
@@ -300,10 +299,10 @@ public class MapScreen extends Screen { //Screen object that represents the full
             this.addDrawableChild(buttonLeftShelf.get(function));
         }
 
-        toggleClaimRenderingButtonLayer = new ToggleClaimRenderingButtonLayer(windowScaledWidth - 50, windowScaledHeight - 57);
+        toggleClaimRenderingButtonLayer = new ToggleButtonLayer(windowScaledWidth - 50, windowScaledHeight - 57, ToggleButtonLayer.Type.CLAIM_RENDERING);
         if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) this.addDrawableChild(toggleClaimRenderingButtonLayer);
 
-        toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
+        toggleHudMapButtonLayer = new ToggleButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57, ToggleButtonLayer.Type.TOGGLE_HUDMAP);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
         for (int i = 0; i < 7; i++) {

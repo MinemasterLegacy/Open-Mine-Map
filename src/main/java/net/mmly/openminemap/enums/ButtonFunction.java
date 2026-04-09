@@ -1,5 +1,7 @@
 package net.mmly.openminemap.enums;
 
+import net.mmly.openminemap.gui.ToggleButtonLayer;
+
 public enum ButtonFunction {
     ZOOMIN("zoomin.png", 0),
     ZOOMOUT("zoomout.png", 1),
@@ -43,6 +45,11 @@ public enum ButtonFunction {
                 CONFIG,
                 RASTER
         };
+    }
+
+    public static ToggleButtonLayer.Type[] getRightShelf() {
+        //TODO
+        return null;
     }
 
 }

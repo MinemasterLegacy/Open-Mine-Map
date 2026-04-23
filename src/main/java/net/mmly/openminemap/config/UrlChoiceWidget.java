@@ -14,6 +14,7 @@ import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
 public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
@@ -21,7 +22,7 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
     //private static final Identifier upArrow = Identifier.of("minecraft", "textures/");
     private final SelectArrow upArrowWidget;
     private final SelectArrow downArrowWidget;
-    protected int currentUrlId;
+    protected TileUrl selectedUrl;
     AnchorWidget anchor;
 
     public UrlChoiceWidget(TextRenderer textRenderer) {
@@ -33,7 +34,7 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
         downArrowWidget = new SelectArrow(ArrowDirection.down, this);
         this.setTooltip(Tooltip.of(Text.translatable(ConfigOptions.TILE_MAP_URL.tooltip)));
         refreshText();
-        this.currentUrlId = TileUrlFile.getCurrentUrlId();
+        this.selectedUrl = TileUrlFile.getCurrentUrl();
     }
 
     @Override
@@ -42,29 +43,19 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
     }
 
      public void writeParameterToFile() {
-         if (currentUrlId != TileUrlFile.getCurrentUrlId()) {
-             ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, TileUrlFile.getTileUrl(currentUrlId).name);
-             TileUrlFile.setCurrentUrl(currentUrlId);
-             TileManager.setCacheDir();
+         if (selectedUrl != TileUrlFile.getCurrentUrl()) {
+             ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, selectedUrl.name);
+             TileUrlFile.setCurrentUrl(selectedUrl);
              TileManager.themeColor = 0xFF808080;
          }
 
     }
 
-    protected void changeToNextUrl() {
-        if (TileUrlFile.getCurrentIdRange() - 1 == currentUrlId) currentUrlId = 0;
-        else currentUrlId++;
-    }
-
-    protected void changeToPreviousUrl() {
-        if (currentUrlId == 0) currentUrlId = TileUrlFile.getCurrentIdRange() - 1;
-        else currentUrlId--;
-    }
 
     protected void refreshText() {
         /*if ((TileUrlFile.getTileUrl(currentUrlId).name != null) && (!isHovered())) this.setText(TileUrlFile.getTileUrl(currentUrlId).name);
         else this.setText(TileUrlFile.getTileUrl(currentUrlId).source_url);*/
-        this.setText(TileUrlFile.getTileUrl(currentUrlId).name);
+        this.setText(TileUrlFile.getCurrentUrl().name);
     }
 
     @Override
@@ -123,8 +114,6 @@ class SelectArrow extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        if (direction == ArrowDirection.up) choiceWidget.changeToPreviousUrl();
-        if (direction == ArrowDirection.down) choiceWidget.changeToNextUrl();
         choiceWidget.refreshText();
     }
 

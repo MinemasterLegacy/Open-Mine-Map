@@ -58,7 +58,8 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         ClientLifecycleEvents.CLIENT_STARTED.register(TileUrlFile::addApplicableErrors);
         ClientLifecycleEvents.CLIENT_STOPPING.register(ConfigFile::writeOnClose);
 
-        TileUrlFile.establishUrls();
+        //TileUrlFile.establishUrls();
+        //TileUrlFile.establishPresets();
 
         TileManager.initializeConfigParameters();
         OmmMap.initializeConfigParameters(false);

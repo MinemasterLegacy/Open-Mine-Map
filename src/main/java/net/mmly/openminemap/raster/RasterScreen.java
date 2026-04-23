@@ -1,12 +1,10 @@
 package net.mmly.openminemap.raster;
 
-import com.google.common.collect.Maps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.client.texture.Scaling;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
@@ -19,13 +17,10 @@ import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
-import java.util.function.BooleanSupplier;
 
-public class RasterScreen extends Screen {
+public abstract class RasterScreen extends Screen {
 
-    private static final int BOTTOM_SPACE = 40;
     public static final int ITEM_HEIGHT = 40;
     RasterList rasterList;
     ArrayList<RasterLayerWidget> rasterWidgets = new ArrayList<>();
@@ -33,24 +28,21 @@ public class RasterScreen extends Screen {
     public static RasterScreen instance;
     public static LinkedList<RegisterableTile> tileRegisteringQueue = new LinkedList<>();
     public static HashMap<String, Identifier> backgroundTiles = new HashMap<>();
-    public static boolean returnToHud = false; //if false, return to mapscreen
-    private ButtonLayer addRasterLayer;
+    private final Screen returnScreen;
 
-    public RasterScreen(boolean returnToMapElseHud) {
+    public RasterScreen() {
         super(Text.of(""));
         instance = this;
-        RasterScreen.returnToHud = returnToMapElseHud;
-        MapScreen.toggleAltScreenMap(!returnToMapElseHud);
-
+        returnScreen = MinecraftClient.getInstance().currentScreen;
     }
 
     @Override
     public void close() {
-        MinecraftClient.getInstance().setScreen(returnToHud ? null : new MapScreen());
+        MinecraftClient.getInstance().setScreen(returnScreen);
     }
 
-    private void registerQueue() {
-
+    private static void registerQueue() {
+        if (!tileRegisteringQueue.isEmpty()) System.out.println("registering " + tileRegisteringQueue.size());
         for (int i = 0; i < tileRegisteringQueue.size(); i++) {
             RegisterableTile tile;
             try {
@@ -82,7 +74,6 @@ public class RasterScreen extends Screen {
         TileUrl url = TileUrlFile.getUrlByName(tile.cacheName);
         if (url == null) return;
         try {
-            System.out.println("making new tile");
             NativeImage nImage = NativeImage.read(tile.image);
             Identifier identifier = Identifier.of("openminemap-btile", tile.cacheName.toLowerCase(Locale.US));
             //Identifier identifier = Identifier.of("openminemap-btile", "testimage.png");
@@ -92,7 +83,6 @@ public class RasterScreen extends Screen {
             tile.image.close();
             nImage.close();
         } catch (IOException e) {
-            System.out.println("oh noes");
             //TODO
         }
 
@@ -102,10 +92,6 @@ public class RasterScreen extends Screen {
         return instance;
     }
 
-    protected RasterScreen(Text title) {
-        super(title);
-    }
-
     @Override
     protected void init() {
         super.init();
@@ -113,21 +99,11 @@ public class RasterScreen extends Screen {
         rasterList = new RasterList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
         this.addDrawableChild(rasterList);
 
-        addRasterLayer = new ButtonLayer(0, 0, ButtonFunction.ADD, () -> false);
-        this.addDrawableChild(addRasterLayer);
-
-        for (TileUrl url : TileUrlFile.getTileUrls()) {
-            addRaster(new RasterLayerWidget(Text.of(url.name), url));
-        }
-
-        updateWidgetPositions();
     }
 
-    private void updateWidgetPositions() {
+    protected void updateWidgetPositions() {
         rasterList.setWidth(width);
-        rasterList.setHeight(height - BOTTOM_SPACE);
-
-        addRasterLayer.setPosition(10, height - 30);
+        rasterList.setHeight(height);
     }
 
     @Override
@@ -140,7 +116,7 @@ public class RasterScreen extends Screen {
 
     }
 
-    private void addRaster(RasterLayerWidget widget) {
+    protected final void addRaster(RasterLayerWidget widget) {
         rasterWidgets.add(widget);
         AnchorWidget anchor = new AnchorWidget();
         this.addDrawableChild(widget);

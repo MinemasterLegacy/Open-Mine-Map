@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -57,6 +58,10 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     }
     public static void drawJustifiedText(MutableText text, Justify justify, int x, int y, int color) {
         drawJustifiedText(text, justify, x, y, color, false);
+    }
+
+    public static void outline(ClickableWidget widget, int color) {
+        drawBorder(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), color);
     }
 
     public static void drawBorder(int x, int y, int width, int height, int color) {

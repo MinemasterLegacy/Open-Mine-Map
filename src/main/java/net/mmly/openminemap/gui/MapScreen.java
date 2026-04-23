@@ -94,18 +94,24 @@ public class MapScreen extends Screen { //Screen object that represents the full
     public static int backingColor = 0x80000000;
     public static boolean textIsRainbow = false;
     private static int plainTextColor = 0xFFFFFFFF;
+    private static int semiLightTextColor = 0xFFbfbfbf;
     private static int semiDarkTextColor = 0xFF7f7f7f;
     private static int darkTextColor = 0xFF3f3f3f;
 
     public static void setPlainTextColor(int argb, boolean checkForRainbowText) {
         if (checkForRainbowText) textIsRainbow = (argb == 0xFF7f7f7f);
         plainTextColor = argb;
+        semiLightTextColor = ColorUtil.darken(argb, 0.25);
         semiDarkTextColor = ColorUtil.darken(argb, 0.5);
         darkTextColor = ColorUtil.darken(argb, 0.75);
     }
 
     public static int getPlainTextColor() {
         return plainTextColor;
+    }
+
+    public static int getSemiLightTextColor() {
+        return semiLightTextColor;
     }
 
     public static int getSemiDarkTextColor() {
@@ -523,7 +529,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (current instanceof ConfirmLinkScreen) return true;
         if (current instanceof ConfigScreen) return true;
         if (current instanceof WaypointScreen) return true;
-        if (current instanceof RasterScreen && !RasterScreen.returnToHud) return true;
+        if (current instanceof RasterScreen) return true;
         return false;
     }
 

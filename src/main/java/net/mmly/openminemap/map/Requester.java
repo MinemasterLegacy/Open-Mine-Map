@@ -11,7 +11,6 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
-import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.Notification;
 import net.mmly.openminemap.util.TileUrlFile;
 
@@ -22,7 +21,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
@@ -34,6 +32,7 @@ public class Requester extends Thread {
     int requestAttempts = 2; //how many times a tile will be requested before it is determined to not request it anymore
     private final String[] subDomains = new String[]{"a", "b", "c"};
     private final String subDomain = subDomains[new Random().nextInt(3)];
+    private static boolean rastersInitialized;
 
     ArrayList<String> failedRequests = new ArrayList<>();
 
@@ -42,6 +41,9 @@ public class Requester extends Thread {
     public void run() {
         if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled.");
         while (true) {
+            if (!rastersInitialized) {
+                rastersInitialized = TileUrlFile.loadRastersFromFile();
+            }
             if (RequestManager.searchString != null) {
                 SearchResult[] results = searchResultRequest(RequestManager.searchString, RequestManager.searchPriorityLat, RequestManager.searchPriorityLon);
                 if (results == null) {

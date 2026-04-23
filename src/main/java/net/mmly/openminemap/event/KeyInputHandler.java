@@ -10,7 +10,7 @@ import net.minecraft.util.Formatting;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
-import net.mmly.openminemap.raster.RasterScreen;
+import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
@@ -71,7 +71,7 @@ public class KeyInputHandler {
             }
 
             if (rasterScreenKey.wasPressed()) {
-                MinecraftClient.getInstance().setScreen(new RasterScreen(true));
+                MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen());
             }
 
         });

@@ -50,7 +50,7 @@ public class TileLoader extends Thread {
         }
     }
 
-    private static InputStream loadTileFromDisk(LoadableTile tile) {
+    private InputStream loadTileFromDisk(LoadableTile tile) {
         try {
             BufferedImage tileImage = ImageIO.read(new File(TileManager.getRootFile() + "openminemap/"+tile.cache+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png")); //get an image from /run/openminemap;
             if (tile.key.equals(TileManager.getKey(0, 0, 0))) TileManager.themeColor = tileImage.getRGB(3, 3);

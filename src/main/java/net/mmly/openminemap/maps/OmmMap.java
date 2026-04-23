@@ -399,7 +399,11 @@ public class OmmMap extends ClickableWidget {
         mouseX = mX;
         mouseY = mY;
 
-        mouseIsOutOfBounds = mouseTileX < 0 || mouseTileY < 0 || mouseTileX > Math.pow(2, zoom + 7) || mouseTileY > Math.pow(2, zoom + 7);
+        mouseIsOutOfBounds =
+                mouseTileX < 0 ||
+                mouseTileY < 0 ||
+                mouseTileX > tileSize * Math.pow(2, Math.round(zoom)) ||
+                mouseTileY > tileSize * Math.pow(2, Math.round(zoom));
     }
 
     public void resetMap() {

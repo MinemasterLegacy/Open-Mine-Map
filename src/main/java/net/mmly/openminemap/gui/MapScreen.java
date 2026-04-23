@@ -385,7 +385,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         else if (code == GLFW.GLFW_KEY_UP) change = -1;
         else return;
 
-        int numResults = SearchBoxLayer.getNumResults();
+        int numResults = searchResultLayers.length;
 
         Element[] searchElements = new Element[numResults + 1];
         searchElements[0] = searchBoxLayer;

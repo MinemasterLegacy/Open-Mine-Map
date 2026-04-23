@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "openminemap",
-	"version": "1.7.1",
+	"version": "1.7.2",
 	"name": "OpenMineMap",
 	"description": "A map mod made for the BuildTheEarth project that integrates an interactable world map into the game.",
 	"authors": [
@@ -38,7 +38,7 @@
 		"openminemap.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.17.2",
+		"fabricloader": ">=0.18.4",
 		"minecraft": "~1.21.5",
 		"java": ">=21",
 		"fabric-api": "*"

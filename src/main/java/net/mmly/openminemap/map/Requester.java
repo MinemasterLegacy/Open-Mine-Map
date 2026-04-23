@@ -180,7 +180,7 @@ public class Requester extends Thread {
     SearchResult[] searchResultRequest(String query, double latFocus, double lonFocus) {
         if (disableWebRequests) return null;
 
-        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=7";
+        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=" + SearchBoxLayer.MAX_SEARCH_RESULTS;
         if (!OmmMap.geoCoordsOutOfBounds(latFocus, lonFocus)) {
             urlPattern += "&lat=" + latFocus + "&lon=" + lonFocus;
         }

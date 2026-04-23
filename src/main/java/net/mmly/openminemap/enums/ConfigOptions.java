@@ -157,8 +157,14 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
         public static final List<String> TP_COMMANDS = Arrays.stream(new String[] {"/tpll", "/tp"}).toList();
         public static final List<String> ZOOM_STRENGTHS = Arrays.stream(range(0.05f, 2, 0.05f, 2)).toList();
         public static final List<String> DECIMAL_PERCENT = Arrays.stream(range(0, 1.01f, 0.05f, 2)).toList();
-        public static final List<String> TILE_SCALES = Arrays.stream(range(64, 256, 8, 0)).toList();
+        //public static final List<String> TILE_SCALES = Arrays.stream(range(64, 256, 8, 0)).toList();
         public static final List<String> COLORS = Arrays.stream(genColorRange()).toList();
+
+        public static final List<String> TILE_SCALES = Arrays.stream(new String[] {
+                "64", "72", "80", "88", "96", "104", "112", "120", "128",
+                "144", "160", "176", "192", "208", "224", "240", "256",
+                "288", "320", "352", "384", "416", "448", "480", "512"
+        }).toList();
 
         private static String[] range(float start, float end, float step, int roundToPlace) {
             String format = "%." + roundToPlace + "f";

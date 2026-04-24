@@ -9,6 +9,7 @@ import net.minecraft.util.Util;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonState;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ColorUtil;
 
 public class MicroButton extends ClickableWidget {
@@ -62,7 +63,10 @@ public class MicroButton extends ClickableWidget {
         switch (buttonFunction) {
             case EDIT: {
                 if (layerType == LayerType.BASE) client.setScreen(new BaseRasterScreen());
-                if (layerType == LayerType.LOCAL_GEN) client.setScreen(new ConfigScreen());
+                if (layerType == LayerType.LOCAL_GEN) {
+                    client.setScreen(new ConfigScreen());
+                    ConfigScreen.getInstance().scrollToOverlay();
+                }
                 break;
             }
             case UP: {

@@ -42,6 +42,10 @@ public class ConfigList extends EntryListWidget<AnchorWidget> {
 
     }
 
+    public int getEntryCount() {
+        return super.getEntryCount();
+    }
+
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         super.renderWidget(context, mouseX, mouseY, delta);

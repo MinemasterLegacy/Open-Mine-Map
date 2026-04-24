@@ -39,13 +39,14 @@ public class TileUrlFile {
     //TODO show mapbox logo for mapbox urls
     private static TileUrl[] tileUrls;
     private static final TileUrl defaultUrl = new TileUrl(
+            0,
             "OpenStreetMap",
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
             "",
             new String[] {
                 "https://openstreetmap.org/copyright"
             },
-            LayerType.BASE
+            "base"
     );
     private static TileUrl currentTileUrl;
 

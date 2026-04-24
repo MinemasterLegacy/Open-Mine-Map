@@ -8,10 +8,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
-import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.gui.AnchorWidget;
-import net.mmly.openminemap.gui.ButtonLayer;
-import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -28,7 +25,7 @@ public abstract class RasterScreen extends Screen {
     public static RasterScreen instance;
     public static LinkedList<RegisterableTile> tileRegisteringQueue = new LinkedList<>();
     public static HashMap<String, Identifier> backgroundTiles = new HashMap<>();
-    private final Screen returnScreen;
+    protected Screen returnScreen;
 
     public RasterScreen() {
         super(Text.of(""));

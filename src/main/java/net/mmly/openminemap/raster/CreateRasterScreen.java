@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.util.TileUrl;
+import net.mmly.openminemap.util.TileUrlFile;
 
 public class CreateRasterScreen extends Screen {
 
@@ -74,6 +75,8 @@ public class CreateRasterScreen extends Screen {
         fieldWidgets[1].setText(tileUrl.source_url);
         fieldWidgets[2].setText(tileUrl.attribution);
         fieldWidgets[3].setText(tileUrl.attribution_links[0]);
+
+        if (tileUrl.presetID == 0) fieldWidgets[2].setText(Text.translatable("omm.osm-attribution").getString());
 
         if (!isNew) {
             for (int i = 0; i < 4; i++) {

@@ -20,6 +20,7 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 public class ConfigScreen extends Screen {
     public ConfigScreen() {
         super(Text.of("OMM Config"));
+        this.returnScreen = MinecraftClient.getInstance().currentScreen;
     }
 
     static ConfigScreen configScreen;
@@ -73,7 +75,11 @@ public class ConfigScreen extends Screen {
      */
 
     Window window;
+    private final Screen returnScreen;
     public static ButtonWidget toggleArtificialZoomButton;
+    private static final int ITEM_HEIGHT = 24;
+
+    private int overlayLabelPosition;
 
     static ConfigList configList;
     ArrayList<ClickableWidget> choiceWidgets = new ArrayList<>();
@@ -82,7 +88,7 @@ public class ConfigScreen extends Screen {
     @Override
     public void close() {
         MinecraftClient.getInstance().setScreen(
-                new MapScreen()
+                returnScreen instanceof ViewSetRastersScreen ? returnScreen : new MapScreen()
         );
     }
 
@@ -116,13 +122,20 @@ public class ConfigScreen extends Screen {
         anchor.setWidget(widget);
     }
 
+    public void scrollToOverlay() {
+        //TODO make sure works
+        System.out.println(configList.getScrollY());
+        configList.setScrollY(Math.max((overlayLabelPosition - 1.5) * ITEM_HEIGHT, 0));
+        System.out.println(configList.getScrollY());
+    }
+
     @Override
     protected void init() {
         configScreen = this;
 
         updateScreenDims();
 
-        configList = new ConfigList(MinecraftClient.getInstance(), 0, 0, 0, 24);
+        configList = new ConfigList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT);
         configList.setWidth(windowScaledWidth);
         configList.setHeight(windowScaledHeight - BOTTOM_SPACE);
         this.addDrawableChild(configList);
@@ -170,8 +183,10 @@ public class ConfigScreen extends Screen {
         zoomStrengthSlider = new ChoiceSliderWidget(ConfigOptions.Values.ZOOM_STRENGTHS, ConfigOptions.ZOOM_STRENGTH, true);
         this.addConfigOptionWidget(zoomStrengthSlider);
 
+        //TODO change translation to "Generated Overlays"
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
+        overlayLabelPosition = configList.getEntryCount();
 
         renderClaimsOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.CLAIMS_RENDERING);
         this.addConfigOptionWidget(renderClaimsOption);
@@ -227,7 +242,7 @@ public class ConfigScreen extends Screen {
         }
 
         configList.restoreScroll();
-        MapScreen.toggleAltScreenMap(true);
+        if (returnScreen instanceof MapScreen) MapScreen.toggleAltScreenMap(true);
 
     }
 

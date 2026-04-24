@@ -96,9 +96,7 @@ public class ButtonLayer extends ClickableWidget {
                     break;
                 }
                 if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
-                    MinecraftClient.getInstance().setScreen(
-                            new MapScreen()
-                    );
+                    MinecraftClient.getInstance().currentScreen.close();
                     break;
                 }
                 MinecraftClient.getInstance().currentScreen.close();

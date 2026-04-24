@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.*;
 
 public abstract class RasterScreen extends Screen {
-
+//TODO disallow modification if load failed
     public static final int ITEM_HEIGHT = 40;
     RasterList rasterList;
     ArrayList<RasterLayerWidget> rasterWidgets = new ArrayList<>();

@@ -81,6 +81,7 @@ public class TileUrlFile {
             return false;
         }
         OpenMineMap.LOGGER.info("Loaded Raster Providers");
+        addApplicableErrors(null);
         return true;
     }
 
@@ -140,8 +141,8 @@ public class TileUrlFile {
         } catch (IOException | TileUrlFileFormatException e) {
             loadWasFailed = true;
             tileUrls = new TileUrl[]{defaultUrl};
-            currentTileUrl = defaultUrl;
-
+            enabledRasters.addLast(defaultUrl);
+            setCurrentUrl(defaultUrl);
         }
 
         //TODO check urls with undefined template id for presets
@@ -196,7 +197,7 @@ public class TileUrlFile {
         return newUrls;
     }
 
-    private static TileUrl[] loadRasters(InputStream stream, boolean isPreset) {
+    private static TileUrl[] loadRasters(InputStream stream, boolean isPreset) throws TileUrlFileFormatException {
         Gson gson = new Gson();
         Map returnedResult;
 
@@ -220,30 +221,35 @@ public class TileUrlFile {
     }
 
     /// Convert a JsonObject representing a raster to TileUrl
-    private static TileUrl tileUrlOf(JsonObject raster, boolean isPreset) {
-        if (isPreset) return new TileUrl(
-                    raster.get("templateId").getAsInt(),
-                    raster.get("name").getAsString(),
-                    raster.get("source_url").getAsString(),
-                    raster.get("attribution").getAsString(),
-                    arrayOf(raster.get("attribution_links").getAsJsonArray()),
-                    LayerType.BASE.toString()
-        );
+    private static TileUrl tileUrlOf(JsonObject raster, boolean isPreset) throws TileUrlFileFormatException {
+       try {
+           if (isPreset) return new TileUrl(
+                   raster.get("templateId").getAsInt(),
+                   raster.get("name").getAsString(),
+                   raster.get("source_url").getAsString(),
+                   raster.get("attribution").getAsString(),
+                   arrayOf(raster.get("attribution_links").getAsJsonArray()),
+                   LayerType.BASE.toString()
+           );
 
-        if (raster.get("templateId") != null) return new TileUrl(
-                    raster.get("templateId").getAsInt(),
-                    raster.get("token").getAsString()
-        );
+           if (raster.get("templateId") != null) return new TileUrl(
+                   raster.get("templateId").getAsInt(),
+                   raster.get("token").getAsString()
+           );
 
-        if (raster.get("name") != null) return new TileUrl(
-                    raster.get("name").getAsString(),
-                    raster.get("source_url").getAsString(),
-                    raster.get("attribution").getAsString(),
-                    arrayOf(raster.get("attribution_links").getAsJsonArray()),
-                    raster.get("layerType").getAsString()
-        );
+           if (raster.get("name") != null) return new TileUrl(
+                   raster.get("name").getAsString(),
+                   raster.get("source_url").getAsString(),
+                   raster.get("attribution").getAsString(),
+                   arrayOf(raster.get("attribution_links").getAsJsonArray()),
+                   raster.get("layerType").getAsString()
+           );
+       } catch (NullPointerException e) {
+           setError(TileUrlErrorType.NULL_VALUE, null);
+           throw new TileUrlFileFormatException();
+       }
 
-        return null;
+       return null;
     }
 
     private static String[] arrayOf(JsonArray jsonArray) {
@@ -342,7 +348,7 @@ public class TileUrlFile {
     }
 
     public static TileUrl getCurrentUrl() {
-        if (tileUrls == null) return defaultUrl;
+        if (tileUrls == null || currentTileUrl == null) return defaultUrl;
         return currentTileUrl;
     }
 

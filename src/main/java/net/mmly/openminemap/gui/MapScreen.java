@@ -631,6 +631,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     //used in the hud to render a 'fake' fsmap screen when chat is opened
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
 
+        if (instance == null) return;
         if (!renderAltMap) return;
         if (!currentScreenIsValidAltMapScreen()) {
             MinecraftClient.getInstance().setScreen(

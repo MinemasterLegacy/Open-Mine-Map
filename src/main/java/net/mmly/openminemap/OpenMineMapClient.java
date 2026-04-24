@@ -55,7 +55,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         //ClientLoginConnectionEvents.INIT.register(WaypointFile::setWaypointsOfThisWorld);
         WaypointFile.load();
 
-        ClientLifecycleEvents.CLIENT_STARTED.register(TileUrlFile::addApplicableErrors);
+        //ClientLifecycleEvents.CLIENT_STARTED.register(TileUrlFile::addApplicableErrors);
         ClientLifecycleEvents.CLIENT_STOPPING.register(ConfigFile::writeOnClose);
 
         //TileUrlFile.establishUrls();

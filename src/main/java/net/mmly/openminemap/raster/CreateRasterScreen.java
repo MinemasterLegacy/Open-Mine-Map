@@ -75,6 +75,14 @@ public class CreateRasterScreen extends Screen {
         fieldWidgets[2].setText(tileUrl.attribution);
         fieldWidgets[3].setText(tileUrl.attribution_links[0]);
 
+        if (!isNew) {
+            for (int i = 0; i < 4; i++) {
+                fieldWidgets[i].setUneditableColor(0xFF7f7f7f);
+                fieldWidgets[i].setEditableColor(0xFF7f7f7f);
+                fieldWidgets[i].setEditable(false);
+            }
+        }
+
         //TODO translate
         doneButton = ButtonWidget.builder(Text.of("Done"), (widget) -> {
             CreateRasterScreen.instance.close();

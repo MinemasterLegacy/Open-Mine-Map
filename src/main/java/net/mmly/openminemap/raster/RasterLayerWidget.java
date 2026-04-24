@@ -2,6 +2,7 @@ package net.mmly.openminemap.raster;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -18,11 +19,12 @@ import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.TileUrl;
 
 import java.util.Locale;
+import java.util.Scanner;
 
 public class RasterLayerWidget extends ClickableWidget {
 
     private AnchorWidget anchor;
-    private final TileUrl url;
+    protected final TileUrl url;
     private final LayerType layerType;
     //private final MicroButtonFunction[] microButtons;
     private final MicroButton[] microButtons;
@@ -40,12 +42,15 @@ public class RasterLayerWidget extends ClickableWidget {
             microButtons = new MicroButton[functions.length];
             for (int i = 0; i < functions.length; i++) {
                 microButtons[i] = new MicroButton(0, 0, functions[i], layerType);
+                microButtons[i].setParentWidget(this);
             }
         } else {
             microButtons = new MicroButton[0];
         }
 
         if (url != null) {
+            if (url.hasKeyField()) microButtons[0].setFlash(true); //TODO proper key checking logic for this
+
             textureKey = url.name.toLowerCase(Locale.US);
             if (url.presetID >= 0) RasterScreen.backgroundTiles.put( //is preset
                     textureKey,
@@ -140,6 +145,8 @@ public class RasterLayerWidget extends ClickableWidget {
         UContext.fillWidget(this, 0x7f000000);
         UContext.borderWidget(this, isFocused() ? 0xFFFFFFFF : 0xFF7f7f7f);
 
+        if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen && isHovered()) UContext.outline(this, 0xFFFFFFFF);
+
         if (isAddButton) {
             UContext.drawJustifiedText(getMessage(), Justify.CENTER, getX() + getWidth() / 2, getY() + (getHeight() / 2) - 4,0xFFFFFCA8, true);
             UContext.outline(this, isHovered() || isFocused() ? 0xFFFFFCA8 : ColorUtil.darken(0xFFFFFCA8, 0.5));
@@ -147,7 +154,6 @@ public class RasterLayerWidget extends ClickableWidget {
             UContext.drawJustifiedText(getMessage(), Justify.CENTER, getX() + getWidth() / 2, getY() + 7, 0xFFFFFFFF, true);
         }
 
-        if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen && isHovered()) UContext.outline(this, 0xFFFFFFFF);
         //TODO Translate
 
         if (layerType != null) UContext.drawJustifiedText(Text.of(getSubMessage()), Justify.CENTER, getX() + getWidth() / 2, getY() + 24, 0xFFBFBFBF, true);
@@ -194,6 +200,7 @@ public class RasterLayerWidget extends ClickableWidget {
                 MinecraftClient.getInstance().setScreen(new OverlayRasterScreen());
             }
         }
+
         for (MicroButton mButton : microButtons) {
             if (mButton.isMouseOver(mouseX, mouseY)) {
                 mButton.onClick(mouseX, mouseY);

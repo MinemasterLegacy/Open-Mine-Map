@@ -46,6 +46,10 @@ public class TileUrl {
         return presetID >= 0;
     }
 
+    public boolean hasKeyField() {
+        return presetID >= 5;
+    }
+
     private static LayerType typeFromString(String layerTypeString) {
         return switch (layerTypeString) {
             case "base" -> LayerType.BASE;

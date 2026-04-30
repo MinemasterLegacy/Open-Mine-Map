@@ -43,14 +43,8 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
     }
 
      public void writeParameterToFile() {
-         if (selectedUrl != TileUrlFile.getCurrentUrl()) {
-             ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, selectedUrl.name);
-             TileUrlFile.setCurrentUrl(selectedUrl);
-             TileManager.themeColor = 0xFF808080;
-         }
-
+        TileManager.setTileUrl(selectedUrl);
     }
-
 
     protected void refreshText() {
         /*if ((TileUrlFile.getTileUrl(currentUrlId).name != null) && (!isHovered())) this.setText(TileUrlFile.getTileUrl(currentUrlId).name);

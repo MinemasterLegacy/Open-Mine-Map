@@ -9,9 +9,7 @@ import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.MapScreen;
-import net.mmly.openminemap.util.ColorUtil;
-import net.mmly.openminemap.util.DrawableMapTile;
-import net.mmly.openminemap.util.TileUrlFile;
+import net.mmly.openminemap.util.*;
 
 import java.awt.*;
 import java.io.File;
@@ -310,6 +308,14 @@ public class TileManager {
             dyLoadedTiles.put(thisKey, getLoadingIdentifier());
         } else {
             throw new IOException();
+        }
+    }
+
+    public static void setTileUrl(TileUrl url) { //TODO may want to add a check for if the tile url is valid/exists in the loaded list
+        if (url != TileUrlFile.getCurrentUrl()) {
+            ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, url.name);
+            TileUrlFile.setCurrentUrl(url);
+            TileManager.themeColor = 0xFF808080;
         }
     }
 

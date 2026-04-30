@@ -10,13 +10,12 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.util.TileUrl;
-import net.mmly.openminemap.util.TileUrlFile;
 
 public class CreateRasterScreen extends Screen {
 
     private TextFieldWidget[] fieldWidgets;
     private ButtonWidget doneButton;
-    private TileUrl tileUrl;
+    private final TileUrl tileUrl;
     protected boolean isNew;
     protected boolean keyField;
     private final Screen returnScreen;
@@ -42,7 +41,11 @@ public class CreateRasterScreen extends Screen {
         } else {
             keyField = false;
         }
-        returnScreen = MinecraftClient.getInstance().currentScreen;
+        if (MinecraftClient.getInstance().currentScreen instanceof RasterWarningScreen) {
+            returnScreen = ((RasterWarningScreen) MinecraftClient.getInstance().currentScreen).parent;
+        } else {
+            returnScreen = MinecraftClient.getInstance().currentScreen;
+        }
     }
 
     private void updateWidgetPositions() {
@@ -71,14 +74,14 @@ public class CreateRasterScreen extends Screen {
             fieldWidgets[i].setMaxLength(1000);
         }
 
-        fieldWidgets[0].setText(tileUrl.name);
-        fieldWidgets[1].setText(tileUrl.source_url);
-        fieldWidgets[2].setText(tileUrl.attribution);
-        fieldWidgets[3].setText(tileUrl.attribution_links[0]);
-
-        if (tileUrl.presetID == 0) fieldWidgets[2].setText(Text.translatable("omm.osm-attribution").getString());
-
         if (!isNew) {
+            fieldWidgets[0].setText(tileUrl.name);
+            fieldWidgets[1].setText(tileUrl.source_url);
+            fieldWidgets[2].setText(tileUrl.attribution);
+            fieldWidgets[3].setText(tileUrl.attribution_links[0]);
+
+            if (tileUrl.presetID == 0) fieldWidgets[2].setText(Text.translatable("omm.osm-attribution").getString());
+
             for (int i = 0; i < 4; i++) {
                 fieldWidgets[i].setUneditableColor(0xFF7f7f7f);
                 fieldWidgets[i].setEditableColor(0xFF7f7f7f);
@@ -87,7 +90,8 @@ public class CreateRasterScreen extends Screen {
         }
 
         //TODO translate
-        doneButton = ButtonWidget.builder(Text.of("Done"), (widget) -> {
+        //TODO change text based on isNew
+        doneButton = ButtonWidget.builder(Text.of(isNew ? "Create" : "Done"), (widget) -> {
             CreateRasterScreen.instance.close();
         }).position(0, -100).build();
         doneButton.setWidth(200);

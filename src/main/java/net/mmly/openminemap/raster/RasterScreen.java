@@ -19,6 +19,7 @@ import java.util.*;
 public abstract class RasterScreen extends Screen {
 //TODO disallow modification if load failed
     public static final int ITEM_HEIGHT = 40;
+    public final int BOTTOM_PADDING;
     RasterList rasterList;
     ArrayList<RasterLayerWidget> rasterWidgets = new ArrayList<>();
     ArrayList<AnchorWidget> anchorWidgets = new ArrayList<>();
@@ -27,9 +28,10 @@ public abstract class RasterScreen extends Screen {
     public static HashMap<String, Identifier> backgroundTiles = new HashMap<>();
     protected Screen returnScreen;
 
-    public RasterScreen() {
+    public RasterScreen(int bottomPadding) {
         super(Text.of(""));
         instance = this;
+        this.BOTTOM_PADDING = bottomPadding;
         returnScreen = MinecraftClient.getInstance().currentScreen;
     }
 
@@ -89,6 +91,19 @@ public abstract class RasterScreen extends Screen {
         return instance;
     }
 
+    public RasterLayerWidget getSelectedLayerWidget() {
+        try {
+            return (RasterLayerWidget) Objects.requireNonNull(rasterList.getFocused()).widget;
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -100,7 +115,7 @@ public abstract class RasterScreen extends Screen {
 
     protected void updateWidgetPositions() {
         rasterList.setWidth(width);
-        rasterList.setHeight(height);
+        rasterList.setHeight(height - BOTTOM_PADDING);
     }
 
     @Override

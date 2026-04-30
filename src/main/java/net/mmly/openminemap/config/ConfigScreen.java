@@ -123,7 +123,6 @@ public class ConfigScreen extends Screen {
     }
 
     public void scrollToOverlay() {
-        //TODO make sure works
         System.out.println(configList.getScrollY());
         configList.setScrollY(Math.max((overlayLabelPosition - 1.5) * ITEM_HEIGHT, 0));
         System.out.println(configList.getScrollY());

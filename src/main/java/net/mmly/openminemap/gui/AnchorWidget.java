@@ -10,7 +10,7 @@ public class AnchorWidget extends AlwaysSelectedEntryListWidget.Entry<AnchorWidg
     private int yStore = 0;
     private int xStore = 0;
     private int widthStore = 0;
-    ClickableWidget widget;
+    public ClickableWidget widget;
     public boolean drawNow = false;
 
     @Override

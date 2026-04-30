@@ -9,7 +9,7 @@ import net.mmly.openminemap.util.TileUrlFile;
 
 public class ViewSetRastersScreen extends RasterScreen {
     public ViewSetRastersScreen() {
-        super();
+        super(0);
         if (returnScreen instanceof MapScreen) MapScreen.toggleAltScreenMap(MinecraftClient.getInstance().currentScreen != null);
     }
 

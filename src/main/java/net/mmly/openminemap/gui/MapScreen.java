@@ -27,6 +27,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.CreateRasterScreen;
 import net.mmly.openminemap.raster.RasterScreen;
+import net.mmly.openminemap.raster.RasterWarningScreen;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchButtonLayer;
 import net.mmly.openminemap.search.SearchResultLayer;
@@ -532,6 +533,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (current instanceof WaypointScreen) return true;
         if (current instanceof RasterScreen) return true;
         if (current instanceof CreateRasterScreen) return true;
+        if (current instanceof RasterWarningScreen) return true;
         return false;
     }
 

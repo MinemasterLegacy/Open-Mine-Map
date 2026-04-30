@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.map.LoadableTile;
 import net.mmly.openminemap.map.RegisterableTile;
@@ -195,9 +196,21 @@ public class RasterLayerWidget extends ClickableWidget {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        Screen currentScreen = MinecraftClient.getInstance().currentScreen;
+        if (currentScreen instanceof BaseRasterScreen) {
+            if (mouseY > BaseRasterScreen.getInstance().rasterList.getBottom()) {
+                BaseRasterScreen.confirmButton.mouseClicked(mouseX, mouseY, button);
+                return false;
+            }
+        }
+
         if (isAddButton) {
-            if (MinecraftClient.getInstance().currentScreen instanceof ViewSetRastersScreen) {
+            if (currentScreen instanceof ViewSetRastersScreen) {
                 MinecraftClient.getInstance().setScreen(new OverlayRasterScreen());
+            }
+            if (currentScreen instanceof BaseRasterScreen) {
+                if (ConfigOptions._RASTER_WARNING_ACCEPTED.getAsBoolean()) MinecraftClient.getInstance().setScreen(new CreateRasterScreen(null)); //conditional should be a config setting for if the warning screen was passed already
+                else MinecraftClient.getInstance().setScreen(new RasterWarningScreen());
             }
         }
 

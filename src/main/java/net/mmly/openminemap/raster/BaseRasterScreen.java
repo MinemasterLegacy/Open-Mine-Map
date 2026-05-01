@@ -2,12 +2,10 @@ package net.mmly.openminemap.raster;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.texture.Scaling;
 import net.minecraft.text.Text;
-import net.mmly.openminemap.config.ConfigChoice;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
@@ -46,10 +44,17 @@ public class BaseRasterScreen extends RasterScreen {
         confirmButton.setPosition(width / 2 - confirmButton.getWidth() / 2, height - 30);
 
         //TODO translate
-        confirmButton.active = getSelectedLayerWidget() != null;
-        confirmButton.setMessage(confirmButton.active ?
-                Text.of("Set Base to " + getSelectedLayerWidget().url.name) :
-                Text.of("Select a Base Raster..."));
+        confirmButton.active = false;
+        if (getSelectedLayerWidget() == null) {
+            confirmButton.setMessage(Text.of("Select a Base Raster..."));
+            return;
+        }
+        if (getSelectedLayerWidget().url.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().url.presetID)) { //TODO replace true with a missing key check
+            confirmButton.setMessage(Text.of("Requires API Key"));
+            return;
+        }
+        confirmButton.setMessage(Text.of("Set Base to " + getSelectedLayerWidget().url.name));
+        confirmButton.active = true;
     }
 
     @Override

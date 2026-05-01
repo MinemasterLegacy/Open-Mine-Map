@@ -19,6 +19,7 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.network.NetworkState;
 import net.mmly.openminemap.network.PlayerDataS2CPayload;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.WaypointFile;
 
@@ -54,6 +55,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
         //ClientLoginConnectionEvents.INIT.register(WaypointFile::setWaypointsOfThisWorld);
         WaypointFile.load();
+        RasterApiKeysFile.readFromFile();
 
         //ClientLifecycleEvents.CLIENT_STARTED.register(TileUrlFile::addApplicableErrors);
         ClientLifecycleEvents.CLIENT_STOPPING.register(ConfigFile::writeOnClose);

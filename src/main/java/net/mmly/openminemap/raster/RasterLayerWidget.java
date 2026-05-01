@@ -17,6 +17,7 @@ import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.map.TileLoader;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.ColorUtil;
+import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.TileUrl;
 
 import java.util.Locale;
@@ -50,17 +51,12 @@ public class RasterLayerWidget extends ClickableWidget {
         }
 
         if (url != null) {
-            if (url.hasKeyField()) microButtons[0].setFlash(true); //TODO proper key checking logic for this
+            if (url.hasKeyField() && !RasterApiKeysFile.hasApiKey(url.presetID)) microButtons[0].setFlash(true);
 
             textureKey = url.name.toLowerCase(Locale.US);
             if (url.presetID >= 0) RasterScreen.backgroundTiles.put( //is preset
                     textureKey,
-                    Identifier.of("openminemap", "rastertiles/" + url.name
-                            .replace("Ö", "O")
-                            .toLowerCase(Locale.US)
-                            .replace(" ", "")
-                            + ".png"
-                    )
+                    url.presetIdentifier
             );
             else if (!RasterScreen.backgroundTiles.containsKey(textureKey)) {
                 RasterScreen.backgroundTiles.put(textureKey, TileManager.getLoadingIdentifier());

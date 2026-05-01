@@ -1,6 +1,9 @@
 package net.mmly.openminemap.util;
 
+import net.minecraft.util.Identifier;
 import net.mmly.openminemap.raster.LayerType;
+
+import java.util.Locale;
 
 public class TileUrl {
     public final String source_url;
@@ -9,6 +12,7 @@ public class TileUrl {
     public final String[] attribution_links;
     public final LayerType layerType;
     public final int presetID;
+    public final Identifier presetIdentifier;
     //TODO check if preset when attempting to load from
 
     public TileUrl(String name, String source_url, String attribution, String[] attribution_links, String layerType) {
@@ -22,6 +26,7 @@ public class TileUrl {
         this.source_url = source_url;
         this.layerType = LayerType.BASE;
         presetID = -1;
+        presetIdentifier = null;
     }
 
     public TileUrl(int templateID, String token) {
@@ -31,6 +36,7 @@ public class TileUrl {
         this.attribution_links = new String[] {"https://e.e.com"};
         this.layerType = LayerType.BASE;
         presetID = -1;
+        presetIdentifier = null;
     }
 
     public TileUrl(int templateId, String name, String source_url, String attribution, String[] attribution_links, String layerType) {
@@ -40,6 +46,12 @@ public class TileUrl {
         this.source_url = source_url;
         this.layerType = LayerType.BASE; //TODO will have to be changed if overlay presets are added
         presetID = templateId;
+        presetIdentifier = Identifier.of("openminemap", "rastertiles/" + name
+                .replace("Ö", "O")
+                .toLowerCase(Locale.US)
+                .replace(" ", "")
+                + ".png"
+        );
     }
 
     public boolean isPreset() {

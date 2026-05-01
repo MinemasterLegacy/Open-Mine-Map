@@ -111,6 +111,7 @@ public abstract class RasterScreen extends Screen {
         rasterList = new RasterList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
         this.addDrawableChild(rasterList);
 
+        rasterList.restoreScroll();
     }
 
     protected void updateWidgetPositions() {

@@ -9,6 +9,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.TileUrl;
 
 public class CreateRasterScreen extends Screen {
@@ -27,7 +28,15 @@ public class CreateRasterScreen extends Screen {
 
     @Override
     public void close() {
+        saveCurrentUrl();
         MinecraftClient.getInstance().setScreen(returnScreen);
+    }
+
+    private void saveCurrentUrl() {
+        if (keyField) {
+            RasterApiKeysFile.writeApiKey(tileUrl.presetID, fieldWidgets[4].getText());
+        }
+        //TODO
     }
 
     /// Pass null for a new tile url
@@ -87,6 +96,10 @@ public class CreateRasterScreen extends Screen {
                 fieldWidgets[i].setEditableColor(0xFF7f7f7f);
                 fieldWidgets[i].setEditable(false);
             }
+        }
+
+        if (keyField && RasterApiKeysFile.hasApiKey(tileUrl.presetID)) {
+            fieldWidgets[4].setText(RasterApiKeysFile.readApiKey(tileUrl.presetID));
         }
 
         //TODO translate

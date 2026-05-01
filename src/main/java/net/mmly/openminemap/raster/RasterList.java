@@ -17,7 +17,7 @@ public class RasterList extends EntryListWidget<AnchorWidget> {
 
     public void restoreScroll() {
         setScrollY(savedScrollAmount);
-    }
+    } //todo fix scroll restoration
 
     @Override
     public int addEntry(AnchorWidget entry) {

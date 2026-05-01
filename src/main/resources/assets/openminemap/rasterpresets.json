@@ -1,8 +1,9 @@
 {
     "sources": [
         {
+            "comment": "Placeholder for the hard-coded OpenMineMap preset",
             "templateId": 0,
-            "name": "/* Placeholder for the hard-coded OpenStreetMap preset */",
+            "name": "OpenMineMap",
             "source_url": "",
             "attribution": "",
             "attribution_links": [""]
@@ -69,7 +70,7 @@
         {
             "templateId": 7,
             "name": "Alidade Smooth",
-            "source_url": "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png&api_key={t}",
+            "source_url": "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png?api_key={t}",
             "attribution": "{MapLibre} | {© Stadia Maps} {© OpenMapTiles}",
             "attribution_links": [
                 "https://maplibre.org/",
@@ -80,7 +81,7 @@
         {
             "templateId": 8,
             "name": "Alidade Smooth Dark",
-            "source_url": "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png&api_key={t}",
+            "source_url": "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png?api_key={t}",
             "attribution": "{MapLibre} | {© Stadia Maps} {© OpenMapTiles}",
             "attribution_links": [
               "https://maplibre.org/",

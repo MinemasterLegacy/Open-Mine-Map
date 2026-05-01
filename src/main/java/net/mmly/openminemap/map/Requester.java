@@ -12,6 +12,8 @@ import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.Notification;
+import net.mmly.openminemap.util.RasterApiKeysFile;
+import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
 import javax.imageio.ImageIO;
@@ -61,7 +63,7 @@ public class Requester extends Thread {
             }
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
-                this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url, request.cacheName);
+                this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl(), request.cacheName);
                 if (!disableWebRequests) requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;
@@ -211,11 +213,24 @@ public class Requester extends Thread {
         return results;
     }
 
-    void tileGetRequest(int x, int y, int zoom, String urlPattern, String cacheName) {
-        BufferedImage image = null;
+    void tileGetRequest(int x, int y, int zoom, TileUrl url, String cacheName) {
+        BufferedImage image;
         if (disableWebRequests || TileManager.isTileOutOfBounds(x, y, zoom) || failedRequests.contains(TileManager.getKey(zoom, x, y))) return;
 
-        urlPattern = ((urlPattern.replace("{z}", Integer.toString(zoom)).replace("{x}", Integer.toString(x))).replace("{y}", Integer.toString(y)).replace("{s}", subDomain));
+        String urlPattern = url.source_url
+                .replace("{z}", Integer.toString(zoom))
+                .replace("{x}", Integer.toString(x))
+                .replace("{y}", Integer.toString(y))
+                .replace("{s}", subDomain);
+
+        if (url.hasKeyField()) {
+            if (RasterApiKeysFile.hasApiKey(url.presetID)) {
+                urlPattern = urlPattern.replace("{t}", RasterApiKeysFile.readApiKey(url.presetID));
+            } else {
+                return;
+            }
+        }
+
         try {
             InputStream inputStream = get(urlPattern);
             if (inputStream == null) return;

@@ -27,7 +27,9 @@ public class ViewSetRastersScreen extends RasterScreen {
         this.addRaster(new RasterLayerWidget(Text.of("Add Overlay"), null, null));
         addRaster(new RasterLayerWidget(Text.of("OpenMineMap"), null, LayerType.LOCAL_GEN));
 
-        for (TileUrl url : TileUrlFile.getEnabledRasters()) {
+        addRaster(new RasterLayerWidget(Text.of(TileUrlFile.getCurrentBaseRaster().name), TileUrlFile.getCurrentBaseRaster(), LayerType.BASE));
+
+        for (TileUrl url : TileUrlFile.getCurrentOverlays()) {
             addRaster(new RasterLayerWidget(Text.of(url.name), url, LayerType.BASE));
         }
     }

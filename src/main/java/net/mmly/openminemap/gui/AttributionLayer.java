@@ -24,10 +24,10 @@ public class AttributionLayer extends ClickableWidget {
     public AttributionLayer(int x, int y, int width, int height) {
         super(x, y, width, height, Text.empty());
         String split = " | ";
-        if (TileUrlFile.getCurrentUrl().attribution.equals("")) split = "";
+        if (TileUrlFile.getCurrentBaseRaster().attribution.equals("")) split = "";
         TileUrlFile.initOsmAttribution();
-        attributionString = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentUrl().attribution).toCharArray();
-        attribution = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentUrl().attribution).replaceAll("\\{", "").replaceAll("}", "");
+        attributionString = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentBaseRaster().attribution).toCharArray();
+        attribution = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentBaseRaster().attribution).replaceAll("\\{", "").replaceAll("}", "");
         selectionZones = new int[(attributionString.length - attribution.length() / 2)][2];
     }
 
@@ -101,7 +101,7 @@ public class AttributionLayer extends ClickableWidget {
         if (selection == -1) return;
         String link;
         if (selection == 0) link = TileUrlFile.osmAttributionUrl;
-        else link = TileUrlFile.getCurrentUrl().attribution_links[selection - 1];
+        else link = TileUrlFile.getCurrentBaseRaster().attribution_links[selection - 1];
         MapScreen.openLinkScreen(link, new MapScreen(), true);
     }
 }

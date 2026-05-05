@@ -1,6 +1,5 @@
 package net.mmly.openminemap.draw;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -14,6 +13,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+import net.mmly.openminemap.util.ColorUtil;
 import org.joml.Matrix4f;
 
 import java.util.TreeMap;
@@ -23,6 +23,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     static DrawContext drawContext;
     static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
     public static VertexConsumerProvider.Immediate capturedVertexProvider;
+    private static int textureAlphaColor = 0xFFFFFFFF;
 
     public static void setContext(DrawContext context) {
         drawContext = context;
@@ -96,6 +97,15 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         fillAndDrawText(text, x, y, marginWidth, marginHeight, fillColor, textColor, false);
     }
 
+    /// Range 0-255
+    public static void setTextureAlpha(int alpha) {
+        textureAlphaColor = ColorUtil.setAlpha(alpha, textureAlphaColor);
+    }
+
+    public static void resetTextureAlpha() {
+        textureAlphaColor = 0xFFFFFFFF;
+    }
+
     public static void drawTexture(Identifier identifier, int x, int y, int width, int height, int textureWidth, int textureHeight) {
         drawTexture(identifier, x, y, width, height, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
     }
@@ -105,7 +115,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     }
 
     public static void drawTexture(Identifier identifier, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-        drawContext.drawTexture(RenderLayer::getGuiTextured, identifier, x, y, u, v, width, height, regionWidth, regionHeight, textureWidth, textureHeight);
+        drawContext.drawTexture(RenderLayer::getGuiTextured, identifier, x, y, u, v, width, height, regionWidth, regionHeight, textureWidth, textureHeight, textureAlphaColor);
     }
 
     public static void drawTriangle(int[][] triangle, int fillColor) {

@@ -24,7 +24,6 @@ import java.util.Optional;
 
 public class TileUrlFile {
 
-    private static ArrayList<TileUrl> enabledRasters = new ArrayList<>();
     private static ArrayList<TileUrl> urlPresets = new ArrayList<>();
     private static ArrayList<TileUrl> customRasters = new ArrayList<>();
 
@@ -48,7 +47,8 @@ public class TileUrlFile {
             },
             "base"
     );
-    private static TileUrl currentTileUrl;
+    private static TileUrl currentBaseUrl;
+    private static ArrayList<TileUrl> currentOverlays = new ArrayList<>();
 
     private static boolean createDefaultFile(File file) {
        try {
@@ -128,22 +128,19 @@ public class TileUrlFile {
             String setUrl = ConfigOptions.TILE_MAP_URL.getAsString();
             for (TileUrl tileUrl : tileUrls) {
                 if (tileUrl.name.equals(setUrl)) {
-                    enabledRasters.addLast(tileUrl);
-                    setCurrentUrl(tileUrl);
+                    setCurrentBaseRaster(tileUrl);
                     return;
                 }
             }
 
             //TODO temp
-            enabledRasters.addLast(defaultUrl);
-            setCurrentUrl(enabledRasters.getLast());
+            setCurrentBaseRaster(defaultUrl);
             //
 
         } catch (IOException | TileUrlFileFormatException e) {
             loadWasFailed = true;
             tileUrls = new TileUrl[]{defaultUrl};
-            enabledRasters.addLast(defaultUrl);
-            setCurrentUrl(defaultUrl);
+            setCurrentBaseRaster(defaultUrl);
         }
 
         //TODO check urls with undefined template id for presets
@@ -348,22 +345,18 @@ public class TileUrlFile {
         return null;
     }
 
-    public static TileUrl getCurrentUrl() {
-        if (tileUrls == null || currentTileUrl == null) return defaultUrl;
-        return currentTileUrl;
+    public static TileUrl getCurrentBaseRaster() {
+        if (tileUrls == null || currentBaseUrl == null) return defaultUrl;
+        return currentBaseUrl;
     }
 
-    public static ArrayList<TileUrl> getEnabledRasters() {
-        return enabledRasters;
-    }
-
-    public static int getCurrentIdRange() {
-        return enabledRasters.size();
-    }
-
-    public static void setCurrentUrl(TileUrl tileUrl) {
-        currentTileUrl = tileUrl;
+    public static void setCurrentBaseRaster(TileUrl tileUrl) {
+        currentBaseUrl = tileUrl;
         TileManager.setCacheDir();
+    }
+
+    public static ArrayList<TileUrl> getCurrentOverlays() {
+        return currentOverlays;
     }
 
     private static String getDefaultFileText() {

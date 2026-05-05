@@ -111,10 +111,22 @@ public class RasterLayerWidget extends ClickableWidget {
 
         int offset = 15;
         for (MicroButton button : microButtons) {
+            if (button.buttonFunction == MicroButtonFunction.UP) {
+                button.setPosition(
+                        getX() + 3, getY() + 3
+                );
+                continue;
+            }
+            if (button.buttonFunction == MicroButtonFunction.DOWN) {
+                button.setPosition(
+                        getX() + 3, getBottom() - 15
+                );
+                continue;
+            }
+
             button.setPosition(
                     getRight() - offset,
                     getBottom() - 15
-
             );
             offset += 15;
         }

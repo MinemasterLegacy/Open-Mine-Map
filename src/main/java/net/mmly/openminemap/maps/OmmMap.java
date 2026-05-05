@@ -764,15 +764,14 @@ public class OmmMap extends ClickableWidget {
         int width = tileSize;
         int height = tileSize;
 
-        context.drawTexture(
-                RenderLayer::getGuiTextured,
+        UContext.drawTexture(
                 tile.identifier,
                 relativeX,
                 relativeY,
-                u,
-                v,
                 width,
                 height,
+                u,
+                v,
                 regionWidth,
                 regionHeight,
                 textureWidth,
@@ -855,17 +854,9 @@ public class OmmMap extends ClickableWidget {
         context.drawText(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + PLAYERSIZE + 5, 0xFFFFFFFF,false);
     }
 
-    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
+    private void drawGeneratedOverlays(DrawContext context) {
 
-        updateFields();
-
-        if (isHudMap && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
-        else context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
-
-        drawMap(context, isHudMap); //draw the map tiles + background
-
-        //, 0x4037b24d), UnitConvert.setAlpha(zoomFadeAlpha, 0xFF37b24d))
-
+        //draw claims
         if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null && renderClaimsToggle) {
             for (DrawableClaim claim : claims) {
                 if (claim == null || !claim.inBoundsOf(mapCenterX, mapCenterY, renderAreaWidth, renderAreaHeight, zoom, tileSize)) continue;
@@ -877,7 +868,6 @@ public class OmmMap extends ClickableWidget {
         }
 
         //draw waypoints
-
         hoveredWaypoint = null;
         for (Waypoint waypoint : waypoints) {
 
@@ -927,6 +917,7 @@ public class OmmMap extends ClickableWidget {
         BufferedPlayer self = null;
         if (ConfigOptions.HOVER_NAMES.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE)) drawHoveredPlayerText(context);
 
+        //draw self direction indicator
         if (followPlayer) {
             if (selfMappable.isIndicatorDrawable()) DirectionIndicator.draw(
                     context,
@@ -939,6 +930,7 @@ public class OmmMap extends ClickableWidget {
             self = drawDirectionIndicator(context, selfMappable);
         }
 
+        //draw self player
         if (selfMappable.isPlayerDrawable()) {
             if (followPlayer) {
                 drawClientPlayerCentered(context);
@@ -946,6 +938,19 @@ public class OmmMap extends ClickableWidget {
                 if (self != null) drawBufferedPlayer(context, self);
             }
         }
+
+    }
+
+    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
+
+        updateFields();
+
+        if (isHudMap && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
+        else context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
+
+        drawMap(context, isHudMap); //draw the map tiles + background
+
+        drawGeneratedOverlays(context);
 
         context.disableScissor();
 

@@ -14,9 +14,9 @@ import net.mmly.openminemap.util.ColorUtil;
 
 public class MicroButton extends ClickableWidget {
 
-    private final MicroButtonFunction buttonFunction;
+    public final MicroButtonFunction buttonFunction;
     private RasterLayerWidget parentWidget;
-    private final LayerType layerType;
+    public final LayerType layerType;
     private boolean flash = false;
 
     public MicroButton(int x, int y, MicroButtonFunction function, LayerType layerType) {

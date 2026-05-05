@@ -19,5 +19,4 @@ public enum MicroButtonFunction {
         return Identifier.of("openminemap", "buttons/micro/" + state.toString().toLowerCase(Locale.US) + "/" + this.toString().toLowerCase(Locale.US) + ".png");
     }
 
-
 }

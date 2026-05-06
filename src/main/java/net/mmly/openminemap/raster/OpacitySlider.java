@@ -3,6 +3,7 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.util.UnitConvert;
 
 public class OpacitySlider extends SliderWidget {
 

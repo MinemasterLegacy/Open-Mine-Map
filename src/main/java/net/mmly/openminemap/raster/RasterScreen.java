@@ -140,4 +140,12 @@ public abstract class RasterScreen extends Screen {
         anchor.setWidget(widget);
     }
 
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        boolean b = super.mouseReleased(mouseX, mouseY, button);
+        for (RasterLayerWidget widget : rasterWidgets) {
+            widget.releaseSlider(mouseX, mouseY);
+        }
+        return b;
+    }
 }

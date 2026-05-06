@@ -12,16 +12,17 @@ import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
+import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.LoadableTile;
 import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.map.TileLoader;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.TileUrl;
 
 import java.util.Locale;
-import java.util.Scanner;
 
 public class RasterLayerWidget extends ClickableWidget {
 
@@ -32,6 +33,15 @@ public class RasterLayerWidget extends ClickableWidget {
     private final MicroButton[] microButtons;
     private boolean isAddButton = false;
     private final String textureKey;
+    private OpacitySlider opacitySlider;
+
+    public RasterLayerWidget(TileUrl url) {
+        this(
+                url == null ? Text.literal("null") : Text.literal(url.name),
+                url,
+                url == null ? null : url.layerType
+        );
+    }
 
     public RasterLayerWidget(Text message, TileUrl url, LayerType type) {
         super(10, 0, 0, RasterScreen.ITEM_HEIGHT, message);
@@ -69,6 +79,13 @@ public class RasterLayerWidget extends ClickableWidget {
 
             }
 
+            if (layerType == LayerType.OVERLAY && MinecraftClient.getInstance().currentScreen instanceof ViewSetRastersScreen) {
+                //TODO read value from somewhere
+                opacitySlider = new OpacitySlider(0, 0, 1);
+                opacitySlider.setParentWidget(this);
+                ViewSetRastersScreen.getInstance().addOpacitySlider(opacitySlider);
+            }
+
         } else {
             textureKey = null;
         }
@@ -104,7 +121,7 @@ public class RasterLayerWidget extends ClickableWidget {
         this.anchor = anchor;
     }
 
-    private void updatePositions() {
+    private void updatePositions(int mouseX) {
         setX(anchor.getX());
         setY(anchor.getY());
         setWidth(anchor.getWidth());
@@ -130,28 +147,22 @@ public class RasterLayerWidget extends ClickableWidget {
             );
             offset += 15;
         }
+
+        if (opacitySlider != null) {
+            opacitySlider.setPosition(getRight() - 45, getY() + 3);
+            opacitySlider.setRecordedMouseX(mouseX);
+        }
+
     }
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
 
-        updatePositions();
+        updatePositions(mouseX);
 
-        UContext.drawTexture(
-                getBackgroundTexture(),
-                getX(),
-                getY(),
-                getWidth(),
-                getHeight(),
-                0,
-                (float) getWidth() / 2 - (float) RasterScreen.ITEM_HEIGHT / 2,
-                getWidth(),
-                RasterScreen.ITEM_HEIGHT,
-                getWidth(),
-                getWidth()
-        );
-        UContext.fillWidget(this, 0x7f000000);
+        drawBackground(getBackgroundTexture());
+
         UContext.borderWidget(this, isFocused() ? 0xFFFFFFFF : 0xFF7f7f7f);
 
         if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen && isHovered()) UContext.outline(this, 0xFFFFFFFF);
@@ -179,14 +190,52 @@ public class RasterLayerWidget extends ClickableWidget {
             );
         }
 
-
+        if (opacitySlider != null) if (opacitySlider.dragging()) UContext.setTextureAlpha(32);
         for (MicroButton button : microButtons) {
             button.draw(mouseX, mouseY);
         }
+        UContext.resetTextureAlpha();
 
         //TODO translate
         if (url != null) if (isHovered() && url.presetID >= 5 && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.of("Requires Api Key")));
         else setTooltip(Tooltip.of(Text.empty()));
+    }
+
+    private void drawBackground(Identifier texture) {
+        UContext.fillWidget(this, TileManager.themeColor);
+
+        UContext.drawTexture(
+                texture,
+                getX(),
+                getY(),
+                getWidth() / 2,
+                getHeight(),
+                0,
+                (float) getWidth() / 2 - (float) RasterScreen.ITEM_HEIGHT / 2,
+                getWidth() / 2,
+                RasterScreen.ITEM_HEIGHT,
+                getWidth(),
+                getWidth()
+        );
+
+        if (opacitySlider != null) UContext.setTextureAlpha((int) (opacitySlider.getValue() * 255));
+        UContext.drawTexture(
+                texture,
+                getX() + (getWidth() / 2),
+                getY(),
+                getWidth() / 2,
+                getHeight(),
+                (float) getWidth() / 2,
+                (float) getWidth() / 2 - (float) RasterScreen.ITEM_HEIGHT / 2,
+                getWidth() / 2,
+                RasterScreen.ITEM_HEIGHT,
+                getWidth(),
+                getWidth()
+        );
+        UContext.resetTextureAlpha();
+
+        if (opacitySlider != null) if (opacitySlider.dragging()) return;
+        UContext.fillWidget(this, 0x7f000000);
     }
 
     private String getSubMessage() {
@@ -228,6 +277,27 @@ public class RasterLayerWidget extends ClickableWidget {
                 return false;
             }
         }
+
+        if (opacitySlider != null) if (opacitySlider.isMouseOver(mouseX, mouseY)) {
+            opacitySlider.onClick(mouseX, mouseY);
+            return false;
+        }
+
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    public void releaseSlider(double mouseX, double mouseY) {
+        if (opacitySlider == null) return;
+        opacitySlider.onRelease(mouseX, mouseY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (opacitySlider != null) {
+            opacitySlider.onRelease(mouseX, mouseY);
+            return false;
+        }
+
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 }

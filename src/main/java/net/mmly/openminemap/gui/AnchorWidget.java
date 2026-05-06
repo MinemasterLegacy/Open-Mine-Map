@@ -68,7 +68,7 @@ public class AnchorWidget extends AlwaysSelectedEntryListWidget.Entry<AnchorWidg
     public void mouseMoved(double mouseX, double mouseY) {
         super.mouseMoved(mouseX, mouseY);
     }
-
+    
     @Override
     public void setFocused(boolean focused) {
         widget.setFocused(focused);

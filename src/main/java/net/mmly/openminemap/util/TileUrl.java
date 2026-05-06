@@ -24,7 +24,7 @@ public class TileUrl {
         this.attribution = attribution;
         this.attribution_links = attribution_links;
         this.source_url = source_url;
-        this.layerType = LayerType.BASE;
+        this.layerType = layerType;
         presetID = -1;
         presetIdentifier = null;
     }

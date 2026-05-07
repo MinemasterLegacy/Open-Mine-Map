@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.UnitConvert;
 
@@ -24,10 +25,10 @@ public class AttributionLayer extends ClickableWidget {
     public AttributionLayer(int x, int y, int width, int height) {
         super(x, y, width, height, Text.empty());
         String split = " | ";
-        if (TileUrlFile.getCurrentBaseRaster().attribution.equals("")) split = "";
+        if (RasterProvider.getCurrentBaseRaster().attribution.equals("")) split = "";
         TileUrlFile.initOsmAttribution();
-        attributionString = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentBaseRaster().attribution).toCharArray();
-        attribution = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentBaseRaster().attribution).replaceAll("\\{", "").replaceAll("}", "");
+        attributionString = (TileUrlFile.osmAttribution + split + RasterProvider.getCurrentBaseRaster().attribution).toCharArray();
+        attribution = (TileUrlFile.osmAttribution + split + RasterProvider.getCurrentBaseRaster().attribution).replaceAll("\\{", "").replaceAll("}", "");
         selectionZones = new int[(attributionString.length - attribution.length() / 2)][2];
     }
 
@@ -101,7 +102,7 @@ public class AttributionLayer extends ClickableWidget {
         if (selection == -1) return;
         String link;
         if (selection == 0) link = TileUrlFile.osmAttributionUrl;
-        else link = TileUrlFile.getCurrentBaseRaster().attribution_links[selection - 1];
+        else link = RasterProvider.getCurrentBaseRaster().attribution_links[selection - 1];
         MapScreen.openLinkScreen(link, new MapScreen(), true);
     }
 }

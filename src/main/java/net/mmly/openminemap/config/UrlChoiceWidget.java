@@ -13,6 +13,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
@@ -33,7 +34,7 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
         downArrowWidget = new SelectArrow(ArrowDirection.down, this);
         this.setTooltip(Tooltip.of(Text.translatable(ConfigOptions.TILE_MAP_URL.tooltip)));
         refreshText();
-        this.selectedUrl = TileUrlFile.getCurrentBaseRaster();
+        this.selectedUrl = RasterProvider.getCurrentBaseRaster();
     }
 
     @Override
@@ -48,7 +49,7 @@ public class UrlChoiceWidget extends TextFieldWidget implements ConfigChoice{
     protected void refreshText() {
         /*if ((TileUrlFile.getTileUrl(currentUrlId).name != null) && (!isHovered())) this.setText(TileUrlFile.getTileUrl(currentUrlId).name);
         else this.setText(TileUrlFile.getTileUrl(currentUrlId).source_url);*/
-        this.setText(TileUrlFile.getCurrentBaseRaster().name);
+        this.setText(RasterProvider.getCurrentBaseRaster().name);
     }
 
     @Override

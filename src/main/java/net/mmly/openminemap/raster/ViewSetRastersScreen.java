@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
@@ -47,9 +48,9 @@ public class ViewSetRastersScreen extends RasterScreen {
 
         addRaster(new RasterLayerWidget(Text.of("OpenMineMap"), null, LayerType.LOCAL_GEN));
 
-        addRaster(new RasterLayerWidget(TileUrlFile.getCurrentBaseRaster()));
+        addRaster(new RasterLayerWidget(RasterProvider.getCurrentBaseRaster()));
 
-        for (TileUrl url : TileUrlFile.getCurrentOverlays()) {
+        for (TileUrl url : RasterProvider.getCurrentOverlays()) {
             addRaster(new RasterLayerWidget(Text.of(url.name), url, LayerType.BASE));
         }
     }

@@ -70,5 +70,8 @@ public class TileUrl {
         };
     }
 
+    public boolean isOverlay() {
+        return layerType == LayerType.OVERLAY;
+    }
 
 }

@@ -11,10 +11,7 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
-import net.mmly.openminemap.util.Notification;
-import net.mmly.openminemap.util.RasterApiKeysFile;
-import net.mmly.openminemap.util.TileUrl;
-import net.mmly.openminemap.util.TileUrlFile;
+import net.mmly.openminemap.util.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -63,7 +60,7 @@ public class Requester extends Thread {
             }
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
-                this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentBaseRaster(), request.cacheName);
+                this.tileGetRequest(request.x, request.y, request.zoom, RasterProvider.getCurrentBaseRaster(), request.cacheName);
                 if (!disableWebRequests) requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;

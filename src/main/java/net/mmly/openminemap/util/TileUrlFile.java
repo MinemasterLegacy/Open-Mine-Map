@@ -24,9 +24,6 @@ import java.util.Optional;
 
 public class TileUrlFile {
 
-    private static ArrayList<TileUrl> urlPresets = new ArrayList<>();
-    private static ArrayList<TileUrl> customRasters = new ArrayList<>();
-
     public static boolean loadWasFailed = false;
     public static String osmAttribution;
     public static final String osmAttributionUrl = "https://openstreetmap.org/copyright";
@@ -37,7 +34,7 @@ public class TileUrlFile {
     //TODO validate if name is valid for file path
     //TODO show mapbox logo for mapbox urls
     private static TileUrl[] tileUrls;
-    private static final TileUrl defaultUrl = new TileUrl(
+    public static final TileUrl defaultUrl = new TileUrl(
             0,
             "OpenStreetMap",
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -47,8 +44,6 @@ public class TileUrlFile {
             },
             "base"
     );
-    private static TileUrl currentBaseUrl;
-    private static ArrayList<TileUrl> currentOverlays = new ArrayList<>();
 
     private static boolean createDefaultFile(File file) {
        try {
@@ -75,6 +70,7 @@ public class TileUrlFile {
         try {
             TileUrlFile.establishPresets();
             TileUrlFile.establishUrls();
+            RasterProvider.finishInitialization();
         } catch (IOException | NullPointerException ignored) {
             //do nothing, will try again next requester cycle
             //ignored.printStackTrace();
@@ -87,7 +83,7 @@ public class TileUrlFile {
     }
 
     /// Adds url load errors to chat as needed
-    public static void addApplicableErrors(MinecraftClient client) {
+    private static void addApplicableErrors(MinecraftClient client) {
         Text debugStart = Text.translatable("omm.error.tile-url.start");
         if (loadError != TileUrlErrorType.NO_ERROR) {
             String name;
@@ -100,7 +96,7 @@ public class TileUrlFile {
         }
     }
 
-    public static void establishUrls() throws IOException {
+    private static void establishUrls() throws IOException {
 
         try {
             File tileUrlsFile = new File(TileManager.getRootFile() + "openminemap/tileSources.json");
@@ -124,29 +120,17 @@ public class TileUrlFile {
             checkArrayValidity(tileUrlArray, false);
             tileUrls = addDefaultRaster(tileUrlArray);
 
-            //set the current url based on the set config option
-            String setUrl = ConfigOptions.TILE_MAP_URL.getAsString();
-            for (TileUrl tileUrl : tileUrls) {
-                if (tileUrl.name.equals(setUrl)) {
-                    setCurrentBaseRaster(tileUrl);
-                    return;
-                }
-            }
-
-            //TODO temp
-            setCurrentBaseRaster(defaultUrl);
-            //
+            RasterProvider.initCustomRasters(tileUrlArray);
 
         } catch (IOException | TileUrlFileFormatException e) {
             loadWasFailed = true;
-            tileUrls = new TileUrl[]{defaultUrl};
-            setCurrentBaseRaster(defaultUrl);
+            RasterProvider.initWithFailedLoad();
         }
 
         //TODO check urls with undefined template id for presets
     }
 
-    public static void establishPresets() throws NullPointerException, IOException {
+    private static void establishPresets() throws NullPointerException, IOException {
         //TODO specific error handling for presets
         try {
             TileUrl[] tileUrlArray;
@@ -170,7 +154,7 @@ public class TileUrlFile {
             tileUrlArray[0] = defaultUrl;
 
             checkArrayValidity(tileUrlArray, true);
-            urlPresets = new ArrayList<>(Arrays.stream(tileUrlArray).toList());
+            RasterProvider.initPresetRasters(tileUrlArray);
 
         } catch (TileUrlFileFormatException e) {
             //urlPresets = new TileUrl[]{};
@@ -220,7 +204,7 @@ public class TileUrlFile {
 
     /// Convert a JsonObject representing a raster to TileUrl
     private static TileUrl tileUrlOf(JsonObject raster, boolean isPreset) throws TileUrlFileFormatException {
-       try {
+        try {
            if (isPreset) return new TileUrl(
                    raster.get("templateId").getAsInt(),
                    raster.get("name").getAsString(),
@@ -326,37 +310,11 @@ public class TileUrlFile {
         return TileUrlErrorType.NO_ERROR;
     }
 
-    public static TileUrl[] getTileUrls() {
-        return tileUrls;
-    }
-
-    public static ArrayList<TileUrl> getPresets() {
-        return urlPresets;
-    }
-
-    public static TileUrl getTileUrl(int id) {
-        return tileUrls[id];
-    }
-
     public static TileUrl getUrlByName(String name) {
         for (TileUrl url : tileUrls) {
             if (url.name.equals(name)) return url;
         }
         return null;
-    }
-
-    public static TileUrl getCurrentBaseRaster() {
-        if (tileUrls == null || currentBaseUrl == null) return defaultUrl;
-        return currentBaseUrl;
-    }
-
-    public static void setCurrentBaseRaster(TileUrl tileUrl) {
-        currentBaseUrl = tileUrl;
-        TileManager.setCacheDir();
-    }
-
-    public static ArrayList<TileUrl> getCurrentOverlays() {
-        return currentOverlays;
     }
 
     private static String getDefaultFileText() {

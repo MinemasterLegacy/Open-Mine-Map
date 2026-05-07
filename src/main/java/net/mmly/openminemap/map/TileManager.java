@@ -163,9 +163,9 @@ public class TileManager {
         }
     }
 
-    public static void setCacheDir() {
+    public static void setBaseRasterDirectory() {
         //purgeOldFiles();
-        cacheName = TileUrlFile.getCurrentBaseRaster().name;
+        cacheName = RasterProvider.getCurrentBaseRaster().name;
         try { // create or open the base openminemap file for caching
             File cacheDirectory = new File(TileManager.getRootFile() + "openminemap/"+cacheName+"/");
             if (cacheDirectory.mkdir()) { //if directory does not exist
@@ -311,10 +311,15 @@ public class TileManager {
         }
     }
 
-    public static void setTileUrl(TileUrl url) { //TODO may want to add a check for if the tile url is valid/exists in the loaded list
-        if (url != TileUrlFile.getCurrentBaseRaster()) {
+    public static void setTileUrl(TileUrl url) {
+        setTileUrl(url, false);
+    }
+
+    public static void setTileUrl(TileUrl url, boolean forceSetUrl) {
+        if (url != RasterProvider.getCurrentBaseRaster() || forceSetUrl) {
             ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, url.name);
-            TileUrlFile.setCurrentBaseRaster(url);
+            RasterProvider.setCurrentBaseRaster(url);
+            setBaseRasterDirectory();
             TileManager.themeColor = 0xFF808080;
         }
     }

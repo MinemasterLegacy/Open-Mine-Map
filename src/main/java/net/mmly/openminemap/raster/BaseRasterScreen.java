@@ -6,6 +6,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.RasterApiKeysFile;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
@@ -23,7 +24,7 @@ public class BaseRasterScreen extends RasterScreen {
         //TODO translate
         this.addRaster(new RasterLayerWidget(Text.of("Create New Base Layer"), null, null));
 
-        for (TileUrl url : TileUrlFile.getPresets()) {
+        for (TileUrl url : RasterProvider.getPresetRasters()) {
             addRaster(new RasterLayerWidget(Text.of(url.name), url, null));
         }
 

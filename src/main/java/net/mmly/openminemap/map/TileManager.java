@@ -330,7 +330,7 @@ public class TileManager {
         doReverseScroll = ConfigOptions.REVERSE_SCROLL.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF);
         showPlayers = OverlayVisibility.fromString(ConfigOptions.SHOW_PLAYERS.getAsStringFromValues(ConfigOptions.Values.VISIBILITY));
         showDirectionIndicators = OverlayVisibility.fromString(ConfigOptions.SHOW_DIRECTION_INDICATORS.getAsStringFromValues(ConfigOptions.Values.VISIBILITY));
-        //MapScreen.backingColor = ColorUtil.argb((int) (ConfigOptions.INTERFACE_OPACITY.getAsDouble() * 255), 0, 0, 0); //TODO add somewhere else
+        MapScreen.backingColor = ColorUtil.argb((int) (ConfigOptions.INTERFACE_OPACITY.getAsDouble() * 255), 0, 0, 0);
         String textColor = ConfigOptions.TEXT_COLOR.getAsString();
         if (textColor.equals("rainbow")) MapScreen.setPlainTextColor(0xFF7f7f7f, true);
         else MapScreen.setPlainTextColor(Color.decode(textColor).getRGB(), false);

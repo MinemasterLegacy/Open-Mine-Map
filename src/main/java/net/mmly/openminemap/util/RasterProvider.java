@@ -20,6 +20,11 @@ public class RasterProvider {
     private static ArrayList<TileUrl> currentOverlays = new ArrayList<>();
     private static HashMap<TileUrl, Integer> overlayOpacities = new HashMap<>();
     private static HashMap<TileUrl, Boolean> overlayVisibilities = new HashMap<>();
+    private static boolean doMapboxAttribution = false;
+
+    public static boolean doMapboxAttribution() {
+        return doMapboxAttribution;
+    }
 
     protected static void initPresetRasters(TileUrl[] presetRasters) {
         RasterProvider.presetRasters = new ArrayList<>(Arrays.stream(presetRasters).toList());
@@ -51,6 +56,7 @@ public class RasterProvider {
 
     public static void setCurrentBaseRaster(TileUrl raster) {
         currentRaster = raster;
+        doMapboxAttribution = raster.source_url.contains("mapbox.com");
     }
 
     public static ArrayList<TileUrl> getCurrentOverlays() {

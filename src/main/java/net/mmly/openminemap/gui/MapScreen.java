@@ -108,6 +108,12 @@ public class MapScreen extends Screen { //Screen object that represents the full
         darkTextColor = ColorUtil.darken(argb, 0.75);
     }
 
+    private int getMapboxAttributionSize() {
+        int scale = (int) Math.round(window.getScaleFactor() * 2);
+        if (scale > 20) return 1;
+        return (int) Math.ceil(30.0 / scale) * 2;
+    }
+
     public static int getPlainTextColor() {
         return plainTextColor;
     }
@@ -628,6 +634,29 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
         searchButtonLayer.drawWidget(context);
         searchBoxLayer.drawWidget(context);
+
+        if (RasterProvider.doMapboxAttribution()) {
+            int size = getMapboxAttributionSize();
+            int margin = size / 4;
+            int yPos = height - (attributionOffset + 58 + margin * 2 + size);
+
+            UContext.fillZone(
+                    0,
+                    yPos,
+                    size * 4 + margin * 2,
+                    size + 2 * margin,
+                    ColorUtil.decompose(backingColor)[0] < 64 ? 0x3f000000 : backingColor
+            );
+            UContext.drawTexture(
+                    Identifier.of("openminemap", "mapbox.png"),
+                    margin,
+                    yPos + margin,
+                    size * 4,
+                    size,
+                    800,
+                    200
+            );
+        }
     }
 
     //used in the hud to render a 'fake' fsmap screen when chat is opened

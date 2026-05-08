@@ -11,7 +11,7 @@ public class ColorUtil {
         return (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
 
-    /// Returns as \[alpha, red, green, blue\]
+    /// Returns as \[alpha, red, green, blue\] ranging 0-255
     public static int[] decompose(int argb) {
         return new int[] {
                 (argb & 0xFF000000) >>> 24,

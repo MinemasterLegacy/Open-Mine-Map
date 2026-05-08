@@ -34,6 +34,7 @@ public class RasterLayerWidget extends ClickableWidget {
     private boolean isAddButton = false;
     private final String textureKey;
     private OpacitySlider opacitySlider;
+    private boolean showKey = false;
 
     public RasterLayerWidget(TileUrl url) {
         this(
@@ -61,7 +62,10 @@ public class RasterLayerWidget extends ClickableWidget {
         }
 
         if (url != null) {
-            if (url.hasKeyField() && !RasterApiKeysFile.hasApiKey(url.presetID)) microButtons[0].setFlash(true);
+            if (url.hasKeyField()) {
+                if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen) showKey = true;
+                if (!RasterApiKeysFile.hasApiKey(url.presetID)) microButtons[0].setFlash(true);
+            }
 
             textureKey = url.name.toLowerCase(Locale.US);
             if (url.presetID >= 0) RasterScreen.backgroundTiles.put( //is preset
@@ -178,7 +182,7 @@ public class RasterLayerWidget extends ClickableWidget {
 
         if (layerType != null) UContext.drawJustifiedText(Text.of(getSubMessage()), Justify.CENTER, getX() + getWidth() / 2, getY() + 24, 0xFFBFBFBF, true);
 
-        if (url != null) if (url.presetID >= 5) {
+        if (showKey) {
             UContext.drawTexture(
                     Identifier.of("openminemap", "rasterkey.png"),
                     getX() - 1,
@@ -197,7 +201,7 @@ public class RasterLayerWidget extends ClickableWidget {
         UContext.resetTextureAlpha();
 
         //TODO translate
-        if (url != null) if (isHovered() && url.presetID >= 5 && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.of("Requires Api Key")));
+        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.of("Requires Api Key")));
         else setTooltip(Tooltip.of(Text.empty()));
     }
 

@@ -61,7 +61,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     Window window = mClient.getWindow();
     private static RightClickMenu rightClickLayer;
     public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
-    private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
+    private static AttributionLayer attributionLayer;
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonCenterShelf = new LinkedHashMap<>();
     private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonLeftShelf = new LinkedHashMap<>();
@@ -370,6 +370,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     private static final String maxString = "-99.99999°, -999.99999°";
     private static void updateWidgetPositions(TextRenderer textRenderer) {
+        attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
+
         //if attribution would overlay the coordinate display
         //coordinate sample is meant to simulate the longest possible case so movement doesn't occur when the mouse is moved
         if (attributionLayer.getWidth() + textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + maxString) + 8 > windowScaledWidth) { //if attribution and coordinates would overlap
@@ -410,7 +412,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
         toggleClaimRenderingButtonLayer.setPosition(windowScaledWidth - 50, windowScaledHeight - 57);
-        attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
         bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
     }
 

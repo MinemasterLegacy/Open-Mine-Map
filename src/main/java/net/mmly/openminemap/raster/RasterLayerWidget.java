@@ -67,12 +67,20 @@ public class RasterLayerWidget extends ClickableWidget {
                 if (!RasterApiKeysFile.hasApiKey(url.presetID)) microButtons[0].setFlash(true);
             }
 
+            if (layerType == LayerType.OVERLAY && MinecraftClient.getInstance().currentScreen instanceof ViewSetRastersScreen) {
+                //TODO read value from somewhere
+                opacitySlider = new OpacitySlider(0, 0, 1);
+                opacitySlider.setParentWidget(this);
+                ViewSetRastersScreen.getInstance().addOpacitySlider(opacitySlider);
+            }
+
             textureKey = url.name.toLowerCase(Locale.US);
-            if (url.presetID >= 0) RasterScreen.backgroundTiles.put( //is preset
+            if (RasterScreen.backgroundTiles.containsKey(textureKey)) return; //already loaded texture
+            else if (url.isPreset()) RasterScreen.backgroundTiles.put( //if preset, load from assets
                     textureKey,
                     url.presetIdentifier
             );
-            else if (!RasterScreen.backgroundTiles.containsKey(textureKey)) {
+            else if (!RasterScreen.backgroundTiles.containsKey(textureKey)) { //if custom, load from cache files
                 RasterScreen.backgroundTiles.put(textureKey, TileManager.getLoadingIdentifier());
                 new TileLoader(new LoadableTile[] {
                         new LoadableTile(
@@ -83,29 +91,10 @@ public class RasterLayerWidget extends ClickableWidget {
 
             }
 
-            if (layerType == LayerType.OVERLAY && MinecraftClient.getInstance().currentScreen instanceof ViewSetRastersScreen) {
-                //TODO read value from somewhere
-                opacitySlider = new OpacitySlider(0, 0, 1);
-                opacitySlider.setParentWidget(this);
-                ViewSetRastersScreen.getInstance().addOpacitySlider(opacitySlider);
-            }
-
         } else {
             textureKey = null;
         }
-        /*
-        if (!RasterScreen.backgroundTiles.containsKey(url.name)) {
-            RasterScreen.backgroundTiles.put(url.name.toLowerCase(Locale.US), TileManager.getLoadingIdentifier());
-            new TileLoader(new LoadableTile[] {
-                    new LoadableTile(
-                            0, 0, 0, url.name,
-                            TileManager.getKey(0, 0, 0)
-                    )
-            }, RegisterableTile.RASTER_SCREEN).setPreset(true).start();
 
-        }
-
-         */
     }
 
     private Identifier getBackgroundTexture() {

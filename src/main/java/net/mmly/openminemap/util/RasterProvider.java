@@ -1,7 +1,8 @@
 package net.mmly.openminemap.util;
 
+import net.mmly.openminemap.OpenMineMap;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
-import net.mmly.openminemap.raster.LayerType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,12 +27,15 @@ public class RasterProvider {
         return doMapboxAttribution;
     }
 
-    protected static void initPresetRasters(TileUrl[] presetRasters) {
-        RasterProvider.presetRasters = new ArrayList<>(Arrays.stream(presetRasters).toList());
+    protected static void initPresetRasters(TileUrl[] presetRasterArray) {
+        presetRasters = new ArrayList<>(Arrays.stream(presetRasterArray).toList());
     }
 
-    protected static void initCustomRasters(TileUrl[] customRasters) {
-        RasterProvider.customRasters = new ArrayList<>(Arrays.stream(customRasters).toList());
+    protected static void initCustomRasters(TileUrl[] customRasterArray) {
+        customRasters = new ArrayList<>(Arrays.stream(customRasterArray).toList());
+        while (customRasters.contains(null)) {
+            customRasters.remove(null);
+        }
     }
 
     protected static void initWithFailedLoad() {
@@ -39,15 +43,41 @@ public class RasterProvider {
     }
 
     protected static void finishInitialization() {
+        readConfiguration();
         TileManager.setTileUrl(currentRaster, true); //TODO temp, read config instead
     }
 
     public static void readConfiguration() {
-        //TODO
+        determineBaseRaster();
+        //TODO for overlay, transparency, opacity
+    }
+
+    private static void determineBaseRaster() {
+        String configRaster = ConfigOptions.TILE_MAP_URL.getAsString();
+
+        for (TileUrl url : presetRasters) {
+            if (url.name.equals(configRaster)) {
+                currentRaster = url;
+                return;
+            }
+        }
+        for (TileUrl url : customRasters) {
+            if (url.name.equals(configRaster)) {
+                currentRaster = url;
+                return;
+            }
+        }
+
+        currentRaster = TileUrlFile.defaultUrl;
+        OpenMineMap.LOGGER.warn("Could not find base raster provider \"" + configRaster + "\", reverting to default.");
     }
 
     public static ArrayList<TileUrl> getPresetRasters() {
         return presetRasters;
+    }
+
+    public static ArrayList<TileUrl> getCustomBaseRasters() {
+        return customRasters;
     }
 
     public static TileUrl getCurrentBaseRaster() {

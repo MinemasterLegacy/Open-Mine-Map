@@ -2,11 +2,11 @@ package net.mmly.openminemap.map;
 
 public class LoadableTile {
 
-    int x;
-    int y;
-    int zoom;
-    String cache;
-    String key;
+    final int x;
+    final int y;
+    final int zoom;
+    final String cache;
+    final String key;
 
     public LoadableTile(int tileX, int tileY, int tileZoom, String tileCache, String tileKey) {
         this.x = tileX;

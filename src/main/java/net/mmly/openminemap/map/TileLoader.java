@@ -61,7 +61,7 @@ public class TileLoader extends Thread {
             memoryCacheSize += is.available();
             return is;
         } catch(IOException e) {
-            OpenMineMap.LOGGER.warn("Error while loading tile from disk: " + e.getMessage());
+            OpenMineMap.LOGGER.warn("Error while loading tile '" + tile.cache + "#" + tile.key + "' from disk: " + e.getMessage());
             return null;
         }
 

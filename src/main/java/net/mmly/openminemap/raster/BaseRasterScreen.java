@@ -3,6 +3,7 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.texture.Scaling;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.RasterApiKeysFile;
@@ -24,14 +25,19 @@ public class BaseRasterScreen extends RasterScreen {
         //TODO translate
         this.addRaster(new RasterLayerWidget(Text.of("Create New Base Layer"), null, null));
 
+        for (TileUrl url : RasterProvider.getCustomBaseRasters()) {
+            addRaster(new RasterLayerWidget(Text.of(url.name), url, null));
+        }
+
         for (TileUrl url : RasterProvider.getPresetRasters()) {
             addRaster(new RasterLayerWidget(Text.of(url.name), url, null));
         }
 
         confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
             try {
+                if (getSelectedLayerWidget().url.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().url.presetID)) return;
                 TileManager.setTileUrl(getSelectedLayerWidget().url);
-                MinecraftClient.getInstance().currentScreen.close(); //todo verify api key for rasters that need it
+                MinecraftClient.getInstance().currentScreen.close();
             } catch (NullPointerException ignored) {}
         }).width(200).build();
         this.addDrawableChild(confirmButton);

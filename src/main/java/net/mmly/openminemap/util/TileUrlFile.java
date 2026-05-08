@@ -165,6 +165,9 @@ public class TileUrlFile {
     private static void checkArrayValidity(TileUrl[] urls, boolean isPresets) throws TileUrlFileFormatException {
         for (int i = isPresets ? 1 : 0; i < urls.length; i++) {
             TileUrlErrorType exception = checkValidityOf(urls[i]);
+            if (exception == TileUrlErrorType.NULL_TILE_URL) {
+                continue; //will be handled once an arraylist
+            }
             if (exception != TileUrlErrorType.NO_ERROR) {
                 setError(exception, urls[i]);
                 throw new TileUrlFileFormatException();
@@ -186,7 +189,7 @@ public class TileUrlFile {
         try {
             returnedResult = gson.fromJson(new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)), Map.class);
         } catch (NullPointerException e) {
-            //TODO
+            setError(TileUrlErrorType.MALFORMED_JSON_FILE, null);
             return null;
         }
 
@@ -197,7 +200,6 @@ public class TileUrlFile {
             tileUrls[i] = tileUrlOf(rasters.get(i).getAsJsonObject(), isPreset);
         }
 
-        if (tileUrls[tileUrls.length - 1] == null) return null;
         return tileUrls;
 
     }
@@ -214,11 +216,6 @@ public class TileUrlFile {
                    LayerType.BASE.toString()
            );
 
-           if (raster.get("templateId") != null) return new TileUrl(
-                   raster.get("templateId").getAsInt(),
-                   raster.get("token").getAsString()
-           );
-
            if (raster.get("name") != null) return new TileUrl(
                    raster.get("name").getAsString(),
                    raster.get("source_url").getAsString(),
@@ -226,12 +223,17 @@ public class TileUrlFile {
                    arrayOf(raster.get("attribution_links").getAsJsonArray()),
                    raster.get("layerType").getAsString()
            );
-       } catch (NullPointerException e) {
-           setError(TileUrlErrorType.NULL_VALUE, null);
-           throw new TileUrlFileFormatException();
-       }
+       } catch (NullPointerException ignored) {}
+        
+        String urlName;
+        try {
+            urlName = raster.get("name").getAsString();
+        } catch (NullPointerException e) {
+            urlName = "unknown";
+        }
+        OpenMineMap.LOGGER.warn("Removing unparseable raster provider \"" + urlName + "\".");
 
-       return null;
+        return null;
     }
 
     private static String[] arrayOf(JsonArray jsonArray) {

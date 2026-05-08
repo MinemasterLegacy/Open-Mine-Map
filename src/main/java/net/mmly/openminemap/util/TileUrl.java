@@ -29,16 +29,6 @@ public class TileUrl {
         presetIdentifier = null;
     }
 
-    public TileUrl(int templateID, String token) {
-        this.name = "---";
-        this.source_url = "https://a.com/{x}/{y}/{z}";
-        this.attribution = "{e}";
-        this.attribution_links = new String[] {"https://e.e.com"};
-        this.layerType = LayerType.BASE;
-        presetID = -1;
-        presetIdentifier = null;
-    }
-
     public TileUrl(int templateId, String name, String source_url, String attribution, String[] attribution_links, String layerType) {
         this.name = name;
         this.attribution = attribution;

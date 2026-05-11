@@ -6,7 +6,6 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
-import net.mmly.openminemap.util.TileUrlFile;
 
 //todo add done buton
 //todo add preview option
@@ -15,10 +14,10 @@ public class ViewSetRastersScreen extends RasterScreen {
 
     private static ViewSetRastersScreen instance;
 
-    public ViewSetRastersScreen() {
-        super(0);
+    public ViewSetRastersScreen(boolean updateReturnScreen) {
+        super(0, updateReturnScreen);
         instance = this;
-        if (returnScreen instanceof MapScreen) MapScreen.toggleAltScreenMap(MinecraftClient.getInstance().currentScreen != null);
+        if (returnScreen instanceof MapScreen && updateReturnScreen) MapScreen.toggleAltScreenMap(MinecraftClient.getInstance().currentScreen != null);
     }
 
     public static ViewSetRastersScreen getInstance() {
@@ -26,39 +25,23 @@ public class ViewSetRastersScreen extends RasterScreen {
     }
 
     @Override
+    void populateRasterList() {
+        this.addRaster(new RasterLayerWidget(Text.of("Add Overlay"), null, null));
+
+        for (TileUrl url : RasterProvider.getCurrentOverlays().reversed()) {
+            if (url.layerType == LayerType.LOCAL_GEN)
+                addRaster(new RasterLayerWidget(Text.of("OpenMineMap"), TileUrl.generatedLayerUrl, LayerType.LOCAL_GEN));
+            else
+                addRaster(new RasterLayerWidget(Text.of(url.name), url, LayerType.OVERLAY));
+        }
+
+        addRaster(new RasterLayerWidget(RasterProvider.getCurrentBaseRaster()));
+    }
+
+    @Override
     public void close() {
         super.close();
         MapScreen.toggleAltScreenMap(false);
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-
-        //TODO translate
-        this.addRaster(new RasterLayerWidget(Text.of("Add Overlay"), null, null));
-
-        addRaster(new RasterLayerWidget(new TileUrl(
-                "Test Overlay",
-                "e",
-                "e",
-                new String[0],
-                LayerType.OVERLAY
-        )));
-
-        addRaster(new RasterLayerWidget(Text.of("OpenMineMap"), null, LayerType.LOCAL_GEN));
-
-        addRaster(new RasterLayerWidget(RasterProvider.getCurrentBaseRaster()));
-
-        for (TileUrl url : RasterProvider.getCurrentOverlays()) {
-            addRaster(new RasterLayerWidget(Text.of(url.name), url, LayerType.BASE));
-        }
-    }
-
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
-
     }
 
     public void addOpacitySlider(OpacitySlider slider) {

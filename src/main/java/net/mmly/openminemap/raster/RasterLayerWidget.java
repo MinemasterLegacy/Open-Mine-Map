@@ -35,6 +35,8 @@ public class RasterLayerWidget extends ClickableWidget {
     private final String textureKey;
     private OpacitySlider opacitySlider;
     private boolean showKey = false;
+    private int outlineFocusColor;
+    private int outlineBaseColor;
 
     public RasterLayerWidget(TileUrl url) {
         this(
@@ -49,6 +51,8 @@ public class RasterLayerWidget extends ClickableWidget {
         this.url = url;
         this.layerType = type;
         if (url == null && type == null) isAddButton = true;
+
+        chooseOutlineColor();
 
         if (!isAddButton) {
             MicroButtonFunction[] functions = LayerType.getMicroButtons(layerType);
@@ -76,7 +80,9 @@ public class RasterLayerWidget extends ClickableWidget {
 
             textureKey = url.name.toLowerCase(Locale.US);
             if (RasterScreen.backgroundTiles.containsKey(textureKey)) return; //already loaded texture
-            else if (url.isPreset()) RasterScreen.backgroundTiles.put( //if preset, load from assets
+            if (layerType == LayerType.LOCAL_GEN) return; //if local gen, use hard-coded texture
+
+            if (url.isPreset()) RasterScreen.backgroundTiles.put( //if preset, load from assets
                     textureKey,
                     url.presetIdentifier
             );
@@ -87,7 +93,7 @@ public class RasterLayerWidget extends ClickableWidget {
                                 0, 0, 0, url.name,
                                 TileManager.getKey(0, 0, 0)
                         )
-                }, RegisterableTile.RASTER_SCREEN).start();
+                }, RegisterableTile.RASTER_SCREEN).updateBackgoundColor(false).start();
 
             }
 
@@ -95,6 +101,28 @@ public class RasterLayerWidget extends ClickableWidget {
             textureKey = null;
         }
 
+    }
+
+    private void chooseOutlineColor() {
+        if (layerType == null && url == null) {
+            outlineBaseColor = ColorUtil.darken(0xFFFFFCA8, 0.5);
+            outlineFocusColor = 0xFFFFFCA8;
+            return;
+        }
+
+        if (url == null || layerType == LayerType.LOCAL_GEN) {
+            outlineBaseColor = 0xFF7f7f7f;
+            outlineFocusColor = 0xFFFFFFFF;
+            return;
+        }
+
+        if (url.isPreset()) {
+            outlineBaseColor = 0xFF7f7f7f;
+            outlineFocusColor = 0xFFFFFFFF;
+        } else {
+            outlineBaseColor = ColorUtil.darken(0xFFa8afff, 0.5);
+            outlineFocusColor = 0xFFa8afff;
+        }
     }
 
     private Identifier getBackgroundTexture() {
@@ -156,18 +184,17 @@ public class RasterLayerWidget extends ClickableWidget {
 
         drawBackground(getBackgroundTexture());
 
-        UContext.borderWidget(this, isFocused() ? 0xFFFFFFFF : 0xFF7f7f7f);
+        UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
+        if (url != null) if (!url.isPreset()) UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
 
-        if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen && isHovered()) UContext.outline(this, 0xFFFFFFFF);
+        if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen && isHovered()) UContext.borderWidget(this, 0xFFFFFFFF);
 
         if (isAddButton) {
             UContext.drawJustifiedText(getMessage(), Justify.CENTER, getX() + getWidth() / 2, getY() + (getHeight() / 2) - 4,0xFFFFFCA8, true);
-            UContext.outline(this, isHovered() || isFocused() ? 0xFFFFFCA8 : ColorUtil.darken(0xFFFFFCA8, 0.5));
+            UContext.borderWidget(this, isHovered() || isFocused() ? outlineFocusColor : outlineBaseColor);
         } else {
             UContext.drawJustifiedText(getMessage(), Justify.CENTER, getX() + getWidth() / 2, getY() + 7, 0xFFFFFFFF, true);
         }
-
-        //TODO Translate
 
         if (layerType != null) UContext.drawJustifiedText(Text.of(getSubMessage()), Justify.CENTER, getX() + getWidth() / 2, getY() + 24, 0xFFBFBFBF, true);
 
@@ -192,6 +219,14 @@ public class RasterLayerWidget extends ClickableWidget {
         //TODO translate
         if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.of("Requires Api Key")));
         else setTooltip(Tooltip.of(Text.empty()));
+
+        UContext.borderWidget(this,
+                isFocused() ||
+                        (isHovered() &&
+                                (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen ||
+                                isAddButton)) ?
+                outlineFocusColor :
+                outlineBaseColor);
     }
 
     private void drawBackground(Identifier texture) {

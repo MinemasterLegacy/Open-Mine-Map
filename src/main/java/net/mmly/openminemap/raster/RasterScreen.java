@@ -28,11 +28,12 @@ public abstract class RasterScreen extends Screen {
     public static HashMap<String, Identifier> backgroundTiles = new HashMap<>();
     protected Screen returnScreen;
 
-    public RasterScreen(int bottomPadding) {
+    public RasterScreen(int bottomPadding, boolean updateReturnScreen) {
         super(Text.of(""));
         instance = this;
         this.BOTTOM_PADDING = bottomPadding;
-        returnScreen = MinecraftClient.getInstance().currentScreen;
+        if (updateReturnScreen) returnScreen = MinecraftClient.getInstance().currentScreen;
+        else returnScreen = ((RasterScreen) MinecraftClient.getInstance().currentScreen).returnScreen;
     }
 
     @Override
@@ -104,12 +105,29 @@ public abstract class RasterScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
+    abstract void populateRasterList();
+
+    /*
+    public void purgeRasterList() {
+        System.out.println("purge");
+        this.remove(rasterList);
+        rasterWidgets.clear();
+        anchorWidgets.clear();
+        rasterList = new RasterList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
+        this.addDrawableChild(rasterList);
+    }
+
+     */
+
     @Override
     protected void init() {
         super.init();
 
         rasterList = new RasterList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
         this.addDrawableChild(rasterList);
+
+        //purgeRasterList();
+        populateRasterList();
 
         rasterList.restoreScroll();
     }
@@ -148,4 +166,5 @@ public abstract class RasterScreen extends Screen {
         }
         return b;
     }
+
 }

@@ -36,6 +36,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     COMPASS(0, "ShowCompass", "show", "compass"),
     TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),
 
+    _MOD_VERSION(1, "§modversion", "1.0.0"), //used for data fixing
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),

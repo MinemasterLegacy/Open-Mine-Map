@@ -61,10 +61,6 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         drawJustifiedText(text, justify, x, y, color, false);
     }
 
-    public static void outline(ClickableWidget widget, int color) {
-        drawBorder(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), color);
-    }
-
     public static void drawBorder(int x, int y, int width, int height, int color) {
         drawContext.drawBorder(x, y, width, height, color);
     }

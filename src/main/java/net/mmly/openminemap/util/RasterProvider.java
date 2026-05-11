@@ -1,5 +1,6 @@
 package net.mmly.openminemap.util;
 
+import net.minecraft.client.texture.Scaling;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
@@ -44,6 +45,7 @@ public class RasterProvider {
 
     protected static void finishInitialization() {
         readConfiguration();
+        currentOverlays.add(TileUrl.generatedLayerUrl);
         TileManager.setTileUrl(currentRaster, true); //TODO temp, read config instead
     }
 
@@ -94,15 +96,16 @@ public class RasterProvider {
     }
 
     public static boolean isBottomOverlay(TileUrl raster) {
+        if (!currentOverlays.contains(raster)) return false;
         return currentOverlays.indexOf(raster) == 0;
     }
 
     public static boolean isTopOverlay(TileUrl raster) {
+        if (!currentOverlays.contains(raster)) return false;
         return currentOverlays.indexOf(raster) == currentOverlays.size() - 1;
     }
 
     private static void moveOverlayRaster(TileUrl raster, int direction) {
-        if (!raster.isOverlay()) return;
         if (!currentOverlays.contains(raster)) return;
         int index = currentOverlays.indexOf(raster);
         currentOverlays.remove(raster);
@@ -141,14 +144,22 @@ public class RasterProvider {
         overlayVisibilities.put(raster, visibility);
     }
 
+    public static boolean overlayInUse(TileUrl raster) {
+        return currentOverlays.contains(raster);
+    }
+
     public static void insertOverlayOnTop(TileUrl raster) {
         if (!raster.isOverlay()) return;
-        if (!currentOverlays.contains(raster)) return;
-        currentOverlays.addFirst(raster);
+        if (currentOverlays.contains(raster)) return;
+        currentOverlays.addLast(raster);
     }
 
     public static void addCustomRaster(TileUrl raster) {
         customRasters.add(raster);
+    }
+
+    public static void extractOverlay(TileUrl url) {
+        currentOverlays.remove(url);
     }
 
 }

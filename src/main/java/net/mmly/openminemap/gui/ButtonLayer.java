@@ -134,7 +134,7 @@ public class ButtonLayer extends ClickableWidget {
                 break;
             case ButtonFunction.RASTER:
                 MinecraftClient.getInstance().setScreen(
-                        new ViewSetRastersScreen()
+                        new ViewSetRastersScreen(true)
                 );
                 break;
             case ButtonFunction.ADD:

@@ -205,7 +205,7 @@ public class TileUrlFile {
     }
 
     /// Convert a JsonObject representing a raster to TileUrl
-    private static TileUrl tileUrlOf(JsonObject raster, boolean isPreset) throws TileUrlFileFormatException {
+    private static TileUrl tileUrlOf(JsonObject raster, boolean isPreset) {
         try {
            if (isPreset) return new TileUrl(
                    raster.get("templateId").getAsInt(),
@@ -231,7 +231,7 @@ public class TileUrlFile {
         } catch (NullPointerException e) {
             urlName = "unknown";
         }
-        OpenMineMap.LOGGER.warn("Removing unparseable raster provider \"" + urlName + "\".");
+        OpenMineMap.LOGGER.warn("Ignoring unparseable raster provider \"" + urlName + "\".");
 
         return null;
     }

@@ -103,9 +103,8 @@ public class CreateRasterScreen extends Screen {
         }
 
         //TODO translate
-        //TODO change text based on isNew
         doneButton = ButtonWidget.builder(Text.of(isNew ? "Create" : "Done"), (widget) -> {
-            CreateRasterScreen.instance.close();
+            CreateRasterScreen.instance.close(); //todo validate raster on creation
         }).position(0, -100).build();
         doneButton.setWidth(200);
         addDrawableChild(doneButton);

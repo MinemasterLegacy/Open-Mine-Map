@@ -13,25 +13,29 @@ import net.mmly.openminemap.util.TileUrlFile;
 
 public class BaseRasterScreen extends RasterScreen {
     public BaseRasterScreen() {
-        super(40);
+        super(40, true);
     }
 
     public static ButtonWidget confirmButton;
 
     @Override
-    protected void init() {
-        super.init();
-
+    void populateRasterList() {
         //TODO translate
         this.addRaster(new RasterLayerWidget(Text.of("Create New Base Layer"), null, null));
 
         for (TileUrl url : RasterProvider.getCustomBaseRasters()) {
+            if (url.layerType != LayerType.BASE) continue;
             addRaster(new RasterLayerWidget(Text.of(url.name), url, null));
         }
 
         for (TileUrl url : RasterProvider.getPresetRasters()) {
             addRaster(new RasterLayerWidget(Text.of(url.name), url, null));
         }
+    }
+
+    @Override
+    protected void init() {
+        super.init();
 
         confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
             try {
@@ -58,6 +62,10 @@ public class BaseRasterScreen extends RasterScreen {
         }
         if (getSelectedLayerWidget().url.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().url.presetID)) { //TODO replace true with a missing key check
             confirmButton.setMessage(Text.of("Requires API Key"));
+            return;
+        }
+        if (RasterProvider.getCurrentBaseRaster() == getSelectedLayerWidget().url) {
+            confirmButton.setMessage(Text.of("Base Already In Use"));
             return;
         }
         confirmButton.setMessage(Text.of("Set Base to " + getSelectedLayerWidget().url.name));

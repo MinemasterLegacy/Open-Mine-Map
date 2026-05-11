@@ -9,8 +9,8 @@ import net.minecraft.util.Util;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonState;
-import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ColorUtil;
+import net.mmly.openminemap.util.RasterProvider;
 
 public class MicroButton extends ClickableWidget {
 
@@ -18,11 +18,21 @@ public class MicroButton extends ClickableWidget {
     private RasterLayerWidget parentWidget;
     public final LayerType layerType;
     private boolean flash = false;
+    private boolean disabaled = false;
 
     public MicroButton(int x, int y, MicroButtonFunction function, LayerType layerType) {
         super(x, y, 12, 12, Text.of(""));
         this.buttonFunction = function;
         this.layerType = layerType;
+    }
+
+    private void checkDisabled() {
+        if (buttonFunction == MicroButtonFunction.UP) {
+            disabaled = RasterProvider.isTopOverlay(parentWidget.url);
+        }
+        if (buttonFunction == MicroButtonFunction.DOWN) {
+            disabaled = RasterProvider.isBottomOverlay(parentWidget.url);
+        }
     }
 
     public void setParentWidget(RasterLayerWidget parentWidget) {
@@ -34,8 +44,9 @@ public class MicroButton extends ClickableWidget {
     }
 
     public void draw(int mouseX, int mouseY) {
+        checkDisabled();
         UContext.drawTexture(
-                buttonFunction.getTexture(isMouseOver(mouseX, mouseY) ? ButtonState.HOVER : ButtonState.DEFAULT),
+                buttonFunction.getTexture(disabaled ? ButtonState.LOCKED : isMouseOver(mouseX, mouseY) ? ButtonState.HOVER : ButtonState.DEFAULT),
                 getX(), getY(), width, height, 12, 12);
         if (flash) drawFlash();
     }
@@ -59,6 +70,7 @@ public class MicroButton extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
+        if (disabaled) return;
         MinecraftClient client = MinecraftClient.getInstance();
         switch (buttonFunction) {
             case EDIT: {
@@ -70,11 +82,15 @@ public class MicroButton extends ClickableWidget {
                 break;
             }
             case UP: {
-                //TODO
+                RasterProvider.moveForward(parentWidget.url);
+                //((ViewSetRastersScreen) MinecraftClient.getInstance().currentScreen).reloadRasterList();
+                MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case DOWN: {
-                //TODO
+                RasterProvider.moveBackwards(parentWidget.url);
+                //((ViewSetRastersScreen) MinecraftClient.getInstance().currentScreen).reloadRasterList();
+                MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case VISIBILITY: {
@@ -82,7 +98,8 @@ public class MicroButton extends ClickableWidget {
                 break;
             }
             case REMOVE: {
-                //TODO
+                RasterProvider.extractOverlay(parentWidget.url);
+                MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case INFO: {

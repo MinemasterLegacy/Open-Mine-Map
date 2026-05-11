@@ -13,7 +13,18 @@ public class TileUrl {
     public final LayerType layerType;
     public final int presetID;
     public final Identifier presetIdentifier;
+    public static final TileUrl generatedLayerUrl = new TileUrl();
     //TODO check if preset when attempting to load from
+
+    private TileUrl() {
+        this.name = "Generated Overlays";
+        this.source_url = "";
+        this.attribution_links = null;
+        this.attribution = "";
+        this.layerType = LayerType.LOCAL_GEN;
+        this.presetID = -1;
+        this.presetIdentifier = null;
+    }
 
     public TileUrl(String name, String source_url, String attribution, String[] attribution_links, String layerType) {
         this(name, source_url, attribution, attribution_links, typeFromString(layerType));

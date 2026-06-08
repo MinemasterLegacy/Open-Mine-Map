@@ -3,6 +3,7 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.UnitConvert;
 
 public class OpacitySlider extends SliderWidget {
@@ -44,6 +45,7 @@ public class OpacitySlider extends SliderWidget {
 
     public void setParentWidget(RasterLayerWidget parentWidget) {
         this.parentWidget = parentWidget;
+        this.value = RasterProvider.getOpacityOf(parentWidget.url);
     }
 
     @Override

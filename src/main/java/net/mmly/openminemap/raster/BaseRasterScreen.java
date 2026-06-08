@@ -60,7 +60,7 @@ public class BaseRasterScreen extends RasterScreen {
             confirmButton.setMessage(Text.of("Select a Base Raster..."));
             return;
         }
-        if (getSelectedLayerWidget().url.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().url.presetID)) { //TODO replace true with a missing key check
+        if (getSelectedLayerWidget().url.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().url.presetID)) {
             confirmButton.setMessage(Text.of("Requires API Key"));
             return;
         }

@@ -20,6 +20,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.RasterApiKeysFile;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 
 import java.util.Locale;
@@ -72,7 +73,6 @@ public class RasterLayerWidget extends ClickableWidget {
             }
 
             if (layerType == LayerType.OVERLAY && MinecraftClient.getInstance().currentScreen instanceof ViewSetRastersScreen) {
-                //TODO read value from somewhere
                 opacitySlider = new OpacitySlider(0, 0, 1);
                 opacitySlider.setParentWidget(this);
                 ViewSetRastersScreen.getInstance().addOpacitySlider(opacitySlider);
@@ -264,6 +264,24 @@ public class RasterLayerWidget extends ClickableWidget {
 
         if (opacitySlider != null) if (opacitySlider.dragging()) return;
         UContext.fillWidget(this, 0x7f000000);
+
+        if (url != null) if (layerType == LayerType.OVERLAY && !RasterProvider.getVisibilityOf(url)) {
+            UContext.setTextureAlpha(127);
+            UContext.drawTexture(
+                    Identifier.of("openminemap", "unvisible.png"),
+                    getX() + (getWidth() / 2) - 10 - 40,
+                    getY() + (getHeight() / 2) - 10,
+                    20, 20, 0, 0, 20, 20
+            );
+            UContext.drawTexture(
+                    Identifier.of("openminemap", "unvisible.png"),
+                    getX() + (getWidth() / 2) - 10 + 40,
+                    getY() + (getHeight() / 2) - 10,
+                    20, 20, 0, 0, 20, 20
+            );
+            UContext.resetTextureAlpha();
+        }
+
     }
 
     private String getSubMessage() {

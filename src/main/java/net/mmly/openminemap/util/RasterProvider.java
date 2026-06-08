@@ -4,10 +4,9 @@ import net.minecraft.client.texture.Scaling;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
+import net.mmly.openminemap.raster.LayerType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 //TODO move all raster determination logic here (including from tileManager)
 //TODO load/save current configuration from config file (base, overlays, opacity, visibility)
@@ -20,7 +19,7 @@ public class RasterProvider {
     private static ArrayList<TileUrl> customRasters = new ArrayList<>();
     private static TileUrl currentRaster = TileUrlFile.defaultUrl;
     private static ArrayList<TileUrl> currentOverlays = new ArrayList<>();
-    private static HashMap<TileUrl, Integer> overlayOpacities = new HashMap<>();
+    private static HashMap<TileUrl, Float> overlayOpacities = new HashMap<>();
     private static HashMap<TileUrl, Boolean> overlayVisibilities = new HashMap<>();
     private static boolean doMapboxAttribution = false;
 
@@ -44,14 +43,57 @@ public class RasterProvider {
     }
 
     protected static void finishInitialization() {
-        readConfiguration();
         currentOverlays.add(TileUrl.generatedLayerUrl);
+        readConfiguration();
         TileManager.setTileUrl(currentRaster, true); //TODO temp, read config instead
     }
 
     public static void readConfiguration() {
         determineBaseRaster();
-        //TODO for overlay, transparency, opacity
+
+        String[] configValue = ConfigOptions.RASTER_VISIBILITIES.getAsString().split(",");
+        ArrayList<String> values = new ArrayList<>(List.of(configValue));
+        values.remove("");
+        if (values.size() < currentOverlays.size() - 1) {
+            OpenMineMap.LOGGER.warn("Mismatched number of raster visibility settings (not enough), appending extra to match");
+            while (values.size() != currentOverlays.size() - 1) {
+                values.addLast("true");
+            }
+        }
+        else if (values.size() > currentOverlays.size() - 1) {
+            OpenMineMap.LOGGER.warn("Mismatched number of raster visibility settings (too much), extra values will be ignored");
+        }
+        int i = 1;
+        for (TileUrl url : currentOverlays) {
+            if (url.layerType == LayerType.LOCAL_GEN) continue;
+            overlayVisibilities.put(url, Boolean.parseBoolean(values.get(i)));
+            i++;
+        }
+
+        configValue = ConfigOptions.RASTER_OPACITIES.getAsString().split(",");
+        values = new ArrayList<>(List.of(configValue));
+        values.remove("");
+        if (values.size() < currentOverlays.size() - 1) {
+            OpenMineMap.LOGGER.warn("Mismatched number of raster opacity settings (not enough), appending extra to match");
+            while (values.size() != currentOverlays.size() - 1) {
+                values.addLast("1.0");
+            }
+        }
+        else if (values.size() > currentOverlays.size() - 1) {
+            OpenMineMap.LOGGER.warn("Mismatched number of raster opacity settings (too much), extra values will be ignored");
+        }
+        i = 1;
+        for (TileUrl url : currentOverlays) {
+            if (url.layerType == LayerType.LOCAL_GEN) continue;
+            try {
+                overlayOpacities.put(url, Float.parseFloat(values.get(i)));
+            } catch (NumberFormatException e) {
+                OpenMineMap.LOGGER.warn("Opacity setting for raster \"" + url.name + "\" was unparseable, defaulting to 1");
+            }
+            i++;
+        }
+
+
     }
 
     private static void determineBaseRaster() {
@@ -122,14 +164,14 @@ public class RasterProvider {
         moveOverlayRaster(raster, -1);
     }
 
-    public static void setOpacityOf(TileUrl raster, int opacity) {
+    public static void setOpacityOf(TileUrl raster, float opacity) {
         if (!raster.isOverlay()) return;
         overlayOpacities.put(raster, opacity);
     }
 
-    public static int getOpacityOf(TileUrl raster) {
-        if (!raster.isOverlay()) return 255;
-        if (!overlayOpacities.containsKey(raster)) return 255;
+    public static float getOpacityOf(TileUrl raster) {
+        if (!raster.isOverlay()) return 1f;
+        if (!overlayOpacities.containsKey(raster)) return 1f;
         return overlayOpacities.get(raster);
     }
 
@@ -152,14 +194,32 @@ public class RasterProvider {
         if (!raster.isOverlay()) return;
         if (currentOverlays.contains(raster)) return;
         currentOverlays.addLast(raster);
+        overlayVisibilities.put(raster, true);
+        overlayOpacities.put(raster, 1f);
+    }
+
+    public static void extractOverlay(TileUrl url) {
+        currentOverlays.remove(url);
+        overlayVisibilities.remove(url);
+        overlayOpacities.remove(url);
     }
 
     public static void addCustomRaster(TileUrl raster) {
         customRasters.add(raster);
     }
 
-    public static void extractOverlay(TileUrl url) {
-        currentOverlays.remove(url);
+    public void saveSettings(boolean writeToFile) {
+        StringBuilder visibilities = new StringBuilder();
+        StringBuilder opacities = new StringBuilder();
+        for (TileUrl overlay : currentOverlays) {
+            visibilities.append(getVisibilityOf(overlay)).append(",");
+            opacities.append(getOpacityOf(overlay)).append(",");
+        }
+        if (!visibilities.isEmpty()) visibilities.deleteCharAt(visibilities.length() - 1);
+        if (!opacities.isEmpty()) opacities.deleteCharAt(visibilities.length() - 1);
+        ConfigOptions.RASTER_OPACITIES.write(opacities.toString());
+        ConfigOptions.RASTER_VISIBILITIES.write(visibilities.toString());
+        if (writeToFile) ConfigFile.writeToFile();
     }
 
 }

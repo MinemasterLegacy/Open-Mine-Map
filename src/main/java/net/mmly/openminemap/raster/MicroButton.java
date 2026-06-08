@@ -94,7 +94,7 @@ public class MicroButton extends ClickableWidget {
                 break;
             }
             case VISIBILITY: {
-                //TODO
+                RasterProvider.setVisibilityOf(parentWidget.url, !RasterProvider.getVisibilityOf(parentWidget.url));
                 break;
             }
             case REMOVE: {

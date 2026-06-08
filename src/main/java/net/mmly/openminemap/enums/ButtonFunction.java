@@ -13,7 +13,9 @@ public enum ButtonFunction {
     CHECKMARK("check.png", 7),
     RESETCONFIG("resetconfig.png", 8),
     RASTER("raster.png", 9),
-    ADD("add.png", 10);
+    ADD("add.png", 10),
+    ADDRASTER("add.png", 11),
+    REMOVERASTER("remove.png", 12);
 
     public final String textureFileName;
     public final int id;

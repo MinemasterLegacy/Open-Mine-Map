@@ -5,17 +5,23 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.texture.Scaling;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.config.ChoiceButtonWidget;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.TileUrl;
 
+import java.util.ArrayList;
+
 public class CreateRasterScreen extends Screen {
 
     private TextFieldWidget[] fieldWidgets;
     private ButtonWidget doneButton;
+    private ChoiceButtonWidget addAttributionButton;
+    private ArrayList<ChoiceButtonWidget> removeAttributionButton = new ArrayList<>();
     private final TileUrl tileUrl;
     protected boolean isNew;
     protected boolean keyField;
@@ -71,6 +77,11 @@ public class CreateRasterScreen extends Screen {
 
     }
 
+    public TileUrl buildRaster() {
+        //todo
+        return null;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -104,6 +115,7 @@ public class CreateRasterScreen extends Screen {
 
         //TODO translate
         doneButton = ButtonWidget.builder(Text.of(isNew ? "Create" : "Done"), (widget) -> {
+
             CreateRasterScreen.instance.close(); //todo validate raster on creation
         }).position(0, -100).build();
         doneButton.setWidth(200);

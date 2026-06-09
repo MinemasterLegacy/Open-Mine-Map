@@ -311,7 +311,7 @@ public class RasterLayerWidget extends ClickableWidget {
             if (currentScreen instanceof ViewSetRastersScreen) {
                 MinecraftClient.getInstance().setScreen(new OverlayRasterScreen());
             }
-            if (currentScreen instanceof BaseRasterScreen) {
+            if (currentScreen instanceof BaseRasterScreen || currentScreen instanceof OverlayRasterScreen) {
                 if (ConfigOptions._RASTER_WARNING_ACCEPTED.getAsBoolean()) MinecraftClient.getInstance().setScreen(new CreateRasterScreen(null)); //conditional should be a config setting for if the warning screen was passed already
                 else MinecraftClient.getInstance().setScreen(new RasterWarningScreen());
             }

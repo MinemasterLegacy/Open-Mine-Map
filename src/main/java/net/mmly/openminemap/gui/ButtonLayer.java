@@ -14,6 +14,7 @@ import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.raster.CreateRasterScreen;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.waypoint.WaypointScreen;
@@ -26,7 +27,11 @@ public class ButtonLayer extends ClickableWidget {
     private BooleanSupplier disableCondition;
     private static final int BUTTONSIZE = 20;
 
-    public ButtonLayer(int x, int y, ButtonFunction f){
+    public ButtonLayer(ButtonFunction f) {
+        this(0, 0, f);
+    }
+
+    public ButtonLayer(int x, int y, ButtonFunction f) {
         this(x, y, f, null);
     }
 
@@ -70,24 +75,24 @@ public class ButtonLayer extends ClickableWidget {
     public void onClick(double mouseX, double mouseY) {
         RightClickMenu.disableMenu();
         switch (function) {
-            case ButtonFunction.ZOOMIN: //zoom in
+            case ZOOMIN: //zoom in
                 MapScreen.zoomIn();
                 break;
-            case ButtonFunction.ZOOMOUT: //zoom out
+            case ZOOMOUT: //zoom out
                 MapScreen.zoomOut();
                 break;
-            case ButtonFunction.RESET: //reset
+            case RESET: //reset
                 MapScreen.resetMap();
                 break;
-            case ButtonFunction.FOLLOW: //follow
+            case FOLLOW: //follow
                 if (PlayerAttributes.positionIsValid()) MapScreen.followPlayer(true);
                 break;
-            case ButtonFunction.CONFIG: //config
+            case CONFIG: //config
                 MinecraftClient.getInstance().setScreen(
                         new ConfigScreen()
                 );
                 break;
-            case ButtonFunction.EXIT: //exit
+            case EXIT: //exit
                 if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
                     MapConfigScreen.revertChanges();
                     MinecraftClient.getInstance().setScreen(
@@ -101,12 +106,12 @@ public class ButtonLayer extends ClickableWidget {
                 }
                 MinecraftClient.getInstance().currentScreen.close();
                 break;
-            case ButtonFunction.WAYPOINTS:
+            case WAYPOINTS:
                 MinecraftClient.getInstance().setScreen(
                         new WaypointScreen()
                 );
                 break;
-            case ButtonFunction.CHECKMARK:
+            case CHECKMARK:
                 if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
                     ConfigScreen.getInstance().saveChanges();
                     MinecraftClient.getInstance().setScreen(
@@ -120,7 +125,7 @@ public class ButtonLayer extends ClickableWidget {
                 }
                 MinecraftClient.getInstance().setScreen(null);
                 break;
-            case ButtonFunction.RESETCONFIG:
+            case RESETCONFIG:
                 HudMap.map.setRenderPositionAndSize(
                         Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_X)),
                         Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_Y)),
@@ -132,13 +137,19 @@ public class ButtonLayer extends ClickableWidget {
                 HudMap.hudCompassWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_WIDTH));
                 MapConfigScreen.updateResizePos();
                 break;
-            case ButtonFunction.RASTER:
+            case RASTER:
                 MinecraftClient.getInstance().setScreen(
                         new ViewSetRastersScreen(true)
                 );
                 break;
-            case ButtonFunction.ADD:
+            case ADD:
                 //unused
+                break;
+            case ADDRASTER:
+                CreateRasterScreen.instance.addRasterField();
+                break;
+            case REMOVERASTER:
+                CreateRasterScreen.instance.removeRasterField();
                 break;
         }
     }

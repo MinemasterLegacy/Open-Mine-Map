@@ -129,7 +129,6 @@ public abstract class RasterScreen extends Screen {
         //purgeRasterList();
         populateRasterList();
 
-        rasterList.restoreScroll();
     }
 
     protected void updateWidgetPositions() {

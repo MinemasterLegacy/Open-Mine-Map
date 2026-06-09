@@ -98,15 +98,15 @@ public class MapConfigScreen extends Screen {
         if (!HudMap.renderHud) HudMap.toggleRendering();
         updateScreenDims();
 
-        saveButton = new ButtonLayer(0, 0, ButtonFunction.CHECKMARK);
+        saveButton = new ButtonLayer(ButtonFunction.CHECKMARK);
         saveButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.save-and-exit")));
         this.addDrawableChild(saveButton);
 
-        exitButton = new ButtonLayer(0, 0,ButtonFunction.EXIT);
+        exitButton = new ButtonLayer(ButtonFunction.EXIT);
         exitButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.exit-without-saving")));
         this.addDrawableChild(exitButton);
 
-        resetConfigButton = new ButtonLayer(0, 0, ButtonFunction.RESETCONFIG);
+        resetConfigButton = new ButtonLayer(ButtonFunction.RESETCONFIG);
         resetConfigButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.reset-to-default")));
         this.addDrawableChild(resetConfigButton);
 

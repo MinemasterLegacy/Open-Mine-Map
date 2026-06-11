@@ -39,6 +39,8 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
 
+        //OpenMineMapDataFixer.fix();
+
         KeyInputHandler.register(); //register all new keybinds
         CommandHander.register(); //register commands
 

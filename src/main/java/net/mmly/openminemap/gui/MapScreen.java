@@ -480,7 +480,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     public static void toggleAltScreenMap(boolean state) {
-        System.out.println("toggle");
         renderAltMap = state;
         map.setDraggable(!state);
         if (state) {

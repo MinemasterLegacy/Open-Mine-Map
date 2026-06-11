@@ -3,6 +3,7 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.MutableText;
@@ -10,9 +11,12 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.TileUrlErrorType;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.util.RasterApiKeysFile;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
+import net.mmly.openminemap.util.TileUrlFile;
 
 import java.util.ArrayList;
 
@@ -28,6 +32,7 @@ public class CreateRasterScreen extends Screen {
     protected static boolean baseFieldsEditable; // should not affect the key field
     private final Screen returnScreen;
     public static CreateRasterScreen instance;
+    public static LayerType layerType = null;
 
     public static CreateRasterScreen getInstance() {
         return instance;
@@ -37,11 +42,20 @@ public class CreateRasterScreen extends Screen {
     public void close() {
         saveCurrentUrl();
         MinecraftClient.getInstance().setScreen(returnScreen);
+        layerType = null;
     }
 
     private void saveCurrentUrl() {
         if (hasKeyField) {
-            RasterApiKeysFile.writeApiKey(tileUrl.presetID, fieldWidgets.get(4).getText());
+            RasterApiKeysFile.writeApiKey(tileUrl.presetID, fieldWidgets.getLast().getText());
+            return;
+        }
+        if (baseFieldsEditable) {
+            TileUrl raster = buildRaster();
+            if (rasterIsValid(raster) != null) return;
+            if (layerType == null) return;
+            if (isNew) RasterProvider.addCustomRaster(raster);
+            TileUrlFile.saveCustomRastersToFile();
         }
         //TODO
     }
@@ -127,9 +141,35 @@ public class CreateRasterScreen extends Screen {
         }
     }
 
+    private String rasterIsValid(TileUrl raster) {
+        TileUrlErrorType errorType = TileUrlFile.checkValidityOf(raster);
+        if (errorType == TileUrlErrorType.NO_ERROR) return null;
+        else return Text.translatable(errorType.translationKey).getString();
+    }
+
     public TileUrl buildRaster() {
-        //todo
-        return null;
+        String name = fieldWidgets.get(0).getText();
+        String source = fieldWidgets.get(1).getText();
+        String attribution = fieldWidgets.get(2).getText();
+        if (name.isEmpty()) name = null;
+        if (source.isEmpty()) source = null;
+        if (attribution.isEmpty()) attribution = null;
+        return new TileUrl(
+                name,
+                source,
+                attribution,
+                getAttributionLinksList(),
+                layerType
+        );
+    }
+
+    private String[] getAttributionLinksList() {
+        String[] links = new String[fieldWidgets.size()-3];
+        for (int i = 0; i < fieldWidgets.size()-3; i++) {
+            links[i] = fieldWidgets.get(3+i).getText();
+            if (links[i].isEmpty()) links[i] = null;
+        }
+        return links;
     }
 
     private TextFieldWidget getNewFieldWidget(boolean isEditable) {
@@ -203,6 +243,17 @@ public class CreateRasterScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
         UContext.setContext(context);
         updateWidgetPositions();
+
+        if (isNew) {
+            String validity = rasterIsValid(buildRaster());
+            if (validity == null) {
+                doneButton.active = true;
+                doneButton.setTooltip(null);
+            } else {
+                doneButton.active = false;
+                doneButton.setTooltip(Tooltip.of(Text.of(validity)));
+            }
+        }
 
         //TODO translate
         for (int i = 0; i < 4; i++) {

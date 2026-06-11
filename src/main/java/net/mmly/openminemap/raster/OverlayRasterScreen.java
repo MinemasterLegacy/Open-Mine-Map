@@ -6,8 +6,6 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 
-import java.awt.*;
-
 public class OverlayRasterScreen extends RasterScreen {
     public OverlayRasterScreen() {
         super(40, true);
@@ -19,7 +17,7 @@ public class OverlayRasterScreen extends RasterScreen {
     void populateRasterList() {
         this.addRaster(new RasterLayerWidget(Text.of("Create New Overlay Layer"), null, null));
 
-        for (TileUrl url : RasterProvider.getCustomBaseRasters()) {
+        for (TileUrl url : RasterProvider.getCustomRasters()) {
             if (url.layerType != LayerType.OVERLAY) continue;
             addRaster(new RasterLayerWidget(Text.of(url.name), url, null));
         }

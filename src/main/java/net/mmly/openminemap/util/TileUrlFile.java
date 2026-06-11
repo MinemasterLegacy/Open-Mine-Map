@@ -7,7 +7,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.OpenMineMapClient;
-import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.TileUrlErrorType;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.raster.LayerType;
@@ -17,8 +16,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,6 +27,7 @@ public class TileUrlFile {
     public static boolean loadWasFailed = false;
     public static String osmAttribution;
     public static final String osmAttributionUrl = "https://openstreetmap.org/copyright";
+    public static File rasterFile;
 
     private static TileUrlErrorType loadError = TileUrlErrorType.NO_ERROR;
     private static TileUrl errorUrl;
@@ -46,11 +47,32 @@ public class TileUrlFile {
     );
 
     private static boolean createDefaultFile(File file) {
+        if (renameOldFile()) return true;
        try {
             if (!file.createNewFile()) throw new IOException();
-            FileWriter writer = new FileWriter(TileManager.getRootFile() + "openminemap/tileSources.json");
+            FileWriter writer = new FileWriter(rasterFile);
             writer.write(getDefaultFileText());
             writer.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /// Returns: True if an old file was found and successfully renamed
+    private static boolean renameOldFile() {
+        File tileSourcesFile = new File(TileManager.getRootFile() + "openminemap/tileSources.json"); //old raster file
+        if (!tileSourcesFile.exists()) return false; //check if it exists
+        File tileSourcesOldFile = new File(TileManager.getRootFile() + "openminemap/tileSources.json.old"); //file to rename to
+
+        try {
+            //copy old file to new file
+            Files.copy(tileSourcesFile.toPath(), rasterFile.toPath());
+
+            //rename old raster file
+            tileSourcesOldFile.createNewFile();
+            tileSourcesFile.renameTo(tileSourcesOldFile);
+
             return true;
         } catch (IOException e) {
             return false;
@@ -67,6 +89,7 @@ public class TileUrlFile {
     }
 
     public static boolean loadRastersFromFile() {
+        rasterFile = new File(TileManager.getRootFile() + "openminemap/rasters.json");
         try {
             TileUrlFile.establishPresets();
             TileUrlFile.establishUrls();
@@ -99,14 +122,13 @@ public class TileUrlFile {
     private static void establishUrls() throws IOException {
 
         try {
-            File tileUrlsFile = new File(TileManager.getRootFile() + "openminemap/tileSources.json");
-            if (!tileUrlsFile.exists()) if (!createDefaultFile(tileUrlsFile)) {
+            if (!rasterFile.exists()) if (!createDefaultFile(rasterFile)) {
                 throw new IOException();
             }
 
             TileUrl[] tileUrlArray;
             try {
-                tileUrlArray = loadRasters(new FileInputStream(tileUrlsFile), false);
+                tileUrlArray = loadRasters(new FileInputStream(rasterFile), false);
             } catch (JsonSyntaxException e) {
                 setError(TileUrlErrorType.MALFORMED_JSON_FILE, null);
                 throw new TileUrlFileFormatException();
@@ -207,23 +229,34 @@ public class TileUrlFile {
     /// Convert a JsonObject representing a raster to TileUrl
     private static TileUrl tileUrlOf(JsonObject raster, boolean isPreset) {
         try {
-           if (isPreset) return new TileUrl(
+            if (isPreset) return new TileUrl(
                    raster.get("templateId").getAsInt(),
                    raster.get("name").getAsString(),
                    raster.get("source_url").getAsString(),
                    raster.get("attribution").getAsString(),
                    arrayOf(raster.get("attribution_links").getAsJsonArray()),
                    LayerType.BASE.toString()
-           );
+            );
 
-           if (raster.get("name") != null) return new TileUrl(
+            //added to account for pre-overlay preset rasters
+            if (RasterProvider.getPresetById(1).dataIsEqual(raster)) {
+                OpenMineMap.LOGGER.warn("Ignoring preset-duplicate custom raster provider \"Humanitarian\"");
+                return null;
+            }
+            if (RasterProvider.getPresetById(2).dataIsEqual(raster)) {
+                OpenMineMap.LOGGER.warn("Ignoring preset-duplicate custom raster provider \"CyclOSM\"");
+                return null;
+            }
+
+            if (raster.get("name") != null) return new TileUrl(
                    raster.get("name").getAsString(),
                    raster.get("source_url").getAsString(),
                    raster.get("attribution").getAsString(),
                    arrayOf(raster.get("attribution_links").getAsJsonArray()),
                    raster.get("layerType").getAsString()
-           );
-       } catch (NullPointerException ignored) {}
+            );
+
+        } catch (NullPointerException ignored) {}
         
         String urlName;
         try {
@@ -236,7 +269,7 @@ public class TileUrlFile {
         return null;
     }
 
-    private static String[] arrayOf(JsonArray jsonArray) {
+    public static String[] arrayOf(JsonArray jsonArray) {
         String[] array = new String[jsonArray.size()];
         for (int i = 0; i < array.length; i++) {
             array[i] = jsonArray.get(i).getAsString();
@@ -245,7 +278,7 @@ public class TileUrlFile {
     }
 
     /// Check a raster provider to see if it is valid, returns an error as an enum if not
-    private static TileUrlErrorType checkValidityOf(TileUrl tileUrl) {
+    public static TileUrlErrorType checkValidityOf(TileUrl tileUrl) {
         //System.out.println(" # Starting a TileUrl check.");
         //check for null values
 
@@ -354,6 +387,51 @@ public class TileUrlFile {
     }
 
      */
+
+    public static void saveCustomRastersToFile() {
+        Gson gson = new Gson();
+        System.out.println("attempt save");
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(rasterFile));
+            writer.write(gson.toJson(new RasterSources(CustomUrl.ofUrls(RasterProvider.getCustomRasters()))));
+            writer.close();
+        } catch (IOException | JsonParseException e) {
+            OpenMineMap.LOGGER.error("Unable to write rasters to tileSources.json: ");
+            e.printStackTrace();
+        }
+    }
+}
+
+class RasterSources {
+    ArrayList<CustomUrl> sources;
+
+    RasterSources(ArrayList<CustomUrl> sources) {
+        this.sources = sources;
+    }
+}
+
+class CustomUrl {
+    String name;
+    String source_url;
+    String attribution;
+    String[] attribution_links;
+    String layerType;
+
+    CustomUrl(TileUrl tileUrl) {
+        name = tileUrl.name;
+        source_url = tileUrl.source_url;
+        attribution = tileUrl.attribution;
+        attribution_links = tileUrl.attribution_links;
+        layerType = tileUrl.layerType.toString().toLowerCase(Locale.US);
+    }
+
+    public static ArrayList<CustomUrl> ofUrls(ArrayList<TileUrl> tileUrls) {
+        ArrayList<CustomUrl> customUrls = new ArrayList<>();
+        for (TileUrl url : tileUrls) {
+            customUrls.add(new CustomUrl(url));
+        }
+        return customUrls;
+    }
 }
 
 class TileUrlFileFormatException extends Exception { //done
@@ -361,4 +439,6 @@ class TileUrlFileFormatException extends Exception { //done
         super("Formatting error while reading tileSources.json");
     }
 }
+
+
 

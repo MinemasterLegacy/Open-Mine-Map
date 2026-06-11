@@ -1,6 +1,5 @@
 package net.mmly.openminemap.util;
 
-import net.minecraft.client.texture.Scaling;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
@@ -36,6 +35,10 @@ public class RasterProvider {
         while (customRasters.contains(null)) {
             customRasters.remove(null);
         }
+    }
+
+    public static TileUrl getPresetById(int i) {
+        return presetRasters.get(i);
     }
 
     protected static void initWithFailedLoad() {
@@ -120,7 +123,7 @@ public class RasterProvider {
         return presetRasters;
     }
 
-    public static ArrayList<TileUrl> getCustomBaseRasters() {
+    public static ArrayList<TileUrl> getCustomRasters() {
         return customRasters;
     }
 

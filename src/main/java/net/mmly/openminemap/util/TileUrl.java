@@ -1,8 +1,10 @@
 package net.mmly.openminemap.util;
 
+import com.google.gson.JsonObject;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.raster.LayerType;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public class TileUrl {
@@ -73,6 +75,17 @@ public class TileUrl {
 
     public boolean isOverlay() {
         return layerType == LayerType.OVERLAY;
+    }
+
+    public boolean dataIsEqual(JsonObject raster) {
+        if (!raster.get("name").getAsString().equals(name)) return false;
+        if (!raster.get("source_url").getAsString().equals(source_url)) return false;
+        if (!raster.get("attribution").getAsString().equals(attribution)) return false;
+        if (!Arrays.equals(
+                TileUrlFile.arrayOf(raster.get("attribution_links").getAsJsonArray()),
+                attribution_links
+        )) return false;
+        return true;
     }
 
 }

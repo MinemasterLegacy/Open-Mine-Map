@@ -103,6 +103,7 @@ public class MicroButton extends ClickableWidget {
                 break;
             }
             case INFO: {
+                CreateRasterScreen.layerType = (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
                 MinecraftClient.getInstance().setScreen(new CreateRasterScreen(parentWidget.url));
                 //TODO
                 break;

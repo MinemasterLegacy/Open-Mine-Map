@@ -13,7 +13,6 @@ import java.util.*;
 public class RasterProvider {
 
     /// 0 is back of the overlays, length is front
-
     private static ArrayList<TileUrl> presetRasters = new ArrayList<>();
     private static ArrayList<TileUrl> customRasters = new ArrayList<>();
     private static TileUrl currentRaster = TileUrlFile.defaultUrl;
@@ -42,11 +41,10 @@ public class RasterProvider {
     }
 
     protected static void initWithFailedLoad() {
-
+        //TODO
     }
 
     protected static void finishInitialization() {
-        currentOverlays.add(TileUrl.generatedLayerUrl);
         readConfiguration();
         TileManager.setTileUrl(currentRaster, true); //TODO temp, read config instead
     }
@@ -54,19 +52,42 @@ public class RasterProvider {
     public static void readConfiguration() {
         determineBaseRaster();
 
-        String[] configValue = ConfigOptions.RASTER_VISIBILITIES.getAsString().split(",");
+        String[] configValue = ConfigOptions.RASTER_OVERLAYS.getAsString().split(",");
+        System.out.println(Arrays.toString(configValue));
+        for (String overlayName : configValue) {
+            if (overlayName.equals(TileUrl.generatedLayerUrl.name)) {
+                currentOverlays.add(TileUrl.generatedLayerUrl);
+                continue;
+            }
+            for (TileUrl overlay : customRasters) {
+                if (overlay.layerType == LayerType.BASE) continue;
+                if (overlay.name.equals(overlayName)) {
+                    currentOverlays.add(overlay);
+                    break;
+                }
+            }
+        }
+
+        if (!currentOverlays.contains(TileUrl.generatedLayerUrl)) {
+            currentOverlays.add(TileUrl.generatedLayerUrl);
+        }
+
+        System.out.println(currentOverlays.size());
+
+        configValue = ConfigOptions.RASTER_VISIBILITIES.getAsString().split(",");
+        System.out.println(Arrays.toString(configValue));
         ArrayList<String> values = new ArrayList<>(List.of(configValue));
         values.remove("");
-        if (values.size() < currentOverlays.size() - 1) {
+        if (values.size() < currentOverlays.size()) {
             OpenMineMap.LOGGER.warn("Mismatched number of raster visibility settings (not enough), appending extra to match");
-            while (values.size() != currentOverlays.size() - 1) {
+            while (values.size() != currentOverlays.size()) {
                 values.addLast("true");
             }
         }
-        else if (values.size() > currentOverlays.size() - 1) {
+        else if (values.size() > currentOverlays.size()) {
             OpenMineMap.LOGGER.warn("Mismatched number of raster visibility settings (too much), extra values will be ignored");
         }
-        int i = 1;
+        int i = 0;
         for (TileUrl url : currentOverlays) {
             if (url.layerType == LayerType.LOCAL_GEN) continue;
             overlayVisibilities.put(url, Boolean.parseBoolean(values.get(i)));
@@ -74,18 +95,19 @@ public class RasterProvider {
         }
 
         configValue = ConfigOptions.RASTER_OPACITIES.getAsString().split(",");
+        System.out.println(Arrays.toString(configValue));
         values = new ArrayList<>(List.of(configValue));
         values.remove("");
-        if (values.size() < currentOverlays.size() - 1) {
+        if (values.size() < currentOverlays.size()) {
             OpenMineMap.LOGGER.warn("Mismatched number of raster opacity settings (not enough), appending extra to match");
-            while (values.size() != currentOverlays.size() - 1) {
+            while (values.size() != currentOverlays.size()) {
                 values.addLast("1.0");
             }
         }
-        else if (values.size() > currentOverlays.size() - 1) {
+        else if (values.size() > currentOverlays.size()) {
             OpenMineMap.LOGGER.warn("Mismatched number of raster opacity settings (too much), extra values will be ignored");
         }
-        i = 1;
+        i = 0;
         for (TileUrl url : currentOverlays) {
             if (url.layerType == LayerType.LOCAL_GEN) continue;
             try {
@@ -97,6 +119,20 @@ public class RasterProvider {
         }
 
 
+    }
+
+    public static void writeOverlayInfo() {
+        String overlays = "";
+        String visibilities = "";
+        String opacities = "";
+        for (TileUrl overlay : currentOverlays) {
+            overlays += overlay.name + ",";
+            visibilities += getVisibilityOf(overlay) + ",";
+            opacities += getOpacityOf(overlay) + ",";
+        }
+        ConfigFile.writeParameter(ConfigOptions.RASTER_OVERLAYS, overlays);
+        ConfigFile.writeParameter(ConfigOptions.RASTER_VISIBILITIES, visibilities);
+        ConfigFile.writeParameter(ConfigOptions.RASTER_OPACITIES, opacities);
     }
 
     private static void determineBaseRaster() {

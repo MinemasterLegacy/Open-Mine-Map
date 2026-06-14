@@ -28,7 +28,7 @@ public class OverlayRasterScreen extends RasterScreen {
         super.init();
 
         confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> { 
-            RasterProvider.insertOverlayOnTop(getSelectedLayerWidget().url);
+            RasterProvider.insertOverlayOnTop(getSelectedLayerWidget().raster);
             MinecraftClient.getInstance().currentScreen.close();
         }).width(200).build();
         this.addDrawableChild(confirmButton);
@@ -46,11 +46,11 @@ public class OverlayRasterScreen extends RasterScreen {
             confirmButton.setMessage(Text.of("Select an Overlay Raster..."));
             return;
         }
-        if (RasterProvider.overlayInUse(getSelectedLayerWidget().url)) {
+        if (RasterProvider.overlayInUse(getSelectedLayerWidget().raster)) {
             confirmButton.setMessage(Text.of("Overlay Already In Use"));
             return;
         }
-        confirmButton.setMessage(Text.of("Add Overlay " + getSelectedLayerWidget().url.name));
+        confirmButton.setMessage(Text.of("Add Overlay " + getSelectedLayerWidget().raster.name));
         confirmButton.active = true;
     }
 }

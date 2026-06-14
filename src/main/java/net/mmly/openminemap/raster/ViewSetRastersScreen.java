@@ -1,7 +1,6 @@
 package net.mmly.openminemap.raster;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.util.RasterProvider;
@@ -41,6 +40,7 @@ public class ViewSetRastersScreen extends RasterScreen {
     @Override
     public void close() {
         super.close();
+        RasterProvider.writeOverlayInfo();
         MapScreen.toggleAltScreenMap(false);
     }
 

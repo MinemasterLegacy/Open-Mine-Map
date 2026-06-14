@@ -42,7 +42,6 @@ public abstract class RasterScreen extends Screen {
     }
 
     private static void registerQueue() {
-        if (!tileRegisteringQueue.isEmpty()) System.out.println("registering " + tileRegisteringQueue.size());
         for (int i = 0; i < tileRegisteringQueue.size(); i++) {
             RegisterableTile tile;
             try {

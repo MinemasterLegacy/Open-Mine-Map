@@ -28,10 +28,10 @@ public class MicroButton extends ClickableWidget {
 
     private void checkDisabled() {
         if (buttonFunction == MicroButtonFunction.UP) {
-            disabaled = RasterProvider.isTopOverlay(parentWidget.url);
+            disabaled = RasterProvider.isTopOverlay(parentWidget.raster);
         }
         if (buttonFunction == MicroButtonFunction.DOWN) {
-            disabaled = RasterProvider.isBottomOverlay(parentWidget.url);
+            disabaled = RasterProvider.isBottomOverlay(parentWidget.raster);
         }
     }
 
@@ -82,29 +82,29 @@ public class MicroButton extends ClickableWidget {
                 break;
             }
             case UP: {
-                RasterProvider.moveForward(parentWidget.url);
+                RasterProvider.moveForward(parentWidget.raster);
                 //((ViewSetRastersScreen) MinecraftClient.getInstance().currentScreen).reloadRasterList();
                 MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case DOWN: {
-                RasterProvider.moveBackwards(parentWidget.url);
+                RasterProvider.moveBackwards(parentWidget.raster);
                 //((ViewSetRastersScreen) MinecraftClient.getInstance().currentScreen).reloadRasterList();
                 MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case VISIBILITY: {
-                RasterProvider.setVisibilityOf(parentWidget.url, !RasterProvider.getVisibilityOf(parentWidget.url));
+                RasterProvider.setVisibilityOf(parentWidget.raster, !RasterProvider.getVisibilityOf(parentWidget.raster));
                 break;
             }
             case REMOVE: {
-                RasterProvider.extractOverlay(parentWidget.url);
+                RasterProvider.extractOverlay(parentWidget.raster);
                 MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case INFO: {
                 CreateRasterScreen.layerType = (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
-                MinecraftClient.getInstance().setScreen(new CreateRasterScreen(parentWidget.url));
+                MinecraftClient.getInstance().setScreen(new CreateRasterScreen(parentWidget.raster));
                 //TODO
                 break;
             }

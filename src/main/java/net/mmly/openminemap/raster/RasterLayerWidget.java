@@ -12,12 +12,10 @@ import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
-import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.LoadableTile;
 import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.map.TileLoader;
 import net.mmly.openminemap.map.TileManager;
-import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.RasterProvider;
@@ -28,7 +26,7 @@ import java.util.Locale;
 public class RasterLayerWidget extends ClickableWidget {
 
     private AnchorWidget anchor;
-    protected final TileUrl url;
+    protected final TileUrl raster;
     private final LayerType layerType;
     //private final MicroButtonFunction[] microButtons;
     private final MicroButton[] microButtons;
@@ -49,7 +47,7 @@ public class RasterLayerWidget extends ClickableWidget {
 
     public RasterLayerWidget(Text message, TileUrl url, LayerType type) {
         super(10, 0, 0, RasterScreen.ITEM_HEIGHT, message);
-        this.url = url;
+        this.raster = url;
         this.layerType = type;
         if (url == null && type == null) isAddButton = true;
 
@@ -73,7 +71,7 @@ public class RasterLayerWidget extends ClickableWidget {
             }
 
             if (layerType == LayerType.OVERLAY && MinecraftClient.getInstance().currentScreen instanceof ViewSetRastersScreen) {
-                opacitySlider = new OpacitySlider(0, 0, 1);
+                opacitySlider = new OpacitySlider(0, 0, RasterProvider.getOpacityOf(raster));
                 opacitySlider.setParentWidget(this);
                 ViewSetRastersScreen.getInstance().addOpacitySlider(opacitySlider);
             }
@@ -104,19 +102,19 @@ public class RasterLayerWidget extends ClickableWidget {
     }
 
     private void chooseOutlineColor() {
-        if (layerType == null && url == null) {
+        if (layerType == null && raster == null) {
             outlineBaseColor = ColorUtil.darken(0xFFFFFCA8, 0.5);
             outlineFocusColor = 0xFFFFFCA8;
             return;
         }
 
-        if (url == null || layerType == LayerType.LOCAL_GEN) {
+        if (raster == null || layerType == LayerType.LOCAL_GEN) {
             outlineBaseColor = 0xFF7f7f7f;
             outlineFocusColor = 0xFFFFFFFF;
             return;
         }
 
-        if (url.isPreset()) {
+        if (raster.isPreset()) {
             outlineBaseColor = 0xFF7f7f7f;
             outlineFocusColor = 0xFFFFFFFF;
         } else {
@@ -185,7 +183,7 @@ public class RasterLayerWidget extends ClickableWidget {
         drawBackground(getBackgroundTexture());
 
         UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
-        if (url != null) if (!url.isPreset()) UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
+        if (raster != null) if (!raster.isPreset()) UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
 
         if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen && isHovered()) UContext.borderWidget(this, 0xFFFFFFFF);
 
@@ -265,7 +263,7 @@ public class RasterLayerWidget extends ClickableWidget {
         if (opacitySlider != null) if (opacitySlider.dragging()) return;
         UContext.fillWidget(this, 0x7f000000);
 
-        if (url != null) if (layerType == LayerType.OVERLAY && !RasterProvider.getVisibilityOf(url)) {
+        if (raster != null) if (layerType == LayerType.OVERLAY && !RasterProvider.getVisibilityOf(raster)) {
             UContext.setTextureAlpha(127);
             UContext.drawTexture(
                     Identifier.of("openminemap", "unvisible.png"),

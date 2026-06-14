@@ -4,7 +4,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.util.RasterProvider;
-import net.mmly.openminemap.util.UnitConvert;
 
 public class OpacitySlider extends SliderWidget {
 
@@ -18,6 +17,7 @@ public class OpacitySlider extends SliderWidget {
 
     public OpacitySlider(int x, int y, double value) {
         super(x, y, 42, 12, Text.empty(), value);
+        //TODO init with proper value
         this.value = value;
         updateMessage();
     }
@@ -36,7 +36,7 @@ public class OpacitySlider extends SliderWidget {
 
     @Override
     protected void applyValue() {
-
+        RasterProvider.setOpacityOf(parentWidget.raster, (float) value);
     }
 
     public void setRecordedMouseX(int recordedMouseX) {
@@ -45,7 +45,7 @@ public class OpacitySlider extends SliderWidget {
 
     public void setParentWidget(RasterLayerWidget parentWidget) {
         this.parentWidget = parentWidget;
-        this.value = RasterProvider.getOpacityOf(parentWidget.url);
+        this.value = RasterProvider.getOpacityOf(parentWidget.raster);
     }
 
     @Override

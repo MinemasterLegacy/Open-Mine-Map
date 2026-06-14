@@ -37,8 +37,8 @@ public class BaseRasterScreen extends RasterScreen {
 
         confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
             try {
-                if (getSelectedLayerWidget().url.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().url.presetID)) return;
-                TileManager.setTileUrl(getSelectedLayerWidget().url);
+                if (getSelectedLayerWidget().raster.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().raster.presetID)) return;
+                TileManager.setTileUrl(getSelectedLayerWidget().raster);
                 MinecraftClient.getInstance().currentScreen.close();
             } catch (NullPointerException ignored) {}
         }).width(200).build();
@@ -58,15 +58,15 @@ public class BaseRasterScreen extends RasterScreen {
             confirmButton.setMessage(Text.of("Select a Base Raster..."));
             return;
         }
-        if (getSelectedLayerWidget().url.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().url.presetID)) {
+        if (getSelectedLayerWidget().raster.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().raster.presetID)) {
             confirmButton.setMessage(Text.of("Requires API Key"));
             return;
         }
-        if (RasterProvider.getCurrentBaseRaster() == getSelectedLayerWidget().url) {
+        if (RasterProvider.getCurrentBaseRaster() == getSelectedLayerWidget().raster) {
             confirmButton.setMessage(Text.of("Base Already In Use"));
             return;
         }
-        confirmButton.setMessage(Text.of("Set Base to " + getSelectedLayerWidget().url.name));
+        confirmButton.setMessage(Text.of("Set Base to " + getSelectedLayerWidget().raster.name));
         confirmButton.active = true;
     }
 

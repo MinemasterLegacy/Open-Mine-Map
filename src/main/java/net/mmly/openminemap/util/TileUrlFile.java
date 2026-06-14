@@ -10,6 +10,7 @@ import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.TileUrlErrorType;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.raster.LayerType;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -291,6 +292,20 @@ public class TileUrlFile {
             tileUrl.attribution_links == null
         ) return TileUrlErrorType.NULL_VALUE;
 
+        //Check for invalid directory characters
+        if (SystemUtils.IS_OS_WINDOWS) {
+            if (tileUrl.name.replaceAll("[<>:\"/\\\\|?*,]", "").length() != tileUrl.name.length()) return TileUrlErrorType.INVALID_CHARACTERS;
+            if (tileUrl.name.endsWith(".") || tileUrl.name.endsWith(" ")) return TileUrlErrorType.INVALID_CHARACTERS;
+        } else {
+            if (tileUrl.name.replaceAll("/,", "").length() != tileUrl.name.length()) return TileUrlErrorType.INVALID_CHARACTERS;
+        }
+
+        //Check for duplicate names
+        for (TileUrl raster : RasterProvider.getCustomRasters()) {
+            if (raster.name.equals(tileUrl.name)) return TileUrlErrorType.DUPLICATE_NAME;
+        }
+        if (tileUrl.name.equals(TileUrl.generatedLayerUrl.name)) return TileUrlErrorType.DUPLICATE_NAME;
+
         //check for zoom, x, and y fields
         if (tileUrl.source_url.replaceAll("\\{x}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_X_POSITION_FIELD;
         if (tileUrl.source_url.replaceAll("\\{y}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_Y_POSITION_FIELD;
@@ -390,7 +405,6 @@ public class TileUrlFile {
 
     public static void saveCustomRastersToFile() {
         Gson gson = new Gson();
-        System.out.println("attempt save");
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(rasterFile));
             writer.write(gson.toJson(new RasterSources(CustomUrl.ofUrls(RasterProvider.getCustomRasters()))));

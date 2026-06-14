@@ -17,6 +17,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     HUD_COMPASS_Y(0, "HudCompassY", "96"),
     HUD_COMPASS_WIDTH(0, "HudCompassWidth", "144"),
     TILE_MAP_URL(0, "TileMapUrl", "OpenStreetMap", "", "omm.config.tooltip.tile-source"),
+    RASTER_OVERLAYS(0, "RasterOverlays", ""),
     RASTER_VISIBILITIES(0, "RasterVisibilities", ""),
     RASTER_OPACITIES(0, "RasterOpacities", ""),
     ARTIFICIAL_ZOOM(0, "ArtificialZoom", "off", "artificial-zoom"),

@@ -28,10 +28,7 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.CreateRasterScreen;
 import net.mmly.openminemap.raster.RasterScreen;
 import net.mmly.openminemap.raster.RasterWarningScreen;
-import net.mmly.openminemap.search.SearchBoxLayer;
-import net.mmly.openminemap.search.SearchButtonLayer;
-import net.mmly.openminemap.search.SearchResultLayer;
-import net.mmly.openminemap.search.SearchResultType;
+import net.mmly.openminemap.search.*;
 import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 import org.lwjgl.glfw.GLFW;
@@ -249,6 +246,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         } else {
             SearchBoxLayer.setValueStore("");
             SearchBoxLayer.toggleSearching(false);
+            SearchHistoryFile.writeToFile();
         }
     }
 
@@ -260,7 +258,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
     public void jumpToBestOption() {
         for (SearchResultLayer layer : searchResultLayers) {
-            if (layer.isOption(SearchResultType.SEARCH) || layer.isOption(SearchResultType.COORDINATES)) {
+            if (layer.isOption(SearchResultType.SEARCH) || layer.isOption(SearchResultType.COORDINATES) || layer.isHistoric()) {
                 setFocused(layer);
                 layer.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
                 return;

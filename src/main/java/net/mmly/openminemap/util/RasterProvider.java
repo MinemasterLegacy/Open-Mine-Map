@@ -53,7 +53,6 @@ public class RasterProvider {
         determineBaseRaster();
 
         String[] configValue = ConfigOptions.RASTER_OVERLAYS.getAsString().split(",");
-        System.out.println(Arrays.toString(configValue));
         for (String overlayName : configValue) {
             if (overlayName.equals(TileUrl.generatedLayerUrl.name)) {
                 currentOverlays.add(TileUrl.generatedLayerUrl);
@@ -72,10 +71,7 @@ public class RasterProvider {
             currentOverlays.add(TileUrl.generatedLayerUrl);
         }
 
-        System.out.println(currentOverlays.size());
-
         configValue = ConfigOptions.RASTER_VISIBILITIES.getAsString().split(",");
-        System.out.println(Arrays.toString(configValue));
         ArrayList<String> values = new ArrayList<>(List.of(configValue));
         values.remove("");
         if (values.size() < currentOverlays.size()) {
@@ -89,13 +85,12 @@ public class RasterProvider {
         }
         int i = 0;
         for (TileUrl url : currentOverlays) {
-            if (url.layerType == LayerType.LOCAL_GEN) continue;
+            //if (url.layerType == LayerType.LOCAL_GEN) continue;
             overlayVisibilities.put(url, Boolean.parseBoolean(values.get(i)));
             i++;
         }
 
         configValue = ConfigOptions.RASTER_OPACITIES.getAsString().split(",");
-        System.out.println(Arrays.toString(configValue));
         values = new ArrayList<>(List.of(configValue));
         values.remove("");
         if (values.size() < currentOverlays.size()) {
@@ -109,7 +104,7 @@ public class RasterProvider {
         }
         i = 0;
         for (TileUrl url : currentOverlays) {
-            if (url.layerType == LayerType.LOCAL_GEN) continue;
+            //if (url.layerType == LayerType.LOCAL_GEN) continue;
             try {
                 overlayOpacities.put(url, Float.parseFloat(values.get(i)));
             } catch (NumberFormatException e) {

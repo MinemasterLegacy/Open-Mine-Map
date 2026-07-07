@@ -14,13 +14,13 @@ import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SearchBoxLayer extends TextFieldWidget {
 
     public static final int MAX_SEARCH_RESULTS = 8;
     private static SearchResult[] searchResults = new SearchResult[8];
-    private static int scroll = 0;
     private static String previousText = "";
     private static int numResults;
     private static boolean searching = false;
@@ -35,6 +35,13 @@ public class SearchBoxLayer extends TextFieldWidget {
         this.setUneditableColor(MapScreen.getDarkTextColor());
     }
 
+    public static void showHistoricResult(SearchResult result) {
+        searchResults = SearchHistoryFile.getResultsOf(result);
+        previousText = result.name;
+        getInstance().setText(result.name);
+        updateResultElements();
+    }
+
     public static SearchBoxLayer getInstance() {
         return instance;
     }
@@ -45,7 +52,7 @@ public class SearchBoxLayer extends TextFieldWidget {
             getInstance().setEditable(false);
             valueStore = getInstance().getText();
             getInstance().setText("");
-            SearchHistoryFile.writeToFile();
+            //SearchHistoryFile.writeToFile();
         } else {
             getInstance().setEditable(true);
             getInstance().setText(valueStore);
@@ -55,7 +62,7 @@ public class SearchBoxLayer extends TextFieldWidget {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (searching) return true;
-        if (keyCode == GLFW.GLFW_KEY_ENTER) {
+        if (keyCode == GLFW.GLFW_KEY_ENTER && !getText().isEmpty()) {
             MapScreen.getInstance().jumpToBestOption();
             //RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return true;
@@ -113,7 +120,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         }
 
         if (result.resultType.isSearchType()) {
-            if (searchResults[MAX_SEARCH_RESULTS].resultType.isSearchType()){
+            if (searchResults[MAX_SEARCH_RESULTS - 1].resultType.isSearchType()){
                 searchResults[MAX_SEARCH_RESULTS - 2] = result;
             } else {
                 searchResults[MAX_SEARCH_RESULTS - 1] = result;
@@ -122,8 +129,8 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     }
 
-    private static SearchResult[] getSearchHistory() {
-        return new SearchResult[0]; //to be implemented
+    private static ArrayList<SearchResult> getSearchHistory() {
+        return SearchHistoryFile.getHistoryAsResults();
     }
 
     public void recalculateResults() {
@@ -203,16 +210,6 @@ public class SearchBoxLayer extends TextFieldWidget {
                     Text.translatable("omm.search.places").getString(),
                     "Photon"));
         }
-
-        //check history for any matching results and add them (to be implemented)
-
-        /*
-        System.out.println("-----= RESULTS =-----");
-        for (SearchResult result : searchResults) {
-            if (result == null) System.out.println("null");
-            else System.out.println(result.name);
-        }
-        */
 
         //set result widgets
         updateResultElements();

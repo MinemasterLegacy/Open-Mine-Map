@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
@@ -93,18 +94,7 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
-        if (myResult.resultType.isSearchType()) context.drawTexture(
-                RenderLayer::getGuiTextured,
-                Identifier.of("openminemap", "search/photon.png"),
-                getX() + getWidth() - 34,
-                getY() + 3,
-                0,
-                0,
-                14,
-                14,
-                14,
-                14);
-        else if (myResult.historic) context.drawTexture(
+        if (myResult.historic) context.drawTexture(
                 RenderLayer::getGuiTextured,
                 Identifier.of("openminemap", "search/history.png"),
                 getX() + getWidth() - 32,
@@ -116,6 +106,18 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
+        else if (myResult.resultType.isSearchType()) context.drawTexture(
+                RenderLayer::getGuiTextured,
+                Identifier.of("openminemap", "search/photon.png"),
+                getX() + getWidth() - 34,
+                getY() + 3,
+                0,
+                0,
+                14,
+                14,
+                14,
+                14);
+
     }
 
     @Override
@@ -128,7 +130,16 @@ public class SearchResultLayer extends ClickableWidget {
         return myResult.resultType == type;
     }
 
+    public boolean isHistoric() {
+        return myResult.historic;
+    }
+
     private void goToResult() {
+
+        if (myResult.historic) {
+            SearchBoxLayer.showHistoricResult(myResult);
+            return;
+        }
 
         if (myResult.resultType == SearchResultType.SEARCH) {
             RequestManager.setSearchRequest(MapScreen.getInstance().getSearchBoxContents());
@@ -203,7 +214,6 @@ public class SearchResultLayer extends ClickableWidget {
             goToResult();
             return true;
         }
-
         MapScreen.getInstance().jumpToSearchBox(keyCode, scanCode, modifiers);
         return true;
 

@@ -19,6 +19,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.network.NetworkState;
 import net.mmly.openminemap.network.PlayerDataS2CPayload;
+import net.mmly.openminemap.search.SearchHistoryFile;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -46,6 +47,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
         TileManager.createOpenminemapDir();
         ConfigFile.establishConfigFile();
+        SearchHistoryFile.establishFile();
         //ScreenMouseEvents.EVENT.re
 
         Requester osmTileRequester = new Requester();

@@ -9,6 +9,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchBoxLayer;
+import net.mmly.openminemap.search.SearchHistoryFile;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
 import net.mmly.openminemap.util.*;
@@ -44,11 +45,12 @@ public class Requester extends Thread {
                 rastersInitialized = TileUrlFile.loadRastersFromFile();
             }
             if (RequestManager.searchString != null) {
-                SearchResult[] results = searchResultRequest(RequestManager.searchString, RequestManager.searchPriorityLat, RequestManager.searchPriorityLon);
-                if (results == null) {
+                SearchResult[] searchResults = searchResultRequest(RequestManager.searchString, RequestManager.searchPriorityLat, RequestManager.searchPriorityLon);
+                if (searchResults == null) {
                     RequestManager.searchResultReturn = getErrorResult();
                 } else {
-                    RequestManager.searchResultReturn = results;
+                    RequestManager.searchResultReturn = searchResults;
+                    SearchHistoryFile.addHistoricResult(RequestManager.searchString, RequestManager.searchResultReturn, !Double.isNaN(RequestManager.searchPriorityLat));
                 }
                 RequestManager.searchString = null;
             }

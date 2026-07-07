@@ -43,4 +43,8 @@ public class SearchResult {
         this.name = name;
         this.historic = historic;
     }
+
+    public static SearchResult historic(String term, boolean bounded) {
+        return new SearchResult(bounded ? SearchResultType.SEARCHLOCAL : SearchResultType.SEARCH, 0, 0, true, term);
+    }
 }

@@ -91,7 +91,7 @@ public class RasterLayerWidget extends ClickableWidget {
                                 0, 0, 0, url.name,
                                 TileManager.getKey(0, 0, 0)
                         )
-                }, RegisterableTile.RASTER_SCREEN).updateBackgoundColor(false).start();
+                }, RegisterableTile.RASTER_SCREEN).updateBackgoundColor(false).setFileMayBeNull(true).start();
 
             }
 

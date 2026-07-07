@@ -74,10 +74,13 @@ public class MicroButton extends ClickableWidget {
         MinecraftClient client = MinecraftClient.getInstance();
         switch (buttonFunction) {
             case EDIT: {
-                if (layerType == LayerType.BASE) client.setScreen(new BaseRasterScreen());
-                if (layerType == LayerType.LOCAL_GEN) {
-                    client.setScreen(new ConfigScreen());
-                    ConfigScreen.getInstance().scrollToOverlay();
+                switch (layerType) {
+                    case BASE -> client.setScreen(new BaseRasterScreen());
+                    case LOCAL_GEN -> {
+                        client.setScreen(new ConfigScreen());
+                        ConfigScreen.getInstance().scrollToOverlay();
+                    }
+                    case OVERLAY -> client.setScreen(new CreateRasterScreen(parentWidget.raster));
                 }
                 break;
             }

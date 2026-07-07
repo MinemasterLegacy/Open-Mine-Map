@@ -45,6 +45,7 @@ public class SearchBoxLayer extends TextFieldWidget {
             getInstance().setEditable(false);
             valueStore = getInstance().getText();
             getInstance().setText("");
+            SearchHistoryFile.writeToFile();
         } else {
             getInstance().setEditable(true);
             getInstance().setText(valueStore);

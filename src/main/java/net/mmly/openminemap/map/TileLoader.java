@@ -13,6 +13,7 @@ public class TileLoader extends Thread {
     private static long memoryCacheSize;
     private final RegisterableTile.Queuer destination;
     private boolean updateBackgoundColor = true;
+    private boolean fileMayBeNull = false;
 
     public TileLoader(LoadableTile[] tilesToLoad) {
         this(tilesToLoad, RegisterableTile.TILE_MANAGER);
@@ -25,6 +26,11 @@ public class TileLoader extends Thread {
 
     public TileLoader updateBackgoundColor(boolean b) {
         updateBackgoundColor = b;
+        return this;
+    }
+
+    public TileLoader setFileMayBeNull(boolean b) {
+        this.fileMayBeNull = b;
         return this;
     }
 
@@ -67,7 +73,7 @@ public class TileLoader extends Thread {
             memoryCacheSize += is.available();
             return is;
         } catch(IOException e) {
-            OpenMineMap.LOGGER.warn("Error while loading tile '" + tile.cache + "#" + tile.key + "' from disk: " + e.getMessage());
+            if (!fileMayBeNull) OpenMineMap.LOGGER.warn("Error while loading tile '" + tile.cache + "#" + tile.key + "' from disk: " + e.getMessage());
             return null;
         }
 

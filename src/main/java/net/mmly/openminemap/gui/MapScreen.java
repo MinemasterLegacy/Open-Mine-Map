@@ -16,6 +16,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.config.ConfigScreen;
+import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -28,6 +29,7 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.CreateRasterScreen;
 import net.mmly.openminemap.raster.RasterScreen;
 import net.mmly.openminemap.raster.RasterWarningScreen;
+import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.search.*;
 import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
@@ -146,6 +148,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         writeParameters();
         ConfigFile.writeToFile();
         this.client.setScreen(null);
+        toggleAltScreenMap(false);
     }
 
     public static void writeParameters() {
@@ -478,7 +481,41 @@ public class MapScreen extends Screen { //Screen object that represents the full
         return true;
     }
 
-    public static void toggleAltScreenMap(boolean state) {
+    public static void updateAltScreenMap(Screen previous) {
+        updateAltScreenMap(previous, MinecraftClient.getInstance().currentScreen);
+    }
+
+    public static void updateAltScreenMap(Screen previous, Screen next) {
+        if (next == null) {
+            System.out.println("Update to null with render se to " + renderAltMap);
+            toggleAltScreenMap(false);
+            return;
+        }
+        System.out.println("Update to " + next.getClass().getName() + " with render set to " + renderAltMap);
+        if (screenAlwaysHasAltMap(next)) toggleAltScreenMap(true);
+        else if (screenCanHaveAltMap(next)) toggleAltScreenMap(previous instanceof MapScreen || renderAltMap);
+        else toggleAltScreenMap(false);
+    }
+
+    private static boolean screenAlwaysHasAltMap(Screen screen) {
+        if (screen instanceof ChatScreen) return true;
+        if (screen instanceof ConfirmLinkScreen) return true;
+        if (screen instanceof WaypointScreen) return true;
+        return false;
+    }
+
+    private static boolean screenCanHaveAltMap(Screen screen) {
+        if (screen instanceof ConfigScreen) return true;
+        if (screen instanceof RasterScreen) return true;
+        if (screen instanceof CreateRasterScreen) return true;
+        if (screen instanceof RasterWarningScreen) return true;
+        if (screen instanceof ViewSetRastersScreen) return true;
+        if (screen instanceof MapConfigScreen) return true; //hard coded to not render, necessary to preserve configScreen render state
+        return false;
+    }
+
+    private static void toggleAltScreenMap(boolean state) {
+        if (state == renderAltMap) return;
         renderAltMap = state;
         map.setDraggable(!state);
         if (state) {
@@ -529,18 +566,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
                     false);
             yPos -= 13;
         }
-    }
-
-    private static boolean currentScreenIsValidAltMapScreen() {
-        Screen current = MinecraftClient.getInstance().currentScreen;
-        if (current instanceof ChatScreen) return true;
-        if (current instanceof ConfirmLinkScreen) return true;
-        if (current instanceof ConfigScreen) return true;
-        if (current instanceof WaypointScreen) return true;
-        if (current instanceof RasterScreen) return true;
-        if (current instanceof CreateRasterScreen) return true;
-        if (current instanceof RasterWarningScreen) return true;
-        return false;
     }
 
     @Override
@@ -668,13 +693,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         if (instance == null) return;
         if (!renderAltMap) return;
-        if (!currentScreenIsValidAltMapScreen()) {
-            MinecraftClient.getInstance().setScreen(
-                    new MapScreen()
-            );
-            toggleAltScreenMap(false);
-            return;
-        }
+        if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) return;
 
         MapScreen.map.updateTimeRelatedVars();
 

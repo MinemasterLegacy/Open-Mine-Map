@@ -59,8 +59,8 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget hoverNamesOption;
     ChoiceButtonWidget altitudeShadingOption;
 
-    CategoryLabelWidget urlLabel;
-    private static UrlChoiceWidget definedUrlWidget;
+    CategoryLabelWidget rasterLabel;
+    private static RasterConfigWidget definedUrlWidget;
 
     CategoryLabelWidget interfaceLabel;
     ChoiceSliderWidget transparencySlider;
@@ -90,6 +90,7 @@ public class ConfigScreen extends Screen {
         MinecraftClient.getInstance().setScreen(
                 returnScreen instanceof ViewSetRastersScreen ? returnScreen : new MapScreen()
         );
+        MapScreen.updateAltScreenMap(this);
     }
 
     public static ConfigScreen getInstance() {
@@ -123,9 +124,7 @@ public class ConfigScreen extends Screen {
     }
 
     public void scrollToOverlay() {
-        System.out.println(configList.getScrollY());
         configList.setScrollY(Math.max((overlayLabelPosition - 1.5) * ITEM_HEIGHT, 0));
-        System.out.println(configList.getScrollY());
     }
 
     @Override
@@ -156,7 +155,7 @@ public class ConfigScreen extends Screen {
         configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
                 MinecraftClient.getInstance().setScreen(new MapConfigScreen());
-                MapScreen.toggleAltScreenMap(false);
+                MapScreen.updateAltScreenMap(this);
         }).dimensions(15, windowScaledHeight - 35, 120, 20).build();
         configHud.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.configure-hud")));
         this.addDrawableChild(configHud);
@@ -208,13 +207,13 @@ public class ConfigScreen extends Screen {
         altitudeShadingOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.ALTITUDE_SHADING);
         this.addConfigOptionWidget(altitudeShadingOption);
 
-        urlLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.tile-source"), this.textRenderer);
-        this.addConfigOptionWidget(urlLabel);
+        //TODO change translation to "Raster Providers"
+        rasterLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.tile-source"), this.textRenderer);
+        this.addConfigOptionWidget(rasterLabel);
 
-        definedUrlWidget = new UrlChoiceWidget(this.textRenderer);
+        //TODO translate
+        definedUrlWidget = new RasterConfigWidget(Text.of("Configure Raster Providers..."));
         this.addConfigOptionWidget(definedUrlWidget);
-        this.addDrawableChild(definedUrlWidget.getUpArrowWidget());
-        this.addDrawableChild(definedUrlWidget.getDownArrowWidget());
 
         interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer);
         this.addConfigOptionWidget(interfaceLabel);
@@ -241,11 +240,11 @@ public class ConfigScreen extends Screen {
         }
 
         configList.restoreScroll();
-        if (returnScreen instanceof MapScreen) MapScreen.toggleAltScreenMap(true);
+        MapScreen.updateAltScreenMap(returnScreen, this);
 
     }
 
-    public UrlChoiceWidget getChoiceWidget() {
+    public RasterConfigWidget getChoiceWidget() {
         return definedUrlWidget;
     }
 

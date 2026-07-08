@@ -133,6 +133,7 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+
         //method is called every frame, so a couple of things are included here that need to run every frame
         while (!OpenMineMapClient.debugMessages.isEmpty()) {
             if (OpenMineMapClient.debugMessages.getFirst() != null) MinecraftClient.getInstance().player.sendMessage(Text.literal(OpenMineMapClient.debugMessages.getFirst()).formatted(Formatting.RED), false);

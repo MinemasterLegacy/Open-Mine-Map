@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import com.google.common.collect.Maps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -11,6 +12,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.RepositionType;
 import net.mmly.openminemap.enums.ResizeDirection;
 import net.mmly.openminemap.gui.ButtonLayer;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.util.ConfigFile;
 
@@ -136,6 +138,7 @@ public class MapConfigScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        HudMap.render(context, null);
         saveButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10));
         exitButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 + 24));
         resetConfigButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 - 24));
@@ -153,5 +156,12 @@ public class MapConfigScreen extends Screen {
         if (!HudMap.showCompass) return;
         compassLeftResize.drawWidget(context);
         compassRightResize.drawWidget(context);
+    }
+
+    @Override
+    public void close() {
+        MapConfigScreen.revertChanges();
+        MinecraftClient.getInstance().setScreen(new ConfigScreen());
+        MapScreen.updateAltScreenMap(this);
     }
 }

@@ -2,6 +2,8 @@ package net.mmly.openminemap.raster;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.config.ConfigScreen;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
@@ -16,7 +18,7 @@ public class ViewSetRastersScreen extends RasterScreen {
     public ViewSetRastersScreen(boolean updateReturnScreen) {
         super(0, updateReturnScreen);
         instance = this;
-        if (returnScreen instanceof MapScreen && updateReturnScreen) MapScreen.toggleAltScreenMap(MinecraftClient.getInstance().currentScreen != null);
+        if (updateReturnScreen) MapScreen.updateAltScreenMap(returnScreen, this);
     }
 
     public static ViewSetRastersScreen getInstance() {
@@ -41,8 +43,8 @@ public class ViewSetRastersScreen extends RasterScreen {
     public void close() {
         super.close();
         RasterProvider.writeOverlayInfo();
-        MapScreen.toggleAltScreenMap(false);
-    }
+        MapScreen.updateAltScreenMap(this, returnScreen);
+     }
 
     public void addOpacitySlider(OpacitySlider slider) {
         this.addDrawableChild(slider);

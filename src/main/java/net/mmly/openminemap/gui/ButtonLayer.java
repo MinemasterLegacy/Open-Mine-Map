@@ -93,17 +93,6 @@ public class ButtonLayer extends ClickableWidget {
                 );
                 break;
             case EXIT: //exit
-                if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
-                    MapConfigScreen.revertChanges();
-                    MinecraftClient.getInstance().setScreen(
-                            new ConfigScreen()
-                    );
-                    break;
-                }
-                if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
-                    MinecraftClient.getInstance().currentScreen.close();
-                    break;
-                }
                 MinecraftClient.getInstance().currentScreen.close();
                 break;
             case WAYPOINTS:

@@ -25,19 +25,6 @@ public class ConfigList extends EntryListWidget<AnchorWidget> {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        //list seems to be blocking the arrows, so pass through a click event here
-        ConfigScreen.getInstance().getChoiceWidget().getUpArrowWidget().mouseClicked(mouseX, mouseY, 0);
-        ConfigScreen.getInstance().getChoiceWidget().getDownArrowWidget().mouseClicked(mouseX, mouseY, 0);
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-
-    }
-
-    @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
     }

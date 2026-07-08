@@ -47,7 +47,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
         context.fill(getX(), getY(), getX() + width, getY() + height, MapScreen.backingColor);
 
-        if (MapScreen.getRightClickMenuWaypoint() == null) menuSelection = -1;
+        if (MapScreen.getRightClickMenuLocation() == null) menuSelection = -1;
         if (menuSelection > -1 )context.drawBorder(getX() + margin - 1, getY() + margin - 1 + (menuSelection * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFCA8);
 
         if (isHovered()) {
@@ -88,7 +88,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         int selection = ((((int) mouseY) - getY()) / waypointHitboxSize);
-        if (RightClickMenu.getDisplayType() == RightClickMenuType.PINNED_WAYPOINT && MapScreen.getRightClickMenuWaypoint().name.equals(pinnedWaypoints[selection].name)) {
+        if (RightClickMenu.getDisplayType() == RightClickMenuType.PINNED_WAYPOINT && MapScreen.getRightClickMenuLocation().name.equals(pinnedWaypoints[selection].name)) {
             RightClickMenu.disableMenu();
         } else {
             RightClickMenu.enableMenu(

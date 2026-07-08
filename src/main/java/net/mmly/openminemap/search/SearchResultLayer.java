@@ -13,9 +13,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.RequestManager;
-import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.util.RasterProvider;
-import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
 import java.time.Duration;
@@ -24,12 +21,10 @@ public class SearchResultLayer extends ClickableWidget {
 
     private int resultNumber;
     private SearchResult myResult;
-    private int yPos;
 
     public SearchResultLayer(int x, int y, int width, int resultNumber) {
         super(x, y, width, 20, Text.of(""));
         this.resultNumber = resultNumber;
-        yPos = y;
         this.setTooltipDelay(Duration.ofMillis(500));
     }
 
@@ -42,8 +37,6 @@ public class SearchResultLayer extends ClickableWidget {
         myResult = result;
         if (result == null) {
             setY(-50);
-        } else {
-            setY(yPos);
         }
     }
 
@@ -58,7 +51,7 @@ public class SearchResultLayer extends ClickableWidget {
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFFFF0000);
 
-        if (!MapScreen.getSearchMenuState() || myResult == null) {
+        if (!MapScreen.getSearchMenuState() || myResult == null || !SearchBoxLayer.isResultVisible(resultNumber)) {
             visible = false;
             return;
         }
@@ -158,20 +151,7 @@ public class SearchResultLayer extends ClickableWidget {
             return;
         }
 
-        MapScreen.followPlayer(false);
-
-        if (myResult.bounds != null) {
-            MapScreen.map.goAndZoomToBounds(myResult.bounds);
-            return;
-        }
-
-        MapScreen.map.setMapLatLong(myResult.latitude, myResult.longitude);
-
-        if (myResult.zoom != -1) {
-            MapScreen.map.setMapZoom(myResult.zoom);
-        }
-        MapScreen.map.clampZoom();
-
+        myResult.focusOnMapViaSearchMenu();
     }
 
     @Override
@@ -189,6 +169,12 @@ public class SearchResultLayer extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        SearchBoxLayer.scrollMenu(verticalAmount);
+        return false;
     }
 
     @Override

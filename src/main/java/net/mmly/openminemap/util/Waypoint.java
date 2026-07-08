@@ -14,13 +14,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Waypoint {
+public class Waypoint extends NamedLocation{
 
-    public double longitude;
-    public double latitude;
     public Identifier identifier;
     public double angle;
-    public String name;
     public String style;
     public boolean pinned;
     public boolean visible;
@@ -30,6 +27,7 @@ public class Waypoint {
     //mapxy here refer to the position at the lowest possible zoom level (18)
 
     public Waypoint(String style, double latitude, double longitude, int colorHSV, double angle, String name, boolean pinned, boolean visible) {
+        super(name, latitude, longitude);
         WaypointStyle sty;
         try {
             sty = WaypointStyle.getByString(style);
@@ -38,10 +36,7 @@ public class Waypoint {
         }
         identifier = getColoredIdentifier(Identifier.of("openminemap", "waypoints/"+sty.name().toLowerCase()+".png"), colorHSV);
 
-        this.longitude = longitude;
-        this.latitude = latitude;
         this.angle = angle;
-        this.name = name;
         this.pinned = pinned;
         this.visible = visible;
         this.color = colorHSV;

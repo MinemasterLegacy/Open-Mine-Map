@@ -25,7 +25,6 @@ import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import java.awt.*;
-import java.util.Objects;
 
 public class RightClickMenu extends ClickableWidget {
 
@@ -40,7 +39,7 @@ public class RightClickMenu extends ClickableWidget {
     public int verticalSize = 1;
     TextRenderer textRenderer;
     //private WebAppSelectLayer webSelect = null;
-    public Waypoint selectedWaypoint;
+    public NamedLocation selectedLocation;
     private boolean firstOptionIsBold = false;
     public static RightClickMenu instance;
 
@@ -90,6 +89,14 @@ public class RightClickMenu extends ClickableWidget {
         RightClickMenuOption.TELEPORT_HERE,
         RightClickMenuOption.COPY_COORDINATES
     };
+    private final RightClickMenuOption[] searchLocationOption = {
+        RightClickMenuOption.NAME,
+        RightClickMenuOption.TELEPORT_HERE,
+        RightClickMenuOption.COPY_COORDINATES,
+        RightClickMenuOption.OPEN_IN,
+        RightClickMenuOption.CREATE_WAYPOINT
+    };
+
     private RightClickMenuOption[] menuOptions;
 
     private RightClickMenuType displayType = RightClickMenuType.HIDDEN;
@@ -114,16 +121,19 @@ public class RightClickMenu extends ClickableWidget {
         if (type == RightClickMenuType.SCREEN_WAYPOINT) {
             return waypointScreenOptions;
         }
+        if (type == RightClickMenuType.SEARCH_LOCATION) {
+            return searchLocationOption;
+        }
         return defaultOptions;
     }
 
-    public void setDisplayType(RightClickMenuType type, Waypoint waypoint) {
+    public void setDisplayType(RightClickMenuType type, NamedLocation location) {
         this.displayType = type;
         firstOptionIsBold = false;
-        if (type.isWaypointType) {
-            this.selectedWaypoint = waypoint;
+        if (type.isLocationType) {
+            this.selectedLocation = location;
             firstOptionIsBold = true;
-            menuOptions = getMenuOptions(type, !(selectedWaypoint.angle < 0));
+            menuOptions = getMenuOptions(type, !(selectedLocation.angle < 0));
         } else if (type == RightClickMenuType.DEFAULT) {
             menuOptions = getMenuOptions(RightClickMenuType.DEFAULT);
         }
@@ -132,7 +142,7 @@ public class RightClickMenu extends ClickableWidget {
         width = 16;
         for (int i = 0; i < menuOptions.length; i++) {
             int compare = 8;
-            if (menuOptions[i] == RightClickMenuOption.NAME) compare += textRenderer.getWidth(Text.literal(selectedWaypoint.name).formatted(Formatting.BOLD));
+            if (menuOptions[i] == RightClickMenuOption.NAME) compare += textRenderer.getWidth(Text.literal(selectedLocation == null ? "(null)" : selectedLocation.name).formatted(Formatting.BOLD));
             else compare += textRenderer.getWidth(Text.translatable(menuOptions[i].getTranslationKey()));
             width = Math.max(width, 8 + compare);
         }
@@ -174,9 +184,10 @@ public class RightClickMenu extends ClickableWidget {
         }
         selectingSite = false;
         PinnedWaypointsLayer.menuSelection = -1;
+        if (getInstance() != null) getInstance().selectedLocation = null;
     }
 
-    public static void enableMenu(RightClickMenuType type, double mapX, double mapY, Waypoint waypoint) {
+    public static void enableMenu(RightClickMenuType type, double mapX, double mapY, NamedLocation waypoint) {
         if (type == RightClickMenuType.HIDDEN) return;
         PinnedWaypointsLayer.menuSelection = -1;
         instance.setDisplayType(type, waypoint);
@@ -185,7 +196,7 @@ public class RightClickMenu extends ClickableWidget {
         clickY = mapY;
         instance.setPosition((int) mapX, (int) mapY);
 
-        if (type.isWaypointType) {
+        if (type.isLocationType) {
             instance.setSavedMouseLatLong(waypoint.longitude, waypoint.latitude);
         } else {
             instance.setSavedMouseLatLong(MapScreen.map.getMouseLong(), MapScreen.map.getMouseLat());
@@ -232,7 +243,7 @@ public class RightClickMenu extends ClickableWidget {
 
     private MutableText getTextFor(RightClickMenuOption option) {
         if (option == null) return Text.literal("[null]").formatted(Formatting.GRAY);
-        if (option == RightClickMenuOption.NAME) return Text.literal(selectedWaypoint.name).formatted(Formatting.BOLD);
+        if (option == RightClickMenuOption.NAME) return Text.literal(selectedLocation.name).formatted(Formatting.BOLD);
         else return Text.translatable(option.getTranslationKey());
     }
 
@@ -274,7 +285,7 @@ public class RightClickMenu extends ClickableWidget {
                         }
                         if (MinecraftClient.getInstance().currentScreen instanceof WaypointScreen) {
                             MinecraftClient.getInstance().setScreen(new MapScreen());
-                            MapScreen.map.setMapLatLong(selectedWaypoint.latitude, selectedWaypoint.longitude);
+                            MapScreen.map.setMapLatLong(selectedLocation.latitude, selectedLocation.longitude);
                         }
                     }
                 } catch (CoordinateValueError error) {
@@ -303,25 +314,29 @@ public class RightClickMenu extends ClickableWidget {
                 return;
             }
             case CREATE_WAYPOINT: {
-                MinecraftClient.getInstance().setScreen(
+                if (selectedLocation != null) MinecraftClient.getInstance().setScreen(
+                        new WaypointScreen(savedMouseLat, savedMouseLong, selectedLocation.name)
+                );
+                else MinecraftClient.getInstance().setScreen(
                         new WaypointScreen(savedMouseLat, savedMouseLong)
                 );
+                selectedLocation = null;
                 break;
             }
             case EDIT_WAYPOINT: {
                 //open the waypoint screen in edit mode
                 MinecraftClient.getInstance().setScreen(
-                        new WaypointScreen(selectedWaypoint)
+                        new WaypointScreen((Waypoint) selectedLocation)
                 );
                 break;
             }
             case VIEW_ON_MAP: {
                 MapScreen.followPlayer(false);
-                MapScreen.map.setMapLatLong(selectedWaypoint.latitude, selectedWaypoint.longitude);
+                MapScreen.map.setMapLatLong(selectedLocation.latitude, selectedLocation.longitude);
                 break;
             }
             case UNPIN: {
-                if (!WaypointFile.setWaypointPinned(selectedWaypoint.name, false)) {
+                if (!WaypointFile.setWaypointPinned(selectedLocation.name, false)) {
                     OpenMineMapClient.debugMessages.add(Text.translatable("omm.error.waypoint-property-failiure").getString());
                 }
                 break;
@@ -347,12 +362,12 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     private void setSnapAngle() {
-        ConfigFile.writeParameter(ConfigOptions.SNAP_ANGLE, Double.toString(selectedWaypoint.angle));
+        ConfigFile.writeParameter(ConfigOptions.SNAP_ANGLE, Double.toString(selectedLocation.angle));
         HudMap.setSnapAngle();
     }
 
     private void snapToWaypointAngle() {
-        KeyInputHandler.snapToAngle(-selectedWaypoint.angle);
+        KeyInputHandler.snapToAngle(-selectedLocation.angle);
     }
 
     protected void setSavedMouseLatLong(double x, double y) {

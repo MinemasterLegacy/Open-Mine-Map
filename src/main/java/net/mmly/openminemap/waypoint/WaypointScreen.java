@@ -56,6 +56,7 @@ public class WaypointScreen extends Screen {
 
     private static double initLong;
     private static double initLat;
+    private static String initName;
     private static boolean initWithValues = false;
     private static boolean initInEditMode = false;
     private static Waypoint initEditWaypoint;
@@ -85,12 +86,18 @@ public class WaypointScreen extends Screen {
         instance = this;
     }
 
+    public WaypointScreen(double lat, double lon, String name) {
+        this(lat, lon);
+        initName = name;
+    }
+
     public WaypointScreen(double lat, double lon) {
         super(Text.of("OpenMineMap Waypoints"));
         instance = this;
         initWithValues = true;
         initLong = lon;
         initLat = lat;
+        initName = null;
     }
 
     @Override
@@ -186,7 +193,13 @@ public class WaypointScreen extends Screen {
         }).build();
         this.addDrawableChild(deleteWaypointButton);
 
-        nameField = new WaypointParameterWidget(this.textRenderer, Text.of(initWithValues ? UnitConvert.floorToPlace(initLat, 7) + ", " + UnitConvert.floorToPlace(initLong, 7) : ""), true, WaypointValueInputType.NAME);
+        nameField = new WaypointParameterWidget(this.textRenderer,
+                Text.of(initWithValues ?
+                            (initName != null ?
+                                initName :
+                                UnitConvert.floorToPlace(initLat, 7) + ", " + UnitConvert.floorToPlace(initLong, 7)) :
+                            "")
+                , true, WaypointValueInputType.NAME);
         nameField.setMaxLength(200);
         this.addDrawableChild(nameField);
 

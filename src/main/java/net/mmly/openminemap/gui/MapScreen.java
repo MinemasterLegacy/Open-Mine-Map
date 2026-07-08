@@ -68,7 +68,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static SearchButtonLayer searchButtonLayer;
     private static SearchBoxLayer searchBoxLayer;
     private static NetworkStatusLayer networkStatusLayer;
-    public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[7];
+    public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[SearchBoxLayer.MAX_RESULTS];
     private static PinnedWaypointsLayer pinnedWaypointsLayer;
     private static final Identifier[][] showHudmapIdentifiers = new Identifier[2][2];
     private static final Identifier[][] showClaimsIdentifiers = new Identifier[2][2];
@@ -212,7 +212,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (toggleAltScreenMap) toggleAltScreenMap(true);
     }
 
-    public static Waypoint getRightClickMenuWaypoint() {return rightClickLayer.selectedWaypoint;}
+    public static NamedLocation getRightClickMenuLocation() {return rightClickLayer.selectedLocation;}
 
 
     public static Waypoint getSelectedPinnedWaypoint() {
@@ -228,6 +228,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static void onRightClick() {
         if (!map.mouseIsOutOfBounds()) { //checks if mouse is positioned on the map (this variable will be "-.-" if it isn't)
             if (map.getHoveredWaypoint() != null) RightClickMenu.enableMenu(RightClickMenuType.WAYPOINT, map.getMouseX(), map.getMouseY(), map.getHoveredWaypoint());
+            else if (map.getHoveredSearchResult() != null) RightClickMenu.enableMenu(RightClickMenuType.SEARCH_LOCATION, map.getMouseX(), map.getMouseY(), map.getHoveredSearchResult().asLocation());
             else RightClickMenu.enableMenu(RightClickMenuType.DEFAULT, map.getMouseX(), map.getMouseY(), null);
         } else {
             RightClickMenu.disableMenu();
@@ -255,6 +256,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
     public void jumpToSearchBox() {
         setFocused(searchBoxLayer);
+        SearchBoxLayer.resetScroll();
     }
     public void jumpToBestOption() {
         for (SearchResultLayer layer : searchResultLayers) {
@@ -317,8 +319,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
         toggleHudMapButtonLayer = new ToggleButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57, ToggleButtonLayer.Type.TOGGLE_HUDMAP);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
-        for (int i = 0; i < 7; i++) {
-            searchResultLayers[i] = new SearchResultLayer(26, 23 + (i * 20), 250, i);
+        for (int i = 0; i < SearchBoxLayer.MAX_RESULTS; i++) {
+            searchResultLayers[i] = new SearchResultLayer(26, 0, 250, i);
             this.addDrawableChild(searchResultLayers[i]);
         }
 
@@ -419,15 +421,14 @@ public class MapScreen extends Screen { //Screen object that represents the full
         else if (code == GLFW.GLFW_KEY_UP) change = -1;
         else return;
 
-        int numResults = searchResultLayers.length;
-
-        Element[] searchElements = new Element[numResults + 1];
+        Element[] searchElements = new Element[SearchBoxLayer.getNumResults() + 1];
         searchElements[0] = searchBoxLayer;
-        System.arraycopy(searchResultLayers, 0, searchElements, 1, numResults);
+        System.arraycopy(searchResultLayers, 0, searchElements, 1, SearchBoxLayer.getNumResults());
 
         for (int i = 0; i < searchElements.length; i++) {
             if (searchElements[i].isFocused()) {
                 setFocused(searchElements[(i + change + searchElements.length) % searchElements.length]);
+                SearchBoxLayer.ensureFocusDisplay(i + change);
                 return;
             }
         }
@@ -606,7 +607,11 @@ public class MapScreen extends Screen { //Screen object that represents the full
         context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, backingColor);
         context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, plainTextColor, true);
 
-        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset - pinnedWaypointsLayer.getY());
+        // -32 is for coordinate displays
+        // -28 is for left shelf buttons
+        // -23 on searchboxlayer is for the search box
+        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - 28 - attributionOffset - pinnedWaypointsLayer.getY());
+        SearchBoxLayer.setMaxDisplayedResults(windowScaledHeight - 32 - 28 - attributionOffset - 23);
         purgeNotifiations();
         drawNotificationText(context);
 

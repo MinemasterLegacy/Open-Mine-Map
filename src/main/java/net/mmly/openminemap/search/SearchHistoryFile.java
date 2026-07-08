@@ -31,6 +31,9 @@ public class SearchHistoryFile {
     }
 
     public static void addHistoricResult(String term, SearchResult[] results, boolean bounded) {
+        if (results == null) return;
+        if (results[0] == null) return;
+        if (results[0].name.isEmpty() || Double.isNaN(results[0].latitude)) return;
         SearchResult[] results1 = new SearchResult[results.length];
         System.arraycopy(results, 0, results1, 0, results.length);
         searchHistory.addFirst(new SearchHistoryEntry(term, results1, bounded));

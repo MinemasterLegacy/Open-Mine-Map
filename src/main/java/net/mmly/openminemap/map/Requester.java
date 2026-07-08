@@ -89,8 +89,21 @@ public class Requester extends Thread {
                         "",
                         Text.translatable("omm.notification.something-wrong").getString(),
                         0
-                ),
-                null, null, null, null, null, null, null
+                )
+        });
+    }
+
+    private SearchResult[] getBlankResult() {
+        return (new SearchResult[] {
+                new SearchResult(
+                        SearchResultType.LOCATION,
+                        Double.NaN,
+                        Double.NaN,
+                        false,
+                        "",
+                        Text.translatable("omm.search.no-results").getString(),
+                        0
+                )
         });
     }
 
@@ -101,7 +114,7 @@ public class Requester extends Thread {
 
     private SearchResult[] parseLocationJson(InputStream stream) {
         Gson gson = new Gson();
-        SearchResult[] results = new SearchResult[SearchBoxLayer.MAX_SEARCH_RESULTS];
+        ArrayList<SearchResult> results = new ArrayList<>();
         Map returnedResult;
 
         try {
@@ -135,7 +148,7 @@ public class Requester extends Thread {
                     (double) extentList.get(2)
             };
 
-            results[i] = new SearchResult(
+            results.add(new SearchResult(
                     SearchResultType.LOCATION,
                     (Double) coords.get(1),
                     (Double) coords.get(0),
@@ -143,10 +156,15 @@ public class Requester extends Thread {
                     (String) properties.get("name"),
                     context,
                     extent
-            );
+            ));
         }
 
-        return results;
+        SearchResult[] results1 = new SearchResult[Math.min(SearchBoxLayer.MAX_RESULTS, results.size())];
+        for (int i = 0; i < results1.length; i++) {
+            results1[i] = results.get(i);
+        }
+
+        return results1;
     }
 
     private void doReverseSearch() {
@@ -185,7 +203,7 @@ public class Requester extends Thread {
     SearchResult[] searchResultRequest(String query, double latFocus, double lonFocus) {
         if (disableWebRequests) return null;
 
-        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=" + SearchBoxLayer.MAX_SEARCH_RESULTS;
+        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=" + SearchBoxLayer.MAX_RESULTS;
         if (!OmmMap.geoCoordsOutOfBounds(latFocus, lonFocus)) {
             urlPattern += "&lat=" + latFocus + "&lon=" + lonFocus;
         }
@@ -197,20 +215,13 @@ public class Requester extends Thread {
         SearchResult[] results = parseLocationJson(stream);
         if (results == null) return null;
 
-        if (results[0] == null) {
-            results[0] = new SearchResult(
-                SearchResultType.LOCATION,
-                0,
-                0,
-                false,
-                "",
-                Text.translatable("omm.search.no-results").getString(),
-                0
-            );
-        }
+        if (results.length == 0) results = getBlankResult();
+        else if (results[0] == null) results = getBlankResult();
 
         return results;
     }
+
+
 
     void tileGetRequest(int x, int y, int zoom, TileUrl url, String cacheName) {
         BufferedImage image;

@@ -128,7 +128,7 @@ public class SearchBoxLayer extends TextFieldWidget {
      */
 
     public void drawWidget(DrawContext context) {
-        if (isFocused()) MapScreen.map.setHighlightedResult(-1);
+        if (isFocused()) MapScreen.map.setFocusedResult(-1);
         numDisplayedResults = Math.min(numResults, maxDisplayedResults);
 
         if (RequestManager.searchResultReturn != null) {

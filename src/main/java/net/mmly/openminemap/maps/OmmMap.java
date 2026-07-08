@@ -99,7 +99,7 @@ public class OmmMap extends ClickableWidget {
 
     private SearchResult[] searchResults;
     private boolean showSearchResults = false;
-    private int highlightedResult = -1;
+    private int focusedResult = -1;
     private int hoveredResultId = -1;
 
     public static boolean geoCoordsOutOfBounds(double lat, double lon) {
@@ -593,8 +593,8 @@ public class OmmMap extends ClickableWidget {
         }
     }
 
-    public void setHighlightedResult(int result) {
-        highlightedResult = result;
+    public void setFocusedResult(int result) {
+        focusedResult = result;
     }
 
     public void disableSearchResults() {
@@ -789,7 +789,7 @@ public class OmmMap extends ClickableWidget {
             if (searchResults[i] == null) continue;
             if (Double.isNaN(searchResults[i].latitude)) continue;
             if (i == hoveredResultId) hoveredResult = searchResults[i];
-            else if (i == highlightedResult) focusedResult = searchResults[i];
+            else if (i == this.focusedResult) focusedResult = searchResults[i];
             else drawSearchResultLocation(searchResults[i], false);
         }
         if (hoveredResult != null) {

@@ -61,7 +61,7 @@ public class SearchResultLayer extends ClickableWidget {
         context.fill(getX(), getY(), getX() + 4, getY() + height, getResultColor());
         if (isFocused()) {
             context.drawBorder(getX(), getY(), width, height, getResultColor());
-            MapScreen.map.setHighlightedResult(resultNumber);
+            MapScreen.map.setFocusedResult(resultNumber);
         }
 
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
@@ -149,6 +149,11 @@ public class SearchResultLayer extends ClickableWidget {
                     MapScreen.map.getMapCenterLon()
             );
             return;
+        }
+
+        if (myResult.resultType == SearchResultType.COORDINATES) {
+            MapScreen.map.displaySearchResults(new SearchResult[]{myResult});
+            MapScreen.map.setFocusedResult(0);
         }
 
         myResult.focusOnMapViaSearchMenu();

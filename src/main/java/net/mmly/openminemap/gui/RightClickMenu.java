@@ -161,6 +161,7 @@ public class RightClickMenu extends ClickableWidget {
 
         this.menuOptions = getMenuOptions(RightClickMenuType.DEFAULT);
         this.setDisplayType(RightClickMenuType.HIDDEN, null);
+        selectingSite = false;
     }
 
     static float savedMouseLat;

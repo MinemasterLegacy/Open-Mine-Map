@@ -23,21 +23,22 @@ public class WebAppSelectLayer extends ClickableWidget {
     private int selection = 0;
 
     public WebAppSelectLayer() {
-        super(0, 0, 14, 98, Text.of(""));
+        super(0, 0, 14, 2, Text.of(""));
 
-        webIcons.put(WebIcon.GOOGLE_MAPS, Identifier.of("openminemap", "webicons/icons/gm.png"));
-        webIcons.put(WebIcon.GOOGLE_EARTH, Identifier.of("openminemap", "webicons/icons/ge.png"));
-        webIcons.put(WebIcon.GOOGLE_EARTH_PRO, Identifier.of("openminemap", "webicons/icons/gep.png"));
-        webIcons.put(WebIcon.OPEN_STREET_MAP, Identifier.of("openminemap", "webicons/icons/osm.png"));
-        webIcons.put(WebIcon.BING_MAPS, Identifier.of("openminemap", "webicons/icons/bm.png"));
-        webIcons.put(WebIcon.APPLE_MAPS, Identifier.of("openminemap", "webicons/icons/am.png"));
+        addIcon(WebIcon.GOOGLE_MAPS, "gm.png");
+        addIcon(WebIcon.GOOGLE_EARTH, "ge.png");
+        addIcon(WebIcon.GOOGLE_EARTH_PRO, "gep.png");
+        addIcon(WebIcon.OPEN_STREET_MAP, "osm.png");
+        addIcon(WebIcon.BING_MAPS, "bm.png");
+        addIcon(WebIcon.APPLE_MAPS, "am.png");
+        addIcon(WebIcon.BUILD_THE_EARTH, "bte.png");
+        addIcon(WebIcon.MAPILLARY, "mpy.png");
+    }
 
-        iconSelections.put(WebIcon.GOOGLE_MAPS, Identifier.of("openminemap", "webicons/selections/gm.png"));
-        iconSelections.put(WebIcon.GOOGLE_EARTH, Identifier.of("openminemap", "webicons/selections/ge.png"));
-        iconSelections.put(WebIcon.GOOGLE_EARTH_PRO, Identifier.of("openminemap", "webicons/selections/gep.png"));
-        iconSelections.put(WebIcon.OPEN_STREET_MAP, Identifier.of("openminemap", "webicons/selections/osm.png"));
-        iconSelections.put(WebIcon.BING_MAPS, Identifier.of("openminemap", "webicons/selections/bm.png"));
-        iconSelections.put(WebIcon.APPLE_MAPS, Identifier.of("openminemap", "webicons/selections/am.png"));
+    private void addIcon(WebIcon webIcon, String imageName) {
+        webIcons.put(webIcon, Identifier.of("openminemap", "webicons/icons/" + imageName));
+        iconSelections.put(webIcon, Identifier.of("openminemap", "webicons/selections/" + imageName));
+        setHeight(height + 16);
     }
 
     @Override
@@ -47,7 +48,7 @@ public class WebAppSelectLayer extends ClickableWidget {
             return;
         }
         selection = (int) Math.floor((double) (mouseY - getY() - 1) / 16);
-        if (selection > 5 || selection < 0 || mouseX < getX() || mouseX > getX() + getWidth() - 1) {
+        if (selection > webIcons.size() - 1 || selection < 0 || mouseX < getX() || mouseX > getX() + getWidth() - 1) {
             selection = -1;
             setTooltip(null);
         } else {
@@ -84,14 +85,19 @@ public class WebAppSelectLayer extends ClickableWidget {
                 openUrl(lat+", "+lon+" (.kml file)", true);
                 break;
             } case 3: {
-                openUrl("https://openstreetmap.org/#map="+zoom+"/"+lat+"/"+lon, false);
+                openUrl("https://openstreetmap.org/#map="+Math.clamp(zoom, 0, 19)+"/"+lat+"/"+lon, false);
                 break;
             } case 4: {
-                openUrl("https://bing.com/maps?cp="+lat+"~"+lon+"&lvl="+zoom, false);
+                openUrl("https://bing.com/maps?cp="+lat+"~"+lon+"&lvl="+Math.clamp(zoom, 2, 22), false);
                 break;
             } case 5: {
                 openUrl("https://maps.apple.com/frame?center="+lat+"%2C"+lon, false);
                 break;
+            } case 6: {
+                openUrl("https://buildtheearth.net/map?z="+Math.clamp(zoom, 1, 22)+"&lat="+lat+"&lng="+lon, false);
+                break;
+            } case 7: {
+                openUrl("https://www.mapillary.com/app/?lat="+lat+"&lng="+lon+"&z="+Math.clamp(zoom, 1, 19.9), false);
             }
         }
         RightClickMenu.selectingSite = false;

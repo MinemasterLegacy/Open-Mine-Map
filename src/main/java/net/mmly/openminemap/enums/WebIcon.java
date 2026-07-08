@@ -9,7 +9,9 @@ public enum WebIcon {
     GOOGLE_EARTH_PRO("Google Earth Pro (.kml)"),
     OPEN_STREET_MAP("OpenStreetMap"),
     BING_MAPS("Bing Maps"),
-    APPLE_MAPS("Apple Maps");
+    APPLE_MAPS("Apple Maps"),
+    BUILD_THE_EARTH("BuildTheEarth"),
+    MAPILLARY("Mapillary");
 
     private final Tooltip tooltip;
 

@@ -66,7 +66,10 @@ public class SearchResultLayer extends ClickableWidget {
 
         context.fill(getX(), getY(), getX() + width, getY() + height, MapScreen.backingColor);
         context.fill(getX(), getY(), getX() + 4, getY() + height, getResultColor());
-        if (isFocused()) context.drawBorder(getX(), getY(), width, height, getResultColor());
+        if (isFocused()) {
+            context.drawBorder(getX(), getY(), width, height, getResultColor());
+            MapScreen.map.setHighlightedResult(resultNumber);
+        }
 
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
         context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), true);
@@ -158,7 +161,7 @@ public class SearchResultLayer extends ClickableWidget {
         MapScreen.followPlayer(false);
 
         if (myResult.bounds != null) {
-            goAndZoomToResult(myResult.bounds);
+            MapScreen.map.goAndZoomToBounds(myResult.bounds);
             return;
         }
 
@@ -168,43 +171,6 @@ public class SearchResultLayer extends ClickableWidget {
             MapScreen.map.setMapZoom(myResult.zoom);
         }
         MapScreen.map.clampZoom();
-
-    }
-
-    private static final double log2 = Math.log(2);
-    private void goAndZoomToResult(double[] bounds) { // for bounds: length is 4, first 2 are lat, last 2 are long
-        OmmMap map = MapScreen.map;
-
-        double areaWidth = Math.abs(
-                UnitConvert.longToMapX(bounds[2], 0, 128) -
-                UnitConvert.longToMapX(bounds[3], 0, 128)
-        );
-        double areaHeight = Math.abs(
-                UnitConvert.latToMapY(bounds[0], 0, 128) -
-                UnitConvert.latToMapY(bounds[1], 0, 128)
-        );
-
-        double percentage = (Math.max(areaHeight, areaWidth) / 128) * 1.15; //multiply by 1.15 to add some empty space around the focused area
-
-        /*
-        System.out.println(
-                map.getRenderAreaWidth() + "\t" +
-                map.getRenderAreaHeight() + "\t" +
-                percentage + "\t" +
-                Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2
-        );
-        */
-
-        //System.out.println(Arrays.toString(bounds));
-
-        map.setMapZoom(
-                Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2
-        );
-
-        double areaCenterLat = (bounds[0] + bounds[1]) / 2;
-        double areaCenterLon = (bounds[2] + bounds[3]) / 2;
-
-        map.setMapLatLong(areaCenterLat, areaCenterLon);
 
     }
 

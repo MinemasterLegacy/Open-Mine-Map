@@ -20,6 +20,7 @@ import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.*;
+import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
@@ -95,6 +96,10 @@ public class OmmMap extends ClickableWidget {
     private static Waypoint[] waypoints;
     public static DrawableClaim[] claims;
     public static boolean renderClaimsToggle = true;
+
+    private SearchResult[] searchResults;
+    private boolean showSearchResults = false;
+    private int highlightedResult = -1;
 
     public static boolean geoCoordsOutOfBounds(double lat, double lon) {
         return !(Math.abs(lon) < 180 && Math.abs(lat) < 85.0511287798);
@@ -554,6 +559,57 @@ public class OmmMap extends ClickableWidget {
         this.textRenderer = textRenderer;
     }
 
+    private static final double log2 = Math.log(2);
+    /// Bounds passed as \[lat1, lat2, lon1, lon2]
+    public void goAndZoomToBounds(double[] bounds) {
+        double areaWidth = Math.abs(
+                UnitConvert.longToMapX(bounds[2], 0, 128) -
+                        UnitConvert.longToMapX(bounds[3], 0, 128)
+        );
+        double areaHeight = Math.abs(
+                UnitConvert.latToMapY(bounds[0], 0, 128) -
+                        UnitConvert.latToMapY(bounds[1], 0, 128)
+        );
+
+        double percentage = (Math.max(areaHeight, areaWidth) / 128) * 1.15; //multiply by 1.15 to add some empty space around the focused area
+
+        setMapZoom(
+                Math.log( Math.min(getRenderAreaHeight(), getRenderAreaWidth()) / (128 * percentage) ) / log2
+        );
+
+        double areaCenterLat = (bounds[0] + bounds[1]) / 2;
+        double areaCenterLon = (bounds[2] + bounds[3]) / 2;
+
+        setMapLatLong(areaCenterLat, areaCenterLon);
+    }
+
+    public void setHighlightedResult(int result) {
+        highlightedResult = result;
+    }
+
+    public void disableSearchResults() {
+        showSearchResults = false;
+    }
+
+    public void displaySearchResults(SearchResult[] results) {
+        double minLat = 90;
+        double maxLat = -90;
+        double minLon = 180;
+        double maxLon = -180;
+
+        for (SearchResult result : results) {
+            if (result == null) break;
+            maxLat = Math.max(maxLat, result.latitude);
+            minLat = Math.min(minLat, result.latitude);
+            maxLon = Math.max(maxLon, result.longitude);
+            minLon = Math.min(minLon, result.longitude);
+        }
+
+        goAndZoomToBounds(new double[] {minLat, maxLat, minLon, maxLon});
+        searchResults = results;
+        showSearchResults = true;
+    }
+
     @Override
     public void playDownSound(SoundManager soundManager) {
         // play no sound
@@ -708,6 +764,22 @@ public class OmmMap extends ClickableWidget {
         return newPoints;
     }
 
+    private void drawSearchResultLocations() {
+        if (!showSearchResults) return;
+        if (searchResults == null) return;
+        for (int i = searchResults.length - 1; i >= 0; i--) {
+            UContext.drawTexture(
+                    Identifier.of("openminemap", i == highlightedResult ? "locationhighlight.png" : "location.png"),
+                    getWindowRelativeX(UnitConvert.longToMapX(searchResults[i].longitude, zoom, tileSize), 7),
+                    getWindowRelativeY(UnitConvert.latToMapY(searchResults[i].latitude, zoom, tileSize), 14),
+                    14,
+                    14,
+                    14,
+                    14
+            );
+        }
+    }
+
     private void drawClaim(DrawableClaim drawableClaim, int fillColor, int outlineColor) {
 
         if (drawableClaim.triangulationSucceeded()) {
@@ -855,6 +927,9 @@ public class OmmMap extends ClickableWidget {
     }
 
     private void drawGeneratedOverlays(DrawContext context) {
+
+        //draw search results
+        drawSearchResultLocations();
 
         //draw claims
         if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null && renderClaimsToggle) {

@@ -1,5 +1,6 @@
 package net.mmly.openminemap.search;
 
+import com.google.common.collect.Maps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -40,6 +41,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         previousText = result.name;
         getInstance().setText(result.name);
         updateResultElements();
+        MapScreen.map.displaySearchResults(searchResults);
     }
 
     public static SearchBoxLayer getInstance() {
@@ -72,6 +74,8 @@ public class SearchBoxLayer extends TextFieldWidget {
     }
 
     public void drawWidget(DrawContext context) {
+        if (isFocused()) MapScreen.map.setHighlightedResult(-1);
+
         if (RequestManager.searchResultReturn != null) {
             toggleSearching(false);
             searchResults = RequestManager.searchResultReturn;
@@ -79,6 +83,7 @@ public class SearchBoxLayer extends TextFieldWidget {
             RequestManager.searchResultReturn = null;
             MapScreen.getInstance().jumpToSearchBox();
             updateResultElements();
+            MapScreen.map.displaySearchResults(searchResults);
         } else if (!previousText.equals(getText()) && !searching) {
             previousText = getText();
             recalculateResults();
@@ -135,6 +140,7 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     public void recalculateResults() {
         clearSearchResults();
+        MapScreen.map.disableSearchResults();
 
         //if nothing has been typed yet, show recent search history
         if (this.getText().isBlank()) {

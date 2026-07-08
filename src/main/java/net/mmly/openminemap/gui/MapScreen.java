@@ -222,7 +222,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static void onLeftClick() {
         RightClickMenu.disableMenu();
         searchBoxLayer.setFocused(false);
-        toggleSearchMenu(false);
+        //toggleSearchMenu(false);
     }
 
     private static void onRightClick() {
@@ -232,7 +232,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         } else {
             RightClickMenu.disableMenu();
         }
-        toggleSearchMenu(false);
+        //toggleSearchMenu(false);
     }
 
     public static void toggleSearchMenu(boolean toggle) {

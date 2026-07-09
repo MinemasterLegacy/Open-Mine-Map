@@ -74,9 +74,4 @@ public enum ButtonFunction {
         };
     }
 
-    public static ToggleButtonLayer.Type[] getRightShelf() {
-        //TODO
-        return null;
-    }
-
 }

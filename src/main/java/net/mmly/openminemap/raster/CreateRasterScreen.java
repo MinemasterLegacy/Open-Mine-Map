@@ -19,6 +19,7 @@ import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class CreateRasterScreen extends Screen {
 
@@ -217,8 +218,7 @@ public class CreateRasterScreen extends Screen {
     protected void init() {
         super.init();
 
-        //TODO translate
-        doneButton = ButtonWidget.builder(Text.of(isNew ? "Create" : "Done"), (widget) -> {
+        doneButton = ButtonWidget.builder(isNew ? Text.translatable("omm.text.create") : Text.translatable("omm.text.done"), (widget) -> {
             CreateRasterScreen.instance.close(); //todo validate raster on creation
         }).position(0, -100).build();
         doneButton.setWidth(200);
@@ -255,7 +255,6 @@ public class CreateRasterScreen extends Screen {
             }
         }
 
-        //TODO translate
         for (int i = 0; i < 4; i++) {
             UContext.drawJustifiedText(Fields.inOrder[i].getTranslated(), Justify.RIGHT, fieldWidgets.get(i).getX() - 7, fieldWidgets.get(i).getY() + 6, 0xFFFFFFFF, true);
         }
@@ -277,7 +276,7 @@ enum Fields {
     public static final Fields[] inOrder = new Fields[] {NAME, SOURCE, ATTRIBUTION, LINKS, KEY};
 
     public MutableText getTranslated() { //TODO
-        return Text.literal(this.toString());
+        return Text.translatable("omm.raster.field." + this.toString().toLowerCase(Locale.US));
     }
 
 }

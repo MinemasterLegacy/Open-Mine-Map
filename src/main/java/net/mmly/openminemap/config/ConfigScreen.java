@@ -188,8 +188,7 @@ public class ConfigScreen extends Screen {
         teleportInterceptionOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.TELEPORT_INTERCEPT);
         this.addConfigOptionWidget(teleportInterceptionOption);
 
-        //TODO change translation to "Generated Overlays"
-        overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
+        overlayLabel = new CategoryLabelWidget(Text.translatable("omm.raster.type.generated-overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
         overlayLabelPosition = configList.getEntryCount();
 
@@ -214,12 +213,10 @@ public class ConfigScreen extends Screen {
         altitudeShadingOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.ALTITUDE_SHADING);
         this.addConfigOptionWidget(altitudeShadingOption);
 
-        //TODO change translation to "Raster Providers"
         rasterLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.tile-source"), this.textRenderer);
         this.addConfigOptionWidget(rasterLabel);
 
-        //TODO translate
-        definedUrlWidget = new RasterConfigWidget(Text.of("Configure Raster Providers..."));
+        definedUrlWidget = new RasterConfigWidget(Text.translatable("omm.config.option.configure-rasters"));
         this.addConfigOptionWidget(definedUrlWidget);
 
         interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer);

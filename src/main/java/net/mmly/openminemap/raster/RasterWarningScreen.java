@@ -17,13 +17,12 @@ public class RasterWarningScreen extends WarningScreen {
 
     protected final Screen parent;
 
-    //TODO translate (may be able to use mc translations)
     protected RasterWarningScreen() {
         super(
-                Text.literal("Notice: Using Custom Raster Providers").formatted(Formatting.BOLD),
-                Text.literal("OpenStreetMap (and Raster Providers that use their data) have Attribution Guidelines that require applications that use their data to display proper attribution information. Additionally, Raster Providers may have exclusionary terms on what their service can be used for. ")
-                        .append(Text.literal("By creating and using a custom Raster Provider, you accept responsibility for ensuring compliance with these guidelines.").formatted(Formatting.BOLD)),
-                Text.literal("Don't Show Again"), Text.literal(""));
+                Text.translatable("omm.raster.warning.title").formatted(Formatting.BOLD),
+                Text.translatable("omm.raster.warning.body")
+                        .append(Text.translatable("omm.raster.warning.disclaimer").formatted(Formatting.BOLD)),
+                Text.translatable("multiplayerWarning.check"), Text.literal(""));
         parent = MinecraftClient.getInstance().currentScreen;
     }
 

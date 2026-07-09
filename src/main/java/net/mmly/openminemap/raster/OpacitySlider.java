@@ -28,7 +28,6 @@ public class OpacitySlider extends SliderWidget {
 
     @Override
     protected void updateMessage() {
-        //TODO translate
         this.setMessage(Text.of(
                 ((int) (value * 100)) + "%"
         ));

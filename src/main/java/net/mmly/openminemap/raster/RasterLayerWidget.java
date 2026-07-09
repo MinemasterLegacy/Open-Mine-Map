@@ -194,7 +194,7 @@ public class RasterLayerWidget extends ClickableWidget {
             UContext.drawJustifiedText(getMessage(), Justify.CENTER, getX() + getWidth() / 2, getY() + 7, 0xFFFFFFFF, true);
         }
 
-        if (layerType != null) UContext.drawJustifiedText(Text.of(getSubMessage()), Justify.CENTER, getX() + getWidth() / 2, getY() + 24, 0xFFBFBFBF, true);
+        if (layerType != null) UContext.drawJustifiedText(getSubMessage(), Justify.CENTER, getX() + getWidth() / 2, getY() + 24, 0xFFBFBFBF, true);
 
         if (showKey) {
             UContext.drawTexture(
@@ -214,8 +214,7 @@ public class RasterLayerWidget extends ClickableWidget {
         }
         UContext.resetTextureAlpha();
 
-        //TODO translate
-        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.of("Requires Api Key")));
+        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.translatable("omm.raster.requires-api-key")));
         else setTooltip(Tooltip.of(Text.empty()));
 
         UContext.borderWidget(this,
@@ -282,13 +281,12 @@ public class RasterLayerWidget extends ClickableWidget {
 
     }
 
-    private String getSubMessage() {
-        //TODO translate
-        return switch (layerType) {
-            case BASE -> "Base Layer";
-            case OVERLAY -> "Overlay";
-            case LOCAL_GEN -> "Generated Overlays";
-        };
+    private Text getSubMessage() {
+        return Text.translatable("omm.raster.type." + switch (layerType) {
+            case BASE -> "base-layer";
+            case OVERLAY -> "overlay";
+            case LOCAL_GEN -> "local-gen";
+        });
     }
 
     private boolean mouseIsOverKey(int mouseX, int mouseY) {

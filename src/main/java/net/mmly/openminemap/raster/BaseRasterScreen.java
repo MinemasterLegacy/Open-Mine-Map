@@ -18,8 +18,7 @@ public class BaseRasterScreen extends RasterScreen {
 
     @Override
     void populateRasterList() {
-        //TODO translate
-        this.addRaster(new RasterLayerWidget(Text.of("Create New Base Layer"), null, null));
+        this.addRaster(new RasterLayerWidget(Text.translatable("omm.raster.create-new"), null, null));
 
         for (TileUrl url : RasterProvider.getCustomRasters()) {
             if (url.layerType != LayerType.BASE) continue;
@@ -52,21 +51,20 @@ public class BaseRasterScreen extends RasterScreen {
 
         confirmButton.setPosition(width / 2 - confirmButton.getWidth() / 2, height - 30);
 
-        //TODO translate
         confirmButton.active = false;
         if (getSelectedLayerWidget() == null) {
-            confirmButton.setMessage(Text.of("Select a Base Raster..."));
+            confirmButton.setMessage(Text.translatable("omm.raster.select-base"));
             return;
         }
         if (getSelectedLayerWidget().raster.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().raster.presetID)) {
-            confirmButton.setMessage(Text.of("Requires API Key"));
+            confirmButton.setMessage(Text.translatable("omm.raster.requires-api-key"));
             return;
         }
         if (RasterProvider.getCurrentBaseRaster() == getSelectedLayerWidget().raster) {
-            confirmButton.setMessage(Text.of("Base Already In Use"));
+            confirmButton.setMessage(Text.translatable("omm.raster.already-in-use"));
             return;
         }
-        confirmButton.setMessage(Text.of("Set Base to " + getSelectedLayerWidget().raster.name));
+        confirmButton.setMessage(Text.translatable("omm.raster.set-base").append(" " + getSelectedLayerWidget().raster.name));
         confirmButton.active = true;
     }
 

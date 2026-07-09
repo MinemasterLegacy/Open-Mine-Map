@@ -40,17 +40,16 @@ public class OverlayRasterScreen extends RasterScreen {
 
         confirmButton.setPosition(width / 2 - confirmButton.getWidth() / 2, height - 30);
 
-        //TODO translate
         confirmButton.active = false;
         if (getSelectedLayerWidget() == null) {
-            confirmButton.setMessage(Text.of("Select an Overlay Raster..."));
+            confirmButton.setMessage(Text.translatable("omm.raster.select-overlay"));
             return;
         }
         if (RasterProvider.overlayInUse(getSelectedLayerWidget().raster)) {
-            confirmButton.setMessage(Text.of("Overlay Already In Use"));
+            confirmButton.setMessage(Text.translatable("omm.raster.already-in-use"));
             return;
         }
-        confirmButton.setMessage(Text.of("Add Overlay " + getSelectedLayerWidget().raster.name));
+        confirmButton.setMessage(Text.translatable("omm.raster.add-overlay").append(" " + getSelectedLayerWidget().raster.name));
         confirmButton.active = true;
     }
 }

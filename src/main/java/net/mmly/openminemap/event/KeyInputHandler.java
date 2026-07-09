@@ -22,7 +22,7 @@ public class KeyInputHandler {
     public static final String KEY_TOGGLE_HUD_OSM_MAP = "omm.key.toggle-map";
     public static final String KEY_COPY_COORDINATES = "omm.key.copy-coordinates";
     public static final String KEY_SNAP_ANGLE = "omm.key.snap-angle";
-    public static final String KEY_RASTER_SCREEN = "omm.key.open-raster-screen"; //TODO translate
+    public static final String KEY_RASTER_SCREEN = "omm.key.open-raster-screen";
 
     //objects for all custom keybindings
     private static KeyBinding openFullscreenOsmMapKey;

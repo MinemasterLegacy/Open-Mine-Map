@@ -61,7 +61,9 @@ public class SearchHistoryFile {
                 historyAsResults.add(SearchResult.historic(entry.term, entry.bounded));
             }
         } catch (IOException e) {
-            //TODO
+            searchHistory = new ArrayList<>();
+            OpenMineMap.LOGGER.error("Error while reading search history, history will not be loaded: ");
+            e.printStackTrace();
         }
     }
 

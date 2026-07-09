@@ -37,6 +37,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public class MapScreen extends Screen { //Screen object that represents the fullscreen map
@@ -99,6 +100,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static int semiLightTextColor = 0xFFbfbfbf;
     private static int semiDarkTextColor = 0xFF7f7f7f;
     private static int darkTextColor = 0xFF3f3f3f;
+    private static boolean altKeyPressed = false;
 
     public static void setPlainTextColor(int argb, boolean checkForRainbowText) {
         if (checkForRainbowText) textIsRainbow = (argb == 0xFF7f7f7f);
@@ -453,6 +455,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
             return true;
         }
 
+        if (keyCode == GLFW.GLFW_KEY_LEFT_ALT || keyCode == GLFW.GLFW_KEY_RIGHT_ALT) altKeyPressed = true;
+
         if (searchElementsFocused()) {
             if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN) {
                 arrowNavigateSearch(keyCode);
@@ -475,9 +479,16 @@ public class MapScreen extends Screen { //Screen object that represents the full
             return true;
         }
 
+
         map.keyNavigate(keyCode, modifiers);
 
         return true;
+    }
+
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_LEFT_ALT || keyCode == GLFW.GLFW_KEY_RIGHT_ALT) altKeyPressed = false;
+        return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
     public static void updateAltScreenMap(Screen previous) {
@@ -647,6 +658,10 @@ public class MapScreen extends Screen { //Screen object that represents the full
             Text text = Text.literal(TileLoader.getStylizedCacheSize()).formatted(Formatting.BOLD);
             int width = textRenderer.getWidth(text);
             UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, backingColor, plainTextColor, false);
+        }
+
+        if (altKeyPressed && ConfigOptions.__ALT_INFO_TOOLTIP.getAsBooleanFromValues(ConfigOptions.Values.TRUE_FALSE)) {
+            context.drawTooltip(textRenderer, map.getAtTooltipList(), mouseX, mouseY);
         }
 
         //draws the attribution and report bug text fields

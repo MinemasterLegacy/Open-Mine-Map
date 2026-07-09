@@ -10,6 +10,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.draw.UContext;
@@ -27,6 +28,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {
@@ -409,6 +411,18 @@ public class OmmMap extends ClickableWidget {
     }
     public double getMouseLong() {
         return UnitConvert.mxToLong(mouseTileX, zoom, tileSize);
+    }
+
+    public List<Text> getAtTooltipList() {
+        return List.of(
+                Text.literal("Tile: [" + ((int) (getMouseTileX() / getTileSize())) + ", " + ((int) (getMouseTileY() / getTileSize())) + "]"),
+                Text.literal("Zoom: " + UnitConvert.floorToPlace(getZoom(), 3) + " (" + getTileZoom() + ")"),
+                Text.literal("  T:" + getTileSize() + " M:" + UnitConvert.floorToPlace(getMaxZoom(), 3) + " B:" + ConfigOptions.TILE_SCALE.getAsInt()),
+                Text.literal("Pos: [" + UnitConvert.floorToPlace(mapCenterX, 3) + ", " + UnitConvert.floorToPlace(mapCenterY, 3) + "]"),
+                Text.literal((waypoints == null ? "n/a" : waypoints.length) + " Waypoints").formatted(Formatting.GRAY),
+                Text.literal((searchResults == null ? "n/a" : searchResults.length) + " Search Results").formatted(Formatting.GRAY),
+                Text.literal((claims == null ? "n/a" : claims.length) + " Claims").formatted(Formatting.GRAY)
+        );
     }
 
     public void setFollowPlayer(boolean followPlayer) {

@@ -40,7 +40,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     COMPASS(0, "ShowCompass", "show", "compass"),
     TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),
     WEB_OPTIONS(0, "WebOptions", "gm,osm,bte,mpy"),
-    TELEPORT_INTERCEPT(0, "TeleportIntercept", "false", "teleport-intercept"), //TODO translate
+    TELEPORT_INTERCEPT(0, "TeleportIntercept", "false", "teleport-intercept"),
     BUTTON_STYLE(0, "ButtonStyle", "texture", "button-style"),
 
     _MOD_VERSION(1, "§modversion", "1.0.0"), //used for data fixing
@@ -56,7 +56,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
 
     __SHOW_DEVELOPER_OPTIONS(2, "ShowDeveloperOptions", "false"),
     __DISABLE_WEB_REQUESTS(2, "DisableWebRequests", "false", "DisableWebRequests", ""),
-    __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", "");
+    __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", ""),
+    __ALT_INFO_TOOLTIP(2, "AltInfoTooltip", "false", "AltInfoTooltip", "");
 
     private final String defaultValue;
     private final String rawText;

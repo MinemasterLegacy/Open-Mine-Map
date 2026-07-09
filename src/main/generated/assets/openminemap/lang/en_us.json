@@ -73,7 +73,7 @@
   "omm.config.tooltip.rcm-uses": "The command that will be used to teleport when using the Fullscreen Right Click Menu.",
   "omm.config.tooltip.reverse-scroll": "Reverse the scroll wheel.",
   "omm.config.tooltip.snap-angle": "Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)",
-  "omm.config.tooltip.teleport-intercept": "Intercept teleport commands and translate them to tp commands. This can allow others mods that rely on teleport commands to function on servers with tpll.",
+  "omm.config.tooltip.teleport-intercept": "Intercept teleport commands and translate them to tpll commands. This can allow others mods that rely on teleport commands to function on servers with tpll.",
   "omm.config.tooltip.text-color": "Change the common color used for text throughout the mod",
   "omm.config.tooltip.tile-scale": "Change the render size of map tiles",
   "omm.config.tooltip.tile-source": "Set a custom URL for tiles to be loaded from",

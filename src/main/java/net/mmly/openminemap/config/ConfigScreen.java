@@ -247,6 +247,7 @@ public class ConfigScreen extends Screen {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__ALT_INFO_TOOLTIP, true));
         }
 
         configList.restoreScroll();

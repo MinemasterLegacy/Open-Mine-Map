@@ -358,9 +358,9 @@ public class MapScreen extends Screen { //Screen object that represents the full
         map.waypointClickedProcedure = MapScreen::onRightClick;
         map.setTextRenderer(this.textRenderer);
         map.doPlayerTooltipNames(true);
+        map.setMouseDown(false);
 
         toggleSearchMenu(false);
-
     }
 
     private static void drawButtons(DrawContext context) {

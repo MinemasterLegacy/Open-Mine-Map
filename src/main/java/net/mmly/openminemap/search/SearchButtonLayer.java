@@ -26,7 +26,7 @@ public class SearchButtonLayer extends ClickableWidget {
     public void drawWidget(DrawContext context) {
         if (!ButtonLayer.texturedButtons) {
             UContext.drawButtonOnWidget(this, MapScreen.getSearchMenuState() && !isHovered(), isHovered());
-            UContext.drawTexture(generatedShadowIdentifier, getX(), getY(), getWidth(), getHeight());
+            UContext.drawTexture(generatedShadowIdentifier, getX() + 1, getY() + 1, getWidth(), getHeight());
         }
         UContext.drawTexture(getIdentifier(MapScreen.getSearchMenuState(), isHovered()), getX(), getY(), getWidth(), getHeight());
     }

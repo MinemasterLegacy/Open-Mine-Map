@@ -42,6 +42,7 @@ import java.util.function.BooleanSupplier;
 public class MapScreen extends Screen { //Screen object that represents the fullscreen map
     public MapScreen() {
         super(Text.of("OMM Fullscreen Map"));
+        toggleAltScreenMap(false);
     }
 
     public static int windowHeight;
@@ -299,6 +300,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         instance = this;
         setIdentifiers();
         map.initFields();
+        toggleAltScreenMap(false);
 
         rightClickLayer = new RightClickMenu(this.textRenderer);
         this.addDrawableChild(rightClickLayer);

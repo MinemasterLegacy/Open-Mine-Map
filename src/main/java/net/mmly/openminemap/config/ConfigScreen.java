@@ -13,6 +13,7 @@ import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
@@ -49,6 +50,7 @@ public class ConfigScreen extends Screen {
     ChoiceSliderWidget tileScaleSlider;
     ChoiceButtonWidget reverseScrollOption;
     ChoiceSliderWidget zoomStrengthSlider;
+    ChoiceButtonWidget teleportInterceptionOption;
 
     CategoryLabelWidget overlayLabel;
     ChoiceButtonWidget renderClaimsOption;
@@ -66,8 +68,9 @@ public class ConfigScreen extends Screen {
     ChoiceSliderWidget transparencySlider;
     ColorChoiceSliderWidget textColorSlider;
     ChoiceButtonWidget showConnectionStatusOption;
-    ChoiceButtonWidget hudmapBorderOption;
     ChoiceButtonWidget hudmapCompassOption;
+    ChoiceButtonWidget hudmapBorderOption;
+    ChoiceMultiSelectWidget webOptionsOption;
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -181,6 +184,9 @@ public class ConfigScreen extends Screen {
         zoomStrengthSlider = new ChoiceSliderWidget(ConfigOptions.Values.ZOOM_STRENGTHS, ConfigOptions.ZOOM_STRENGTH, true);
         this.addConfigOptionWidget(zoomStrengthSlider);
 
+        teleportInterceptionOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.TELEPORT_INTERCEPT);
+        this.addConfigOptionWidget(teleportInterceptionOption);
+
         //TODO change translation to "Generated Overlays"
         overlayLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.overlays"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
@@ -233,6 +239,9 @@ public class ConfigScreen extends Screen {
         hudmapBorderOption = new ChoiceButtonWidget(ConfigOptions.Values.SHOW_HIDE, ConfigOptions.HUDMAP_BORDER);
         this.addConfigOptionWidget(hudmapBorderOption);
 
+        webOptionsOption = new ChoiceMultiSelectWidget(WebIcon.ORDERED_LIST, ConfigOptions.WEB_OPTIONS);
+        this.addConfigOptionWidget(webOptionsOption);
+
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
@@ -268,7 +277,6 @@ public class ConfigScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         updateScreenDims();
-        UContext.setContext(context);
 
         wikiLinkLayer.setPosition(windowScaledWidth - wikiLinkLayer.getWidth(), windowScaledHeight - BOTTOM_SPACE + 7);
         exitButtonLayer.setPosition(windowScaledWidth / 2 - 22, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
@@ -277,7 +285,8 @@ public class ConfigScreen extends Screen {
 
         //context.enableScissor(0, 0, windowScaledWidth, windowScaledHeight - BOTTOM_SPACE);
         super.render(context, mouseX, mouseY, delta);
-        //context.disableScissor();
+
+        UContext.setContext(context);
         wikiLinkLayer.drawWidget(context, textRenderer);
         UContext.drawJustifiedText(Text.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF, true);
     }

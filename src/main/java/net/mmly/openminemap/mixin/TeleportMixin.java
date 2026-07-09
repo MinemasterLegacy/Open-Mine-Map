@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,6 +29,7 @@ public class TeleportMixin {
 
     @Inject(method = "sendChatCommand", at = @At(value = "INVOKE", target = "Lnet/minecraft/command/argument/SignedArgumentList;of(Lcom/mojang/brigadier/ParseResults;)Lnet/minecraft/command/argument/SignedArgumentList;", shift = At.Shift.BEFORE))
     private static void injected(String command, CallbackInfo ci, @Local(argsOnly = true) LocalRef<String> localRef) {
+        if (!ConfigOptions.TELEPORT_INTERCEPT.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) return;
         //MinecraftClient.getInstance().player.sendMessage(Text.of("Command: " + command), false);
         if (command.replaceFirst("execute in minecraft:overworld run tp", "").length() != command.length()) {
             //MinecraftClient.getInstance().player.sendMessage(Text.of("Yay!"), false);
@@ -51,7 +53,7 @@ public class TeleportMixin {
                                 arguments[3] + " " +
                                 arguments[5] + " " +
                                 arguments[6];
-            } catch (CoordinateValueError ignored) {}
+            } catch (CoordinateValueError | NumberFormatException ignored) {}
 
         }
         localRef.set(command);

@@ -38,6 +38,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     HUDMAP_BORDER(0, "HudmapBorder", "show", "border"),
     COMPASS(0, "ShowCompass", "show", "compass"),
     TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),
+    WEB_OPTIONS(0, "WebOptions", "gm,osm,bte,mpy"),
+    TELEPORT_INTERCEPT(0, "TeleportIntercept", "false", "teleport-intercept"), //TODO translate
 
     _MOD_VERSION(1, "§modversion", "1.0.0"), //used for data fixing
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),

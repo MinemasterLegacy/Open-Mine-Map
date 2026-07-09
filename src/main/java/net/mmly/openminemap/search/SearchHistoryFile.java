@@ -88,7 +88,7 @@ public class SearchHistoryFile {
         for (SearchResult result : historyAsResults) {
             if (result == historicResult) {
                 SearchResult[] results = searchHistory.get(i).results;
-                SearchResult[] returnArray = new SearchResult[results.length];
+                SearchResult[] returnArray = new SearchResult[SearchBoxLayer.MAX_RESULTS];
                 System.arraycopy(results, 0, returnArray, 0, results.length);
                 return returnArray;
             }

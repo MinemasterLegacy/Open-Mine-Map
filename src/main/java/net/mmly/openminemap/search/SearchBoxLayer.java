@@ -66,6 +66,7 @@ public class SearchBoxLayer extends TextFieldWidget {
     }
 
     public static void showHistoricResult(SearchResult result) {
+        if (result == null) return;
         searchResults = SearchHistoryFile.getResultsOf(result);
         previousText = result.name;
         numResults = getNumResultsOf(searchResults);

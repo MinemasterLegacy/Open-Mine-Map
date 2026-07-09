@@ -188,7 +188,7 @@ public class ConfigScreen extends Screen {
         teleportInterceptionOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.TELEPORT_INTERCEPT);
         this.addConfigOptionWidget(teleportInterceptionOption);
 
-        overlayLabel = new CategoryLabelWidget(Text.translatable("omm.raster.type.generated-overlays"), this.textRenderer);
+        overlayLabel = new CategoryLabelWidget(Text.translatable("omm.raster.type.local-gen"), this.textRenderer);
         this.addConfigOptionWidget(overlayLabel);
         overlayLabelPosition = configList.getEntryCount();
 

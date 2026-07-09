@@ -127,6 +127,7 @@ public class SearchResultLayer extends ClickableWidget {
     }
 
     public boolean isHistoric() {
+        if (myResult == null) return false;
         return myResult.historic;
     }
 

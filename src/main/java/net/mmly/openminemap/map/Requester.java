@@ -194,6 +194,7 @@ public class Requester extends Thread {
         InputStream stream = get(urlPattern);
         SearchResult[] results = parseLocationJson(stream);
         if (results == null) return null;
+        if (results.length == 0) return null;
         if (results[0] == null) return null;
         if (Double.isNaN(results[0].latitude)) return null;
 

@@ -26,6 +26,7 @@ import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 
 public class OmmMap extends ClickableWidget {
@@ -137,7 +138,7 @@ public class OmmMap extends ClickableWidget {
     public OmmMap(int x, int y, int width, int height, double zoom, double mapCenterX, double mapCenterY, int tileSize) {
         this(x, y, width, height);
         this.setMapZoom(zoom);
-        this.setMapPosition(mapCenterX, mapCenterY);
+        this.setMapCenterPosition(mapCenterX, mapCenterY);
         this.tileSize = (int) Math.floor(baseTileSize * Math.pow(2, ((zoom + 0.5) % 1) - 0.5));
         this.lastSavedTime = Util.getEpochTimeMs();
         this.tileSize = tileSize;
@@ -185,16 +186,32 @@ public class OmmMap extends ClickableWidget {
         }
     }
 
-    public void setMapLatLong(double lat, double lon) {
-        if (Double.isNaN(lat) || Double.isNaN(lon)) return;
-        this.mapCenterX = UnitConvert.longToMapX(lon, zoom, tileSize);
+    public void setMapLat(double lat) {
+        if (Double.isNaN(lat)) return;
         this.mapCenterY = UnitConvert.latToMapY(lat, zoom, tileSize);
     }
-    public void setMapPosition(double mapPosX, double mapPosY) {
-        if (Double.isNaN(mapPosX) || Double.isNaN(mapPosY)) return;
-        this.mapCenterX = mapPosX;
-        this.mapCenterY = mapPosY;
+    public void setMapLon(double lon) {
+        if (Double.isNaN(lon)) return;
+        this.mapCenterX = UnitConvert.longToMapX(lon, zoom, tileSize);
     }
+    public void setMapLatLong(double lat, double lon) {
+        setMapLat(lat);
+        setMapLon(lon);
+    }
+
+    public void setMapCenterX(double x) {
+        if (Double.isNaN(x)) return;
+        this.mapCenterX = x;
+    }
+    public void setMapCenterY(double y) {
+        if (Double.isNaN(y)) return;
+        this.mapCenterY = y;
+    }
+    public void setMapCenterPosition(double mapPosX, double mapPosY) {
+        setMapCenterX(mapPosX);
+        setMapCenterY(mapPosY);
+    }
+
     public void setMapZoom(double zoom1) {
         zoom1 = Math.clamp(zoom1, 0, maxZoom);
         if (zoom > zoom1) {
@@ -583,13 +600,14 @@ public class OmmMap extends ClickableWidget {
                 Math.log( Math.min(getRenderAreaHeight(), getRenderAreaWidth() - (viaSearchMenu ? searchMenuRightBound : 0)) / (128 * percentage) ) / log2
         );
 
-        double areaCenterLat = (bounds[0] + bounds[1]) / 2;
+        double areaCenterY = (UnitConvert.latToMapY(bounds[0], zoom, tileSize) + UnitConvert.latToMapY(bounds[1], zoom, tileSize)) / 2;
         double areaCenterLon = (bounds[2] + bounds[3]) / 2;
 
-        setMapLatLong(areaCenterLat, areaCenterLon);
+        setMapLon(areaCenterLon);
+        setMapCenterY(areaCenterY);
 
         if (viaSearchMenu) {
-            setMapPosition(mapCenterX - ((double) searchMenuRightBound / 2), mapCenterY);
+            setMapCenterX(mapCenterX - ((double) searchMenuRightBound / 2));
         }
     }
 
@@ -977,9 +995,6 @@ public class OmmMap extends ClickableWidget {
 
     private void drawGeneratedOverlays(DrawContext context) {
 
-        //draw search results
-        drawSearchResultLocations();
-
         //draw claims
         if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null && renderClaimsToggle) {
             for (DrawableClaim claim : claims) {
@@ -1040,6 +1055,9 @@ public class OmmMap extends ClickableWidget {
         MappablePlayer selfMappable = new MappablePlayer(player, OverlayVisibility.SELF);
         BufferedPlayer self = null;
         if (ConfigOptions.HOVER_NAMES.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE)) drawHoveredPlayerText(context);
+
+        //draw search results
+        drawSearchResultLocations();
 
         //draw self direction indicator
         if (followPlayer) {

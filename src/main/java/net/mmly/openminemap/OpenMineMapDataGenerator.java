@@ -227,11 +227,13 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.raster.warning.title", "Notice: Using Custom Raster Providers");
         translationBuilder.add("omm.raster.warning.body", "OpenStreetMap (and Raster Providers that use their data) have Attribution Guidelines that require applications that use their data to display proper attribution information. Additionally, Raster Providers may have exclusionary terms on what their service can be used for. ");
         translationBuilder.add("omm.raster.warning.disclaimer", "By creating and using a custom Raster Provider, you accept responsibility for ensuring compliance with these guidelines.");
-
         translationBuilder.add("omm.config.option.teleport-intercept", "Teleport Intercept");
         translationBuilder.add("omm.config.tooltip.teleport-intercept", "Intercept teleport commands and translate them to tp commands. This can allow others mods that rely on teleport commands to function on servers with tpll.");
         translationBuilder.add("omm.config.option.button-style", "Button Style");
         translationBuilder.add("omm.config.tooltip.button-style", "Change the button style. Texture uses the original mod textures, Generated uses vanilla textures, which can be customized by resourcepacks.");
+        translationBuilder.add("omm.config.state.texture", "Texture");
+        translationBuilder.add("omm.config.state.generated", "Generated");
+
     }
 }
 

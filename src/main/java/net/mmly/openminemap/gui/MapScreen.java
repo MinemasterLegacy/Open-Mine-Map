@@ -625,7 +625,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
          */
         toggleHudMapButtonLayer.draw(context);
-        toggleClaimRenderingButtonLayer.draw(context);
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) toggleClaimRenderingButtonLayer.draw(context);
 
         //draws the Mouse and player coordinates text fields
         String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";

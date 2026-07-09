@@ -70,6 +70,7 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget showConnectionStatusOption;
     ChoiceButtonWidget hudmapCompassOption;
     ChoiceButtonWidget hudmapBorderOption;
+    ChoiceButtonWidget buttonStyleOption;
     ChoiceMultiSelectWidget webOptionsOption;
 
     /*
@@ -239,6 +240,9 @@ public class ConfigScreen extends Screen {
         hudmapBorderOption = new ChoiceButtonWidget(ConfigOptions.Values.SHOW_HIDE, ConfigOptions.HUDMAP_BORDER);
         this.addConfigOptionWidget(hudmapBorderOption);
 
+        buttonStyleOption = new ChoiceButtonWidget(ConfigOptions.Values.BUTTON_STYLES, ConfigOptions.BUTTON_STYLE);
+        this.addConfigOptionWidget(buttonStyleOption);
+
         webOptionsOption = new ChoiceMultiSelectWidget(WebIcon.ORDERED_LIST, ConfigOptions.WEB_OPTIONS);
         this.addConfigOptionWidget(webOptionsOption);
 
@@ -271,6 +275,7 @@ public class ConfigScreen extends Screen {
         HudMap.loadConfigParameters();
         ConfigFile.writeToFile();
         Requester.disableWebRequests = ConfigOptions.__DISABLE_WEB_REQUESTS.getAsBoolean();
+        ButtonLayer.texturedButtons = ConfigOptions.BUTTON_STYLE.getAsBooleanFromValues(ConfigOptions.Values.BUTTON_STYLES);
         MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
     }
 

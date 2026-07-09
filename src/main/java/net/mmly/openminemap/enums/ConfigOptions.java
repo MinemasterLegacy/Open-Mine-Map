@@ -4,6 +4,7 @@ import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +41,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),
     WEB_OPTIONS(0, "WebOptions", "gm,osm,bte,mpy"),
     TELEPORT_INTERCEPT(0, "TeleportIntercept", "false", "teleport-intercept"), //TODO translate
+    BUTTON_STYLE(0, "ButtonStyle", "texture", "button-style"),
 
     _MOD_VERSION(1, "§modversion", "1.0.0"), //used for data fixing
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
@@ -166,6 +168,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
         public static final List<String> DECIMAL_PERCENT = Arrays.stream(range(0, 1.01f, 0.05f, 2)).toList();
         //public static final List<String> TILE_SCALES = Arrays.stream(range(64, 256, 8, 0)).toList();
         public static final List<String> COLORS = Arrays.stream(genColorRange()).toList();
+        public static final List<String> BUTTON_STYLES = Arrays.stream(new String[] {"Texture", "Generated"}).toList();
 
         public static final List<String> TILE_SCALES = Arrays.stream(new String[] {
                 "64", "72", "80", "88", "96", "104", "112", "120", "128",

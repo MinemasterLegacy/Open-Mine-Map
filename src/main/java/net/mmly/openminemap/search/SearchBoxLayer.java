@@ -138,7 +138,7 @@ public class SearchBoxLayer extends TextFieldWidget {
             numResults = RequestManager.searchResultReturn.length;
             numDisplayedResults = Math.min(maxDisplayedResults, numResults);
             RequestManager.searchResultReturn = null;
-            MapScreen.map.displaySearchResults(searchResults);
+            if (!searchResults[0].name.isEmpty()) MapScreen.map.displaySearchResults(searchResults);
             MapScreen.getInstance().jumpToSearchBox();
             updateResultElements();
         } else if (!previousText.equals(getText()) && !searching) {

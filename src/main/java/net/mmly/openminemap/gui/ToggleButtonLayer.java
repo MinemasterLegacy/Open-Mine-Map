@@ -5,10 +5,13 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.maps.OmmMap;
+import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
 
 import java.util.function.BooleanSupplier;
@@ -22,6 +25,20 @@ public class ToggleButtonLayer extends ClickableWidget {
         super(x, y, 20,20, Text.of(""));
         this.type = type;
         setOwnTooltip();
+    }
+
+    public void draw(DrawContext context) {
+        if (!ButtonLayer.texturedButtons) {
+            UContext.drawButtonOnWidget(this, false, isHovered());
+            UContext.drawTexture(type.getShadowIdentifier(isOn()), getX() + 1, getY() + 1, getWidth(), getHeight());
+        }
+        UContext.drawTexture(type.getIdentifier(isOn(), isHovered()), getX(), getY(), getWidth(), getHeight());
+    }
+
+    private boolean isOn() {
+        if (type == Type.CLAIM_RENDERING) return OmmMap.renderClaimsToggle;
+        if (type == Type.TOGGLE_HUDMAP) return HudMap.hudEnabled;
+        return false;
     }
 
     private void setOwnTooltip() {
@@ -75,25 +92,52 @@ public class ToggleButtonLayer extends ClickableWidget {
                 "omm.claims.toggle",
                 "omm.claims.reload",
                 () -> OmmMap.renderClaimsToggle,
-                true
+                true,
+                "claims"
         ),
         TOGGLE_HUDMAP(
                 "omm.fullscreen.hud-toggle.name",
                 "omm.fullscreen.hud-toggle.description",
                 () -> HudMap.hudEnabled,
-                false
+                false,
+                "map"
         );
 
         public final String topTooltipKey;
         public final String bottomTooltipKey;
         private final BooleanSupplier stateDeterminer;
         public final boolean rightClickAllowed;
+        private final String fileName;
 
-        Type(String topTooltipKey, String bottomTooltipKey, BooleanSupplier stateDeterminer, boolean rightClickAllowed) {
+        private final Identifier onGeneratedIdentifier;
+        private final Identifier offGeneratedIdentifier;
+        private final Identifier onGeneratedShadowIdentifier;
+        private final Identifier offGeneratedShadowIdentifier;
+
+        Type(String topTooltipKey, String bottomTooltipKey, BooleanSupplier stateDeterminer, boolean rightClickAllowed, String fileName) {
             this.topTooltipKey = topTooltipKey;
             this.bottomTooltipKey = bottomTooltipKey;
             this.stateDeterminer = stateDeterminer;
             this.rightClickAllowed = rightClickAllowed;
+            this.fileName = fileName;
+
+            onGeneratedIdentifier = Identifier.of("openminemap", "buttons/vanilla/generated/" + fileName + "on.png");
+            offGeneratedIdentifier = Identifier.of("openminemap", "buttons/vanilla/generated/" + fileName + "off.png");
+            onGeneratedShadowIdentifier = ColorUtil.getColoredIdentifier(onGeneratedIdentifier,0x00003e);
+            offGeneratedShadowIdentifier = ColorUtil.getColoredIdentifier(offGeneratedIdentifier,0x00003e);
+
+        }
+
+        public Identifier getShadowIdentifier(boolean on) {
+            return on ? onGeneratedShadowIdentifier : offGeneratedShadowIdentifier;
+        }
+
+        public Identifier getIdentifier(boolean on, boolean highlighted) {
+            if (!ButtonLayer.texturedButtons) {
+                if (on) return onGeneratedIdentifier;
+                return offGeneratedIdentifier;
+            }
+            return Identifier.of("openminemap", "buttons/vanilla/" + (highlighted ? "hover" : "default") + "/" + fileName + (on ? "on" : "off") + ".png");
         }
 
         public boolean isEnabled() {

@@ -9,6 +9,7 @@ import net.minecraft.util.Util;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonState;
+import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.RasterProvider;
 
@@ -45,9 +46,11 @@ public class MicroButton extends ClickableWidget {
 
     public void draw(int mouseX, int mouseY) {
         checkDisabled();
+        if (!ButtonLayer.texturedButtons) UContext.drawButtonOnWidget(this, disabaled, isMouseOver(mouseX, mouseY));
         UContext.drawTexture(
                 buttonFunction.getTexture(disabaled ? ButtonState.LOCKED : isMouseOver(mouseX, mouseY) ? ButtonState.HOVER : ButtonState.DEFAULT),
                 getX(), getY(), width, height, 12, 12);
+
         if (flash) drawFlash();
     }
 

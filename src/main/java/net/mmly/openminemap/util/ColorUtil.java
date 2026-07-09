@@ -1,10 +1,23 @@
 package net.mmly.openminemap.util;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.waypoint.WaypointScreen;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ColorUtil {
+
+    private static int pathInt = 0;
 
     /// Input values range 0-255
     public static int argb(int alpha, int red, int green, int blue) {
@@ -98,6 +111,38 @@ public class ColorUtil {
 
     public static int getCurrentRainbowColor() {
         return hsl(255, (int) ((Util.getEpochTimeMs() >>> 6) % 360), 0.95f, 0.75f);
+    }
+
+    public static Identifier getColoredIdentifier(Identifier identifier, int colorHSV) {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        int value = colorHSV & 0x0000FF;
+        int saturation = (colorHSV >> 8) & 0x0000FF;
+        int hue = (colorHSV >> 16) & 0x0000FF;
+
+        try {
+            BufferedImage image = ImageIO.read(client.getResourceManager().getResource(identifier).get().getInputStream());
+            image = WaypointScreen.colorize(image, (float) hue /256, (float) saturation /256, (float) value /256);
+
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", os);
+            InputStream is = new ByteArrayInputStream(os.toByteArray());
+            NativeImage nImage = NativeImage.read(is);
+
+            Identifier wayIdent = Identifier.of("openminemap", "recolored-texture-"+ pathInt);
+            client.getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(nImage));
+            pathInt++;
+
+            is.close();
+            //nImage.close();
+            os.close();
+
+            return wayIdent;
+
+        } catch (IOException | IllegalArgumentException e) {
+            return identifier;
+        }
+
     }
 
 }

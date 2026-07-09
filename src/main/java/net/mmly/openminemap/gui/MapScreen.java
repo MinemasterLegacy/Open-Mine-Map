@@ -90,6 +90,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     );
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
+    private boolean chatIsOpened = false;
     private static final LinkedList<Notification> notifications = new LinkedList<>();
     private static boolean hudWasHidden;
     public static int backingColor = 0x80000000;
@@ -485,11 +486,9 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     public static void updateAltScreenMap(Screen previous, Screen next) {
         if (next == null) {
-            System.out.println("Update to null with render se to " + renderAltMap);
             toggleAltScreenMap(false);
             return;
         }
-        System.out.println("Update to " + next.getClass().getName() + " with render set to " + renderAltMap);
         if (screenAlwaysHasAltMap(next)) toggleAltScreenMap(true);
         else if (screenCanHaveAltMap(next)) toggleAltScreenMap(previous instanceof MapScreen || renderAltMap);
         else toggleAltScreenMap(false);
@@ -576,6 +575,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
                 mClient.setScreen(new ChatScreen(""));
                 toggleAltScreenMap(true);
             }
+            chatIsOpened = true;
             chatToBeOpened = false;
         }
 
@@ -610,6 +610,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         drawButtons(context);
 
+        /*
         int buttonStyle = HudMap.hudEnabled ? 1 : 0;
         context.drawTexture(RenderLayer::getGuiTextured, toggleHudMapButtonLayer.isHovered() ?
                 showHudmapIdentifiers[1][buttonStyle] :
@@ -621,6 +622,10 @@ public class MapScreen extends Screen { //Screen object that represents the full
                         showClaimsIdentifiers[1][buttonStyle] :
                         showClaimsIdentifiers[0][buttonStyle],
                 toggleClaimRenderingButtonLayer.getX(), toggleClaimRenderingButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
+
+         */
+        toggleHudMapButtonLayer.draw(context);
+        toggleClaimRenderingButtonLayer.draw(context);
 
         //draws the Mouse and player coordinates text fields
         String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";
@@ -691,6 +696,11 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (instance == null) return;
         if (!renderAltMap) return;
         if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) return;
+        if (getInstance().chatIsOpened && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
+            MinecraftClient.getInstance().setScreen(new MapScreen());
+            toggleAltScreenMap(false);
+            getInstance().chatIsOpened = false;
+        }
 
         MapScreen.map.updateTimeRelatedVars();
 

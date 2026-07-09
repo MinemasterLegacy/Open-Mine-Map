@@ -3,7 +3,6 @@ package net.mmly.openminemap.draw;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -201,6 +200,22 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         drawContext.fill(-1, -1, 1, 1, color);
         matrixStack.pop();
 
+    }
+
+    public static void drawButtonOnWidget(Widget widget, boolean disabled, boolean highlighted) {
+        drawButton(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), disabled, highlighted);
+    }
+
+    public static void drawButton(int x, int y, int width, int height, boolean disabled, boolean highlighted) {
+        drawContext.drawGuiTexture(
+                RenderLayer::getGuiTextured,
+                disabled ?
+                    Identifier.ofVanilla("widget/button_disabled") :
+                    (highlighted ?
+                            Identifier.ofVanilla("widget/button_highlighted") :
+                            Identifier.ofVanilla("widget/button")
+                ),
+                x, y, width, height);
     }
 
 }

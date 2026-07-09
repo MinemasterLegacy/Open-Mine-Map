@@ -638,8 +638,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
         // -32 is for coordinate displays
         // -28 is for left shelf buttons
         // -23 on searchboxlayer is for the search box
-        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - 28 - attributionOffset - pinnedWaypointsLayer.getY());
-        SearchBoxLayer.setMaxDisplayedResults(windowScaledHeight - 32 - 28 - attributionOffset - 23);
+        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - 28 - attributionOffset - pinnedWaypointsLayer.getY() - (int) (RasterProvider.doMapboxAttribution() ? getMapboxAttributionSize() * 1.5 : 0));
+        SearchBoxLayer.setMaxDisplayedResults(windowScaledHeight - 32 - 28 - attributionOffset - 23 - (int) (RasterProvider.doMapboxAttribution() ? getMapboxAttributionSize() * 1.5 : 0));
         purgeNotifiations();
         drawNotificationText(context);
 

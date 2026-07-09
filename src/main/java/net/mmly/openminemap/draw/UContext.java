@@ -180,6 +180,14 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         }
     }
 
+    public static void drawDottedHorizontalLine(int x1, int x2, int y, int color) {
+        int x = x1;
+        while (x < x2) {
+            drawContext.fill(x, y, x + 1, y + 1, color);
+            x += 2;
+        }
+    }
+
     public static void drawDiagonalLine(int[] start, int[] end, float thickness, int color) {
 
         MatrixStack matrixStack = drawContext.getMatrices();

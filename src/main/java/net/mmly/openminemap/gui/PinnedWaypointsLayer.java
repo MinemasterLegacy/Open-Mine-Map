@@ -25,6 +25,8 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     TextRenderer textRenderer;
     public static int menuSelection = -1;
 
+    private int scrollOffset = 0;
+
     public PinnedWaypointsLayer(int x, int y, int width, int margin, TextRenderer renderer) {
         super(x, y, width, width, Text.of(""));
 
@@ -36,8 +38,21 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     }
 
     public void setRoundedHeight(int height1) {
-        maxHeight = height1 - (height1 % waypointHitboxSize);
-        visibleWaypointCount = height1 / waypointHitboxSize;
+        maxHeight = Math.max(20, height1 - (height1 % waypointHitboxSize));
+        visibleWaypointCount = Math.max(1, height1 / waypointHitboxSize);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (verticalAmount > 0) {
+            scrollOffset--;
+        }
+        if (verticalAmount < 0) {
+            scrollOffset++;
+        }
+        scrollOffset = Math.clamp(scrollOffset, 0, Math.max(0, pinnedWaypoints.length - visibleWaypointCount));
+
+        return false;
     }
 
     public void drawWidget(DrawContext context) {
@@ -62,9 +77,13 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         int y = getY();
 
         for (int i = 0; i < Math.min(pinnedWaypoints.length, visibleWaypointCount); i++) {
-            context.drawTexture(RenderLayer::getGuiTextured, pinnedWaypoints[i].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
+            context.drawTexture(RenderLayer::getGuiTextured, pinnedWaypoints[i+scrollOffset].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
         }
 
+        if (visibleWaypointCount < pinnedWaypoints.length) {
+            if (scrollOffset != 0) UContext.drawDottedHorizontalLine(getX(), getWidth(), getY(), 0xFFFFFFFF);
+            if (scrollOffset != pinnedWaypoints.length - visibleWaypointCount) UContext.drawDottedHorizontalLine(getX(), getRight(), getBottom() - 1, 0xFFFFFFFF);
+        }
         /*
         for (Waypoint waypoint : pinnedWaypoints) {
             context.drawTexture(RenderLayer::getGuiTextured, waypoint.identifier, getX() + margin, getY() + margin + y, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);

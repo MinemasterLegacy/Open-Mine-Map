@@ -5,6 +5,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayersManager;
@@ -106,17 +107,13 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     private void drawTopScrollIndicator(DrawContext context) {
         if (searchScroll == 0) return;
-        for (int i = 0; i < width; i += 2) {
-            context.fill(getX() + i, getY() + height, getX() + i + 1, getY() + height + 1, 0xFFFFFFFF);
-        }
+        UContext.drawDottedHorizontalLine(getX(), getRight(), getY() + height, 0xFFFFFFFF);
     }
 
     private void drawBottomScrollIndicator(DrawContext context) {
         if (numDisplayedResults + searchScroll == numResults || numDisplayedResults < maxDisplayedResults) return;
         int yOffset = numDisplayedResults * 20;
-        for (int i = 0; i < width; i += 2) {
-            context.fill(getX() + i, getBottom() + yOffset - 1, getX() + i + 1, getBottom() + yOffset, 0xFFFFFFFF);
-        }
+        UContext.drawDottedHorizontalLine(getX(), getRight(), getBottom() + yOffset - 1, 0xFFFFFFFF);
     }
 
     /*

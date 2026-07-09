@@ -208,11 +208,11 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.key.open-raster-screen", "Open Raster Screen");
         translationBuilder.add("omm.raster.create-new", "Create New Base Layer");
         translationBuilder.add("omm.raster.requires-api-key", "Requires API Key");
-        translationBuilder.add("omm.raster.already-in-use", "Base Already In Use");
+        translationBuilder.add("omm.raster.base-already-in-use", "Base Already In Use");
         translationBuilder.add("omm.raster.set-base", "Set Base to");
         translationBuilder.add("omm.raster.select-base", "Select a Base Raster...");
         translationBuilder.add("omm.raster.select-overlay", "Select a Overlay Raster...");
-        translationBuilder.add("omm.raster.already-in-use", "Overlay Already In Use");
+        translationBuilder.add("omm.raster.overlay-already-in-use", "Overlay Already In Use");
         translationBuilder.add("omm.text.done", "Done");
         translationBuilder.add("omm.text.create", "Create");
         translationBuilder.add("omm.raster.field.name", "Name");
@@ -231,7 +231,7 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.option.teleport-intercept", "Teleport Intercept");
         translationBuilder.add("omm.config.tooltip.teleport-intercept", "Intercept teleport commands and translate them to tp commands. This can allow others mods that rely on teleport commands to function on servers with tpll.");
         translationBuilder.add("omm.config.option.button-style", "Button Style");
-        translationBuilder.add("omm.config.option.button-style", "Change the button style. Texture uses the original mod textures, Generated uses vanilla textures, which can be customized by resourcepacks.");
+        translationBuilder.add("omm.config.tooltip.button-style", "Change the button style. Texture uses the original mod textures, Generated uses vanilla textures, which can be customized by resourcepacks.");
     }
 }
 

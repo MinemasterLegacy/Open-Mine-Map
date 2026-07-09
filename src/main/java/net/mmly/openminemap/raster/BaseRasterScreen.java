@@ -61,7 +61,7 @@ public class BaseRasterScreen extends RasterScreen {
             return;
         }
         if (RasterProvider.getCurrentBaseRaster() == getSelectedLayerWidget().raster) {
-            confirmButton.setMessage(Text.translatable("omm.raster.already-in-use"));
+            confirmButton.setMessage(Text.translatable("omm.raster.base-already-in-use"));
             return;
         }
         confirmButton.setMessage(Text.translatable("omm.raster.set-base").append(" " + getSelectedLayerWidget().raster.name));

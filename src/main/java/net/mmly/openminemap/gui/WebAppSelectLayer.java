@@ -10,40 +10,28 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.map.TileManager;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WebAppSelectLayer extends ClickableWidget {
 
-    private static HashMap<WebIcon, Identifier> webIcons = new HashMap<>();
-    private static HashMap<WebIcon, Identifier> iconSelections = new HashMap<>();
-    private int selection = 0;
+
 
     public WebAppSelectLayer() {
         super(0, 0, 14, 2, Text.of(""));
 
-        addIcon(WebIcon.GOOGLE_MAPS, "gm.png");
-        addIcon(WebIcon.GOOGLE_EARTH, "ge.png");
-        addIcon(WebIcon.GOOGLE_EARTH_PRO, "gep.png");
-        addIcon(WebIcon.OPEN_STREET_MAP, "osm.png");
-        addIcon(WebIcon.BING_MAPS, "bm.png");
-        addIcon(WebIcon.APPLE_MAPS, "am.png");
-        addIcon(WebIcon.BUILD_THE_EARTH, "bte.png");
-        addIcon(WebIcon.MAPILLARY, "mpy.png");
     }
 
-    private void addIcon(WebIcon webIcon, String imageName) {
-        webIcons.put(webIcon, Identifier.of("openminemap", "webicons/icons/" + imageName));
-        iconSelections.put(webIcon, Identifier.of("openminemap", "webicons/selections/" + imageName));
-        setHeight(height + 16);
-    }
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (!RightClickMenu.selectingSite) {
+        /*if (!RightClickMenu.selectingSite) {
             setX(-100);
             return;
         }
@@ -52,7 +40,8 @@ public class WebAppSelectLayer extends ClickableWidget {
             selection = -1;
             setTooltip(null);
         } else {
-            setTooltip(WebIcon.getTooltipUsingId(selection));
+            //TODO accurate tooltip rendering
+            //setTooltip(webIcons.get(selection).tooltip);
         }
     }
 
@@ -61,98 +50,11 @@ public class WebAppSelectLayer extends ClickableWidget {
 
         context.fill(getX(), getY(), getX() + getWidth(), getY()+getHeight(), MapScreen.backingColor);
 
-        if (selection != -1) context.drawTexture(RenderLayer::getGuiTextured, iconSelections.get(WebIcon.getUsingId(selection)), getX() + 2 - 1, getY() + 2 + (selection * 16) - 1, 0, 0, 12, 16, 12, 16);
+        if (selection != -1) UContext.drawTexture(webIcons.get(selection).highlight, getX() + 2 - 1, getY() + 2 + (selection * 16) - 1, 12, 16, 12, 16);
 
         for (int i = 0; i < webIcons.size(); i++) {
-            context.drawTexture(RenderLayer::getGuiTextured, webIcons.get(WebIcon.getUsingId(i)), getX() + 2, getY() + 2 + (i * 16), 0, 0, 10, 14, 10, 14);
-        }
-    }
-
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
-        float lat = RightClickMenu.savedMouseLat;
-        float lon = RightClickMenu.savedMouseLong;
-        int zoom = MapScreen.map.getTileZoom();
-        switch (selection) {
-            case 0: {
-                openUrl("https://google.com/maps/@"+lat+","+lon+","+Math.max(2, zoom)+"z", false);
-                break;
-            } case 1: {
-                openUrl("https://earth.google.com/web/search/"+lat+"+"+lon, false);
-                break;
-            } case 2: {
-                openUrl(lat+", "+lon+" (.kml file)", true);
-                break;
-            } case 3: {
-                openUrl("https://openstreetmap.org/#map="+Math.clamp(zoom, 0, 19)+"/"+lat+"/"+lon, false);
-                break;
-            } case 4: {
-                openUrl("https://bing.com/maps?cp="+lat+"~"+lon+"&lvl="+Math.clamp(zoom, 2, 22), false);
-                break;
-            } case 5: {
-                openUrl("https://maps.apple.com/frame?center="+lat+"%2C"+lon, false);
-                break;
-            } case 6: {
-                openUrl("https://buildtheearth.net/map?z="+Math.clamp(zoom, 1, 22)+"&lat="+lat+"&lng="+lon, false);
-                break;
-            } case 7: {
-                openUrl("https://www.mapillary.com/app/?lat="+lat+"&lng="+lon+"&z="+Math.clamp(zoom, 1, 19.9), false);
-            }
-        }
-        RightClickMenu.selectingSite = false;
-    }
-
-    private static void openUrl(String url, boolean isGep) {
-        MinecraftClient.getInstance().setScreen(
-            new ConfirmLinkScreen(new BooleanConsumer() {
-                @Override
-                public void accept(boolean b) {
-                    if(b) {
-                        if (isGep) openInGep();
-                        else Util.getOperatingSystem().open(url);
-                    }
-                    MinecraftClient.getInstance().setScreen(new MapScreen());
-                }
-            }, url, true)
-
-        );
-    }
-
-    private static void openInGep() {
-        //Util.getOperatingSystem().
-        File file = new File(TileManager.getRootFile() + "openminemap/location.kml");
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(file), "utf-8"))) {
-                writer.write(
-                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                                "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n" +
-                                "<Document>\n" +
-                                "\t<name>OpenMineMap Location</name>\n" +
-                                "\t<Placemark>\n" +
-                                "\t\t<name>"+RightClickMenu.savedMouseLat+", "+RightClickMenu.savedMouseLong+"</name>\n" +
-                                "\t\t<LookAt>\n" +
-                                "\t\t\t<longitude>"+RightClickMenu.savedMouseLong+"</longitude>\n" +
-                                "\t\t\t<latitude>"+RightClickMenu.savedMouseLat+"</latitude>\n" +
-                                "\t\t\t<altitude>0</altitude>\n" +
-                                "\t\t\t<heading>-11.42103893546798</heading>\n" +
-                                "\t\t\t<tilt>0</tilt>\n" +
-                                "\t\t\t<range>"+zoomToMetersAbove(MapScreen.map.getTileZoom())+"</range>\n" +
-                                "\t\t\t<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>\n" +
-                                "\t\t</LookAt>\n" +
-                                "\t\t<Point>\n" +
-                                "\t\t\t<gx:drawOrder>1</gx:drawOrder>\n" +
-                                "\t\t\t<coordinates>"+RightClickMenu.savedMouseLong+","+RightClickMenu.savedMouseLat+",0</coordinates>\n" +
-                                "\t\t</Point>\n" +
-                                "\t</Placemark>\n" +
-                                "</Document>\n" +
-                                "</kml>"
-                );
-        } catch (IOException e) {
-            return;
-        }
-        //System.out.println(file.exists());
-        Util.getOperatingSystem().open(file);
+            UContext.drawTexture(webIcons.get(i).icon, getX() + 2, getY() + 2 + (i * 16), 10, 14, 10, 14);
+        }*/
     }
 
     @Override
@@ -160,9 +62,5 @@ public class WebAppSelectLayer extends ClickableWidget {
 
     }
 
-    private static String zoomToMetersAbove(int z) {
-        return String.format("%.7f",
-                84412457.8 * Math.pow(0.5, z)
-        );
-    }
+
 }

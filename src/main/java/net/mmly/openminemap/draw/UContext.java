@@ -102,6 +102,10 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         textureAlphaColor = 0xFFFFFFFF;
     }
 
+    public static void drawTexture(Identifier identifier, int x, int y, int width, int height) {
+        drawTexture(identifier, x, y, width, height, width, height);
+    }
+
     public static void drawTexture(Identifier identifier, int x, int y, int width, int height, int textureWidth, int textureHeight) {
         drawTexture(identifier, x, y, width, height, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
     }
@@ -166,6 +170,15 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
 
     private static void rotateRad(MatrixStack matrixStack, float radians) {
         matrixStack.multiply(RotationAxis.POSITIVE_Z.rotation(radians));
+    }
+
+    public static void drawDottedVerticalLine(int y1, int y2, int x, int color) {
+        //drawContext.drawVerticalLine(x, y1, y2, 0xFF000000);
+        int y = y1;
+        while (y < y2) {
+            drawContext.fill(x, y, x + 1, y + 1, color);
+            y += 2;
+        }
     }
 
     public static void drawDiagonalLine(int[] start, int[] end, float thickness, int color) {

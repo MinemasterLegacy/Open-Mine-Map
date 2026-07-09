@@ -521,6 +521,7 @@ public class WaypointScreen extends Screen {
         MinecraftClient.getInstance().setScreen(
                 new MapScreen()
         );
+        MapScreen.updateAltScreenMap(this);
         WaypointFile.save();
     }
 }

@@ -59,7 +59,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
     MinecraftClient mClient = MinecraftClient.getInstance();
     Window window = mClient.getWindow();
     private static RightClickMenu rightClickLayer;
-    public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
     private static AttributionLayer attributionLayer;
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
     private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonCenterShelf = new LinkedHashMap<>();
@@ -334,9 +333,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
         this.addDrawableChild(searchButtonLayer);
         searchBoxLayer = new SearchBoxLayer(this.textRenderer, 26, 3);
         this.addDrawableChild(searchBoxLayer);
-
-        webAppSelectLayer = new WebAppSelectLayer();
-        this.addDrawableChild(webAppSelectLayer);
 
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
@@ -654,7 +650,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         //draws the right click menu
         rightClickLayer.drawWidget(context, this.textRenderer);
-        webAppSelectLayer.drawWidget(context);
 
         pinnedWaypointsLayer.drawWidget(context);
 

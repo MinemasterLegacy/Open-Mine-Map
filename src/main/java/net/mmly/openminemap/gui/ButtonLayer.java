@@ -106,6 +106,7 @@ public class ButtonLayer extends ClickableWidget {
                     MinecraftClient.getInstance().setScreen(
                             new MapScreen()
                     );
+                    MapScreen.updateAltScreenMap(ConfigScreen.getInstance());
                     break;
                 } else if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
                     MapConfigScreen.saveChanges();

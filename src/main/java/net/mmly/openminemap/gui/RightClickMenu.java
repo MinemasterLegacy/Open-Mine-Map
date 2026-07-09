@@ -8,7 +8,6 @@ import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -42,7 +41,7 @@ public class RightClickMenu extends ClickableWidget {
     private boolean useTp;
     static double clickX = 0;
     static double clickY = 0;
-    private final Identifier rightClickCursor = Identifier.of("openminemap", "selectcursor.png");
+    private final Identifier rightClickMarker = Identifier.of("openminemap", "locationhighlight.png");
     public int horizontalSide = 1;
     public int verticalSize = 1;
     TextRenderer textRenderer;
@@ -338,7 +337,7 @@ public class RightClickMenu extends ClickableWidget {
             );
         }
 
-        if (displayType == RightClickMenuType.DEFAULT) context.drawTexture(RenderLayer::getGuiTextured, rightClickCursor, (int) clickX - 4, (int) clickY - 4, 0, 0, 9, 9, 9, 9);
+        if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 7, (int) clickY - 14, 14, 14);
 
     }
 

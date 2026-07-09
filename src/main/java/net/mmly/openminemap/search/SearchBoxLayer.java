@@ -51,6 +51,7 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     public static void setMaxDisplayedResults(int availableSpace) {
         maxDisplayedResults = availableSpace / 20;
+        if (maxDisplayedResults < 1) maxDisplayedResults = 1;
         numDisplayedResults = Math.min(maxDisplayedResults, numDisplayedResults);
     }
 
@@ -111,7 +112,7 @@ public class SearchBoxLayer extends TextFieldWidget {
     }
 
     private void drawBottomScrollIndicator(DrawContext context) {
-        if (numDisplayedResults <= 2 || numDisplayedResults + searchScroll == numResults || numDisplayedResults < maxDisplayedResults) return;
+        if (numDisplayedResults + searchScroll == numResults || numDisplayedResults < maxDisplayedResults) return;
         int yOffset = numDisplayedResults * 20;
         for (int i = 0; i < width; i += 2) {
             context.fill(getX() + i, getBottom() + yOffset - 1, getX() + i + 1, getBottom() + yOffset, 0xFFFFFFFF);

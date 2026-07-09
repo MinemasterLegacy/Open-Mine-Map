@@ -98,8 +98,13 @@ public class ChoiceMultiSelectWidget extends ClickableWidget implements ConfigCh
         context.enableScissor(getX(), getY(), getRight(), getBottom());
 
         for (WebIcon icon : WebIcon.ORDERED_LIST) {
-            if (highlighted.contains(icon) || options.indexOf(icon) == highlightedIcon) {
+            if (highlighted.contains(icon)) {
                 UContext.drawTexture(icon.highlight, getX() + getIconPosition(icon), getY() + 2, 12, 16);
+            }
+            if (options.indexOf(icon) == highlightedIcon) {
+                UContext.setTextureAlpha(0x7f);
+                UContext.drawTexture(icon.highlight, getX() + getIconPosition(icon), getY() + 2, 12, 16);
+                UContext.resetTextureAlpha();
             }
             UContext.drawTexture(icon.icon, getX() + getIconPosition(icon) + 1, getY() + 3, 10, 14);
         }

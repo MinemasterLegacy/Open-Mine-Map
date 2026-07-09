@@ -99,9 +99,8 @@ public class RightClickMenu extends ClickableWidget {
         RightClickMenuOption.REVERSE_SEARCH
     };
     private static final RightClickMenuOption[] waypointScreenOptions = {
-        RightClickMenuOption.NAME,
         RightClickMenuOption.TELEPORT_HERE,
-        RightClickMenuOption.COPY_COORDINATES
+        RightClickMenuOption.COPY_COORDINATES,
     };
     private static final RightClickMenuOption[] searchLocationOption = {
         RightClickMenuOption.NAME,
@@ -295,7 +294,7 @@ public class RightClickMenu extends ClickableWidget {
 
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         if (displayType == RightClickMenuType.HIDDEN) return;
-        context.fill(getX(), getY(), getX() + width, getY() + height, MapScreen.backingColor);
+        context.fill(getX(), getY(), getX() + width, getY() + height, displayType == RightClickMenuType.SCREEN_WAYPOINT ? 0xFF000000 : MapScreen.backingColor);
 
         for (int i = 0; i < menuOptions.size(); i++) {
             boolean selected = selectedOption == menuOptions.get(i);

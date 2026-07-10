@@ -79,7 +79,9 @@ public class WaypointFile {
 
     }
 
-    private static boolean establishWorld() {
+    /*
+    private static boolean establishWorldType() {
+        System.out.println("WorldType: " + MinecraftClient.getInstance().isInSingleplayer());
         try {
             worldName = MinecraftClient.getInstance().getCurrentServerEntry().name; //gets the server name if multiplayer, otherwise will fail
             worldType = WorldType.MULTIPLAYER;
@@ -97,15 +99,23 @@ public class WaypointFile {
         return true;
     }
 
-    //for the server lifecycle events to call
-    public static void setWaypointsOfThisWorld(ClientLoginNetworkHandler c, MinecraftClient minecraftClient) {
-        setWaypointsOfThisWorld(true);
+     */
+    private static boolean establishWorldType() {
+        worldType = MinecraftClient.getInstance().isInSingleplayer() ? WorldType.SINGLEPLAYER : WorldType.MULTIPLAYER;
+        try {
+            if (worldType == WorldType.SINGLEPLAYER) worldName = MinecraftClient.getInstance().getServer().getSavePath(WorldSavePath.ROOT).getParent().getFileName().toString();
+            else worldName = MinecraftClient.getInstance().getCurrentServerEntry().name;
+        } catch (NullPointerException e) {
+            OpenMineMap.LOGGER.warn("Unable to determine level identifier.");
+            return false;
+        }
+        return true;
     }
 
-    public static void setWaypointsOfThisWorld(boolean establishWorld) {
+    public static void setWaypointsOfThisWorld(boolean establishWorldType) {
 
-        if (establishWorld) {
-            if (!establishWorld()) {
+        if (establishWorldType) {
+            if (!establishWorldType()) {
                 OmmMap.setWaypoints(new Waypoint[0]);
                 return;
             }

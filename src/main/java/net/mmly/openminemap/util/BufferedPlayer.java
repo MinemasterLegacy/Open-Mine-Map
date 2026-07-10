@@ -10,11 +10,6 @@ public class BufferedPlayer {
     public double y = Double.NaN;
     public Text name;
 
-    public int upCrop;
-    public int downCrop;
-    public int leftCrop;
-    public int rightCrop;
-
     public BufferedPlayer(double mapX, double mapY, Identifier texture) {
         this.mapX = mapX;
         this.mapY = mapY;
@@ -25,5 +20,8 @@ public class BufferedPlayer {
         this(mapX, mapY, texture);
         this.y = y;
         this.name = name;
+        if (this.name.getString().equals("FreeCamera")) {
+            this.texture = Identifier.of("openminemap", "freecam-skin.png");
+        }
     }
 }

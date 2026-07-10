@@ -16,6 +16,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.config.ConfigScreen;
+import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -25,21 +26,24 @@ import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileLoader;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.search.SearchBoxLayer;
-import net.mmly.openminemap.search.SearchButtonLayer;
-import net.mmly.openminemap.search.SearchResultLayer;
-import net.mmly.openminemap.search.SearchResultType;
+import net.mmly.openminemap.raster.CreateRasterScreen;
+import net.mmly.openminemap.raster.RasterScreen;
+import net.mmly.openminemap.raster.RasterWarningScreen;
+import net.mmly.openminemap.raster.ViewSetRastersScreen;
+import net.mmly.openminemap.search.*;
 import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public class MapScreen extends Screen { //Screen object that represents the fullscreen map
     public MapScreen() {
         super(Text.of("OMM Fullscreen Map"));
+        toggleAltScreenMap(false);
     }
 
     public static int windowHeight;
@@ -50,24 +54,24 @@ public class MapScreen extends Screen { //Screen object that represents the full
     protected static String mouseDisplayLat = "0.00000";
     private static final int buttonSize = 20;
     private static final int buttonMargin = 4;
-    private static final int numHotbarButtons = 7; //determines number of buttons expected for the bottom bar of the screen
-    private static int[][] buttonPositions = new int[2][numHotbarButtons];
+    private static final int[][] buttonPositions = new int[2][10];
     // modifiers used to offset the map so it can be moved relative to the screen
     // these modifiers should be scaled when the screen is zoomed in or zoomed out
     // Ex: zoom 0, range -128 - 127 | zoom 1, range -256 - 255 | zoom 2, range -512 - 511 | etc.
     MinecraftClient mClient = MinecraftClient.getInstance();
     Window window = mClient.getWindow();
     private static RightClickMenu rightClickLayer;
-    public static WebAppSelectLayer webAppSelectLayer = new WebAppSelectLayer();
-    private static AttributionLayer attributionLayer = new AttributionLayer(0, 0, 157, 16);
+    private static AttributionLayer attributionLayer;
     private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
-    private static HashMap<ButtonFunction, ButtonLayer> buttonlayers = new HashMap<>();
-    private static ToggleHudMapButtonLayer toggleHudMapButtonLayer;
-    private static ToggleClaimRenderingButtonLayer toggleClaimRenderingButtonLayer;
+    private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonCenterShelf = new LinkedHashMap<>();
+    private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonLeftShelf = new LinkedHashMap<>();
+    private static final LinkedHashMap<ButtonFunction, ButtonLayer> buttonRightShelf = new LinkedHashMap<>();
+    private static ToggleButtonLayer toggleHudMapButtonLayer;
+    private static ToggleButtonLayer toggleClaimRenderingButtonLayer;
     private static SearchButtonLayer searchButtonLayer;
     private static SearchBoxLayer searchBoxLayer;
     private static NetworkStatusLayer networkStatusLayer;
-    public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[7];
+    public static SearchResultLayer[] searchResultLayers = new SearchResultLayer[SearchBoxLayer.MAX_RESULTS];
     private static PinnedWaypointsLayer pinnedWaypointsLayer;
     private static final Identifier[][] showHudmapIdentifiers = new Identifier[2][2];
     private static final Identifier[][] showClaimsIdentifiers = new Identifier[2][2];
@@ -87,23 +91,37 @@ public class MapScreen extends Screen { //Screen object that represents the full
     );
     public static boolean renderAltMap = false;
     private boolean chatToBeOpened = false;
-    private static LinkedList<Notification> notifications = new LinkedList<>();
+    private boolean chatIsOpened = false;
+    private static final LinkedList<Notification> notifications = new LinkedList<>();
     private static boolean hudWasHidden;
     public static int backingColor = 0x80000000;
     public static boolean textIsRainbow = false;
     private static int plainTextColor = 0xFFFFFFFF;
+    private static int semiLightTextColor = 0xFFbfbfbf;
     private static int semiDarkTextColor = 0xFF7f7f7f;
     private static int darkTextColor = 0xFF3f3f3f;
+    private static boolean altKeyPressed = false;
 
     public static void setPlainTextColor(int argb, boolean checkForRainbowText) {
         if (checkForRainbowText) textIsRainbow = (argb == 0xFF7f7f7f);
         plainTextColor = argb;
+        semiLightTextColor = ColorUtil.darken(argb, 0.25);
         semiDarkTextColor = ColorUtil.darken(argb, 0.5);
         darkTextColor = ColorUtil.darken(argb, 0.75);
     }
 
+    private int getMapboxAttributionSize() {
+        int scale = (int) Math.round(window.getScaleFactor() * 2);
+        if (scale > 20) return 1;
+        return (int) Math.ceil(30.0 / scale) * 2;
+    }
+
     public static int getPlainTextColor() {
         return plainTextColor;
+    }
+
+    public static int getSemiLightTextColor() {
+        return semiLightTextColor;
     }
 
     public static int getSemiDarkTextColor() {
@@ -133,6 +151,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         writeParameters();
         ConfigFile.writeToFile();
         this.client.setScreen(null);
+        toggleAltScreenMap(false);
     }
 
     public static void writeParameters() {
@@ -199,7 +218,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (toggleAltScreenMap) toggleAltScreenMap(true);
     }
 
-    public static Waypoint getRightClickMenuWaypoint() {return rightClickLayer.selectedWaypoint;}
+    public static NamedLocation getRightClickMenuLocation() {return rightClickLayer.selectedLocation;}
 
 
     public static Waypoint getSelectedPinnedWaypoint() {
@@ -209,17 +228,18 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static void onLeftClick() {
         RightClickMenu.disableMenu();
         searchBoxLayer.setFocused(false);
-        toggleSearchMenu(false);
+        //toggleSearchMenu(false);
     }
 
     private static void onRightClick() {
         if (!map.mouseIsOutOfBounds()) { //checks if mouse is positioned on the map (this variable will be "-.-" if it isn't)
             if (map.getHoveredWaypoint() != null) RightClickMenu.enableMenu(RightClickMenuType.WAYPOINT, map.getMouseX(), map.getMouseY(), map.getHoveredWaypoint());
+            else if (map.getHoveredSearchResult() != null) RightClickMenu.enableMenu(RightClickMenuType.SEARCH_LOCATION, map.getMouseX(), map.getMouseY(), map.getHoveredSearchResult().asLocation());
             else RightClickMenu.enableMenu(RightClickMenuType.DEFAULT, map.getMouseX(), map.getMouseY(), null);
         } else {
             RightClickMenu.disableMenu();
         }
-        toggleSearchMenu(false);
+        //toggleSearchMenu(false);
     }
 
     public static void toggleSearchMenu(boolean toggle) {
@@ -233,6 +253,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         } else {
             SearchBoxLayer.setValueStore("");
             SearchBoxLayer.toggleSearching(false);
+            SearchHistoryFile.writeToFile();
         }
     }
 
@@ -241,10 +262,11 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
     public void jumpToSearchBox() {
         setFocused(searchBoxLayer);
+        SearchBoxLayer.resetScroll();
     }
     public void jumpToBestOption() {
         for (SearchResultLayer layer : searchResultLayers) {
-            if (layer.isOption(SearchResultType.SEARCH) || layer.isOption(SearchResultType.COORDINATES)) {
+            if (layer.isOption(SearchResultType.SEARCH) || layer.isOption(SearchResultType.COORDINATES) || layer.isHistoric()) {
                 setFocused(layer);
                 layer.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
                 return;
@@ -258,7 +280,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     private static boolean blockZoomOnZoom() {
-        return rightClickLayer.getDisplayType() != RightClickMenuType.HIDDEN;
+        return RightClickMenu.getDisplayType() != RightClickMenuType.HIDDEN;
     }
 
     @Override
@@ -268,13 +290,12 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     private BooleanSupplier getDisableConditionOf(ButtonFunction f) {
-        switch (f) {
-            case ZOOMIN: return () -> map.getZoom() >= map.getMaxZoom();
-            case ZOOMOUT: return () -> map.getZoom() <= 0;
-            case FOLLOW: return () -> !PlayerAttributes.positionIsValid() || map.followingPlayer();
-            case null:
-            default: return null;
-        }
+        return switch (f) {
+            case ZOOMIN -> () -> map.getZoom() >= map.getMaxZoom();
+            case ZOOMOUT -> () -> map.getZoom() <= 0;
+            case FOLLOW -> () -> !PlayerAttributes.positionIsValid() || map.followingPlayer();
+            case null, default -> null;
+        };
     }
 
     @Override
@@ -282,24 +303,31 @@ public class MapScreen extends Screen { //Screen object that represents the full
         instance = this;
         setIdentifiers();
         map.initFields();
+        toggleAltScreenMap(false);
 
         rightClickLayer = new RightClickMenu(this.textRenderer);
         this.addDrawableChild(rightClickLayer);
 
-        for (int i = 0; i < numHotbarButtons; i++) {
-            ButtonFunction f = ButtonFunction.getEnumOf(i);
-            buttonlayers.put(ButtonFunction.getEnumOf(i), new ButtonLayer(0, 0, f, getDisableConditionOf(f)));
-            this.addDrawableChild(buttonlayers.get(ButtonFunction.getEnumOf(i)));
+        ButtonFunction[] shelfFunctions = ButtonFunction.getCenterShelf();
+        for (ButtonFunction function : shelfFunctions) {
+            buttonCenterShelf.put(function, new ButtonLayer(0, 0, function, getDisableConditionOf(function)));
+            this.addDrawableChild(buttonCenterShelf.get(function));
         }
 
-        toggleClaimRenderingButtonLayer = new ToggleClaimRenderingButtonLayer(windowScaledWidth - 50, windowScaledHeight - 57);
+        shelfFunctions = ButtonFunction.getLeftShelf();
+        for (ButtonFunction function : shelfFunctions) {
+            buttonLeftShelf.put(function, new ButtonLayer(0, 0, function, getDisableConditionOf(function)));
+            this.addDrawableChild(buttonLeftShelf.get(function));
+        }
+
+        toggleClaimRenderingButtonLayer = new ToggleButtonLayer(windowScaledWidth - 50, windowScaledHeight - 57, ToggleButtonLayer.Type.CLAIM_RENDERING);
         if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) this.addDrawableChild(toggleClaimRenderingButtonLayer);
 
-        toggleHudMapButtonLayer = new ToggleHudMapButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57);
+        toggleHudMapButtonLayer = new ToggleButtonLayer(windowScaledWidth - 25, windowScaledHeight - 57, ToggleButtonLayer.Type.TOGGLE_HUDMAP);
         this.addDrawableChild(toggleHudMapButtonLayer);
 
-        for (int i = 0; i < 7; i++) {
-            searchResultLayers[i] = new SearchResultLayer(26, 23 + (i * 20), 250, i);
+        for (int i = 0; i < SearchBoxLayer.MAX_RESULTS; i++) {
+            searchResultLayers[i] = new SearchResultLayer(26, 0, 250, i);
             this.addDrawableChild(searchResultLayers[i]);
         }
 
@@ -310,9 +338,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
         this.addDrawableChild(searchButtonLayer);
         searchBoxLayer = new SearchBoxLayer(this.textRenderer, 26, 3);
         this.addDrawableChild(searchBoxLayer);
-
-        webAppSelectLayer = new WebAppSelectLayer();
-        this.addDrawableChild(webAppSelectLayer);
 
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
@@ -333,49 +358,64 @@ public class MapScreen extends Screen { //Screen object that represents the full
         map.waypointClickedProcedure = MapScreen::onRightClick;
         map.setTextRenderer(this.textRenderer);
         map.doPlayerTooltipNames(true);
+        map.setMouseDown(false);
 
         toggleSearchMenu(false);
-
     }
 
     private static void drawButtons(DrawContext context) {
-        for (int i = 0; i < numHotbarButtons; i++) {
-            buttonlayers.get(ButtonFunction.getEnumOf(i)).drawWidget(context);
+        for (ButtonFunction function : buttonCenterShelf.keySet()) {
+            buttonCenterShelf.get(function).drawWidget(context);
+        }
+        for (ButtonFunction function : buttonLeftShelf.keySet()) {
+            buttonLeftShelf.get(function).drawWidget(context);
         }
     }
 
+    private static final String maxString = "-99.99999°, -999.99999°";
     private static void updateWidgetPositions(TextRenderer textRenderer) {
+        attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
+
         //if attribution would overlay the coordinate display
         //coordinate sample is meant to simulate the longest possible case so movement doesn't occur when the mouse is moved
-        if (attributionLayer.getWidth() + textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + "-99.99999°, -999.99999°") + 8 > windowScaledWidth) {
+        if (attributionLayer.getWidth() + textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + maxString) + 8 > windowScaledWidth) { //if attribution and coordinates would overlap
             attributionOffset = attributionLayer.getHeight();
         } else {
             attributionOffset = 0;
         }
 
-        int buttonShelfWidth = (buttonSize * buttonlayers.size()) + (buttonMargin * (buttonlayers.size() - 1));
+        int buttonShelfWidth = (buttonSize * buttonCenterShelf.size()) + (buttonMargin * (buttonCenterShelf.size() - 1));
         int shelfX = (int) ((float) (windowScaledWidth - buttonShelfWidth) / 2);
         int buttonX = shelfX;
         int buttonY = windowScaledHeight - (buttonSize + 20);
 
-        if (textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + "-99.99999°, -999.99999°") + 8 > shelfX) {
+        if (textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + maxString) + 8 > shelfX) {
             buttonY -= attributionOffset != 0 ? 32 : 16;
         }
 
-        for (int i = 0; i < buttonlayers.size(); i++) { //calculate button positions
-            buttonPositions[0][i] = buttonX;
-            buttonPositions[1][i] = buttonY;
+        //calculate button positions
+        for (ButtonFunction function : buttonCenterShelf.keySet()) {
+            buttonPositions[0][function.id] = buttonX;
+            buttonPositions[1][function.id] = buttonY;
             buttonX += buttonSize + buttonMargin;
         }
 
         //Set positions of elements
-        for (int i = 0; i < numHotbarButtons; i++) { //update button positions (in case screen size has changed)
-            buttonlayers.get(ButtonFunction.getEnumOf(i)).setPosition(buttonPositions[0][i], buttonPositions[1][i]);
+        for (ButtonFunction function : buttonCenterShelf.keySet()) { //update button positions (in case screen size has changed)
+            buttonCenterShelf.get(function).setPosition(buttonPositions[0][function.id], buttonPositions[1][function.id]);
+        }
+
+        int i = 0;
+        for (ButtonFunction function : buttonLeftShelf.keySet()) {
+            buttonLeftShelf.get(function).setPosition(
+                    4 + (i * 24),
+                    windowScaledHeight - (20 + 36 + attributionOffset)
+            );
+            i++;
         }
 
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
         toggleClaimRenderingButtonLayer.setPosition(windowScaledWidth - 50, windowScaledHeight - 57);
-        attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
         bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
     }
 
@@ -385,15 +425,14 @@ public class MapScreen extends Screen { //Screen object that represents the full
         else if (code == GLFW.GLFW_KEY_UP) change = -1;
         else return;
 
-        int numResults = searchResultLayers.length;
-
-        Element[] searchElements = new Element[numResults + 1];
+        Element[] searchElements = new Element[SearchBoxLayer.getNumResults() + 1];
         searchElements[0] = searchBoxLayer;
-        System.arraycopy(searchResultLayers, 0, searchElements, 1, numResults);
+        System.arraycopy(searchResultLayers, 0, searchElements, 1, SearchBoxLayer.getNumResults());
 
         for (int i = 0; i < searchElements.length; i++) {
             if (searchElements[i].isFocused()) {
                 setFocused(searchElements[(i + change + searchElements.length) % searchElements.length]);
+                SearchBoxLayer.ensureFocusDisplay(i + change);
                 return;
             }
         }
@@ -415,6 +454,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
             else close();
             return true;
         }
+
+        if (keyCode == GLFW.GLFW_KEY_LEFT_ALT || keyCode == GLFW.GLFW_KEY_RIGHT_ALT) altKeyPressed = true;
 
         if (searchElementsFocused()) {
             if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN) {
@@ -438,12 +479,51 @@ public class MapScreen extends Screen { //Screen object that represents the full
             return true;
         }
 
+
         map.keyNavigate(keyCode, modifiers);
 
         return true;
     }
 
-    public static void toggleAltScreenMap(boolean state) {
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_LEFT_ALT || keyCode == GLFW.GLFW_KEY_RIGHT_ALT) altKeyPressed = false;
+        return super.keyReleased(keyCode, scanCode, modifiers);
+    }
+
+    public static void updateAltScreenMap(Screen previous) {
+        updateAltScreenMap(previous, MinecraftClient.getInstance().currentScreen);
+    }
+
+    public static void updateAltScreenMap(Screen previous, Screen next) {
+        if (next == null) {
+            toggleAltScreenMap(false);
+            return;
+        }
+        if (screenAlwaysHasAltMap(next)) toggleAltScreenMap(true);
+        else if (screenCanHaveAltMap(next)) toggleAltScreenMap(previous instanceof MapScreen || renderAltMap);
+        else toggleAltScreenMap(false);
+    }
+
+    private static boolean screenAlwaysHasAltMap(Screen screen) {
+        if (screen instanceof ChatScreen) return true;
+        if (screen instanceof ConfirmLinkScreen) return true;
+        if (screen instanceof WaypointScreen) return true;
+        return false;
+    }
+
+    private static boolean screenCanHaveAltMap(Screen screen) {
+        if (screen instanceof ConfigScreen) return true;
+        if (screen instanceof RasterScreen) return true;
+        if (screen instanceof CreateRasterScreen) return true;
+        if (screen instanceof RasterWarningScreen) return true;
+        if (screen instanceof ViewSetRastersScreen) return true;
+        if (screen instanceof MapConfigScreen) return true; //hard coded to not render, necessary to preserve configScreen render state
+        return false;
+    }
+
+    private static void toggleAltScreenMap(boolean state) {
+        if (state == renderAltMap) return;
         renderAltMap = state;
         map.setDraggable(!state);
         if (state) {
@@ -496,15 +576,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
     }
 
-    private static boolean currentScreenIsValidAltMapScreen() {
-        Screen current = MinecraftClient.getInstance().currentScreen;
-        if (current instanceof ChatScreen) return true;
-        if (current instanceof ConfirmLinkScreen) return true;
-        if (current instanceof ConfigScreen) return true;
-        if (current instanceof WaypointScreen) return true;
-        return false;
-    }
-
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
         super.render(context, mouseX, mouseY, delta);
@@ -515,6 +586,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
                 mClient.setScreen(new ChatScreen(""));
                 toggleAltScreenMap(true);
             }
+            chatIsOpened = true;
             chatToBeOpened = false;
         }
 
@@ -549,6 +621,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         drawButtons(context);
 
+        /*
         int buttonStyle = HudMap.hudEnabled ? 1 : 0;
         context.drawTexture(RenderLayer::getGuiTextured, toggleHudMapButtonLayer.isHovered() ?
                 showHudmapIdentifiers[1][buttonStyle] :
@@ -561,6 +634,10 @@ public class MapScreen extends Screen { //Screen object that represents the full
                         showClaimsIdentifiers[0][buttonStyle],
                 toggleClaimRenderingButtonLayer.getX(), toggleClaimRenderingButtonLayer.getY(), 0, 0, 20, 20, 20, 20);
 
+         */
+        toggleHudMapButtonLayer.draw(context);
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) toggleClaimRenderingButtonLayer.draw(context);
+
         //draws the Mouse and player coordinates text fields
         String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";
         String playerLabelText = Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°";
@@ -569,7 +646,11 @@ public class MapScreen extends Screen { //Screen object that represents the full
         context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, backingColor);
         context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, plainTextColor, true);
 
-        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - attributionOffset - pinnedWaypointsLayer.getY());
+        // -32 is for coordinate displays
+        // -28 is for left shelf buttons
+        // -23 on searchboxlayer is for the search box
+        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - 28 - attributionOffset - pinnedWaypointsLayer.getY() - (int) (RasterProvider.doMapboxAttribution() ? getMapboxAttributionSize() * 1.5 : 0));
+        SearchBoxLayer.setMaxDisplayedResults(windowScaledHeight - 32 - 28 - attributionOffset - 23 - (int) (RasterProvider.doMapboxAttribution() ? getMapboxAttributionSize() * 1.5 : 0));
         purgeNotifiations();
         drawNotificationText(context);
 
@@ -577,6 +658,10 @@ public class MapScreen extends Screen { //Screen object that represents the full
             Text text = Text.literal(TileLoader.getStylizedCacheSize()).formatted(Formatting.BOLD);
             int width = textRenderer.getWidth(text);
             UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, backingColor, plainTextColor, false);
+        }
+
+        if (altKeyPressed && ConfigOptions.__ALT_INFO_TOOLTIP.getAsBooleanFromValues(ConfigOptions.Values.TRUE_FALSE)) {
+            context.drawTooltip(textRenderer, map.getAtTooltipList(), mouseX, mouseY);
         }
 
         //draws the attribution and report bug text fields
@@ -587,7 +672,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         //draws the right click menu
         rightClickLayer.drawWidget(context, this.textRenderer);
-        webAppSelectLayer.drawWidget(context);
 
         pinnedWaypointsLayer.drawWidget(context);
 
@@ -596,18 +680,41 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
         searchButtonLayer.drawWidget(context);
         searchBoxLayer.drawWidget(context);
+
+        if (RasterProvider.doMapboxAttribution()) {
+            int size = getMapboxAttributionSize();
+            int margin = size / 4;
+            int yPos = height - (attributionOffset + 58 + margin * 2 + size);
+
+            UContext.fillZone(
+                    0,
+                    yPos,
+                    size * 4 + margin * 2,
+                    size + 2 * margin,
+                    ColorUtil.decompose(backingColor)[0] < 64 ? 0x3f000000 : backingColor
+            );
+            UContext.drawTexture(
+                    Identifier.of("openminemap", "mapbox.png"),
+                    margin,
+                    yPos + margin,
+                    size * 4,
+                    size,
+                    800,
+                    200
+            );
+        }
     }
 
     //used in the hud to render a 'fake' fsmap screen when chat is opened
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
 
+        if (instance == null) return;
         if (!renderAltMap) return;
-        if (!currentScreenIsValidAltMapScreen()) {
-            MinecraftClient.getInstance().setScreen(
-                    new MapScreen()
-            );
+        if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) return;
+        if (getInstance().chatIsOpened && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
+            MinecraftClient.getInstance().setScreen(new MapScreen());
             toggleAltScreenMap(false);
-            return;
+            getInstance().chatIsOpened = false;
         }
 
         MapScreen.map.updateTimeRelatedVars();

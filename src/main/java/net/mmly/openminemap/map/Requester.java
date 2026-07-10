@@ -9,11 +9,10 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.search.SearchBoxLayer;
+import net.mmly.openminemap.search.SearchHistoryFile;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.Notification;
-import net.mmly.openminemap.util.TileUrlFile;
+import net.mmly.openminemap.util.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -22,7 +21,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
@@ -34,6 +32,7 @@ public class Requester extends Thread {
     int requestAttempts = 2; //how many times a tile will be requested before it is determined to not request it anymore
     private final String[] subDomains = new String[]{"a", "b", "c"};
     private final String subDomain = subDomains[new Random().nextInt(3)];
+    private static boolean rastersInitialized;
 
     ArrayList<String> failedRequests = new ArrayList<>();
 
@@ -42,12 +41,16 @@ public class Requester extends Thread {
     public void run() {
         if (disableWebRequests) OpenMineMapClient.debugMessages.add("OpenMineMap: Web requests are disabled.");
         while (true) {
+            if (!rastersInitialized) {
+                rastersInitialized = TileUrlFile.loadRastersFromFile();
+            }
             if (RequestManager.searchString != null) {
-                SearchResult[] results = searchResultRequest(RequestManager.searchString, RequestManager.searchPriorityLat, RequestManager.searchPriorityLon);
-                if (results == null) {
+                SearchResult[] searchResults = searchResultRequest(RequestManager.searchString, RequestManager.searchPriorityLat, RequestManager.searchPriorityLon);
+                if (searchResults == null) {
                     RequestManager.searchResultReturn = getErrorResult();
                 } else {
-                    RequestManager.searchResultReturn = results;
+                    RequestManager.searchResultReturn = searchResults;
+                    SearchHistoryFile.addHistoricResult(RequestManager.searchString, RequestManager.searchResultReturn, !Double.isNaN(RequestManager.searchPriorityLat));
                 }
                 RequestManager.searchString = null;
             }
@@ -59,7 +62,7 @@ public class Requester extends Thread {
             }
             else if (RequestManager.pendingRequest != null) {
                 RequestableTile request = RequestManager.pendingRequest;
-                this.tileGetRequest(request.x, request.y, request.zoom, TileUrlFile.getCurrentUrl().source_url, request.cacheName);
+                this.tileGetRequest(request.x, request.y, request.zoom, RasterProvider.getCurrentBaseRaster(), request.cacheName);
                 if (!disableWebRequests) requestCounter++;
                 if (requestCounter >= requestAttempts) {
                     requestCounter = 0;
@@ -86,18 +89,32 @@ public class Requester extends Thread {
                         "",
                         Text.translatable("omm.notification.something-wrong").getString(),
                         0
-                ),
-                null, null, null, null, null, null, null
+                )
+        });
+    }
+
+    private SearchResult[] getBlankResult() {
+        return (new SearchResult[] {
+                new SearchResult(
+                        SearchResultType.LOCATION,
+                        Double.NaN,
+                        Double.NaN,
+                        false,
+                        "",
+                        Text.translatable("omm.search.no-results").getString(),
+                        0
+                )
         });
     }
 
     private InputStream getClaims() {
+        if (disableWebRequests) return null;
         return get("https://api.buildtheearth.net/api/v1/claims/geojson?active=true");
     }
 
     private SearchResult[] parseLocationJson(InputStream stream) {
         Gson gson = new Gson();
-        SearchResult[] results = new SearchResult[SearchBoxLayer.MAX_SEARCH_RESULTS];
+        ArrayList<SearchResult> results = new ArrayList<>();
         Map returnedResult;
 
         try {
@@ -131,7 +148,7 @@ public class Requester extends Thread {
                     (double) extentList.get(2)
             };
 
-            results[i] = new SearchResult(
+            results.add(new SearchResult(
                     SearchResultType.LOCATION,
                     (Double) coords.get(1),
                     (Double) coords.get(0),
@@ -139,10 +156,15 @@ public class Requester extends Thread {
                     (String) properties.get("name"),
                     context,
                     extent
-            );
+            ));
         }
 
-        return results;
+        SearchResult[] results1 = new SearchResult[Math.min(SearchBoxLayer.MAX_RESULTS, results.size())];
+        for (int i = 0; i < results1.length; i++) {
+            results1[i] = results.get(i);
+        }
+
+        return results1;
     }
 
     private void doReverseSearch() {
@@ -172,6 +194,7 @@ public class Requester extends Thread {
         InputStream stream = get(urlPattern);
         SearchResult[] results = parseLocationJson(stream);
         if (results == null) return null;
+        if (results.length == 0) return null;
         if (results[0] == null) return null;
         if (Double.isNaN(results[0].latitude)) return null;
 
@@ -181,7 +204,7 @@ public class Requester extends Thread {
     SearchResult[] searchResultRequest(String query, double latFocus, double lonFocus) {
         if (disableWebRequests) return null;
 
-        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=" + SearchBoxLayer.MAX_SEARCH_RESULTS;
+        String urlPattern = "https://photon.komoot.io/api/?q=" + query.replaceAll("[^a-zA-Z0-9 ]", "").replaceAll(" ", "+") + "&limit=" + SearchBoxLayer.MAX_RESULTS;
         if (!OmmMap.geoCoordsOutOfBounds(latFocus, lonFocus)) {
             urlPattern += "&lat=" + latFocus + "&lon=" + lonFocus;
         }
@@ -193,26 +216,32 @@ public class Requester extends Thread {
         SearchResult[] results = parseLocationJson(stream);
         if (results == null) return null;
 
-        if (results[0] == null) {
-            results[0] = new SearchResult(
-                SearchResultType.LOCATION,
-                0,
-                0,
-                false,
-                "",
-                Text.translatable("omm.search.no-results").getString(),
-                0
-            );
-        }
+        if (results.length == 0) results = getBlankResult();
+        else if (results[0] == null) results = getBlankResult();
 
         return results;
     }
 
-    void tileGetRequest(int x, int y, int zoom, String urlPattern, String cacheName) {
-        BufferedImage image = null;
+
+
+    void tileGetRequest(int x, int y, int zoom, TileUrl url, String cacheName) {
+        BufferedImage image;
         if (disableWebRequests || TileManager.isTileOutOfBounds(x, y, zoom) || failedRequests.contains(TileManager.getKey(zoom, x, y))) return;
 
-        urlPattern = ((urlPattern.replace("{z}", Integer.toString(zoom)).replace("{x}", Integer.toString(x))).replace("{y}", Integer.toString(y)).replace("{s}", subDomain));
+        String urlPattern = url.source_url
+                .replace("{z}", Integer.toString(zoom))
+                .replace("{x}", Integer.toString(x))
+                .replace("{y}", Integer.toString(y))
+                .replace("{s}", subDomain);
+
+        if (url.hasKeyField()) {
+            if (RasterApiKeysFile.hasApiKey(url.presetID)) {
+                urlPattern = urlPattern.replace("{t}", RasterApiKeysFile.readApiKey(url.presetID));
+            } else {
+                return;
+            }
+        }
+
         try {
             InputStream inputStream = get(urlPattern);
             if (inputStream == null) return;

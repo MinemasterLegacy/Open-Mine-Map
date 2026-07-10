@@ -24,7 +24,7 @@ import net.mmly.openminemap.util.WaypointFile;
 public class HudMap {
 
     public static final int MIN_SIZE = 20;
-    static boolean initialized = false;
+    public static boolean initialized = false;
     public static boolean renderHud = ConfigOptions._HUD_TOGGLE.getAsBoolean(); //is toggled by the keybind
     public static boolean hudEnabled = ConfigOptions._HUD_ENABLED.getAsBoolean(); //is toggled by the fullscreen map button and is dominant over the keybind
     public static int hudCompassX = ConfigOptions.HUD_COMPASS_X.getAsInt();
@@ -133,6 +133,7 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+
         //method is called every frame, so a couple of things are included here that need to run every frame
         while (!OpenMineMapClient.debugMessages.isEmpty()) {
             if (OpenMineMapClient.debugMessages.getFirst() != null) MinecraftClient.getInstance().player.sendMessage(Text.literal(OpenMineMapClient.debugMessages.getFirst()).formatted(Formatting.RED), false);

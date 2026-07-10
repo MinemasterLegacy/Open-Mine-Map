@@ -4,16 +4,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.config.MapConfigScreen;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
-import net.mmly.openminemap.enums.ButtonState;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
+import net.mmly.openminemap.raster.CreateRasterScreen;
+import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
@@ -24,8 +24,13 @@ public class ButtonLayer extends ClickableWidget {
     private final ButtonFunction function;
     private BooleanSupplier disableCondition;
     private static final int BUTTONSIZE = 20;
+    public static boolean texturedButtons = ConfigOptions.BUTTON_STYLE.getAsBooleanFromValues(ConfigOptions.Values.BUTTON_STYLES);
 
-    public ButtonLayer(int x, int y, ButtonFunction f){
+    public ButtonLayer(ButtonFunction f) {
+        this(0, 0, f);
+    }
+
+    public ButtonLayer(int x, int y, ButtonFunction f) {
         this(x, y, f, null);
     }
 
@@ -36,24 +41,15 @@ public class ButtonLayer extends ClickableWidget {
         else this.disableCondition = disableCondition;
     }
 
-    private static Identifier getButtonIdentifierOf(ButtonState state, ButtonFunction function) {
-        return Identifier.of("openminemap", "buttons/vanilla/" + state.toString().toLowerCase() + "/" + function.textureFileName);
-    }
-
     public void drawWidget(DrawContext context) {
-        context.drawTexture(
-                RenderLayer::getGuiTextured,
-                disableCondition.getAsBoolean() ?
-                        getButtonIdentifierOf(ButtonState.LOCKED, function) :
-                        isHovered() ?
-                                getButtonIdentifierOf(ButtonState.HOVER, function) :
-                                getButtonIdentifierOf(ButtonState.DEFAULT, function),
+        if (!texturedButtons) {
+            UContext.drawButtonOnWidget(this, disableCondition.getAsBoolean(), isHovered());
+            UContext.drawTexture(function.generatedShadowIdentifier, getX() + 1, getY() + 1, BUTTONSIZE, BUTTONSIZE);
+        }
+        UContext.drawTexture(
+                function.getIdentifier(disableCondition.getAsBoolean(), isHovered()),
                 getX(),
                 getY(),
-                0,
-                0,
-                BUTTONSIZE,
-                BUTTONSIZE,
                 BUTTONSIZE,
                 BUTTONSIZE
         );
@@ -69,59 +65,48 @@ public class ButtonLayer extends ClickableWidget {
     public void onClick(double mouseX, double mouseY) {
         RightClickMenu.disableMenu();
         switch (function) {
-            case ButtonFunction.ZOOMIN: //zoom in
+            case ZOOMIN: //zoom in
                 MapScreen.zoomIn();
                 break;
-            case ButtonFunction.ZOOMOUT: //zoom out
+            case ZOOMOUT: //zoom out
                 MapScreen.zoomOut();
                 break;
-            case ButtonFunction.RESET: //reset
+            case RESET: //reset
                 MapScreen.resetMap();
                 break;
-            case ButtonFunction.FOLLOW: //follow
+            case FOLLOW: //follow
                 if (PlayerAttributes.positionIsValid()) MapScreen.followPlayer(true);
                 break;
-            case ButtonFunction.CONFIG: //config
+            case CONFIG: //config
                 MinecraftClient.getInstance().setScreen(
                         new ConfigScreen()
                 );
                 break;
-            case ButtonFunction.EXIT: //exit
-                if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
-                    MapConfigScreen.revertChanges();
-                    MinecraftClient.getInstance().setScreen(
-                            new ConfigScreen()
-                    );
-                    break;
-                }
-                if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
-                    MinecraftClient.getInstance().setScreen(
-                            new MapScreen()
-                    );
-                    break;
-                }
+            case EXIT: //exit
                 MinecraftClient.getInstance().currentScreen.close();
                 break;
-            case ButtonFunction.WAYPOINTS:
+            case WAYPOINTS:
                 MinecraftClient.getInstance().setScreen(
                         new WaypointScreen()
                 );
                 break;
-            case ButtonFunction.CHECKMARK:
+            case CHECKMARK:
                 if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
                     ConfigScreen.getInstance().saveChanges();
                     MinecraftClient.getInstance().setScreen(
                             new MapScreen()
                     );
+                    MapScreen.updateAltScreenMap(ConfigScreen.getInstance());
                     break;
                 } else if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
                     MapConfigScreen.saveChanges();
+                    MapScreen.updateAltScreenMap(MinecraftClient.getInstance().currentScreen, null);
                 } else {
                     break;
                 }
                 MinecraftClient.getInstance().setScreen(null);
                 break;
-            case ButtonFunction.RESETCONFIG:
+            case RESETCONFIG:
                 HudMap.map.setRenderPositionAndSize(
                         Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_X)),
                         Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_MAP_Y)),
@@ -132,6 +117,20 @@ public class ButtonLayer extends ClickableWidget {
                 HudMap.hudCompassY = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_Y));
                 HudMap.hudCompassWidth = Integer.parseInt(ConfigFile.readDefaultParameter(ConfigOptions.HUD_COMPASS_WIDTH));
                 MapConfigScreen.updateResizePos();
+                break;
+            case RASTER:
+                MinecraftClient.getInstance().setScreen(
+                        new ViewSetRastersScreen(true)
+                );
+                break;
+            case ADD:
+                //unused
+                break;
+            case ADDRASTER:
+                CreateRasterScreen.instance.addRasterField();
+                break;
+            case REMOVERASTER:
+                CreateRasterScreen.instance.removeRasterField();
                 break;
         }
     }

@@ -11,6 +11,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.gui.RightClickMenu;
 import net.mmly.openminemap.map.TileManager;
@@ -56,6 +57,7 @@ public class WaypointScreen extends Screen {
 
     private static double initLong;
     private static double initLat;
+    private static String initName;
     private static boolean initWithValues = false;
     private static boolean initInEditMode = false;
     private static Waypoint initEditWaypoint;
@@ -66,7 +68,7 @@ public class WaypointScreen extends Screen {
 
     public WaypointStyle styleSelection = WaypointStyle.DIAMOND;
     ArrayList<WaypointEntryWidget> waypointWidgets = new ArrayList<>();
-    ArrayList<WaypointAnchorWidget> anchorWidgets = new ArrayList<>();
+    ArrayList<AnchorWidget> anchorWidgets = new ArrayList<>();
 
     private static final Identifier[] styleIdentifiers = new Identifier[] {
             Identifier.of("openminemap", "waypoints/diamond.png"),
@@ -85,12 +87,18 @@ public class WaypointScreen extends Screen {
         instance = this;
     }
 
+    public WaypointScreen(double lat, double lon, String name) {
+        this(lat, lon);
+        initName = name;
+    }
+
     public WaypointScreen(double lat, double lon) {
         super(Text.of("OpenMineMap Waypoints"));
         instance = this;
         initWithValues = true;
         initLong = lon;
         initLat = lat;
+        initName = null;
     }
 
     @Override
@@ -186,7 +194,13 @@ public class WaypointScreen extends Screen {
         }).build();
         this.addDrawableChild(deleteWaypointButton);
 
-        nameField = new WaypointParameterWidget(this.textRenderer, Text.of(initWithValues ? UnitConvert.floorToPlace(initLat, 7) + ", " + UnitConvert.floorToPlace(initLong, 7) : ""), true, WaypointValueInputType.NAME);
+        nameField = new WaypointParameterWidget(this.textRenderer,
+                Text.of(initWithValues ?
+                            (initName != null ?
+                                initName :
+                                UnitConvert.floorToPlace(initLat, 7) + ", " + UnitConvert.floorToPlace(initLong, 7)) :
+                            "")
+                , true, WaypointValueInputType.NAME);
         nameField.setMaxLength(200);
         this.addDrawableChild(nameField);
 
@@ -230,7 +244,7 @@ public class WaypointScreen extends Screen {
         initInEditMode = false;
 
         updateWidgetPositions();
-        MapScreen.toggleAltScreenMap(true);
+        MapScreen.updateAltScreenMap(null, this);
     }
 
     public static void deleteEditingWaypoint() {
@@ -302,7 +316,7 @@ public class WaypointScreen extends Screen {
 
     private void addWaypointWidget(WaypointEntryWidget widget) {
         waypointWidgets.add(widget);
-        WaypointAnchorWidget anchor = new WaypointAnchorWidget();
+        AnchorWidget anchor = new AnchorWidget();
         this.addDrawableChild(widget);
 
         waypointList.addEntry(anchor);
@@ -508,6 +522,7 @@ public class WaypointScreen extends Screen {
         MinecraftClient.getInstance().setScreen(
                 new MapScreen()
         );
+        MapScreen.updateAltScreenMap(this);
         WaypointFile.save();
     }
 }

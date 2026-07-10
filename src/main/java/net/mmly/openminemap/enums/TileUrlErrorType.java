@@ -5,6 +5,8 @@ public enum TileUrlErrorType {
     MALFORMED_JSON_FILE("omm.error.tile-source-json-formatting"),
     NULL_TILE_URL("omm.error.blank-tile-url"),
     NULL_VALUE("omm.error.blank-field"),
+    INVALID_CHARACTERS("omm.error.invalid-characters"), //TODO translate
+    DUPLICATE_NAME("omm.error.duplicate-name"), //TODO translate
     MALFORMED_SOURCE_URL("omm.error.source-link-invalid"),
     MALFORMED_ATTRIBUTION_LINK("omm.error.attribution-link-invalid"),
     INVALID_SOURCE_URL_BRACKET_PLACEMENT("omm.error.source-bracket-placement"),

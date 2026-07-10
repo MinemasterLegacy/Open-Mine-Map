@@ -173,7 +173,7 @@ public class ConfigScreen extends Screen {
         snapAngleWidget = new ChoiceNumberWidget(textRenderer);
         this.addConfigOptionWidget(snapAngleWidget);
 
-        rightClickMeuUsesOption = new ChoiceButtonWidget(ConfigOptions.Values.TP_COMMANDS, ConfigOptions.RIGHT_CLICK_MENU_USES, true);
+        rightClickMeuUsesOption = new ChoiceButtonWidget(ConfigOptions.Values.TP_COMMANDS, ConfigOptions.TELEPORT_METHOD, false);
         this.addConfigOptionWidget(rightClickMeuUsesOption);
 
         tileScaleSlider = new ChoiceSliderWidget(ConfigOptions.Values.TILE_SCALES, ConfigOptions.TILE_SCALE, true);
@@ -247,7 +247,7 @@ public class ConfigScreen extends Screen {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
-            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__ALT_INFO_TOOLTIP, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
         }
 
         configList.restoreScroll();

@@ -4,7 +4,6 @@ import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -23,12 +22,12 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     RASTER_OPACITIES(0, "RasterOpacities", ""),
     ARTIFICIAL_ZOOM(0, "ArtificialZoom", "off", "artificial-zoom"),
     SNAP_ANGLE(0, "SnapAngle", "", "snap-angle"),
-    RIGHT_CLICK_MENU_USES(0, "RightClickMenuUses", "/tpll", "rcm-uses"),
+    TELEPORT_METHOD(0, "TeleportMethod", "dynamic", "teleport-method"),
     REVERSE_SCROLL(0, "ReverseScroll", "off", "reverse-scroll"),
     SHOW_PLAYERS(0, "ShowPlayers2", "all", "players"),
     SHOW_DIRECTION_INDICATORS(0, "ShowDirectionIndicators2", "all", "directions"),
     ALTITUDE_SHADING(0, "AltitudeShading", "on", "altitude-shading"),
-    ZOOM_STRENGTH(0, "ZoomStrength", "0.40", "zoom-strength"),
+    ZOOM_STRENGTH(0, "ZoomStrength2", "0.40", "zoom-strength"),
     HOVER_NAMES(0, "HoverNames", "show", "hover-names"),
     INTERFACE_OPACITY(0, "InterfaceOpacity", "0.50", "interface-opacity"),
     PLAYER_SIZE(0, "PlayerSize", "normal", "player-size"),
@@ -164,7 +163,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
         public static final List<String> TRUE_FALSE = Arrays.stream(new String[] {"true", "false"}).toList();
         public static final List<String> VISIBILITY = Arrays.stream(new String[] {"None", "Self", "Local", "All"}).toList();
         public static final List<String> SIZES = Arrays.stream(new String[] {"Small", "Normal", "Large"}).toList();
-        public static final List<String> TP_COMMANDS = Arrays.stream(new String[] {"/tpll", "/tp"}).toList();
+        public static final List<String> TP_COMMANDS = Arrays.stream(new String[] {"Tpll", "Tp", "Dynamic"}).toList();
         public static final List<String> ZOOM_STRENGTHS = Arrays.stream(range(0.05f, 2, 0.05f, 2)).toList();
         public static final List<String> DECIMAL_PERCENT = Arrays.stream(range(0, 1.01f, 0.05f, 2)).toList();
         //public static final List<String> TILE_SCALES = Arrays.stream(range(64, 256, 8, 0)).toList();

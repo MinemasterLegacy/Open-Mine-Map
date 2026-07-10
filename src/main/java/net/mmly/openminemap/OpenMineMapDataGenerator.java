@@ -70,8 +70,6 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.tooltip.zoom-strength", "The amount zoom changes for each zoom input");
         translationBuilder.add("omm.config.option.snap-angle", "Snap Angle");
         translationBuilder.add("omm.config.tooltip.snap-angle", "Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)");
-        translationBuilder.add("omm.config.option.rcm-uses", "RCM Uses");
-        translationBuilder.add("omm.config.tooltip.rcm-uses", "The command that will be used to teleport when using the Fullscreen Right Click Menu.");
         translationBuilder.add("omm.config.option.directions", "Directions");
         translationBuilder.add("omm.config.tooltip.directions", "Show Direction Indicators on all maps");
         translationBuilder.add("omm.config.option.altitude-shading", "Altitude Shading");
@@ -227,12 +225,15 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.raster.warning.title", "Notice: Using Custom Raster Providers");
         translationBuilder.add("omm.raster.warning.body", "OpenStreetMap (and Raster Providers that use their data) have Attribution Guidelines that require applications that use their data to display proper attribution information. Additionally, Raster Providers may have exclusionary terms on what their service can be used for. ");
         translationBuilder.add("omm.raster.warning.disclaimer", "By creating and using a custom Raster Provider, you accept responsibility for ensuring compliance with these guidelines.");
-        translationBuilder.add("omm.config.option.teleport-intercept", "Teleport Intercept");
-        translationBuilder.add("omm.config.tooltip.teleport-intercept", "Intercept teleport commands and translate them to tpll commands. This can allow others mods that rely on teleport commands to function on servers with tpll.");
+        translationBuilder.add("omm.config.option.teleport-intercept", "Intercept Teleportation");
+        translationBuilder.add("omm.config.tooltip.teleport-intercept", "Intercept teleport commands and translate them to /tpll commands. This can allow other mods that rely on vanilla teleport commands to function on servers with /tpll.");
         translationBuilder.add("omm.config.option.button-style", "Button Style");
         translationBuilder.add("omm.config.tooltip.button-style", "Change the button style. Texture uses the original mod textures, Generated uses vanilla textures, which can be customized by resourcepacks.");
         translationBuilder.add("omm.config.state.texture", "Texture");
         translationBuilder.add("omm.config.state.generated", "Generated");
+        translationBuilder.add("omm.config.state.dynamic", "Dynamic");
+        translationBuilder.add("omm.config.option.teleport-method", "Teleport Method");
+        translationBuilder.add("omm.config.tooltip.teleport-method", "The command that will be prioritized when teleporting. Dynamic uses /tp in singleplayer and /tpll in multiplayer.");
 
     }
 }

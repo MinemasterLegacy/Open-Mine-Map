@@ -2,12 +2,15 @@ package net.mmly.openminemap;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
+import net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
@@ -77,6 +80,11 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         ClientPlayNetworking.registerGlobalReceiver(PlayerDataS2CPayload.ID, ((playerDataS2CPayload, context) -> {}));
         ClientPlayConnectionEvents.DISCONNECT.register(NetworkState::resetNetworkState);
 
+        ClientTickEvents.START_CLIENT_TICK.register(minecraftClient -> {
+            if (minecraftClient.currentScreen instanceof TitleScreen && HudMap.initialized) {
+                HudMap.initialized = false;
+            }
+        });
         //PlayerInfoPacketCodec.CODEC.encodeStart(JsonOps.IN);
 
     }

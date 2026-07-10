@@ -24,7 +24,7 @@ import net.mmly.openminemap.util.WaypointFile;
 public class HudMap {
 
     public static final int MIN_SIZE = 20;
-    static boolean initialized = false;
+    public static boolean initialized = false;
     public static boolean renderHud = ConfigOptions._HUD_TOGGLE.getAsBoolean(); //is toggled by the keybind
     public static boolean hudEnabled = ConfigOptions._HUD_ENABLED.getAsBoolean(); //is toggled by the fullscreen map button and is dominant over the keybind
     public static int hudCompassX = ConfigOptions.HUD_COMPASS_X.getAsInt();

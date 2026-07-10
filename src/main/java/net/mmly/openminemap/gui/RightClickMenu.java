@@ -38,7 +38,6 @@ public class RightClickMenu extends ClickableWidget {
     // = 16 * number of menu options
     private static final int OPTION_HEIGHT = 16;
     private RightClickMenuOption selectedOption;
-    private boolean useTp;
     static double clickX = 0;
     static double clickY = 0;
     private final Identifier rightClickMarker = Identifier.of("openminemap", "locationhighlight.png");
@@ -172,11 +171,23 @@ public class RightClickMenu extends ClickableWidget {
         return instance.displayType;
     }
 
+    public static boolean useTp() {
+        String option = ConfigOptions.TELEPORT_METHOD.getAsStringFromValues(ConfigOptions.Values.TP_COMMANDS);
+        System.out.println(option);
+        if (option.equals("tpll")) return false;
+        if (option.equals("tp")) return true;
+        //option is dynamic
+        return MinecraftClient.getInstance().isInSingleplayer();
+    }
+
+    public static boolean useTpll() {
+        return !useTp();
+    }
+
     public RightClickMenu(TextRenderer textRenderer) {
         super(-500, -500, 0, 0, Text.empty());
 
         instance = this;
-        useTp = !ConfigOptions.RIGHT_CLICK_MENU_USES.getAsBooleanFromValues(ConfigOptions.Values.TP_COMMANDS);
         this.textRenderer = textRenderer;
 
         webIcons.clear();
@@ -361,7 +372,7 @@ public class RightClickMenu extends ClickableWidget {
                 try { //can be used during development to use the /tp command instead of /tpll
                     if (MinecraftClient.getInstance().player != null) {
                         double[] mcXz = Projection.from_geo(savedMouseLat, savedMouseLong);
-                        if (useTp) {
+                        if (useTp()) {
                             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) mcXz[0]+" "+PlayersManager.getHighestPoint(mcXz[0], mcXz[1])+" "+ (int) mcXz[1]);
                         } else {
                             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong);

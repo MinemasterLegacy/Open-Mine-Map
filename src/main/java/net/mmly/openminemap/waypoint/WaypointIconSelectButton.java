@@ -3,6 +3,7 @@ package net.mmly.openminemap.waypoint;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
@@ -27,6 +28,7 @@ public class WaypointIconSelectButton extends ClickableWidget {
         } else {
             context.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of("openminemap", "arrowselect/"+type+".png"), getX(), getY(), 0, 0, width, height, 7, 11);
         }
+        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
     @Override

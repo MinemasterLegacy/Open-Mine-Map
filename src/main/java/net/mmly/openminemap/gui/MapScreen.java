@@ -7,6 +7,7 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -665,6 +666,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         if (altKeyPressed && ConfigOptions.__ALT_INFO_TOOLTIP.getAsBooleanFromValues(ConfigOptions.Values.TRUE_FALSE)) {
             context.drawTooltip(textRenderer, map.getAtTooltipList(), mouseX, mouseY);
+            context.setCursor(StandardCursors.CROSSHAIR);
         }
 
         //draws the attribution and report bug text fields

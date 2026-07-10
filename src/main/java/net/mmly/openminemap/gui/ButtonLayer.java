@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
@@ -61,6 +62,9 @@ public class ButtonLayer extends ClickableWidget {
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000); //0x00000000
         drawWidget(context);
+        if (this.isHovered()) {
+            context.setCursor(!disableCondition.getAsBoolean() ? StandardCursors.POINTING_HAND : StandardCursors.NOT_ALLOWED);
+        }
     }
 
     @Override

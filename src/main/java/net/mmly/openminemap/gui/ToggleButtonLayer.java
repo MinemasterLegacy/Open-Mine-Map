@@ -2,6 +2,7 @@ package net.mmly.openminemap.gui;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -55,6 +56,7 @@ public class ToggleButtonLayer extends ClickableWidget {
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000); //0x00000000
+        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
     @Override

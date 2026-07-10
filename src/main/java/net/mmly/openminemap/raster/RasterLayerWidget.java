@@ -3,6 +3,7 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -225,6 +226,8 @@ public class RasterLayerWidget extends ClickableWidget {
                                 isAddButton)) ?
                 outlineFocusColor :
                 outlineBaseColor);
+
+        if (isAddButton && isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
     private void drawBackground(Identifier texture) {

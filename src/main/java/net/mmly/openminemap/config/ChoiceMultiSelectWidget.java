@@ -3,6 +3,7 @@ package net.mmly.openminemap.config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
@@ -114,6 +115,7 @@ public class ChoiceMultiSelectWidget extends ClickableWidget implements ConfigCh
 
         if (highlightedIcon > -1) {
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, options.get(highlightedIcon).tooltipText, mouseX, mouseY);
+            context.setCursor(StandardCursors.POINTING_HAND);
         }
     }
 

@@ -3,6 +3,7 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
@@ -43,6 +44,9 @@ public class MicroButton extends ClickableWidget {
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        if (this.isHovered()) {
+            context.setCursor(disabaled ? StandardCursors.POINTING_HAND : StandardCursors.NOT_ALLOWED);
+        }
     }
 
     public void draw(int mouseX, int mouseY) {
@@ -53,6 +57,7 @@ public class MicroButton extends ClickableWidget {
                 getX(), getY(), width, height, 12, 12);
 
         if (flash) drawFlash();
+        if (isMouseOver(mouseX, mouseY)) UContext.setCursorContext(disabaled ? StandardCursors.NOT_ALLOWED : StandardCursors.POINTING_HAND);
     }
 
     @Override

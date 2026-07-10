@@ -30,6 +30,11 @@ public class RasterList extends EntryListWidget<AnchorWidget> {
     }
 
     @Override
+    protected void drawSelectionHighlight(DrawContext context, AnchorWidget entry, int color) {
+        //do nothing
+    }
+
+    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }

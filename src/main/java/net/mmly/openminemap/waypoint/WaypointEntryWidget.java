@@ -5,6 +5,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -125,6 +126,8 @@ public class WaypointEntryWidget extends ClickableWidget {
                 setTooltip(Tooltip.of(tooltipMessages[xMod]));
                 setTooltipDelay(Duration.ZERO);
                 selection = Selection.getById(xMod + 1);
+                if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+
             }
             xMod++;
         }
@@ -137,7 +140,6 @@ public class WaypointEntryWidget extends ClickableWidget {
             context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.translatable("omm.waypoints.editing").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2), 0xFFFFFFFF, true);
             context.disableScissor();
         }
-
 
         UContext.drawBorder(getX(), getY(), getWidth(), getHeight(), borderColor);
         context.drawVerticalLine(getX() + width - 52, getY(), getY() + height, borderColor);

@@ -5,6 +5,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.input.KeyInput;
@@ -844,6 +845,7 @@ public class OmmMap extends ClickableWidget {
 
             if (mouseX >= x - 1 && mouseX <= x + 8 && mouseY >= y - 10 && mouseY <= y + 4) {
                 hoveredResultId = i;
+                UContext.setCursorContext(StandardCursors.POINTING_HAND);
                 return;
             }
         }
@@ -938,6 +940,7 @@ public class OmmMap extends ClickableWidget {
         if (mouseDown) {
             mapCenterX = mouseHoldX + (mapCenterX - mouseTileX);
             mapCenterY = mouseHoldY + (mapCenterY - mouseTileY);
+            UContext.setCursorContext(StandardCursors.RESIZE_ALL);
         }
 
         if (followPlayer && PlayerAttributes.positionIsValid()) {
@@ -1034,6 +1037,7 @@ public class OmmMap extends ClickableWidget {
 
             if (mouseX >= x && mouseX <= x + WAYPOINTSIZE && mouseY >= y && mouseY <= y + WAYPOINTSIZE) {
                 hoveredWaypoint = waypoint;
+                context.setCursor(StandardCursors.POINTING_HAND);
             }
 
             context.drawTexture(
@@ -1100,6 +1104,7 @@ public class OmmMap extends ClickableWidget {
 
     public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
 
+        UContext.setContext(context);
         updateFields();
 
         if (isHudMap && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);

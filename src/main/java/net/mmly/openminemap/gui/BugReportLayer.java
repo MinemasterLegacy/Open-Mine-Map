@@ -3,6 +3,7 @@ package net.mmly.openminemap.gui;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.MutableText;
@@ -40,6 +41,7 @@ public class BugReportLayer extends ClickableWidget {
                 windowScaledHeight + 7 - textRenderer.fontHeight - 10 - 16,
                 0xFF0B9207,
                 true);
+        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
     @Override

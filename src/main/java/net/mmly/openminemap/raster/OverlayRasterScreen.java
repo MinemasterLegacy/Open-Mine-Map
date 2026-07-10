@@ -25,13 +25,13 @@ public class OverlayRasterScreen extends RasterScreen {
 
     @Override
     protected void init() {
-        super.init();
-
-        confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> { 
+        confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
             RasterProvider.insertOverlayOnTop(getSelectedLayerWidget().raster);
             MinecraftClient.getInstance().currentScreen.close();
         }).width(200).build();
         this.addDrawableChild(confirmButton);
+
+        super.init();
     }
 
     @Override

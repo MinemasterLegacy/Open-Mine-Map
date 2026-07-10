@@ -4,6 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.Cursor;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.render.state.GuiRenderState;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -30,6 +32,10 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
 
     public static DrawContext getContext() {
         return drawContext;
+    }
+
+    public static void setCursorContext(Cursor cursor) {
+        drawContext.setCursor(cursor);
     }
 
     public static void setTextRenderer(TextRenderer renderer) {

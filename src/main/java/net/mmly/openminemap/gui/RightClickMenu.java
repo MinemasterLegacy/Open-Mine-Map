@@ -6,6 +6,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -208,6 +209,7 @@ public class RightClickMenu extends ClickableWidget {
         } else {
             webIconSelection = null;
         }
+        if (this.isHovered() && selectedOption != null) context.setCursor(StandardCursors.POINTING_HAND);
 
     }
 

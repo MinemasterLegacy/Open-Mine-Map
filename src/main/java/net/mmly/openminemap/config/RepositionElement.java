@@ -2,6 +2,7 @@ package net.mmly.openminemap.config;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
@@ -38,6 +39,7 @@ public class RepositionElement extends ClickableWidget {
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         updateDimensionsAndPosition();
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x00000000);
+        if (isHovered()) context.setCursor(StandardCursors.RESIZE_ALL);
     }
 
     @Override

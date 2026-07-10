@@ -5,6 +5,7 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
     int selection;
     Text message;
     ConfigOptions configOption;
-    ConfigAnchorWidget anchor;
+    AnchorWidget anchor;
     boolean optionIsLiteral;
 
     public ChoiceSliderWidget(List<String> options, ConfigOptions configOption, boolean optionIsLiteral) {
@@ -60,7 +61,7 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
     }
 
     @Override
-    public void setAnchor(ConfigAnchorWidget anchor) {
+    public void setAnchor(AnchorWidget anchor) {
         this.anchor = anchor;
     }
 

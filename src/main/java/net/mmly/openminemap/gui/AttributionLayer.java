@@ -4,10 +4,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.UnitConvert;
 
@@ -16,7 +18,7 @@ import static net.mmly.openminemap.gui.MapScreen.windowScaledWidth;
 
 public class AttributionLayer extends ClickableWidget {
 
-    public int textWidth;
+    public final int textWidth;
     private final String attribution;
     private final char[] attributionString;
     private int[][] selectionZones;
@@ -25,16 +27,18 @@ public class AttributionLayer extends ClickableWidget {
     public AttributionLayer(int x, int y, int width, int height) {
         super(x, y, width, height, Text.empty());
         String split = " | ";
-        if (TileUrlFile.getCurrentUrl().attribution.equals("")) split = "";
+        if (RasterProvider.getCurrentBaseRaster().attribution.equals("")) split = "";
         TileUrlFile.initOsmAttribution();
-        attributionString = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentUrl().attribution).toCharArray();
-        attribution = (TileUrlFile.osmAttribution + split + TileUrlFile.getCurrentUrl().attribution).replaceAll("\\{", "").replaceAll("}", "");
+        attributionString = (TileUrlFile.osmAttribution + split + RasterProvider.getCurrentBaseRaster().attribution).toCharArray();
+        attribution = (TileUrlFile.osmAttribution + split + RasterProvider.getCurrentBaseRaster().attribution).replaceAll("\\{", "").replaceAll("}", "");
         selectionZones = new int[(attributionString.length - attribution.length() / 2)][2];
+        textWidth = MinecraftClient.getInstance().textRenderer.getWidth(attribution);
     }
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000);
+        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
@@ -44,7 +48,6 @@ public class AttributionLayer extends ClickableWidget {
 
         calculateSelection();
 
-        textWidth = textRenderer.getWidth(attribution);
         context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, MapScreen.backingColor);
 
         int y = windowScaledHeight + 7 -textRenderer.fontHeight - 10;
@@ -102,7 +105,7 @@ public class AttributionLayer extends ClickableWidget {
         if (selection == -1) return;
         String link;
         if (selection == 0) link = TileUrlFile.osmAttributionUrl;
-        else link = TileUrlFile.getCurrentUrl().attribution_links[selection - 1];
+        else link = RasterProvider.getCurrentBaseRaster().attribution_links[selection - 1];
         MapScreen.openLinkScreen(link, new MapScreen(), true);
     }
 }

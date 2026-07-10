@@ -1,5 +1,8 @@
 package net.mmly.openminemap.search;
 
+import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.util.NamedLocation;
+
 public class SearchResult {
 
     public SearchResultType resultType;
@@ -42,5 +45,30 @@ public class SearchResult {
         this.longitude = longitude;
         this.name = name;
         this.historic = historic;
+    }
+
+    public static SearchResult historic(String term, boolean bounded) {
+        return new SearchResult(bounded ? SearchResultType.SEARCHLOCAL : SearchResultType.SEARCH, 0, 0, true, term);
+    }
+
+    public NamedLocation asLocation() {
+        return new NamedLocation(name, latitude, longitude, -1);
+    }
+
+    public void focusOnMapViaSearchMenu() {
+        MapScreen.followPlayer(false);
+
+        if (bounds != null) {
+            MapScreen.map.goAndZoomToBounds(bounds, true);
+            return;
+        }
+
+        MapScreen.map.setMapLatLong(latitude, longitude);
+        MapScreen.map.setMapCenterPosition(MapScreen.map.getMapCenterX() - ((double) SearchBoxLayer.getInstance().getRight() / 2), MapScreen.map.getMapCenterY());
+
+        if (zoom != -1) {
+            MapScreen.map.setMapZoom(zoom);
+        }
+        MapScreen.map.clampZoom();
     }
 }

@@ -3,6 +3,7 @@ package net.mmly.openminemap.config;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.MutableText;
@@ -22,6 +23,7 @@ public class WikiLinkLayer extends ClickableWidget {
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0xFFFFFFFF);
+        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
     @Override

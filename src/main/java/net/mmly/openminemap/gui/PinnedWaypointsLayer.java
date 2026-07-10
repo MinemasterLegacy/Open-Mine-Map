@@ -4,6 +4,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.input.MouseInput;
@@ -27,6 +28,8 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     TextRenderer textRenderer;
     public static int menuSelection = -1;
 
+    private int scrollOffset = 0;
+
     public PinnedWaypointsLayer(int x, int y, int width, int margin, TextRenderer renderer) {
         super(x, y, width, width, Text.of(""));
 
@@ -38,8 +41,25 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     }
 
     public void setRoundedHeight(int height1) {
-        maxHeight = height1 - (height1 % waypointHitboxSize);
-        visibleWaypointCount = height1 / waypointHitboxSize;
+        maxHeight = Math.max(20, height1 - (height1 % waypointHitboxSize));
+        visibleWaypointCount = Math.max(1, height1 / waypointHitboxSize);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (verticalAmount > 0) {
+            scrollOffset--;
+        }
+        if (verticalAmount < 0) {
+            scrollOffset++;
+        }
+        clampScroll();
+
+        return false;
+    }
+
+    public void clampScroll() {
+        scrollOffset = Math.clamp(scrollOffset, 0, Math.max(0, pinnedWaypoints.length - visibleWaypointCount));
     }
 
     public void drawWidget(DrawContext context) {
@@ -49,24 +69,28 @@ public class PinnedWaypointsLayer extends ClickableWidget {
 
         context.fill(getX(), getY(), getX() + width, getY() + height, MapScreen.backingColor);
 
-        if (MapScreen.getRightClickMenuWaypoint() == null) menuSelection = -1;
-        if (menuSelection > -1 ) UContext.drawBorder(getX() + margin - 1, getY() + margin - 1 + (menuSelection * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFCA8);
+        if (MapScreen.getRightClickMenuLocation() == null) menuSelection = -1;
+        if (menuSelection > -1) UContext.drawBorder(getX() + margin - 1, getY() + margin - 1 + ((menuSelection - scrollOffset) * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFCA8);
 
         if (isHovered()) {
-            int selection = ((mouseY - getY()) / waypointHitboxSize);
-            UContext.drawBorder(getX() + margin - 1, getY() + margin - 1 + (selection * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFFFF);
+            int selectedPosition = ((mouseY - getY()) / waypointHitboxSize);
+            int selectedWaypointId = selectedPosition + scrollOffset;
+            UContext.drawBorder(getX() + margin - 1, getY() + margin - 1 + (selectedPosition * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFFFF);
             if (RightClickMenu.getDisplayType() == RightClickMenuType.HIDDEN) {
-                UContext.fillZone(getX() + width + 3, getY() + (selection * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2) - 2, textRenderer.getWidth(pinnedWaypoints[selection].name) + 3, textRenderer.fontHeight + 3, MapScreen.backingColor);
-                context.drawText(textRenderer, pinnedWaypoints[selection].name, getX() + width + 5, getY() + (selection * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2), RGBof(pinnedWaypoints[selection].color), false);
+                UContext.fillZone(getX() + width + 3, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2) - 2, textRenderer.getWidth(pinnedWaypoints[selectedWaypointId].name) + 3, textRenderer.fontHeight + 3, MapScreen.backingColor);
+                context.drawText(textRenderer, pinnedWaypoints[selectedWaypointId].name, getX() + width + 5, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2), RGBof(pinnedWaypoints[selectedWaypointId].color), false);
             }
         }
 
-        int y = getY();
-
+        clampScroll();
         for (int i = 0; i < Math.min(pinnedWaypoints.length, visibleWaypointCount); i++) {
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, pinnedWaypoints[i].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, pinnedWaypoints[i+scrollOffset].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
         }
 
+        if (visibleWaypointCount < pinnedWaypoints.length) {
+            if (scrollOffset != 0) UContext.drawDottedHorizontalLine(getX(), getWidth(), getY(), 0xFFFFFFFF);
+            if (scrollOffset != pinnedWaypoints.length - visibleWaypointCount) UContext.drawDottedHorizontalLine(getX(), getRight(), getBottom() - 1, 0xFFFFFFFF);
+        }
         /*
         for (Waypoint waypoint : pinnedWaypoints) {
             context.drawTexture(RenderPipelines.GUI_TEXTURED, waypoint.identifier, getX() + margin, getY() + margin + y, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
@@ -84,13 +108,13 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     }
 
     public Waypoint getSelectedWaypoint() {
-        return pinnedWaypoints[((((int) mouseY) - getY()) / waypointHitboxSize)];
+        return pinnedWaypoints[((((int) mouseY) - getY()) / waypointHitboxSize) + scrollOffset];
     }
 
     @Override
     public void onClick(Click click, boolean doubled) {
-        int selection = ((((int) mouseY) - getY()) / waypointHitboxSize);
-        if (RightClickMenu.getDisplayType() == RightClickMenuType.PINNED_WAYPOINT && MapScreen.getRightClickMenuWaypoint().name.equals(pinnedWaypoints[selection].name)) {
+        int selection = ((((int) mouseY) - getY()) / waypointHitboxSize) + scrollOffset;
+        if (RightClickMenu.getDisplayType() == RightClickMenuType.PINNED_WAYPOINT && MapScreen.getRightClickMenuLocation().name.equals(pinnedWaypoints[selection].name)) {
             RightClickMenu.disableMenu();
         } else {
             RightClickMenu.enableMenu(
@@ -131,6 +155,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
     @Override

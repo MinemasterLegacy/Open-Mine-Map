@@ -3,6 +3,7 @@ package net.mmly.openminemap.config;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
@@ -28,6 +29,8 @@ public class ResizeElement extends ClickableWidget {
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         //context.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), 0xFF0000FF);
+        if (isHovered()) context.setCursor(direction.isVertical() ? StandardCursors.RESIZE_NS : StandardCursors.RESIZE_EW);
+
     }
 
     @Override

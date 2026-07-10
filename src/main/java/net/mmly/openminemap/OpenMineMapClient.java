@@ -2,11 +2,14 @@ package net.mmly.openminemap;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
@@ -18,7 +21,9 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.network.NetworkState;
 import net.mmly.openminemap.network.PlayerDataS2CPayload;
+import net.mmly.openminemap.search.SearchHistoryFile;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.WaypointFile;
 
@@ -37,11 +42,14 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
 
+        //OpenMineMapDataFixer.fix();
+
         KeyInputHandler.register(); //register all new keybinds
         CommandHander.register(); //register commands
 
         TileManager.createOpenminemapDir();
         ConfigFile.establishConfigFile();
+        SearchHistoryFile.establishFile();
         //ScreenMouseEvents.EVENT.re
 
         Requester osmTileRequester = new Requester();
@@ -54,12 +62,13 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
         //ClientLoginConnectionEvents.INIT.register(WaypointFile::setWaypointsOfThisWorld);
         WaypointFile.load();
+        RasterApiKeysFile.readFromFile();
 
-        ClientLifecycleEvents.CLIENT_STARTED.register(TileUrlFile::addApplicableErrors);
+        //ClientLifecycleEvents.CLIENT_STARTED.register(TileUrlFile::addApplicableErrors);
         ClientLifecycleEvents.CLIENT_STOPPING.register(ConfigFile::writeOnClose);
 
-
-        TileUrlFile.establishUrls();
+        //TileUrlFile.establishUrls();
+        //TileUrlFile.establishPresets();
 
         TileManager.initializeConfigParameters();
         OmmMap.initializeConfigParameters(false);
@@ -70,6 +79,11 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         ClientPlayNetworking.registerGlobalReceiver(PlayerDataS2CPayload.ID, ((playerDataS2CPayload, context) -> {}));
         ClientPlayConnectionEvents.DISCONNECT.register(NetworkState::resetNetworkState);
 
+        ClientTickEvents.START_CLIENT_TICK.register(minecraftClient -> {
+            if (minecraftClient.currentScreen instanceof TitleScreen && HudMap.initialized) {
+                HudMap.initialized = false;
+            }
+        });
         //PlayerInfoPacketCodec.CODEC.encodeStart(JsonOps.IN);
 
     }

@@ -63,7 +63,6 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.gui.save-and-exit", "Save and Exit");
         translationBuilder.add("omm.config.gui.exit-without-saving", "Exit without Saving");
         translationBuilder.add("omm.config.option.players", "Players");
-        translationBuilder.add("omm.config.category.overlays", "Overlays");
         translationBuilder.add("omm.config.tooltip.players", "Show Players on all maps");
         translationBuilder.add("omm.config.tooltip.reverse-scroll", "Reverse the scroll wheel.");
         translationBuilder.add("omm.config.option.reverse-scroll", "Reverse Scroll");
@@ -71,13 +70,10 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.tooltip.zoom-strength", "The amount zoom changes for each zoom input");
         translationBuilder.add("omm.config.option.snap-angle", "Snap Angle");
         translationBuilder.add("omm.config.tooltip.snap-angle", "Set an angle that can be snapped to using a keybind. Can be used to help make straight lines. (Use a Minecraft angle)");
-        translationBuilder.add("omm.config.option.rcm-uses", "RCM Uses");
-        translationBuilder.add("omm.config.tooltip.rcm-uses", "The command that will be used to teleport when using the Fullscreen Right Click Menu.");
         translationBuilder.add("omm.config.option.directions", "Directions");
         translationBuilder.add("omm.config.tooltip.directions", "Show Direction Indicators on all maps");
         translationBuilder.add("omm.config.option.altitude-shading", "Altitude Shading");
         translationBuilder.add("omm.config.tooltip.altitude-shading", "Shade other players white when they are above you and black when they are below you.");
-        translationBuilder.add("omm.config.category.tile-source", "Tile Source");
         translationBuilder.add("omm.fullscreen.mouse-coordinates-label", "Mouse: ");
         translationBuilder.add("omm.fullscreen.player-coordinates-label", "Player: ");
         translationBuilder.add("omm.config.gui.previous-source", "Previous Source");
@@ -140,7 +136,6 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.option.hover-names", "Hover Names");
         translationBuilder.add("omm.config.tooltip.hover-names", "Show player names when hovering the mouse over players in the fullscreen map");
         translationBuilder.add("omm.waypoints.editing", "(Editing...)");
-        translationBuilder.add("omm.config.tooltip.tile-source", "Set a custom URL for tiles to be loaded from. Click for more information.");
         translationBuilder.add("omm.rcm.teleport-here", "Teleport Here");
         translationBuilder.add("omm.rcm.copy-coordinates", "Copy Coordinates");
         translationBuilder.add("omm.rcm.open-in", "Open In...");
@@ -203,6 +198,43 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.option.border", "HudMap Border");
         translationBuilder.add("omm.config.tooltip.border", "Show a border around the HudMap");
         translationBuilder.add("omm.config.state.rainbow", "Rainbow");
+
+        //TODO tbd for other languages
+        translationBuilder.add("omm.config.tooltip.tile-source", "Set a custom URL for tiles to be loaded from");
+        translationBuilder.add("omm.config.category.tile-source", "Raster Providers");
+        translationBuilder.add("omm.config.option.configure-rasters", "Configure Raster Providers...");
+        translationBuilder.add("omm.key.open-raster-screen", "Open Raster Screen");
+        translationBuilder.add("omm.raster.create-new", "Create New Base Layer");
+        translationBuilder.add("omm.raster.requires-api-key", "Requires API Key");
+        translationBuilder.add("omm.raster.base-already-in-use", "Base Already In Use");
+        translationBuilder.add("omm.raster.set-base", "Set Base to");
+        translationBuilder.add("omm.raster.select-base", "Select a Base Raster...");
+        translationBuilder.add("omm.raster.select-overlay", "Select a Overlay Raster...");
+        translationBuilder.add("omm.raster.overlay-already-in-use", "Overlay Already In Use");
+        translationBuilder.add("omm.text.done", "Done");
+        translationBuilder.add("omm.text.create", "Create");
+        translationBuilder.add("omm.raster.field.name", "Name");
+        translationBuilder.add("omm.raster.field.source", "Source");
+        translationBuilder.add("omm.raster.field.attribution", "Attribution");
+        translationBuilder.add("omm.raster.field.links", "Links");
+        translationBuilder.add("omm.raster.field.key", "Api Key");
+        translationBuilder.add("omm.raster.add-overlay", "Add Overlay");
+        translationBuilder.add("omm.raster.type.local-gen", "Generated Overlays");
+        translationBuilder.add("omm.raster.type.base-layer", "Base Layer");
+        translationBuilder.add("omm.raster.type.overlay", "Overlay");
+        translationBuilder.add("omm.raster.warning.title", "Notice: Using Custom Raster Providers");
+        translationBuilder.add("omm.raster.warning.body", "OpenStreetMap (and Raster Providers that use their data) have Attribution Guidelines that require applications that use their data to display proper attribution information. Additionally, Raster Providers may have exclusionary terms on what their service can be used for. ");
+        translationBuilder.add("omm.raster.warning.disclaimer", "By creating and using a custom Raster Provider, you accept responsibility for ensuring compliance with these guidelines.");
+        translationBuilder.add("omm.config.option.teleport-intercept", "Intercept Teleportation");
+        translationBuilder.add("omm.config.tooltip.teleport-intercept", "Intercept teleport commands and translate them to /tpll commands. This can allow other mods that rely on vanilla teleport commands to function on servers with /tpll.");
+        translationBuilder.add("omm.config.option.button-style", "Button Style");
+        translationBuilder.add("omm.config.tooltip.button-style", "Change the button style. Texture uses the original mod textures, Generated uses vanilla textures, which can be customized by resourcepacks.");
+        translationBuilder.add("omm.config.state.texture", "Texture");
+        translationBuilder.add("omm.config.state.generated", "Generated");
+        translationBuilder.add("omm.config.state.dynamic", "Dynamic");
+        translationBuilder.add("omm.config.option.teleport-method", "Teleport Method");
+        translationBuilder.add("omm.config.tooltip.teleport-method", "The command that will be prioritized when teleporting. Dynamic uses /tp in singleplayer and /tpll in multiplayer.");
+
     }
 }
 

@@ -4,14 +4,14 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.render.state.ColoredQuadGuiElementRenderState;
 import net.minecraft.client.gui.render.state.GuiRenderState;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.texture.TextureSetup;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix3x2fStack;
+import net.mmly.openminemap.util.ColorUtil;
 
 import java.util.TreeMap;
 
@@ -21,6 +21,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
     @Deprecated
     public static VertexConsumerProvider.Immediate capturedVertexProvider;
+    private static int textureAlphaColor = 0xFFFFFFFF;
     public static GuiRenderState capturedRenderState;
 
     public static void setContext(DrawContext context) {
@@ -69,6 +70,14 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         drawBorder(x, y, x2 - x, y2 - y, color);
     }
 
+    public static void fillWidget(Widget widget, int color) {
+        UContext.fillZone(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), color);
+    }
+
+    public static void borderWidget(Widget widget, int color) {
+        UContext.drawBorder(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), color);
+    }
+
     public static void fillZone(int x, int y, int width, int height, int color) {
         drawContext.fill(x, y, x + width, y + height, color);
     }
@@ -86,6 +95,19 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         fillAndDrawText(text, x, y, marginWidth, marginHeight, fillColor, textColor, false);
     }
 
+    /// Range 0-255
+    public static void setTextureAlpha(int alpha) {
+        textureAlphaColor = ColorUtil.setAlpha(alpha, textureAlphaColor);
+    }
+
+    public static void resetTextureAlpha() {
+        textureAlphaColor = 0xFFFFFFFF;
+    }
+
+    public static void drawTexture(Identifier identifier, int x, int y, int width, int height) {
+        drawTexture(identifier, x, y, width, height, width, height);
+    }
+
     public static void drawTexture(Identifier identifier, int x, int y, int width, int height, int textureWidth, int textureHeight) {
         drawTexture(identifier, x, y, width, height, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
     }
@@ -95,7 +117,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     }
 
     public static void drawTexture(Identifier identifier, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-        drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, identifier, x, y, u, v, width, height, regionWidth, regionHeight, textureWidth, textureHeight);
+        drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, identifier, x, y, u, v, width, height, regionWidth, regionHeight, textureWidth, textureHeight, textureAlphaColor);
     }
 
     public static void drawTriangle(int[][] triangle, int fillColor) {
@@ -172,6 +194,23 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         matrixStack.rotate(radians);
     }
 
+    public static void drawDottedVerticalLine(int y1, int y2, int x, int color) {
+        //drawContext.drawVerticalLine(x, y1, y2, 0xFF000000);
+        int y = y1;
+        while (y < y2) {
+            drawContext.fill(x, y, x + 1, y + 1, color);
+            y += 2;
+        }
+    }
+
+    public static void drawDottedHorizontalLine(int x1, int x2, int y, int color) {
+        int x = x1;
+        while (x < x2) {
+            drawContext.fill(x, y, x + 1, y + 1, color);
+            x += 2;
+        }
+    }
+
     public static void drawDiagonalLine(int[] start, int[] end, float thickness, int color) {
 
 
@@ -194,6 +233,22 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
 
 
 
+    }
+
+    public static void drawButtonOnWidget(Widget widget, boolean disabled, boolean highlighted) {
+        drawButton(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), disabled, highlighted);
+    }
+
+    public static void drawButton(int x, int y, int width, int height, boolean disabled, boolean highlighted) {
+        drawContext.drawGuiTexture(
+                RenderPipelines.GUI_TEXTURED,
+                disabled ?
+                    Identifier.ofVanilla("widget/button_disabled") :
+                    (highlighted ?
+                            Identifier.ofVanilla("widget/button_highlighted") :
+                            Identifier.ofVanilla("widget/button")
+                ),
+                x, y, width, height);
     }
 
 }

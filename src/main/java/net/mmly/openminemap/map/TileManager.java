@@ -9,10 +9,7 @@ import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.MapScreen;
-import net.mmly.openminemap.util.ColorUtil;
-import net.mmly.openminemap.util.ConfigFile;
-import net.mmly.openminemap.util.DrawableMapTile;
-import net.mmly.openminemap.util.TileUrlFile;
+import net.mmly.openminemap.util.*;
 
 import java.awt.*;
 import java.io.File;
@@ -27,7 +24,7 @@ import java.util.function.Supplier;
 public class TileManager {
 
     private static MinecraftClient mc = MinecraftClient.getInstance();
-    protected static HashMap<String, Identifier> dyLoadedTiles = new HashMap<>();
+    private static HashMap<String, Identifier> dyLoadedTiles = new HashMap<>();
     public static boolean doArtificialZoom;
     public static boolean doReverseScroll;
     public static double mouseZoomStrength;
@@ -54,13 +51,6 @@ public class TileManager {
     public static Identifier getLoadingIdentifier() { //tile used for out of bounds tiles
         return Identifier.of("openminemap", "loadingtile.png");
     }
-
-    public static int[] getTopLeftData() {
-        return new int[] {leftMostX, topMostY};
-    }
-
-    private static int leftMostX;
-    private static int topMostY;
 
     private static void registerQueue() {
         //System.out.println("Register Queue:"+TileLoaderManager.tileRegisteringQueue.size());
@@ -134,6 +124,12 @@ public class TileManager {
         return (x < 0 || y < 0 || x > Math.pow(2, zoom) - 1 || y > Math.pow(2, zoom) - 1);
     }
 
+    public static Identifier getLoadedTileIdentifier(int x, int y, int zoom) {
+        String key = getKey(zoom, x, y);
+        if (dyLoadedTiles.containsKey(key)) return dyLoadedTiles.get(key);
+        else return getLoadingIdentifier();
+    }
+
     public static void createOpenminemapDir() {
         try { // create or open the base openminemap file for caching
             File ommDirectory = new File(TileManager.getRootFile() + "openminemap");
@@ -168,9 +164,9 @@ public class TileManager {
         }
     }
 
-    public static void setCacheDir() {
+    public static void setBaseRasterDirectory() {
         //purgeOldFiles();
-        cacheName = TileUrlFile.getCurrentUrl().name;
+        cacheName = RasterProvider.getCurrentBaseRaster().name;
         try { // create or open the base openminemap file for caching
             File cacheDirectory = new File(TileManager.getRootFile() + "openminemap/"+cacheName+"/");
             if (cacheDirectory.mkdir()) { //if directory does not exist
@@ -200,33 +196,6 @@ public class TileManager {
         }
         dyLoadedTiles.clear();
         TileLoader.resetCacheSize();
-    }
-
-    private static final String[] toPurge = new String[] {
-            "0", "1", "2",
-            "3", "4", "5",
-            "6", "7", "8",
-            "9", "10", "11",
-            "13", "12", "11",
-            "12", "13", "14",
-            "15", "16", "17", "18"
-    };
-
-    public static void clearCacheDir() {
-        try {
-            for (int i = 0; i < 19; i++) {
-                try {
-                    File cacheDirectory = new File(TileManager.getRootFile() + "openminemap/" + i);
-                    for (File subfile : cacheDirectory.listFiles()) {
-                        subfile.delete();
-                    }
-                } catch (Exception e) {
-                    //System.out.println(Text.literal("OMM Directory Error: " + e));
-                }
-            }
-        } catch (Exception e) {
-
-        }
     }
 
     public static void loadTopTile() {
@@ -340,6 +309,19 @@ public class TileManager {
             dyLoadedTiles.put(thisKey, getLoadingIdentifier());
         } else {
             throw new IOException();
+        }
+    }
+
+    public static void setTileUrl(TileUrl url) {
+        setTileUrl(url, false);
+    }
+
+    public static void setTileUrl(TileUrl url, boolean forceSetUrl) {
+        if (url != RasterProvider.getCurrentBaseRaster() || forceSetUrl) {
+            ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, url.name);
+            RasterProvider.setCurrentBaseRaster(url);
+            setBaseRasterDirectory();
+            TileManager.themeColor = 0xFF808080;
         }
     }
 

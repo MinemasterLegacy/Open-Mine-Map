@@ -16,8 +16,6 @@ import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.RequestManager;
-import net.mmly.openminemap.maps.OmmMap;
-import net.mmly.openminemap.util.UnitConvert;
 import org.lwjgl.glfw.GLFW;
 
 import java.time.Duration;
@@ -26,12 +24,10 @@ public class SearchResultLayer extends ClickableWidget {
 
     private int resultNumber;
     private SearchResult myResult;
-    private int yPos;
 
     public SearchResultLayer(int x, int y, int width, int resultNumber) {
         super(x, y, width, 20, Text.of(""));
         this.resultNumber = resultNumber;
-        yPos = y;
         this.setTooltipDelay(Duration.ofMillis(500));
     }
 
@@ -44,8 +40,6 @@ public class SearchResultLayer extends ClickableWidget {
         myResult = result;
         if (result == null) {
             setY(-50);
-        } else {
-            setY(yPos);
         }
     }
 
@@ -60,7 +54,7 @@ public class SearchResultLayer extends ClickableWidget {
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFFFF0000);
 
-        if (!MapScreen.getSearchMenuState() || myResult == null) {
+        if (!MapScreen.getSearchMenuState() || myResult == null || !SearchBoxLayer.isResultVisible(resultNumber)) {
             visible = false;
             return;
         }
@@ -68,7 +62,10 @@ public class SearchResultLayer extends ClickableWidget {
 
         context.fill(getX(), getY(), getX() + width, getY() + height, MapScreen.backingColor);
         context.fill(getX(), getY(), getX() + 4, getY() + height, getResultColor());
-        if (isFocused()) UContext.drawBorder(getX(), getY(), width, height, getResultColor());
+        if (isFocused()) {
+            UContext.drawBorder(getX(), getY(), width, height, getResultColor());
+            MapScreen.map.setFocusedResult(resultNumber);
+        }
 
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
         context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), true);
@@ -96,18 +93,7 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
-        if (myResult.resultType.isSearchType()) context.drawTexture(
-                RenderPipelines.GUI_TEXTURED,
-                Identifier.of("openminemap", "search/photon.png"),
-                getX() + getWidth() - 34,
-                getY() + 3,
-                0,
-                0,
-                14,
-                14,
-                14,
-                14);
-        else if (myResult.historic) context.drawTexture(
+        if (myResult.historic) context.drawTexture(
                 RenderPipelines.GUI_TEXTURED,
                 Identifier.of("openminemap", "search/history.png"),
                 getX() + getWidth() - 32,
@@ -119,6 +105,18 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
+        else if (myResult.resultType.isSearchType()) context.drawTexture(
+                RenderPipelines.GUI_TEXTURED,
+                Identifier.of("openminemap", "search/photon.png"),
+                getX() + getWidth() - 34,
+                getY() + 3,
+                0,
+                0,
+                14,
+                14,
+                14,
+                14);
+
     }
 
     @Override
@@ -131,7 +129,17 @@ public class SearchResultLayer extends ClickableWidget {
         return myResult.resultType == type;
     }
 
+    public boolean isHistoric() {
+        if (myResult == null) return false;
+        return myResult.historic;
+    }
+
     private void goToResult() {
+
+        if (myResult.historic) {
+            SearchBoxLayer.showHistoricResult(myResult);
+            return;
+        }
 
         if (myResult.resultType == SearchResultType.SEARCH) {
             RequestManager.setSearchRequest(MapScreen.getInstance().getSearchBoxContents());
@@ -147,57 +155,12 @@ public class SearchResultLayer extends ClickableWidget {
             return;
         }
 
-        MapScreen.followPlayer(false);
-
-        if (myResult.bounds != null) {
-            goAndZoomToResult(myResult.bounds);
-            return;
+        if (myResult.resultType == SearchResultType.COORDINATES) {
+            MapScreen.map.displaySearchResults(new SearchResult[]{myResult});
+            MapScreen.map.setFocusedResult(0);
         }
 
-        MapScreen.map.setMapLatLong(myResult.latitude, myResult.longitude);
-
-        if (myResult.zoom != -1) {
-            MapScreen.map.setMapZoom(myResult.zoom);
-        }
-        MapScreen.map.clampZoom();
-
-    }
-
-    private static final double log2 = Math.log(2);
-    private void goAndZoomToResult(double[] bounds) { // for bounds: length is 4, first 2 are lat, last 2 are long
-        OmmMap map = MapScreen.map;
-
-        double areaWidth = Math.abs(
-                UnitConvert.longToMapX(bounds[2], 0, 128) -
-                UnitConvert.longToMapX(bounds[3], 0, 128)
-        );
-        double areaHeight = Math.abs(
-                UnitConvert.latToMapY(bounds[0], 0, 128) -
-                UnitConvert.latToMapY(bounds[1], 0, 128)
-        );
-
-        double percentage = (Math.max(areaHeight, areaWidth) / 128) * 1.15; //multiply by 1.15 to add some empty space around the focused area
-
-        /*
-        System.out.println(
-                map.getRenderAreaWidth() + "\t" +
-                map.getRenderAreaHeight() + "\t" +
-                percentage + "\t" +
-                Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2
-        );
-        */
-
-        //System.out.println(Arrays.toString(bounds));
-
-        map.setMapZoom(
-                Math.log( Math.min(map.getRenderAreaHeight(), map.getRenderAreaWidth()) / (128 * percentage) ) / log2
-        );
-
-        double areaCenterLat = (bounds[0] + bounds[1]) / 2;
-        double areaCenterLon = (bounds[2] + bounds[3]) / 2;
-
-        map.setMapLatLong(areaCenterLat, areaCenterLon);
-
+        myResult.focusOnMapViaSearchMenu();
     }
 
     @Override
@@ -216,6 +179,12 @@ public class SearchResultLayer extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        SearchBoxLayer.scrollMenu(verticalAmount);
+        return false;
     }
 
     @Override

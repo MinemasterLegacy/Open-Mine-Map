@@ -1,0 +1,94 @@
+{
+    "sources": [
+        {
+            "comment": "Placeholder for the hard-coded OpenMineMap preset",
+            "templateId": 0,
+            "name": "OpenMineMap",
+            "source_url": "",
+            "attribution": "",
+            "attribution_links": [""]
+        },
+        {
+            "templateId": 1,
+            "name": "Humanitarian",
+            "source_url": "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+            "attribution": "Tiles style by {Humanitarian OpenStreetMap Team} hosted by {OpenStreetMap France.}",
+            "attribution_links": [
+                "https://www.hotosm.org",
+                "https://www.openstreetmap.fr"
+            ]
+        },
+        {
+            "templateId": 2,
+            "name": "CyclOSM",
+            "source_url": "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
+            "attribution": "{Leaflet} | {CyclOSM}",
+            "attribution_links": [
+                "https://leafletjs.com",
+                "https://www.cyclosm.org"
+            ]
+        },
+        {
+            "templateId": 3,
+            "name": "ÖPNVKarte",
+            "source_url": "https://tile.memomaps.de/tilegen/{z}/{x}/{y}.png",
+            "attribution": "Operated by {MeMoMaps}",
+            "attribution_links": [
+                  "https://memomaps.de/en/homepage/"
+            ]
+        },
+        {
+            "templateId": 4,
+            "name": "OpenTopoMap",
+            "source_url": "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+            "attribution": "DEM: {SRTM}, {Sonny} | map style: © {OpenTopoMap} ({CC-BY-SA})",
+            "attribution_links": [
+                  "http://viewfinderpanoramas.org/",
+                  "https://sonny.4lima.de/",
+                  "https://opentopomap.org/",
+                  "https://creativecommons.org/licenses/by-sa/3.0/"
+            ]
+        },
+        {
+            "templateId": 5,
+            "name": "MapBox Streets",
+            "source_url": "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.png?access_token={t}",
+            "attribution": "{MapBox}",
+            "attribution_links": [
+              "https://www.mapbox.com/about/maps/"
+            ]
+        },
+        {
+            "templateId": 6,
+            "name": "MapBox Satellite",
+            "source_url": "https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token={t}",
+            "attribution": "{MapBox}",
+            "attribution_links": [
+              "https://www.mapbox.com/about/maps/"
+            ]
+        },
+        {
+            "templateId": 7,
+            "name": "Alidade Smooth",
+            "source_url": "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png?api_key={t}",
+            "attribution": "{MapLibre} | {© Stadia Maps} {© OpenMapTiles}",
+            "attribution_links": [
+                "https://maplibre.org/",
+                "https://stadiamaps.com/",
+                "https://openmaptiles.org/"
+            ]
+        },
+        {
+            "templateId": 8,
+            "name": "Alidade Smooth Dark",
+            "source_url": "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png?api_key={t}",
+            "attribution": "{MapLibre} | {© Stadia Maps} {© OpenMapTiles}",
+            "attribution_links": [
+              "https://maplibre.org/",
+              "https://stadiamaps.com/",
+              "https://openmaptiles.org/"
+            ]
+        }
+
+    ]
+}

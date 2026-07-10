@@ -64,13 +64,6 @@ public class RightClickMenu extends ClickableWidget {
         RightClickMenuOption.EDIT_WAYPOINT,
         RightClickMenuOption.SET_SNAP_ANGLE
     };
-    private static final RightClickMenuOption[] waypointMenuOptionMinusAngle = {
-        RightClickMenuOption.NAME,
-        RightClickMenuOption.TELEPORT_HERE,
-        RightClickMenuOption.COPY_COORDINATES,
-        RightClickMenuOption.OPEN_IN,
-        RightClickMenuOption.EDIT_WAYPOINT
-    };
     private static final RightClickMenuOption[] pinnedWaypointOptions = {
         RightClickMenuOption.NAME,
         RightClickMenuOption.TELEPORT_HERE,
@@ -80,15 +73,6 @@ public class RightClickMenu extends ClickableWidget {
         RightClickMenuOption.VIEW_ON_MAP,
         RightClickMenuOption.UNPIN,
         RightClickMenuOption.SET_SNAP_ANGLE
-    };
-    private static final RightClickMenuOption[] pinnedWaypointOptionsMinusSnap = {
-        RightClickMenuOption.NAME,
-        RightClickMenuOption.TELEPORT_HERE,
-        RightClickMenuOption.COPY_COORDINATES,
-        RightClickMenuOption.OPEN_IN,
-        RightClickMenuOption.EDIT_WAYPOINT,
-        RightClickMenuOption.VIEW_ON_MAP,
-        RightClickMenuOption.UNPIN
     };
     private static final RightClickMenuOption[] defaultOptions = {
         RightClickMenuOption.TELEPORT_HERE,
@@ -121,27 +105,18 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     private ArrayList<RightClickMenuOption> getMenuOptions(RightClickMenuType type, boolean withSnapAngle) {
-        RightClickMenuOption[] options = determineOption(type, withSnapAngle);
+        RightClickMenuOption[] options = determineOption(type);
         ArrayList<RightClickMenuOption> list = new ArrayList<>(Arrays.asList(options));
         if (ConfigOptions.WEB_OPTIONS.getAsString().isEmpty()) list.remove(RightClickMenuOption.OPEN_IN);
+        if (!withSnapAngle) list.remove(RightClickMenuOption.SET_SNAP_ANGLE);
         return list;
     }
 
-    private static RightClickMenuOption[] determineOption(RightClickMenuType type, boolean withSnapAngle) {
-        if (type == RightClickMenuType.WAYPOINT) {
-            if (withSnapAngle) return waypointMenuOptions;
-            else return waypointMenuOptionMinusAngle;
-        }
-        if (type == RightClickMenuType.PINNED_WAYPOINT) {
-            if (withSnapAngle) return pinnedWaypointOptions;
-            else return pinnedWaypointOptionsMinusSnap;
-        }
-        if (type == RightClickMenuType.SCREEN_WAYPOINT) {
-            return waypointScreenOptions;
-        }
-        if (type == RightClickMenuType.SEARCH_LOCATION) {
-            return searchLocationOption;
-        }
+    private static RightClickMenuOption[] determineOption(RightClickMenuType type) {
+        if (type == RightClickMenuType.WAYPOINT) return waypointMenuOptions;
+        if (type == RightClickMenuType.PINNED_WAYPOINT) return pinnedWaypointOptions;
+        if (type == RightClickMenuType.SCREEN_WAYPOINT) return waypointScreenOptions;
+        if (type == RightClickMenuType.SEARCH_LOCATION) return searchLocationOption;
         return defaultOptions;
     }
 

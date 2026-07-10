@@ -50,9 +50,13 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         if (verticalAmount < 0) {
             scrollOffset++;
         }
-        scrollOffset = Math.clamp(scrollOffset, 0, Math.max(0, pinnedWaypoints.length - visibleWaypointCount));
+        clampScroll();
 
         return false;
+    }
+
+    public void clampScroll() {
+        scrollOffset = Math.clamp(scrollOffset, 0, Math.max(0, pinnedWaypoints.length - visibleWaypointCount));
     }
 
     public void drawWidget(DrawContext context) {
@@ -75,8 +79,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
             }
         }
 
-        int y = getY();
-
+        clampScroll();
         for (int i = 0; i < Math.min(pinnedWaypoints.length, visibleWaypointCount); i++) {
             context.drawTexture(RenderLayer::getGuiTextured, pinnedWaypoints[i+scrollOffset].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
         }

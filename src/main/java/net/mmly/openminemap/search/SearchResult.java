@@ -52,7 +52,7 @@ public class SearchResult {
     }
 
     public NamedLocation asLocation() {
-        return new NamedLocation(name, latitude, longitude);
+        return new NamedLocation(name, latitude, longitude, -1);
     }
 
     public void focusOnMapViaSearchMenu() {

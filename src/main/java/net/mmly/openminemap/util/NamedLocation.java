@@ -6,9 +6,10 @@ public class NamedLocation {
     public String name;
     public double angle;
 
-    public NamedLocation(String name, double latitude, double longitude) {
+    public NamedLocation(String name, double latitude, double longitude, double angle) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.angle = angle;
     }
 }

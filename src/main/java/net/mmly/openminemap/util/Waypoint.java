@@ -6,7 +6,6 @@ import net.mmly.openminemap.waypoint.WaypointStyle;
 public class Waypoint extends NamedLocation{
 
     public Identifier identifier;
-    public double angle;
     public String style;
     public boolean pinned;
     public boolean visible;
@@ -15,7 +14,7 @@ public class Waypoint extends NamedLocation{
     //mapxy here refer to the position at the lowest possible zoom level (18)
 
     public Waypoint(String style, double latitude, double longitude, int colorHSV, double angle, String name, boolean pinned, boolean visible) {
-        super(name, latitude, longitude);
+        super(name, latitude, longitude, angle);
         WaypointStyle sty;
         try {
             sty = WaypointStyle.getByString(style);
@@ -24,7 +23,6 @@ public class Waypoint extends NamedLocation{
         }
         identifier = ColorUtil.getColoredIdentifier(Identifier.of("openminemap", "waypoints/"+sty.name().toLowerCase()+".png"), colorHSV);
 
-        this.angle = angle;
         this.pinned = pinned;
         this.visible = visible;
         this.color = colorHSV;

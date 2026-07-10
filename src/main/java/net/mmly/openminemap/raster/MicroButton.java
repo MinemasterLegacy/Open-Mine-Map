@@ -3,6 +3,7 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
@@ -18,7 +19,7 @@ public class MicroButton extends ClickableWidget {
     public final MicroButtonFunction buttonFunction;
     private RasterLayerWidget parentWidget;
     public final LayerType layerType;
-    private boolean flash = false;
+    private boolean apiKeyNeeded = false;
     private boolean disabaled = false;
 
     public MicroButton(int x, int y, MicroButtonFunction function, LayerType layerType) {
@@ -51,7 +52,16 @@ public class MicroButton extends ClickableWidget {
                 buttonFunction.getTexture(disabaled ? ButtonState.LOCKED : isMouseOver(mouseX, mouseY) ? ButtonState.HOVER : ButtonState.DEFAULT),
                 getX(), getY(), width, height, 12, 12);
 
-        if (flash) drawFlash();
+        if (apiKeyNeeded) {
+            drawFlash();
+            if (parentWidget.isHovered()) UContext.getContext().drawTooltip(
+                    MinecraftClient.getInstance().textRenderer,
+                    Text.translatable("omm.raster.requires-api-key"),
+                    mouseX,
+                    mouseY
+            );
+        }
+
     }
 
     @Override
@@ -59,16 +69,21 @@ public class MicroButton extends ClickableWidget {
 
     }
 
-    public void setFlash(boolean flash) {
-        this.flash = flash;
+    public void setApiKeyNeeded(boolean apiKeyNeeded) {
+        this.apiKeyNeeded = apiKeyNeeded;
     }
 
     private void drawFlash() {
         int alpha = Math.abs(((int) (Util.getEpochTimeMs() >>> 3) % 256) + 128);
         int color = ColorUtil.setAlpha(alpha, 0xFFFFFFFF);
-        UContext.fillZone(getX() + 1, getY(), getWidth() - 2, getHeight(), color);
-        UContext.fillZone(getX(), getY() + 1, 1, getHeight() - 2, color);
-        UContext.fillZone(getRight() - 1, getY() + 1, 1, getHeight() - 2, color);
+        if (ButtonLayer.texturedButtons) {
+            UContext.fillZone(getX() + 1, getY(), getWidth() - 2, getHeight(), color);
+            UContext.fillZone(getX(), getY() + 1, 1, getHeight() - 2, color);
+            UContext.fillZone(getRight() - 1, getY() + 1, 1, getHeight() - 2, color);
+        } else {
+            UContext.fillWidget(this, color);
+        }
+
     }
 
     @Override

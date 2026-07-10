@@ -67,7 +67,7 @@ public class RasterLayerWidget extends ClickableWidget {
         if (url != null) {
             if (url.hasKeyField()) {
                 if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen) showKey = true;
-                if (!RasterApiKeysFile.hasApiKey(url.presetID)) microButtons[0].setFlash(true);
+                if (!RasterApiKeysFile.hasApiKey(url.presetID)) microButtons[0].setApiKeyNeeded(true);
             }
 
             if (layerType == LayerType.OVERLAY && MinecraftClient.getInstance().currentScreen instanceof ViewSetRastersScreen) {

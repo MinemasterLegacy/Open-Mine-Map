@@ -32,8 +32,6 @@ public class BaseRasterScreen extends RasterScreen {
 
     @Override
     protected void init() {
-        super.init();
-
         confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
             try {
                 if (getSelectedLayerWidget().raster.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().raster.presetID)) return;
@@ -43,6 +41,7 @@ public class BaseRasterScreen extends RasterScreen {
         }).width(200).build();
         this.addDrawableChild(confirmButton);
 
+        super.init();
     }
 
     @Override

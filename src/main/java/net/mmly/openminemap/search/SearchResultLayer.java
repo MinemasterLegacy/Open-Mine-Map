@@ -153,7 +153,7 @@ public class SearchResultLayer extends ClickableWidget {
         }
 
         if (myResult.resultType == SearchResultType.COORDINATES) {
-            MapScreen.map.displaySearchResults(new SearchResult[]{myResult});
+            MapScreen.map.setSearchResults(new SearchResult[]{myResult});
             MapScreen.map.setFocusedResult(0);
         }
 

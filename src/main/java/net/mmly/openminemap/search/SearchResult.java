@@ -64,9 +64,9 @@ public class SearchResult {
         }
 
         MapScreen.map.setMapLatLong(latitude, longitude);
-        MapScreen.map.setMapCenterPosition(MapScreen.map.getMapCenterX() - ((double) SearchBoxLayer.getInstance().getRight() / 2), MapScreen.map.getMapCenterY());
+        MapScreen.map.setMapCenterX(MapScreen.map.getMapCenterX() - ((double) SearchBoxLayer.getInstance().getRight() / 2));
 
-        if (zoom != -1) {
+        if (zoom > 0) {
             MapScreen.map.setMapZoom(zoom);
         }
         MapScreen.map.clampZoom();

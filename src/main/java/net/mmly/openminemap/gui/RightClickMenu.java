@@ -322,7 +322,7 @@ public class RightClickMenu extends ClickableWidget {
             );
         }
 
-        if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 7, (int) clickY - 14, 14, 14);
+        if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 5, (int) clickY - 14, 10, 14);
 
     }
 

@@ -1,10 +1,12 @@
 package net.mmly.openminemap.hud;
 
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -12,6 +14,7 @@ import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.map.TileManager;
@@ -20,6 +23,8 @@ import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.WaypointFile;
+
+import java.util.Locale;
 
 public class HudMap {
 
@@ -87,6 +92,18 @@ public class HudMap {
         WaypointFile.setWaypointsOfThisWorld(true);
 
         showBorder = ConfigOptions.HUDMAP_BORDER.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
+
+        if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) {
+            MinecraftClient.getInstance().player.sendMessage(
+                    Text.literal("Openminemap: ").formatted(Formatting.DARK_GREEN).formatted(Formatting.BOLD).append(
+                            Text.literal("Press  " +
+                            KeyBindingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getLocalizedText().getString().toUpperCase(Locale.US) +
+                            "  to open the Fullscreen Map").formatted(Formatting.RESET).formatted(Formatting.BLUE)
+                    )
+            , false);
+            ConfigFile.writeParameter(ConfigOptions._FIRST_SESSION_TIP_GIVEN, "true");
+        }
+
     }
 
     public static void zoomIn() {

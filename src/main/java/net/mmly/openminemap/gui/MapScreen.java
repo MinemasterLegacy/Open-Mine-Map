@@ -462,6 +462,10 @@ public class MapScreen extends Screen { //Screen object that represents the full
                 arrowNavigateSearch(keyCode);
                 return true;
             } else {
+                if (keyCode == GLFW.GLFW_KEY_TAB) {
+                    toggleSearchMenu(false);
+                    return true;
+                }
                 return super.keyPressed(keyCode, scanCode, modifiers);
             }
         }
@@ -478,7 +482,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
             toggleSearchMenu(true);
             return true;
         }
-
 
         map.keyNavigate(keyCode, modifiers);
 
@@ -660,7 +663,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
             UContext.fillAndDrawText(text, (windowScaledWidth / 2) - (width / 2) - 3, 0, 3, 3, backingColor, plainTextColor, false);
         }
 
-        if (altKeyPressed && ConfigOptions.__ALT_INFO_TOOLTIP.getAsBooleanFromValues(ConfigOptions.Values.TRUE_FALSE)) {
+        if (altKeyPressed && ConfigOptions.__ALT_INFO_TOOLTIP.getAsBoolean()) {
             context.drawTooltip(textRenderer, map.getAtTooltipList(), mouseX, mouseY);
         }
 

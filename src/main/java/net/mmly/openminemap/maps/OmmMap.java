@@ -633,6 +633,11 @@ public class OmmMap extends ClickableWidget {
         showSearchResults = false;
     }
 
+    public void setSearchResults(SearchResult[] results) {
+        searchResults = results;
+        showSearchResults = true;
+    }
+
     public void displaySearchResults(SearchResult[] results) {
         double minLat = 90;
         double maxLat = -90;
@@ -648,8 +653,7 @@ public class OmmMap extends ClickableWidget {
         }
 
         goAndZoomToBounds(new double[] {minLat, maxLat, minLon, maxLon}, true);
-        searchResults = results;
-        showSearchResults = true;
+        setSearchResults(results);
     }
 
     @Override
@@ -835,12 +839,12 @@ public class OmmMap extends ClickableWidget {
         hoveredResultId = -1;
         for (int i = 0 ; i < searchResults.length ; i++) {
             if (searchResults[i] == null) return;
-            int x = getWindowRelativeX(UnitConvert.longToMapX(searchResults[i].longitude, zoom, tileSize), WAYPOINTSIZE / 2);
-            int y = getWindowRelativeY(UnitConvert.latToMapY(searchResults[i].latitude, zoom, tileSize), WAYPOINTSIZE / 2);
+            int x = getWindowRelativeX(UnitConvert.longToMapX(searchResults[i].longitude, zoom, tileSize), 0);
+            int y = getWindowRelativeY(UnitConvert.latToMapY(searchResults[i].latitude, zoom, tileSize), 0);
             //int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
             //int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
 
-            if (mouseX >= x - 1 && mouseX <= x + 8 && mouseY >= y - 10 && mouseY <= y + 4) {
+            if (mouseX >= x - 5 && mouseX < x + 5 && mouseY >= y - 14 && mouseY < y) {
                 hoveredResultId = i;
                 return;
             }
@@ -848,13 +852,13 @@ public class OmmMap extends ClickableWidget {
     }
 
     private void drawSearchResultLocation(SearchResult location, boolean highlight) {
+        int x = getWindowRelativeX(UnitConvert.longToMapX(location.longitude, zoom, tileSize), 5);
+        int y = getWindowRelativeY(UnitConvert.latToMapY(location.latitude, zoom, tileSize), 14);
         UContext.drawTexture(
                 Identifier.of("openminemap", highlight ? "locationhighlight.png" : "location.png"),
-                getWindowRelativeX(UnitConvert.longToMapX(location.longitude, zoom, tileSize), 7),
-                getWindowRelativeY(UnitConvert.latToMapY(location.latitude, zoom, tileSize), 14),
-                14,
-                14,
-                14,
+                x,
+                y,
+                10,
                 14
         );
     }

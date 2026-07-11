@@ -21,6 +21,7 @@ import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.KeyInputHandler;
+import net.mmly.openminemap.http.MapType;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.map.TileLoader;
@@ -101,6 +102,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static int semiDarkTextColor = 0xFF7f7f7f;
     private static int darkTextColor = 0xFF3f3f3f;
     private static boolean altKeyPressed = false;
+    public static boolean semiTransparentUi = false;
 
     public static void setPlainTextColor(int argb, boolean checkForRainbowText) {
         if (checkForRainbowText) textIsRainbow = (argb == 0xFF7f7f7f);
@@ -331,8 +333,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
             this.addDrawableChild(searchResultLayers[i]);
         }
 
-        networkStatusLayer = new NetworkStatusLayer(width - 26, 0);
-        this.addDrawableChild(networkStatusLayer);
+        networkStatusLayer = new NetworkStatusLayer(0, 0);
 
         searchButtonLayer = new SearchButtonLayer(3, 3);
         this.addDrawableChild(searchButtonLayer);
@@ -417,6 +418,13 @@ public class MapScreen extends Screen { //Screen object that represents the full
         toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
         toggleClaimRenderingButtonLayer.setPosition(windowScaledWidth - 50, windowScaledHeight - 57);
         bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
+
+        if (networkStatusLayer.shouldBeVisible()) networkStatusLayer.setX(instance.width - 26);
+        else networkStatusLayer.setX(-100);
+    }
+
+    public static boolean renderSemiTransparentButtons() {
+        return semiTransparentUi;
     }
 
     private void arrowNavigateSearch(int code) {
@@ -620,7 +628,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
         map.setMouseZoomStrength(TileManager.mouseZoomStrength);
-        map.renderMap(context, null, false);
+        map.renderMap(context, null, MapType.FULLSCREEN);
 
         drawButtons(context);
 
@@ -730,7 +738,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
                 MinecraftClient.getInstance().getWindow().getScaledWidth(),
                 MinecraftClient.getInstance().getWindow().getScaledHeight()
         );
-        map.renderMap(context, null, false);
+        map.renderMap(context, null, MapType.FULLSCREEN);
 
     }
 

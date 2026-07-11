@@ -19,6 +19,7 @@ import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
+import net.mmly.openminemap.http.MapType;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.*;
 import net.mmly.openminemap.search.SearchBoxLayer;
@@ -82,8 +83,6 @@ public class OmmMap extends ClickableWidget {
     public int zoomFadeAlpha = 255;
 
     private boolean doArtificialZoom = true;
-    private boolean cropMapTiles = true;
-    private boolean cropPlayers = true;
     private boolean draggable = false;
     private boolean tooltipPlayerNames = false;
 
@@ -250,12 +249,6 @@ public class OmmMap extends ClickableWidget {
 
     public void setDraggable(boolean draggable) {
         this.draggable = draggable;
-    }
-    public void setCropMapTiles(boolean cropMapTiles) {
-        this.cropMapTiles = cropMapTiles;
-    }
-    public void setCropPlayers(boolean cropPlayers) {
-        this.cropPlayers = cropPlayers;
     }
     public void setArtificialZoom(boolean setTo) {
         doArtificialZoom = setTo;
@@ -451,6 +444,7 @@ public class OmmMap extends ClickableWidget {
 
     public void keyNavigate(int keyCode, int modifiers) {
         if (!draggable) return;
+        MapScreen.semiTransparentUi = false;
         //modifiers: bit 1 is shift, bit 2 is control, but 3 is alt
 
         modifiers %= 4;
@@ -482,6 +476,7 @@ public class OmmMap extends ClickableWidget {
 
     public void setMouseDown(boolean mouseDown) {
         this.mouseDown = mouseDown;
+        MapScreen.semiTransparentUi = false;
     }
 
     @Override
@@ -495,7 +490,7 @@ public class OmmMap extends ClickableWidget {
             return false;
         }
         if (button == 0) { //left click
-            mouseDown = true;
+            setMouseDown(true);
             mouseHoldX = mouseTileX;
             mouseHoldY = mouseTileY;
             leftClickProcedure.execute();
@@ -509,7 +504,7 @@ public class OmmMap extends ClickableWidget {
 
     @Override
     public void onRelease(double mouseX, double mouseY) {
-        mouseDown = false;
+        setMouseDown(false);
     }
 
     @Override
@@ -661,12 +656,12 @@ public class OmmMap extends ClickableWidget {
         // play no sound
     }
 
-    private void drawMap(DrawContext context, boolean isHudMap) {
+    private void drawMap(DrawContext context, MapType mapType) {
 
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);
 
-        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight, isHudMap);
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight, mapType);
         for (DrawableMapTile[] column : tiles) {
             for (DrawableMapTile tile : column) {
                 drawTile(context, tile);
@@ -1101,14 +1096,14 @@ public class OmmMap extends ClickableWidget {
 
     }
 
-    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
+    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, MapType mapType) {
 
         updateFields();
 
-        if (isHudMap && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
+        if (mapType == MapType.HUD && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
         else context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
 
-        drawMap(context, isHudMap); //draw the map tiles + background
+        drawMap(context, mapType); //draw the map tiles + background
 
         drawGeneratedOverlays(context);
 

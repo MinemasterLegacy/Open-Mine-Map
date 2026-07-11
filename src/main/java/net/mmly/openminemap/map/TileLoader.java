@@ -62,8 +62,24 @@ public class TileLoader extends Thread {
         }
     }
 
+    private static boolean lockExists(LoadableTile tile) {
+        return TileManager.lockFileOf(tile).exists();
+    }
+
+    private void waitForLock(LoadableTile tile) throws InterruptedException {
+        int msPassed = 0;
+        while (msPassed < 20) {
+            if (!lockExists(tile)) return;
+            sleep(1);
+            msPassed++;
+        }
+        OpenMineMap.LOGGER.warn("Lock for tile '" + tile.cache + "#" + tile.key + "' persisted for too long, will delete and attempt to read tile anyways.");
+        TileManager.lockFileOf(tile).delete();
+    }
+
     private InputStream loadTileFromDisk(LoadableTile tile) {
         try {
+            //waitForLock(tile);
             BufferedImage tileImage = ImageIO.read(new File(TileManager.getRootFile() + "openminemap/"+tile.cache+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png")); //get an image from /run/openminemap;
             if (tile.key.equals(TileManager.getKey(0, 0, 0)) && updateBackgoundColor) TileManager.themeColor = tileImage.getRGB(3, 3);
             ByteArrayOutputStream os = new ByteArrayOutputStream();

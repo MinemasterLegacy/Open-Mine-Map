@@ -18,7 +18,6 @@ import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
-import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
@@ -248,6 +247,7 @@ public class ConfigScreen extends Screen {
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__ALT_INFO_TOOLTIP, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__LOG_HTTP_REQUESTS, true));
         }
 
         configList.restoreScroll();
@@ -272,7 +272,6 @@ public class ConfigScreen extends Screen {
         MapScreen.map.tryLoadClaims();
         HudMap.loadConfigParameters();
         ConfigFile.writeToFile();
-        Requester.disableWebRequests = ConfigOptions.__DISABLE_WEB_REQUESTS.getAsBoolean();
         ButtonLayer.texturedButtons = ConfigOptions.BUTTON_STYLE.getAsBooleanFromValues(ConfigOptions.Values.BUTTON_STYLES);
         MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
     }

@@ -2,11 +2,11 @@ package net.mmly.openminemap.map;
 
 public class RequestableTile {
 
-    int x;
-    int y;
-    int zoom;
-    int proximityScore; //the lower the score, the closer the tile is to the center and the more it should be prioritised
-    String cacheName;
+    public int x;
+    public int y;
+    public int zoom;
+    public int proximityScore; //the lower the score, the closer the tile is to the center and the more it should be prioritised
+    public String cacheName;
 
     public RequestableTile(int x, int y, int tileZoom, int proximityScore, String cacheName) {
         this.x = x;

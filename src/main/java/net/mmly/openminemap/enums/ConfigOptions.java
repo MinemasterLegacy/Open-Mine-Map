@@ -56,7 +56,8 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     __SHOW_DEVELOPER_OPTIONS(2, "ShowDeveloperOptions", "false"),
     __DISABLE_WEB_REQUESTS(2, "DisableWebRequests", "false", "DisableWebRequests", ""),
     __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", ""),
-    __ALT_INFO_TOOLTIP(2, "AltInfoTooltip", "false", "AltInfoTooltip", "");
+    __ALT_INFO_TOOLTIP(2, "AltInfoTooltip", "false", "AltInfoTooltip", ""),
+    __LOG_HTTP_REQUESTS(2, "LogHttpRequests", "false", "LogHttpRequests", "");
 
     private final String defaultValue;
     private final String rawText;

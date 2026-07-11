@@ -6,7 +6,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -15,8 +14,8 @@ import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.KeyInputHandler;
+import net.mmly.openminemap.http.MapType;
 import net.mmly.openminemap.map.PlayerAttributes;
-import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
@@ -157,9 +156,9 @@ public class HudMap {
             OpenMineMapClient.debugMessages.removeFirst();
         }
 
-        RequestManager.setMapType(MinecraftClient.getInstance().currentScreen == null);
+        //OldRequestManager.setMapType(MinecraftClient.getInstance().currentScreen == null);
 
-        //now do actuall hudmap stuff
+        //now do actual hudmap stuff
         if (!initialized) initialize(context); //initialize hudmap if not done already
         if (TileManager.themeColor == 0xFF808080) TileManager.loadTopTile();
 
@@ -192,7 +191,7 @@ public class HudMap {
         }
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
-        map.renderMap(context, null, true);
+        map.renderMap(context, null, MapType.HUD);
 
         //0xD9D9D9
         if (PlayerAttributes.positionIsValid() && showCompass) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)

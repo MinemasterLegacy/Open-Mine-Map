@@ -9,6 +9,8 @@ import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.http.MapType;
+import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.util.*;
 
 import java.awt.*;
@@ -82,15 +84,15 @@ public class TileManager {
         }
     }
 
-    public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int tileRenderSize, int renderAreaWidth, int renderAreaHeight, boolean isHudMap) {
+    public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int tileRenderSize, int renderAreaWidth, int renderAreaHeight, MapType mapType) {
         /*  mapTileXY: the map coorinates of the center of the screen | map coordinate range is 128 * 2^(zoom+1)
          *  mapZoom: the zoom level of the map
          *  windowHeightXY: [scaled] height and width of window
          *  tileRenderSize: the size of each tile, usually 128 but can change with artificial zoom */
 
         registerQueue();
-        RequestManager.setMapCenter(mapPosX, mapPosY, isHudMap);
-        RequestManager.resetCandidate();
+        //OldRequestManager.setMapCenter(mapPosX, mapPosY, isHudMap);
+        RequestManager.clearCandidateTile();
 
         int leftBorder = (-renderAreaWidth / 2) + mapPosX;
         int rightBorder = (renderAreaWidth / 2) - mapPosX;
@@ -107,11 +109,11 @@ public class TileManager {
         for (int j = 0; j < tileCountX; j++) {
             for (int k = 0; k < tileCountY; k++) {
                 tiles[j][k] = /*new DrawableMapTile(*/
-                        getDrawableTile(firstTileX + j, firstTileY + k, mapZoom, tileRenderSize, isHudMap);
+                        getDrawableTile(firstTileX + j, firstTileY + k, mapZoom, tileRenderSize, mapType);
             }
         }
 
-        RequestManager.pushRequest(isHudMap);
+        RequestManager.pushTileRequest(mapType);
         if (!tileLoadQueue.isEmpty()) {
             new TileLoader(tileLoadQueue.toArray(new LoadableTile[0])).start();
             tileLoadQueue.clear();
@@ -198,10 +200,10 @@ public class TileManager {
     }
 
     public static void loadTopTile() {
-        getDrawableTile(0, 0, 0, 128, RequestManager.hudMapIsPrimary);
+        getDrawableTile(0, 0, 0, 128, RequestManager.currentPriorityMapType());
     }
 
-    private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize, boolean isHudMap) {
+    private static DrawableMapTile getDrawableTile(int tileX, int tileY, int mapZoom, int tileRenderSize, MapType mapType) {
         //tileXY do not refer to their pixel positions, they refer to their tile grid positions
         try {
             String thisKey = getKey(mapZoom, tileX, tileY);
@@ -231,7 +233,7 @@ public class TileManager {
             } catch (IOException e) {
 
                 //RequestManager.trySetRequest(tileX, tileY, mapZoom);
-                RequestManager.consider(tileX, tileY, mapZoom, tileRenderSize, isHudMap);
+                RequestManager.considerTile(tileX, tileY, mapZoom, tileRenderSize, mapType);
             }
 
             int zoomToTry = mapZoom - 1;
@@ -300,7 +302,7 @@ public class TileManager {
         if (dyLoadedTiles.containsKey(thisKey)) return;
 
         File f = new File(getRootFile() + "openminemap/"+cacheName+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png");
-        if (tile.sameTileAs(RequestManager.pendingRequest)) {
+        if (tile.sameTileAs(RequestManager.getPendingRequest())) {
             return; // Tile is currently being requested/written, so act as if it doesn't exist and return for now
         } else if (f.exists()) { //If file does exist, load it and register it to be used
             //System.out.println("Loading Tile: " + thisKey);
@@ -334,6 +336,10 @@ public class TileManager {
         String textColor = ConfigOptions.TEXT_COLOR.getAsString();
         if (textColor.equals("rainbow")) MapScreen.setPlainTextColor(0xFF7f7f7f, true);
         else MapScreen.setPlainTextColor(Color.decode(textColor).getRGB(), false);
+    }
+
+    public static File lockFileOf(LoadableTile tile) {
+        return new File(TileManager.getRootFile() + "openminemap/"+tile.cache+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".lock");
     }
 
 }

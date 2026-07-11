@@ -19,9 +19,9 @@ import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.event.KeyInputHandler;
+import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayersManager;
-import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
@@ -415,7 +415,7 @@ public class RightClickMenu extends ClickableWidget {
             }
             case REVERSE_SEARCH: {
                 MapScreen.addNotification(new Notification(Text.translatable("omm.notification.searching")));
-                RequestManager.setReverseSearchRequest(savedMouseLat, savedMouseLong);
+                RequestManager.reverseSearch(savedMouseLat, savedMouseLong);
                 break;
             }
             case NAME: {

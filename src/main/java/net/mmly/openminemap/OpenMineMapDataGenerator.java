@@ -94,7 +94,6 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.fullscreen.hud-toggle.enabled", "Currently Enabled");
         translationBuilder.add("omm.fullscreen.hud-toggle.disabled", "Currently Disabled");
         translationBuilder.add("omm.hud.out-of-bounds", "Out Of Bounds");
-        translationBuilder.add("omm.error.tile-url.start", "OpenMineMap Tile Urls");
         translationBuilder.add("omm.error.tile-source-json-formatting", "tileSources.json is formatted incorrectly.");
         translationBuilder.add("omm.error.blank-tile-url", "Blank TileUrl detected. This may be due to invalid file formatting.");
         translationBuilder.add("omm.error.blank-field", "At least one required field is blank.");
@@ -234,6 +233,7 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.state.dynamic", "Dynamic");
         translationBuilder.add("omm.config.option.teleport-method", "Teleport Method");
         translationBuilder.add("omm.config.tooltip.teleport-method", "The command that will be prioritized when teleporting. Dynamic uses /tp in singleplayer and /tpll in multiplayer.");
+        translationBuilder.add("omm.error.tile-url.start", "OpenMineMap Rasters");
 
     }
 }

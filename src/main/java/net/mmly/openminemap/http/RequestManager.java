@@ -1,6 +1,7 @@
 package net.mmly.openminemap.http;
 
 import net.minecraft.client.MinecraftClient;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.LoadableTile;
@@ -10,6 +11,7 @@ import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.NamedLocation;
 import net.mmly.openminemap.util.RasterProvider;
+import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
 import java.awt.image.Raster;
@@ -89,26 +91,28 @@ public class RequestManager {
                 (int) MapScreen.map.getMapCenterY();
     }
 
-    public static void considerTile(int x, int y, int zoom, int tileRenderSize, MapType mapType) {
+    public static void considerTile(int x, int y, int zoom, int tileRenderSize, MapType mapType, TileUrl raster) {
         if (mapType != currentPriorityMapType()) return;
+        if (raster == null) return;
         int proximityScore;
         if (x == 0 && y == 0 && zoom == 0) proximityScore = 0;
         else proximityScore = (int) Math.sqrt(Math.pow(getMapCenterX() - ((x + 0.5) * tileRenderSize) , 2) + Math.pow(getMapCenterY() - ((y + 0.5) * tileRenderSize) , 2));
         if (candidateTile == null) {
-            candidateTile = new RequestableTile(x, y, zoom, proximityScore, RasterProvider.getCurrentBaseRaster().name);
+            candidateTile = new RequestableTile(x, y, zoom, proximityScore, raster);
             return;
         }
         if (candidateTile.proximityScore > proximityScore) {
-            candidateTile = new RequestableTile(x, y, zoom, proximityScore, RasterProvider.getCurrentBaseRaster().name);
+            candidateTile = new RequestableTile(x, y, zoom, proximityScore, raster);
         }
     }
 
     public static void pushTileRequest(MapType mapType) {
-        if (candidateTile == null) return;
         if (!rastersInitialized) {
             TileUrlFile.loadRastersFromFile();
             rastersInitialized = true;
         }
+        if (candidateTile == null) return;
+        if (ConfigOptions.__DISABLE_WEB_REQUESTS.getAsBoolean()) return;
         if (tileRequester.pendingRequest == null && currentPriorityMapType() == mapType) {
             tileRequester.setPendingRequest(candidateTile);
         }

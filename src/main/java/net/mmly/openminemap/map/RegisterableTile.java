@@ -1,6 +1,7 @@
 package net.mmly.openminemap.map;
 
 import net.mmly.openminemap.raster.RasterScreen;
+import net.mmly.openminemap.util.TileUrl;
 
 import java.io.InputStream;
 
@@ -15,17 +16,17 @@ public class RegisterableTile {
 
     public final InputStream image;
     public final String key;
-    public final String cacheName;
+    public final TileUrl raster;
     private final Queuer queuer;
 
-    public RegisterableTile(InputStream image, String key, String cacheName) {
-        this(image, key, cacheName, TILE_MANAGER);
+    public RegisterableTile(InputStream image, String key, TileUrl raster) {
+        this(image, key, raster, TILE_MANAGER);
     }
 
-    public RegisterableTile(InputStream image, String key, String cacheName, Queuer destination) {
+    public RegisterableTile(InputStream image, String key, TileUrl raster, Queuer destination) {
         this.image = image;
         this.key = key;
-        this.cacheName = cacheName;
+        this.raster = raster;
         this.queuer = destination;
     }
 

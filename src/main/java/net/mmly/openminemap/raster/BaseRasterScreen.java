@@ -35,7 +35,7 @@ public class BaseRasterScreen extends RasterScreen {
         confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
             try {
                 if (getSelectedLayerWidget().raster.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().raster.presetID)) return;
-                TileManager.setTileUrl(getSelectedLayerWidget().raster);
+                RasterProvider.setCurrentBaseRaster(getSelectedLayerWidget().raster);
                 MinecraftClient.getInstance().currentScreen.close();
             } catch (NullPointerException ignored) {}
         }).width(200).build();

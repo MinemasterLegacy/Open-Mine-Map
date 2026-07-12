@@ -1,5 +1,7 @@
 package net.mmly.openminemap.raster;
 
+import net.mmly.openminemap.util.TileUrlFile;
+
 public enum LayerType {
     BASE,
     OVERLAY,
@@ -30,9 +32,9 @@ public enum LayerType {
     public static MicroButtonFunction[] getMicroButtons(LayerType layerType) {
         return switch (layerType) {
             case null -> nullFunctions;
-            case BASE -> baseFunctions;
+            case BASE -> TileUrlFile.loadFailed ? nullFunctions : baseFunctions;
             case OVERLAY -> overlayFunctions;
-            case LOCAL_GEN -> localFunctions;
+            case LOCAL_GEN -> TileUrlFile.loadFailed ? baseFunctions : localFunctions;
         };
     }
 

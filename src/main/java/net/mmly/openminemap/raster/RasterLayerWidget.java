@@ -88,7 +88,7 @@ public class RasterLayerWidget extends ClickableWidget {
                 RasterScreen.backgroundTiles.put(textureKey, TileManager.getLoadingIdentifier());
                 new TileLoader(new LoadableTile[] {
                         new LoadableTile(
-                                0, 0, 0, url.name,
+                                0, 0, 0, url,
                                 TileManager.getKey(0, 0, 0)
                         )
                 }, RegisterableTile.RASTER_SCREEN).updateBackgoundColor(false).setFileMayBeNull(true).start();

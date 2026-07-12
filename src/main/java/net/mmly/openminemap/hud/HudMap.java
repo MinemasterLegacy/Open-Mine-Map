@@ -92,7 +92,7 @@ public class HudMap {
 
         showBorder = ConfigOptions.HUDMAP_BORDER.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
 
-        if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) {
+        if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) { //todo translate
             MinecraftClient.getInstance().player.sendMessage(
                     Text.literal("Openminemap: ").formatted(Formatting.DARK_GREEN).formatted(Formatting.BOLD).append(
                             Text.literal("Press  " +
@@ -191,7 +191,7 @@ public class HudMap {
         }
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
-        map.renderMap(context, null, MapType.HUD);
+        map.renderMap(context, MapType.HUD);
 
         //0xD9D9D9
         if (PlayerAttributes.positionIsValid() && showCompass) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)

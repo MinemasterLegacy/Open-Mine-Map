@@ -53,9 +53,9 @@ public abstract class RasterScreen extends Screen {
                 //System.out.println("Registering Tile: " + tile.key);
                 NativeImage nImage = NativeImage.read(tile.image);
                 //register new dynamic texture and store it again to be referenced later
-                Identifier identifier = Identifier.of("openminemap-tile", tile.cacheName.toLowerCase(Locale.US));
+                Identifier identifier = Identifier.of("openminemap-tile", tile.raster.name.toLowerCase(Locale.US));
                 MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(nImage));
-                backgroundTiles.put(tile.cacheName.toLowerCase(Locale.US), identifier);
+                backgroundTiles.put(tile.raster.name.toLowerCase(Locale.US), identifier);
                 //System.out.println("New Dynamic tile");
 
                 tile.image.close();
@@ -70,11 +70,11 @@ public abstract class RasterScreen extends Screen {
     }
 
     public static void registerBackgroundTile(RegisterableTile tile) {
-        TileUrl url = TileUrlFile.getUrlByName(tile.cacheName);
+        TileUrl url = TileUrlFile.getUrlByName(tile.raster.name);
         if (url == null) return;
         try {
             NativeImage nImage = NativeImage.read(tile.image);
-            Identifier identifier = Identifier.of("openminemap-btile", tile.cacheName.toLowerCase(Locale.US));
+            Identifier identifier = Identifier.of("openminemap-btile", tile.raster.name.toLowerCase(Locale.US));
             //Identifier identifier = Identifier.of("openminemap-btile", "testimage.png");
             MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(nImage));
             backgroundTiles.put(url.name.toLowerCase(Locale.US), identifier);

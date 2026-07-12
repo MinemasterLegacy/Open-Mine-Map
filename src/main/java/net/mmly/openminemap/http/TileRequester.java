@@ -20,7 +20,6 @@ public class TileRequester extends Requester<RequestableTile> {
 
     private final String[] subDomains = new String[]{"a", "b", "c"};
     private final String subDomain = subDomains[new Random().nextInt(3)];
-    private static TileUrl rasterProvider = null;
 
     public TileRequester(boolean persistent) {
         super(persistent, TILE_REQUEST_INTERVAL_MS, "Raster Tile");
@@ -32,24 +31,20 @@ public class TileRequester extends Requester<RequestableTile> {
         tileGetRequest(pendingRequest);
     }
 
-    public static void setRasterProvider(TileUrl rasterProvider) {
-        TileRequester.rasterProvider = rasterProvider;
-    }
-
     private void tileGetRequest(RequestableTile tile) {
         if (TileManager.isTileOutOfBounds(tile.x, tile.y, tile.zoom)) return;
-        if (rasterProvider == null) rasterProvider = RasterProvider.getCurrentBaseRaster();
+        if (tile.raster == null) return;
 
         BufferedImage image;
-        String urlPattern = rasterProvider.source_url
+        String urlPattern = tile.raster.source_url
                 .replace("{z}", Integer.toString(tile.zoom))
                 .replace("{x}", Integer.toString(tile.x))
                 .replace("{y}", Integer.toString(tile.y))
                 .replace("{s}", subDomain);
 
-        if (rasterProvider.hasKeyField()) {
-            if (RasterApiKeysFile.hasApiKey(rasterProvider.presetID)) {
-                urlPattern = urlPattern.replace("{t}", RasterApiKeysFile.readApiKey(rasterProvider.presetID));
+        if (tile.raster.hasKeyField()) {
+            if (RasterApiKeysFile.hasApiKey(tile.raster.presetID)) {
+                urlPattern = urlPattern.replace("{t}", RasterApiKeysFile.readApiKey(tile.raster.presetID));
             } else {
                 return;
             }
@@ -58,10 +53,9 @@ public class TileRequester extends Requester<RequestableTile> {
         InputStream inputStream = get(urlPattern);
         if (inputStream == null) return;
 
-
         try {
             image = ImageIO.read(inputStream);
-            File out = new File(TileManager.getRootFile() + "openminemap/"+tile.cacheName+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png"); //get file for tile
+            File out = new File(TileManager.getRootFile() + "openminemap/"+tile.raster.name+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png"); //get file for tile
             ImageIO.write(image, "png", out); //write tile to disk
         } catch (IOException | SecurityException e) {
             OpenMineMap.LOGGER.error("Error during tile write: " + e.getMessage());

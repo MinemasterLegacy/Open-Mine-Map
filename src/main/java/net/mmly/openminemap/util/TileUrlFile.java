@@ -25,16 +25,13 @@ import java.util.Optional;
 
 public class TileUrlFile {
 
-    public static boolean loadWasFailed = false;
+    public static boolean loadFailed = false;
     public static String osmAttribution;
     public static final String osmAttributionUrl = "https://openstreetmap.org/copyright";
     public static File rasterFile;
 
     private static TileUrlErrorType loadError = TileUrlErrorType.NO_ERROR;
     private static TileUrl errorUrl;
-    //TODO make sure names must be custom
-    //TODO validate if name is valid for file path
-    //TODO show mapbox logo for mapbox urls
     private static TileUrl[] tileUrls;
     public static final TileUrl defaultUrl = new TileUrl(
             0,
@@ -89,25 +86,26 @@ public class TileUrlFile {
         errorUrl = url;
     }
 
-    public static boolean loadRastersFromFile() {
+    public static void loadRastersFromFile() {
         rasterFile = new File(TileManager.getRootFile() + "openminemap/rasters.json");
         try {
             TileUrlFile.establishPresets();
             TileUrlFile.establishUrls();
-            RasterProvider.finishInitialization();
-        } catch (IOException | NullPointerException ignored) {
+        } catch (TileUrlFileFormatException | IOException | NullPointerException ignored) {
             //do nothing, will try again next requester cycle
             //ignored.printStackTrace();
             //System.out.println("failed cycle");
-            return false;
+            loadFailed = true;
+            OpenMineMap.LOGGER.warn("Raster Providers failed to load, will fallback to default settings");
+            addApplicableErrors();
+            RasterProvider.initWithFailedLoad();
         }
+        RasterProvider.finishInitialization();
         OpenMineMap.LOGGER.info("Loaded Raster Providers");
-        addApplicableErrors(null);
-        return true;
     }
 
     /// Adds url load errors to chat as needed
-    private static void addApplicableErrors(MinecraftClient client) {
+    private static void addApplicableErrors() {
         Text debugStart = Text.translatable("omm.error.tile-url.start");
         if (loadError != TileUrlErrorType.NO_ERROR) {
             String name;
@@ -120,7 +118,7 @@ public class TileUrlFile {
         }
     }
 
-    private static void establishUrls() throws IOException {
+    private static void establishUrls() throws IOException, TileUrlFileFormatException {
 
         try {
             if (!rasterFile.exists()) if (!createDefaultFile(rasterFile)) {
@@ -146,15 +144,14 @@ public class TileUrlFile {
             RasterProvider.initCustomRasters(tileUrlArray);
 
         } catch (IOException | TileUrlFileFormatException e) {
-            loadWasFailed = true;
-            RasterProvider.initWithFailedLoad();
+            OpenMineMap.LOGGER.error("Custom Rasters failed to load: ");
+            e.printStackTrace();
+            throw e;
         }
 
-        //TODO check urls with undefined template id for presets
     }
 
-    private static void establishPresets() throws NullPointerException, IOException {
-        //TODO specific error handling for presets
+    private static void establishPresets() throws NullPointerException, IOException, TileUrlFileFormatException {
         try {
             TileUrl[] tileUrlArray;
             try {
@@ -179,9 +176,11 @@ public class TileUrlFile {
             checkArrayValidity(tileUrlArray, true);
             RasterProvider.initPresetRasters(tileUrlArray);
 
-        } catch (TileUrlFileFormatException e) {
+        } catch (TileUrlFileFormatException | IOException | NullPointerException e) {
             //urlPresets = new TileUrl[]{};
-            OpenMineMap.LOGGER.error("Raster Presets failed to load.");
+            OpenMineMap.LOGGER.error("Raster Presets failed to load: ");
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -404,6 +403,7 @@ public class TileUrlFile {
      */
 
     public static void saveCustomRastersToFile() {
+        if (loadFailed) return;
         Gson gson = new Gson();
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(rasterFile));
@@ -454,5 +454,9 @@ class TileUrlFileFormatException extends Exception { //done
     }
 }
 
-
+class RasterLoadException extends Exception {
+    public RasterLoadException() {
+        super("Raster Providers failed to initialize");
+    }
+}
 

@@ -1096,7 +1096,7 @@ public class OmmMap extends ClickableWidget {
 
     }
 
-    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, MapType mapType) {
+    public void renderMap(DrawContext context, MapType mapType) {
 
         updateFields();
 

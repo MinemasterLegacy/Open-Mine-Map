@@ -2,6 +2,7 @@ package net.mmly.openminemap.util;
 
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.http.TileRequester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.raster.LayerType;
 
@@ -15,10 +16,10 @@ public class RasterProvider {
     /// 0 is back of the overlays, length is front
     private static ArrayList<TileUrl> presetRasters = new ArrayList<>();
     private static ArrayList<TileUrl> customRasters = new ArrayList<>();
-    private static TileUrl currentRaster = TileUrlFile.defaultUrl;
-    private static ArrayList<TileUrl> currentOverlays = new ArrayList<>();
-    private static HashMap<TileUrl, Float> overlayOpacities = new HashMap<>();
-    private static HashMap<TileUrl, Boolean> overlayVisibilities = new HashMap<>();
+    private static TileUrl currentBaseRaster = TileUrlFile.defaultUrl;
+    private static final ArrayList<TileUrl> currentOverlays = new ArrayList<>();
+    private static final HashMap<TileUrl, Float> overlayOpacities = new HashMap<>();
+    private static final HashMap<TileUrl, Boolean> overlayVisibilities = new HashMap<>();
     private static boolean doMapboxAttribution = false;
 
     public static boolean doMapboxAttribution() {
@@ -41,12 +42,18 @@ public class RasterProvider {
     }
 
     protected static void initWithFailedLoad() {
-        //TODO
+        setCurrentBaseRaster(TileUrlFile.defaultUrl); //set raster to the default (OpenStreetMap) url
+
+        //clear any other loaded data; if the load failed, it should not be used
+        presetRasters.clear();
+        customRasters.clear();
+        currentOverlays.clear();
+
+        presetRasters.add(TileUrlFile.defaultUrl);
     }
 
     protected static void finishInitialization() {
         readConfiguration();
-        TileManager.setTileUrl(currentRaster, true); //TODO temp, read config instead
     }
 
     public static void readConfiguration() {
@@ -117,6 +124,7 @@ public class RasterProvider {
     }
 
     public static void writeOverlayInfo() {
+        if (TileUrlFile.loadFailed) return;
         String overlays = "";
         String visibilities = "";
         String opacities = "";
@@ -135,18 +143,18 @@ public class RasterProvider {
 
         for (TileUrl url : presetRasters) {
             if (url.name.equals(configRaster)) {
-                currentRaster = url;
+                setCurrentBaseRaster(url);
                 return;
             }
         }
         for (TileUrl url : customRasters) {
             if (url.name.equals(configRaster)) {
-                currentRaster = url;
+                setCurrentBaseRaster(url);
                 return;
             }
         }
 
-        currentRaster = TileUrlFile.defaultUrl;
+        currentBaseRaster = TileUrlFile.defaultUrl;
         OpenMineMap.LOGGER.warn("Could not find base raster provider \"" + configRaster + "\", reverting to default.");
     }
 
@@ -159,12 +167,16 @@ public class RasterProvider {
     }
 
     public static TileUrl getCurrentBaseRaster() {
-        return currentRaster;
+        return currentBaseRaster;
     }
 
     public static void setCurrentBaseRaster(TileUrl raster) {
-        currentRaster = raster;
+        currentBaseRaster = raster;
+        TileManager.establishBaseRasterDirectory(currentBaseRaster);
         doMapboxAttribution = raster.source_url.contains("mapbox.com");
+        ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, raster.name);
+        TileManager.themeColor = 0xFF808080;
+        TileManager.reloadRasterTileMap();
     }
 
     public static ArrayList<TileUrl> getCurrentOverlays() {
@@ -230,12 +242,14 @@ public class RasterProvider {
         currentOverlays.addLast(raster);
         overlayVisibilities.put(raster, true);
         overlayOpacities.put(raster, 1f);
+        TileManager.reloadRasterTileMap();
     }
 
     public static void extractOverlay(TileUrl url) {
         currentOverlays.remove(url);
         overlayVisibilities.remove(url);
         overlayOpacities.remove(url);
+        TileManager.reloadRasterTileMap();
     }
 
     public static void addCustomRaster(TileUrl raster) {
@@ -254,6 +268,11 @@ public class RasterProvider {
         ConfigOptions.RASTER_OPACITIES.write(opacities.toString());
         ConfigOptions.RASTER_VISIBILITIES.write(visibilities.toString());
         if (writeToFile) ConfigFile.writeToFile();
+    }
+
+    public static boolean rasterInUse(TileUrl raster) {
+        if (currentBaseRaster == raster) return true;
+        return currentOverlays.contains(raster);
     }
 
 }

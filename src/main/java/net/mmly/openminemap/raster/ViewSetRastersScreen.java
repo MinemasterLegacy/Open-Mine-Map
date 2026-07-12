@@ -1,12 +1,17 @@
 package net.mmly.openminemap.raster;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.mmly.openminemap.config.ConfigScreen;
+import net.mmly.openminemap.draw.Justify;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
+import net.mmly.openminemap.util.TileUrlFile;
 
 //todo add done buton
 //todo add preview option
@@ -27,7 +32,7 @@ public class ViewSetRastersScreen extends RasterScreen {
 
     @Override
     void populateRasterList() {
-        this.addRaster(new RasterLayerWidget(Text.of("Add Overlay"), null, null));
+        if (!TileUrlFile.loadFailed) this.addRaster(new RasterLayerWidget(Text.of("Add Overlay"), null, null));
 
         for (TileUrl url : RasterProvider.getCurrentOverlays().reversed()) {
             if (url.layerType == LayerType.LOCAL_GEN)
@@ -50,4 +55,16 @@ public class ViewSetRastersScreen extends RasterScreen {
         this.addDrawableChild(slider);
     }
 
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
+        if (TileUrlFile.loadFailed) UContext.drawJustifiedText(
+                Text.literal("Rasters failed to load and cannot be modified.").formatted(Formatting.RED).formatted(Formatting.ITALIC),
+                Justify.CENTER,
+                width / 2,
+                height - 25,
+                0xFFFFFFFF,
+                true
+        );
+    }
 }

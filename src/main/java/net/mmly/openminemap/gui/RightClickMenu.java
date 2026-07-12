@@ -474,6 +474,9 @@ public class RightClickMenu extends ClickableWidget {
             } case MAPILLARY: {
                 openUrl("https://www.mapillary.com/app/?lat="+lat+"&lng="+lon+"&z="+Math.clamp(zoom, 1, 19.9), false);
                 break;
+            } case LOOKMAP: {
+                openUrl("https://lookmap.skzk.dev/#c="+Math.clamp(zoom, 3, 20)+"/"+lat+"/"+lon, false);
+                break;
             }
         }
 

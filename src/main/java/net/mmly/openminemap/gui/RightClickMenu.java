@@ -55,6 +55,7 @@ public class RightClickMenu extends ClickableWidget {
     private WebIcon webIconSelection = null;
     private int webIconScroll = 0;
     private int webIconsTotalWidth = 0;
+    private boolean showWebIcons = false;
 
     private static final RightClickMenuOption[] waypointMenuOptions = {
         RightClickMenuOption.NAME,
@@ -225,6 +226,7 @@ public class RightClickMenu extends ClickableWidget {
         clickX = mapX;
         clickY = mapY;
         instance.webIconScroll = 0;
+        instance.showWebIcons = false;
         instance.setPosition((int) mapX, (int) mapY);
 
         if (type.isLocationType) {
@@ -286,7 +288,7 @@ public class RightClickMenu extends ClickableWidget {
             boolean selected = selectedOption == menuOptions.get(i);
             MutableText text = getTextFor(menuOptions.get(i));
 
-            if (menuOptions.get(i) == RightClickMenuOption.OPEN_IN && selected) {
+            if (menuOptions.get(i) == RightClickMenuOption.OPEN_IN && selected && showWebIcons) {
                 context.enableScissor(getX() + 1, getY(), getRight() - 1, getBottom());
                 int x = getX() + 1 + webIconScroll;
                 for (WebIcon icon : webIcons) {
@@ -373,6 +375,10 @@ public class RightClickMenu extends ClickableWidget {
                 break;
             }
             case OPEN_IN: {
+                if (!showWebIcons) {
+                    showWebIcons = true;
+                    return;
+                }
                 if (webIconSelection == null) return;
                 openUrl(webIconSelection);
                 return;

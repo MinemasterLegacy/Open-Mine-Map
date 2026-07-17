@@ -35,6 +35,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SHOW_CONNECTION_STATUS(0, "ConnectionStatus", "hide", "connection-status"),
     TILE_SCALE(0, "TileScale", "128", "tile-scale"),
     CLAIMS_RENDERING(0, "ClaimsRendering", "off", "claims"),
+    HIDDEN_CLAIMS(0, "HiddenClaims", "off", "hidden-claims"), //todo translate
     HUDMAP_BORDER(0, "HudmapBorder", "show", "border"),
     COMPASS(0, "ShowCompass", "show", "compass"),
     TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),

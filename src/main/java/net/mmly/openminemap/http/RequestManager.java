@@ -60,11 +60,12 @@ public class RequestManager {
     }
 
     public static void loadClaims() {
+        if (!claimsLoaded) return;
         claimsLoaded = false;
         new Requester<>(false, 1000, "Claims") {
             @Override
             public void request() {
-                claims = get("https://api.buildtheearth.net/api/v1/claims/geojson?active=true");
+                claims = get("https://api.buildtheearth.net/api/v1/claims/geojson" + (ConfigOptions.HIDDEN_CLAIMS.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) ? "" : "?active=true"));
                 claimsLoaded = true;
             }
         }.start();

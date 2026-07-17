@@ -18,6 +18,7 @@ import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
@@ -53,6 +54,7 @@ public class ConfigScreen extends Screen {
 
     CategoryLabelWidget overlayLabel;
     ChoiceButtonWidget renderClaimsOption;
+    ChoiceButtonWidget hiddenClaimsOption;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
     ChoiceSliderWidget playerSizeSlider;
@@ -194,6 +196,9 @@ public class ConfigScreen extends Screen {
         renderClaimsOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.CLAIMS_RENDERING);
         this.addConfigOptionWidget(renderClaimsOption);
 
+        hiddenClaimsOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.HIDDEN_CLAIMS);
+        this.addConfigOptionWidget(hiddenClaimsOption);
+
         playerShowSlider = new ChoiceSliderWidget(ConfigOptions.Values.VISIBILITY, ConfigOptions.SHOW_PLAYERS);
         this.addConfigOptionWidget(playerShowSlider);
 
@@ -274,6 +279,9 @@ public class ConfigScreen extends Screen {
         ConfigFile.writeToFile();
         ButtonLayer.texturedButtons = ConfigOptions.BUTTON_STYLE.getAsBooleanFromValues(ConfigOptions.Values.BUTTON_STYLES);
         MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
+            DrawableClaim.reloadClaimData(false, false, true);
+        }
     }
 
     @Override

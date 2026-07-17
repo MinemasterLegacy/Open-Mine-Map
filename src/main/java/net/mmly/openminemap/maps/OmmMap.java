@@ -412,6 +412,7 @@ public class OmmMap extends ClickableWidget {
                 Text.literal("Zoom: " + UnitConvert.floorToPlace(getZoom(), 3) + " (" + getTileZoom() + ")"),
                 Text.literal("  T:" + getTileSize() + " M:" + UnitConvert.floorToPlace(getMaxZoom(), 3) + " B:" + ConfigOptions.TILE_SCALE.getAsInt()),
                 Text.literal("Pos: [" + UnitConvert.floorToPlace(mapCenterX, 3) + ", " + UnitConvert.floorToPlace(mapCenterY, 3) + "]"),
+                Text.literal("Mouse: [" + UnitConvert.floorToPlace(mouseTileX, 3) + ", " + UnitConvert.floorToPlace(mouseTileY, 3) + "]"),
                 Text.literal((waypoints == null ? "n/a" : waypoints.length) + " Waypoints").formatted(Formatting.GRAY),
                 Text.literal((searchResults == null ? "n/a" : searchResults.length) + " Search Results").formatted(Formatting.GRAY),
                 Text.literal((claims == null ? "n/a" : claims.length) + " Claims").formatted(Formatting.GRAY)
@@ -444,6 +445,7 @@ public class OmmMap extends ClickableWidget {
 
     public void keyNavigate(int keyCode, int modifiers) {
         if (!draggable) return;
+        if (mouseDown) return;
         MapScreen.semiTransparentUi = false;
         //modifiers: bit 1 is shift, bit 2 is control, but 3 is alt
 
@@ -542,6 +544,7 @@ public class OmmMap extends ClickableWidget {
         if (amount <= 0) return;
         double originalZoom = zoom;
         if (!followPlayer && withMouse) {
+            if (mouseDown) return;
             double v = (Math.pow(2, amount) - 1) / Math.pow(2, amount);
             mapCenterX -= (mapCenterX - mouseTileX) * v;
             mapCenterY -= (mapCenterY - mouseTileY) * v;
@@ -554,8 +557,10 @@ public class OmmMap extends ClickableWidget {
         if (amount <= 0) return;
         double originalZoom = zoom;
         if (!followPlayer && withMouse) {
-            mapCenterX += (mapCenterX - mouseTileX) * (Math.pow(2, amount) - 1);
-            mapCenterY += (mapCenterY - mouseTileY) * (Math.pow(2, amount) - 1);
+            if (mouseDown) return;
+            double v = (Math.pow(2, amount) - 1);
+            mapCenterX += (mapCenterX - mouseTileX) * v;
+            mapCenterY += (mapCenterY - mouseTileY) * v;
         }
         zoom -= amount;
         normalizeZoom(originalZoom);
@@ -970,8 +975,6 @@ public class OmmMap extends ClickableWidget {
 
         mouseTileX = mapCenterX + mouseX - ((double) renderAreaWidth / 2);
         mouseTileY = mapCenterY + mouseY - ((double) renderAreaHeight / 2);
-
-
     }
 
     private void drawClientPlayerCentered(DrawContext context) {

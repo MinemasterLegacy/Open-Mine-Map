@@ -24,7 +24,6 @@ import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
-import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 
@@ -35,6 +34,7 @@ public class CommandHander {
 
     public static final Formatting FEEDBACK_COLOR = Formatting.BLUE;
     public static final Formatting ERROR_COLOR = Formatting.RED;
+    public static boolean forceNoIntercept = false;
 
     public static void register() { //this chaining is f***ing horrible
         ArgumentTypeRegistry.registerArgumentType(Identifier.of("openminemap", "coordinateargument"), CoordinateArgumentType.class, ConstantArgumentSerializer.of(CoordinateArgumentType::coordinateArgumentType));
@@ -140,7 +140,9 @@ public class CommandHander {
         try {
             double[] coordsToTp = Projection.from_geo(convertedCoords[0], convertedCoords[1]);
             if (altitude == null) altitude = Double.toString(PlayersManager.getHighestPoint(coordsToTp[0], coordsToTp[1]));
+            forceNoIntercept = true;
             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+String.format("%.7f", coordsToTp[0])+" "+altitude+" "+String.format("%.7f", coordsToTp[1]));
+            forceNoIntercept = false;
             return 1;
         } catch (CoordinateValueError e) {
             context.getSource().sendFeedback(Text.translatable("omm.error.invalid-or-out-of-bounds").formatted(Formatting.RED).formatted(Formatting.ITALIC));

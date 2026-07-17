@@ -149,7 +149,6 @@ public class RightClickMenu extends ClickableWidget {
 
     public static boolean useTp() {
         String option = ConfigOptions.TELEPORT_METHOD.getAsStringFromValues(ConfigOptions.Values.TP_COMMANDS);
-        System.out.println(option);
         if (option.equals("tpll")) return false;
         if (option.equals("tp")) return true;
         //option is dynamic

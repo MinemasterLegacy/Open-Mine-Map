@@ -26,7 +26,7 @@ public class OverlayRasterScreen extends RasterScreen {
     @Override
     protected void init() {
         confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
-            RasterProvider.insertOverlayOnTop(getSelectedLayerWidget().raster);
+            RasterProvider.pushOverlayOnTop(getSelectedLayerWidget().raster);
             MinecraftClient.getInstance().currentScreen.close();
         }).width(200).build();
         this.addDrawableChild(confirmButton);

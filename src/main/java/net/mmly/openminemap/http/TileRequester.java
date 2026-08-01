@@ -16,7 +16,7 @@ import java.util.Random;
 
 public class TileRequester extends Requester<RequestableTile> {
 
-    private static final int TILE_REQUEST_INTERVAL_MS = 50;
+    private static final int TILE_REQUEST_INTERVAL_MS = 1000;
 
     private final String[] subDomains = new String[]{"a", "b", "c"};
     private final String subDomain = subDomains[new Random().nextInt(3)];

@@ -41,13 +41,11 @@ public class TeleportMixin {
 
     @ModifyVariable(method = "sendChatCommand", at = @At(value = "HEAD"), argsOnly = true, name = "command")
     private static String injected(String command) {
-        System.out.println("----------------------------");
         if (!ConfigOptions.TELEPORT_INTERCEPT.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) return command;
         if (!RightClickMenu.useTpll()) return command;
         if (CommandHander.forceNoIntercept) return command;
 
         String prefix = null;
-        System.out.println("command: " + command);
         for (String s : prefixes) {
             if (command.startsWith(s)) {
                 prefix = s;
@@ -58,7 +56,6 @@ public class TeleportMixin {
 
         ArrayList<String> arguments = new ArrayList<>(Arrays.asList(command.replaceFirst(prefix, "").split(" ")));
         arguments.removeFirst(); //remove always blank first element
-        System.out.println(Arrays.toString(arguments.toArray()));
         if (arguments.size() < 3) return command;
 
         //remove possible target selector

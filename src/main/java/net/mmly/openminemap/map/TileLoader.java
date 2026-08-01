@@ -1,6 +1,7 @@
 package net.mmly.openminemap.map;
 
 import net.mmly.openminemap.OpenMineMap;
+import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.UnitConvert;
 
 import javax.imageio.ImageIO;
@@ -82,7 +83,9 @@ public class TileLoader extends Thread {
         try {
             //waitForLock(tile);
             BufferedImage tileImage = ImageIO.read(new File(TileManager.getRootFile() + "openminemap/"+tile.raster.name+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png")); //get an image from /run/openminemap;
-            if (tile.key.equals(TileManager.getKey(0, 0, 0)) && updateBackgoundColor) TileManager.themeColor = tileImage.getRGB(3, 3);
+            if (tile.key.equals(TileManager.getKey(0, 0, 0, RasterProvider.getCurrentBaseRaster().identifierString)) && updateBackgoundColor) {
+                TileManager.setThemeColor(tileImage.getRGB(3, 3));
+            }
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(tileImage, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());

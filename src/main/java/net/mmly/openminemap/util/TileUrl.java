@@ -11,6 +11,7 @@ public class TileUrl {
     public final String source_url;
     public final String attribution;
     public final String name;
+    public final String identifierString;
     public final String[] attribution_links;
     public final LayerType layerType;
     public final int presetID;
@@ -20,6 +21,7 @@ public class TileUrl {
 
     private TileUrl() {
         this.name = "Generated Overlays";
+        this.identifierString = "generated-overlays";
         this.source_url = "";
         this.attribution_links = null;
         this.attribution = "";
@@ -34,6 +36,7 @@ public class TileUrl {
 
     public TileUrl(String name, String source_url, String attribution, String[] attribution_links, LayerType layerType) {
         this.name = name;
+        this.identifierString = name.toLowerCase(Locale.US).replace(" ", "-");
         this.attribution = attribution;
         this.attribution_links = attribution_links;
         this.source_url = source_url;
@@ -44,6 +47,7 @@ public class TileUrl {
 
     public TileUrl(int templateId, String name, String source_url, String attribution, String[] attribution_links, String layerType) {
         this.name = name;
+        this.identifierString = name.toLowerCase(Locale.US).replace(" ", "-");
         this.attribution = attribution;
         this.attribution_links = attribution_links;
         this.source_url = source_url;

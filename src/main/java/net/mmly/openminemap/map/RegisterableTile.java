@@ -15,7 +15,7 @@ public class RegisterableTile {
     };
 
     public final InputStream image;
-    public final String key;
+    public final String identifierString;
     public final TileUrl raster;
     private final Queuer queuer;
 
@@ -25,7 +25,7 @@ public class RegisterableTile {
 
     public RegisterableTile(InputStream image, String key, TileUrl raster, Queuer destination) {
         this.image = image;
-        this.key = key;
+        this.identifierString = key;
         this.raster = raster;
         this.queuer = destination;
     }

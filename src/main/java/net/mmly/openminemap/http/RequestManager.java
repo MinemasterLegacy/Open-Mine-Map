@@ -4,27 +4,22 @@ import net.minecraft.client.MinecraftClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
-import net.mmly.openminemap.map.LoadableTile;
 import net.mmly.openminemap.map.RequestableTile;
-import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.NamedLocation;
-import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
-import net.mmly.openminemap.util.TileUrlFile;
 
-import java.awt.image.Raster;
 import java.io.InputStream;
+import java.util.HashMap;
 
 public class RequestManager {
 
     protected static SearchResult[] searchResults = null;
     protected static boolean claimsLoaded = true;
     protected static InputStream claims = null;
-    protected static TileRequester tileRequester;
     protected static RequestableTile candidateTile = null;
-    private static boolean rastersInitialized = false;
+    protected static HashMap<TileUrl, TileRequester> tileRequesters = new HashMap<>();
 
     public static void reverseSearch(double lat, double lon) {
         ReverseSearchRequester requester = new ReverseSearchRequester();
@@ -71,9 +66,22 @@ public class RequestManager {
         }.start();
     }
 
+    public static void pushRequester(TileUrl raster) {
+        if (tileRequesters.containsKey(raster)) return;
+        TileRequester requester = new TileRequester(true);
+        requester.start();
+        tileRequesters.put(raster, requester);
+    }
+
+    public static void popRequester(TileUrl raster) {
+        if (!tileRequesters.containsKey(raster)) return;
+        tileRequesters.get(raster).stopThread();
+        tileRequesters.remove(raster);
+    }
+
     public static void startTileRequester() {
-        tileRequester = new TileRequester(true);
-        tileRequester.start();
+        //tileRequester = new TileRequester(true);
+        //tileRequester.start();
     }
 
     public static void clearCandidateTile() {
@@ -107,20 +115,16 @@ public class RequestManager {
         }
     }
 
-    public static void pushTileRequest(MapType mapType) {
-        if (!rastersInitialized) {
-            TileUrlFile.loadRastersFromFile();
-            rastersInitialized = true;
-        }
+    public static void pushTileRequest(MapType mapType, TileUrl raster) {
         if (candidateTile == null) return;
         if (ConfigOptions.__DISABLE_WEB_REQUESTS.getAsBoolean()) return;
-        if (tileRequester.pendingRequest == null && currentPriorityMapType() == mapType) {
-            tileRequester.setPendingRequest(candidateTile);
+        if (tileRequesters.get(raster).pendingRequest == null && currentPriorityMapType() == mapType) {
+            tileRequesters.get(raster).setPendingRequest(candidateTile);
         }
     }
 
-    public static RequestableTile getPendingRequest() {
-        return tileRequester.pendingRequest;
+    public static RequestableTile getPendingRequest(TileUrl raster) {
+        return tileRequesters.get(raster).pendingRequest;
     }
 
     public static MapType currentPriorityMapType() {

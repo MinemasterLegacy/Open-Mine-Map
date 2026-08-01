@@ -21,6 +21,7 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.WaypointFile;
 
 import java.util.Locale;
@@ -29,6 +30,7 @@ public class HudMap {
 
     public static final int MIN_SIZE = 20;
     public static boolean initialized = false;
+    private static boolean rastersInitialized;
     public static boolean renderHud = ConfigOptions._HUD_TOGGLE.getAsBoolean(); //is toggled by the keybind
     public static boolean hudEnabled = ConfigOptions._HUD_ENABLED.getAsBoolean(); //is toggled by the fullscreen map button and is dominant over the keybind
     public static int hudCompassX = ConfigOptions.HUD_COMPASS_X.getAsInt();
@@ -157,10 +159,14 @@ public class HudMap {
         }
 
         //OldRequestManager.setMapType(MinecraftClient.getInstance().currentScreen == null);
+        if (!rastersInitialized) {
+            TileUrlFile.loadRastersFromFile();
+            rastersInitialized = true;
+        }
 
         //now do actual hudmap stuff
         if (!initialized) initialize(context); //initialize hudmap if not done already
-        if (TileManager.themeColor == 0xFF808080) TileManager.loadTopTile();
+        if (TileManager.getThemeColor() == 0xFF808080) TileManager.loadTopTile();
 
         if ((!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) && !(MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
 
@@ -170,15 +176,11 @@ public class HudMap {
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw
         hudCompassCenter = Math.round((float) hudCompassWidth / 2); //center of the hud compass
 
-        map.setBackgroundColor(TileManager.themeColor);
-        map.setTintColor(0x10000000);
-
         if (!PlayerAttributes.positionIsValid()) {//if the player is out of bounds this will be NaN. all other rendering is skipped due to this
             //draw error message and exit
             Text text = Text.translatable("omm.hud.out-of-bounds").formatted(Formatting.ITALIC);
             //context.fill(hudMapX + 2, hudMapY + 2, hudMapY + 74, hudMapY + 10, 0xFFFFFFFF);
-            context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0, TileManager.themeColor);
-            context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0, 0x10000000);
+            context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0, TileManager.getThemeColor());
             context.drawText(
                     MinecraftClient.getInstance().textRenderer, text,
                     map.getRenderAreaX() + (map.getRenderAreaWidth() / 2) - (MinecraftClient.getInstance().textRenderer.getWidth(text) / 2),

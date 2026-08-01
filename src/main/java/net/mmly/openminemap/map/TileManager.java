@@ -3,7 +3,6 @@ package net.mmly.openminemap.map;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -11,6 +10,8 @@ import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.http.MapType;
 import net.mmly.openminemap.http.RequestManager;
+import net.mmly.openminemap.hud.HudMap;
+import net.mmly.openminemap.raster.LayerType;
 import net.mmly.openminemap.util.*;
 
 import java.awt.*;
@@ -31,23 +32,37 @@ public class TileManager {
     public static double mouseZoomStrength;
     public static OverlayVisibility showPlayers;
     public static OverlayVisibility showDirectionIndicators;
-    public static int themeColor = 0xFF808080;
+    private static int themeColor = 0xFF808080;
     public static boolean oldFilesDetected = false;
     public static String cacheName;
     static LinkedList<LoadableTile> tileLoadQueue = new LinkedList<>();
     static LinkedList<RegisterableTile> tileRegisteringQueue = new LinkedList<>();
 
-    public static void reloadRasterTileMap() {
+    public static int getThemeColor() {
+        return themeColor;
+    }
+
+    public static void setThemeColor(int color) {
+        themeColor = color;
+        HudMap.map.setBackgroundColor(ColorUtil.darken(color, 0.0625));
+    }
+
+    /// Add to the raster tile map any in-use rasters that do not exist, and purge any that are no longer in use
+    public static void refreshRasterTileMap() {
         for (TileUrl raster : rasterTiles.keySet()) {
             if (!RasterProvider.rasterInUse(raster)) {
                 purgeRasterTileData(raster);
                 rasterTiles.remove(raster);
+                RequestManager.popRequester(raster);
             }
         }
         for (TileUrl raster : RasterProvider.getCurrentOverlays()) {
+            if (raster.layerType == LayerType.LOCAL_GEN) continue;
             rasterTiles.putIfAbsent(raster, new HashMap<>());
+            RequestManager.pushRequester(raster);
         }
         rasterTiles.putIfAbsent(RasterProvider.getCurrentBaseRaster(), new HashMap<>());
+        RequestManager.pushRequester(RasterProvider.getCurrentBaseRaster());
     }
 
     private static void purgeRasterTileData(TileUrl raster) {
@@ -60,16 +75,22 @@ public class TileManager {
         return System.getProperty("user.dir") + File.separator;
     }
 
-    public static Identifier getErrorIdentifier() { //tile used when there was an error getting an expected tile
-        return Identifier.of("openminemap", "errortile.png");
+    public static Identifier getErrorIdentifier(LayerType layerType) { //tile used when there was an error getting an expected tile
+        if (layerType == LayerType.BASE) return Identifier.of("openminemap", "errortile.png");
+        return Identifier.of("openminemap", "errortileoverlay.png");
     }
 
     public static Identifier getBlankIdentifier() { //tile used for out of bounds tiles
         return Identifier.of("openminemap", "blanktile.png");
     }
 
-    public static Identifier getLoadingIdentifier() { //tile used for out of bounds tiles
-        return Identifier.of("openminemap", "loadingtile.png");
+    public static Identifier getLoadingIdentifier(LayerType layerType) { //tile used for currently loading tiles
+        if (layerType == LayerType.BASE) return Identifier.of("openminemap", "loadingtile.png");
+        return Identifier.of("openminemap", "loadingtileoverlay.png");
+    }
+
+    public static Identifier getLoadingIdentifier() { //tile used for currently loading tiles
+        return getLoadingIdentifier(LayerType.BASE);
     }
 
     private static void registerQueue() {
@@ -87,10 +108,10 @@ public class TileManager {
                 //System.out.println("Registering Tile: " + tile.key);
                 NativeImage nImage = NativeImage.read(tile.image);
                 //register new dynamic texture and store it again to be referenced later
-                rasterTiles.get(tile.raster).remove(tile.key);
-                Identifier identifier = Identifier.of("openminemap-tile", tile.key);
+                rasterTiles.get(tile.raster).remove(tile.identifierString);
+                Identifier identifier = Identifier.of("openminemap-tile", tile.identifierString);
                 client.getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(nImage));
-                rasterTiles.get(tile.raster).put(tile.key, identifier);
+                rasterTiles.get(tile.raster).put(tile.identifierString, identifier);
                 //System.out.println("New Dynamic tile");
 
                 tile.image.close();
@@ -104,7 +125,7 @@ public class TileManager {
         }
     }
 
-    public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int tileRenderSize, int renderAreaWidth, int renderAreaHeight, MapType mapType) {
+    public static DrawableMapTile[][] getRangeOfDrawableTiles(int mapPosX, int mapPosY, int mapZoom, int tileRenderSize, int renderAreaWidth, int renderAreaHeight, MapType mapType, TileUrl raster) {
         /*  mapTileXY: the map coorinates of the center of the screen | map coordinate range is 128 * 2^(zoom+1)
          *  mapZoom: the zoom level of the map
          *  windowHeightXY: [scaled] height and width of window
@@ -129,11 +150,11 @@ public class TileManager {
         for (int j = 0; j < tileCountX; j++) {
             for (int k = 0; k < tileCountY; k++) {
                 tiles[j][k] = /*new DrawableMapTile(*/
-                        getDrawableTile(firstTileX + j, firstTileY + k, mapZoom, tileRenderSize, mapType, RasterProvider.getCurrentBaseRaster());
+                    getDrawableTile(firstTileX + j, firstTileY + k, mapZoom, tileRenderSize, mapType, raster);
             }
         }
 
-        RequestManager.pushTileRequest(mapType);
+        RequestManager.pushTileRequest(mapType, raster);
         if (!tileLoadQueue.isEmpty()) {
             new TileLoader(tileLoadQueue.toArray(new LoadableTile[0])).start();
             tileLoadQueue.clear();
@@ -179,7 +200,7 @@ public class TileManager {
         }
     }
 
-    public static void establishBaseRasterDirectory(TileUrl raster) {
+    public static void establishRasterDirectory(TileUrl raster) {
         //purgeOldFiles();
         cacheName = raster.name;
         try { // create or open the base openminemap file for caching
@@ -216,7 +237,7 @@ public class TileManager {
         //tileXY do not refer to their pixel positions, they refer to their tile grid positions
         if (!rasterTiles.containsKey(raster)) { //if requested raster is not currently in use
             return new DrawableMapTile(
-                    getErrorIdentifier(),
+                    getErrorIdentifier(raster.layerType),
                     tileX * tileRenderSize,
                     tileY * tileRenderSize,
                     tileRenderSize
@@ -224,9 +245,9 @@ public class TileManager {
         }
 
         try {
-            String thisKey = getKey(mapZoom, tileX, tileY);
+            String thisKey = getKey(mapZoom, tileX, tileY, raster.identifierString);
 
-            //if tile is out of bounds of the possible tile spaces
+            //if tile is out of bounds of the possible tile spaces, return blank
             if (isTileOutOfBounds(tileX, tileY, mapZoom)) return new DrawableMapTile(
                     getBlankIdentifier(),
                     tileX * tileRenderSize,
@@ -236,7 +257,7 @@ public class TileManager {
 
             //If tile is loaded to memory
             if (rasterTiles.get(raster).containsKey(thisKey)) {
-                if (!rasterTiles.get(raster).get(thisKey).equals(getLoadingIdentifier())) return new DrawableMapTile(
+                if (!rasterTiles.get(raster).get(thisKey).equals(getLoadingIdentifier(raster.layerType))) return new DrawableMapTile(
                         rasterTiles.get(raster).get(thisKey),
                         tileX * tileRenderSize,
                         tileY * tileRenderSize,
@@ -244,26 +265,23 @@ public class TileManager {
                 );
             }
 
-            //if image is found in cache
-            try {
-                registerDynamicIdentifier(tileX, tileY, mapZoom, RasterProvider.getCurrentBaseRaster());
-            //else, request image from osm. Tile will be loaded eventually; for now check higher scales
-            } catch (IOException e) {
-
-                //RequestManager.trySetRequest(tileX, tileY, mapZoom);
-                RequestManager.considerTile(tileX, tileY, mapZoom, tileRenderSize, mapType, RasterProvider.getCurrentBaseRaster());
+            if (
+                //try to load image from cache; return true when it should be loaded from the raster provider
+                registerDynamicIdentifier(tileX, tileY, mapZoom, raster)
+            ) {
+                RequestManager.considerTile(tileX, tileY, mapZoom, tileRenderSize, mapType, raster);
             }
 
             int zoomToTry = mapZoom - 1;
             int xToTry = (tileX / 2);
             int yToTry = (tileY / 2);
-            String keyToTry = getKey(zoomToTry, xToTry, yToTry);
+            String keyToTry = getKey(zoomToTry, xToTry, yToTry, raster.identifierString);
             boolean foundTile = false;
 
             //if a higher tile is loaded
             while (zoomToTry >= 0) {
                 if (rasterTiles.get(raster).containsKey(keyToTry)) {
-                    if (!rasterTiles.get(raster).get(keyToTry).equals(getLoadingIdentifier())) {
+                    if (!rasterTiles.get(raster).get(keyToTry).equals(getLoadingIdentifier(raster.layerType))) {
                         foundTile = true;
                         break;
                     }
@@ -271,7 +289,7 @@ public class TileManager {
                 zoomToTry -= 1;
                 xToTry /= 2;
                 yToTry /= 2;
-                keyToTry = getKey(zoomToTry, xToTry, yToTry);
+                keyToTry = getKey(zoomToTry, xToTry, yToTry, raster.identifierString);
             }
 
             if (foundTile && mapZoom - zoomToTry < 8) {
@@ -288,7 +306,7 @@ public class TileManager {
                 );
             } else {
                 return new DrawableMapTile(
-                        getLoadingIdentifier(),
+                        getLoadingIdentifier(raster.layerType),
                         tileX * tileRenderSize,
                         tileY * tileRenderSize,
                         tileRenderSize
@@ -301,7 +319,7 @@ public class TileManager {
             OpenMineMap.LOGGER.warn("Error while getting tile: " + e);
             e.printStackTrace();
             return new DrawableMapTile(
-                getErrorIdentifier(),
+                getErrorIdentifier(raster.layerType),
                 tileX * tileRenderSize,
                 tileY * tileRenderSize,
                 tileRenderSize
@@ -309,28 +327,34 @@ public class TileManager {
         }
     }
 
-    public static String getKey(int mapZoom, int tileX, int tileY) {
-        return mapZoom + "-" + tileX + "-" + tileY;
+    public static String getKey(int mapZoom, int tileX, int tileY, String rasterIdentifierString) {
+        return rasterIdentifierString + "-" + mapZoom + "-" + tileX + "-" + tileY;
         //return Arrays.toString(new int[] {mapZoom, tileX, tileY});
     }
 
-    private static void registerDynamicIdentifier(int tileX, int tileY, int tileZoom, TileUrl raster) throws IOException {
+    /// Returns: true, if the tile should be considered for loading from the raster provider
+    private static boolean registerDynamicIdentifier(int tileX, int tileY, int tileZoom, TileUrl raster) {
         RequestableTile tile = new RequestableTile(tileX, tileY, tileZoom, 0, null);
-        String thisKey = getKey(tile.zoom, tile.x, tile.y);
-        if (!rasterTiles.containsKey(raster)) return;
-        if (rasterTiles.get(raster).containsKey(thisKey)) return;
+        String thisKey = getKey(tile.zoom, tile.x, tile.y, raster.identifierString);
+        if (!rasterTiles.containsKey(raster)) return false;
+        if (rasterTiles.get(raster).containsKey(thisKey)) return false;
+
+        //System.out.println("will test cache for tile " + thisKey + " of raster " + raster.name);
 
         File f = new File(getRootFile() + "openminemap/"+raster.name+"/"+tile.zoom+"/"+tile.x+"-"+tile.y+".png");
-        if (tile.sameTileAs(RequestManager.getPendingRequest())) {
-            return; // Tile is currently being requested/written, so act as if it doesn't exist and return for now
-        } else if (f.exists()) { //If file does exist, load it and register it to be used
-            //System.out.println("Loading Tile: " + thisKey);
+
+        // If true, tile is currently being requested/written, so act as if it doesn't exist and return for now
+        // a placeholder will be determined by the code that follows this method call
+        if (tile.sameTileAs(RequestManager.getPendingRequest(raster))) return false;
+
+        //If file exists in cache, queue it for loading and add a placeholder to the tiles map
+        if (f.exists()) {
             tileLoadQueue.addLast(new LoadableTile(tile.x, tile.y, tile.zoom, raster, thisKey));
-            rasterTiles.get(raster).put(thisKey, getLoadingIdentifier());
+            rasterTiles.get(raster).put(thisKey, getLoadingIdentifier(raster.layerType));
+            return false;
         }
 
-        throw new IOException(); //is caught by parent method to indicate the tile needs to be requested from the raster provider
-
+        return true;
     }
 
     public static void initializeConfigParameters() {

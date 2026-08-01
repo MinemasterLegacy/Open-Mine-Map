@@ -50,7 +50,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         SearchHistoryFile.establishFile();
         //ScreenMouseEvents.EVENT.re
 
-        RequestManager.startTileRequester();
+        //RequestManager.startTileRequester();
         //TileLoader tileLoader = new TileLoader();
         //tileLoader.start();
 

@@ -555,8 +555,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) { //called every frame
-        super.render(context, mouseX, mouseY, delta);
         UContext.setContext(context);
+        super.render(context, mouseX, mouseY, delta);
 
         if (chatToBeOpened) {
             if (client.getChatRestriction().allowsChat(client.isInSingleplayer())) { //copied from minecraftclient

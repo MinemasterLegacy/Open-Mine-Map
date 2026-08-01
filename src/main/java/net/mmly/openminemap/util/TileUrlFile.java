@@ -90,7 +90,7 @@ public class TileUrlFile {
         rasterFile = new File(TileManager.getRootFile() + "openminemap/rasters.json");
         try {
             TileUrlFile.establishPresets();
-            TileUrlFile.establishUrls();
+            TileUrlFile.establishRasterProviders();
         } catch (TileUrlFileFormatException | IOException | NullPointerException ignored) {
             //do nothing, will try again next requester cycle
             //ignored.printStackTrace();
@@ -118,7 +118,7 @@ public class TileUrlFile {
         }
     }
 
-    private static void establishUrls() throws IOException, TileUrlFileFormatException {
+    private static void establishRasterProviders() throws IOException, TileUrlFileFormatException {
 
         try {
             if (!rasterFile.exists()) if (!createDefaultFile(rasterFile)) {

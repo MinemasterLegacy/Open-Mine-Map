@@ -3,7 +3,6 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
@@ -119,7 +118,7 @@ public class MicroButton extends ClickableWidget {
                 break;
             }
             case REMOVE: {
-                RasterProvider.extractOverlay(parentWidget.raster);
+                RasterProvider.popOverlay(parentWidget.raster);
                 MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen(false));
                 break;
             }

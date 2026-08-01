@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -22,13 +21,13 @@ import net.mmly.openminemap.gui.PinnedWaypointsLayer;
 import net.mmly.openminemap.http.MapType;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.*;
+import net.mmly.openminemap.raster.LayerType;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
@@ -76,7 +75,6 @@ public class OmmMap extends ClickableWidget {
 
     private double maxZoom = TILEMAXARTIFICIALZOOM;
     private int backgroundColor = 0x00000000;
-    private int tintColor = 0x00000000;
 
     private long lastSavedTime;
     //private static final int ZOOM_FADE_TIME_MS = 1000;
@@ -661,19 +659,13 @@ public class OmmMap extends ClickableWidget {
         // play no sound
     }
 
-    private void drawMap(DrawContext context, MapType mapType) {
-
-        context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
-        context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);
-
-        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight, mapType);
+    private void drawMapLayer(MapType mapType, TileUrl raster) {
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight, mapType, raster);
         for (DrawableMapTile[] column : tiles) {
             for (DrawableMapTile tile : column) {
-                drawTile(context, tile);
+                drawTile(tile, raster);
             }
         }
-
-
 
         //context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, 0x33FFFFFF);
     }
@@ -683,12 +675,6 @@ public class OmmMap extends ClickableWidget {
     }
     public void setBackgroundColor(int argb) {
         backgroundColor = argb;
-    }
-    public void setTintColor(int red, int green, int blue, int alpha) {
-        tintColor = (alpha << 24) | (red << 16) | (green << 8) | blue;
-    }
-    public void setTintColor(int argb) {
-        tintColor = argb;
     }
 
     @Override
@@ -887,7 +873,7 @@ public class OmmMap extends ClickableWidget {
 
     }
 
-    private void drawTile(DrawContext context, DrawableMapTile tile) {
+    private void drawTile(DrawableMapTile tile, TileUrl raster) {
 
         //offset the tiles so that the map is centered on the render area
         int relativeX = getWindowRelativeX(tile.x, 0);
@@ -1100,16 +1086,25 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void renderMap(DrawContext context, MapType mapType) {
-
         updateFields();
 
         if (mapType == MapType.HUD && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
         else context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
 
-        drawMap(context, mapType); //draw the map tiles + background
+        context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
+        drawMapLayer(mapType, RasterProvider.getCurrentBaseRaster()); //draw the map tiles + background
 
-        drawGeneratedOverlays(context);
+        for (TileUrl raster : RasterProvider.getCurrentOverlays()) { //TODO order in which the loop processes overlays may need to be reversed, we shall see
+            UContext.setTextureAlpha((int) (RasterProvider.getOpacityOf(raster) * 255));
+            if (raster.layerType == LayerType.LOCAL_GEN) {
+                drawGeneratedOverlays(context);
+                continue;
+            }
+            if (!RasterProvider.getVisibilityOf(raster)) continue;
+            drawMapLayer(mapType, raster);
+        }
 
+        UContext.resetTextureAlpha();
         context.disableScissor();
 
     }

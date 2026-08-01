@@ -28,7 +28,6 @@ public class RasterLayerWidget extends ClickableWidget {
     private AnchorWidget anchor;
     protected final TileUrl raster;
     private final LayerType layerType;
-    //private final MicroButtonFunction[] microButtons;
     private final MicroButton[] microButtons;
     private boolean isAddButton = false;
     private final String textureKey;
@@ -89,7 +88,7 @@ public class RasterLayerWidget extends ClickableWidget {
                 new TileLoader(new LoadableTile[] {
                         new LoadableTile(
                                 0, 0, 0, url,
-                                TileManager.getKey(0, 0, 0)
+                                TileManager.getKey(0, 0, 0, raster.identifierString)
                         )
                 }, RegisterableTile.RASTER_SCREEN).updateBackgoundColor(false).setFileMayBeNull(true).start();
 
@@ -127,7 +126,7 @@ public class RasterLayerWidget extends ClickableWidget {
         if (isAddButton) return Identifier.of("openminemap", "customtile.png"); //for the add option
         if (layerType == LayerType.LOCAL_GEN) return Identifier.of("openminemap", "icon-texture.png"); //for the generated overlays option
         Identifier texture = RasterScreen.backgroundTiles.get(textureKey); // for custom layers
-        if (texture == null) return TileManager.getErrorIdentifier();
+        if (texture == null) return TileManager.getErrorIdentifier(layerType);
         else return texture;
     }
 
@@ -227,7 +226,7 @@ public class RasterLayerWidget extends ClickableWidget {
     }
 
     private void drawBackground(Identifier texture) {
-        UContext.fillWidget(this, TileManager.themeColor);
+        UContext.fillWidget(this, TileManager.getThemeColor());
 
         UContext.drawTexture(
                 texture,

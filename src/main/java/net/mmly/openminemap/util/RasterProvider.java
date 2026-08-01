@@ -2,7 +2,6 @@ package net.mmly.openminemap.util;
 
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
-import net.mmly.openminemap.http.TileRequester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.raster.LayerType;
 
@@ -69,6 +68,7 @@ public class RasterProvider {
                 if (overlay.layerType == LayerType.BASE) continue;
                 if (overlay.name.equals(overlayName)) {
                     currentOverlays.add(overlay);
+                    TileManager.establishRasterDirectory(overlay);
                     break;
                 }
             }
@@ -77,6 +77,8 @@ public class RasterProvider {
         if (!currentOverlays.contains(TileUrl.generatedLayerUrl)) {
             currentOverlays.add(TileUrl.generatedLayerUrl);
         }
+
+        TileManager.refreshRasterTileMap();
 
         configValue = ConfigOptions.RASTER_VISIBILITIES.getAsString().split(",");
         ArrayList<String> values = new ArrayList<>(List.of(configValue));
@@ -170,13 +172,14 @@ public class RasterProvider {
         return currentBaseRaster;
     }
 
+    //todo attribution for overlays
     public static void setCurrentBaseRaster(TileUrl raster) {
         currentBaseRaster = raster;
-        TileManager.establishBaseRasterDirectory(currentBaseRaster);
+        TileManager.establishRasterDirectory(currentBaseRaster);
         doMapboxAttribution = raster.source_url.contains("mapbox.com");
         ConfigFile.writeParameter(ConfigOptions.TILE_MAP_URL, raster.name);
-        TileManager.themeColor = 0xFF808080;
-        TileManager.reloadRasterTileMap();
+        TileManager.setThemeColor(0xFF808080);
+        TileManager.refreshRasterTileMap();
     }
 
     public static ArrayList<TileUrl> getCurrentOverlays() {
@@ -236,20 +239,21 @@ public class RasterProvider {
         return currentOverlays.contains(raster);
     }
 
-    public static void insertOverlayOnTop(TileUrl raster) {
+    public static void pushOverlayOnTop(TileUrl raster) {
         if (!raster.isOverlay()) return;
         if (currentOverlays.contains(raster)) return;
         currentOverlays.addLast(raster);
         overlayVisibilities.put(raster, true);
         overlayOpacities.put(raster, 1f);
-        TileManager.reloadRasterTileMap();
+        TileManager.establishRasterDirectory(raster);
+        TileManager.refreshRasterTileMap();
     }
 
-    public static void extractOverlay(TileUrl url) {
+    public static void popOverlay(TileUrl url) {
         currentOverlays.remove(url);
         overlayVisibilities.remove(url);
         overlayOpacities.remove(url);
-        TileManager.reloadRasterTileMap();
+        TileManager.refreshRasterTileMap();
     }
 
     public static void addCustomRaster(TileUrl raster) {

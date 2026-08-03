@@ -36,14 +36,14 @@ public class AttributionLayer extends ClickableWidget {
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000);
+        calculateSelection(mouseX);
+
     }
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
         //context.fill(windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, 0x88000000);
         //context.drawText(textRenderer, "Map data from", windowScaledWidth - 152, windowScaledHeight + 7 - textRenderer.fontHeight - 10, 0xFFFFFFFF, true);
         //context.drawText(textRenderer, Text.of("OpenStreetMap"), windowScaledWidth - 77, windowScaledHeight + 7 - textRenderer.fontHeight - 10, 0xFF548AF7, true); //0xFF1b75d0
-
-        calculateSelection();
 
         context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, MapScreen.backingColor);
 
@@ -82,12 +82,11 @@ public class AttributionLayer extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
-    private void calculateSelection() {
+    private void calculateSelection(double mouseX) {
         if (!isHovered()) {
             selection = -1;
             return;
         }
-        double mouseX = UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getX());
         for (int i = 0 ; i < selectionZones.length ; i++) {
             if (mouseX > selectionZones[i][0] && mouseX < selectionZones[i][1]) {
                 selection = i;

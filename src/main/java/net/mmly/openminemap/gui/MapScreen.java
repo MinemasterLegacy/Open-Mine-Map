@@ -45,6 +45,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     public static int windowScaledHeight;
     public static int windowScaledWidth;
+    //width range: 320 - 640
 
     private static final int BUTTON_SIZE = 20;
     private static final int BUTTON_MARGIN = 4;
@@ -61,7 +62,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     private static RightClickMenu rightClickLayer;
     private static AttributionLayer attributionLayer;
-    private static BugReportLayer bugReportLayer = new BugReportLayer(0, 0);
+    private static BugReportLayer bugReportLayer;
+    private static CoordinateInfoLayer coordinateInfoLayer;
     private static ToggleButtonLayer toggleHudMapButtonLayer;
     private static ToggleButtonLayer toggleClaimRenderingButtonLayer;
     private static SearchButtonLayer searchButtonLayer;
@@ -311,6 +313,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
         searchBoxLayer = new SearchBoxLayer(this.textRenderer, 26, 3);
         this.addDrawableChild(searchBoxLayer);
 
+        coordinateInfoLayer = new CoordinateInfoLayer();
+        this.addDrawableChild(coordinateInfoLayer);
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
         bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32);
@@ -380,7 +384,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         for (ButtonFunction function : buttonLeftShelf.keySet()) {
             buttonLeftShelf.get(function).setPosition(
                     4 + (i * 24),
-                    windowScaledHeight - (20 + 36 + attributionOffset)
+                    windowScaledHeight - 24 - coordinateInfoLayer.getHeight()
             );
             i++;
         }
@@ -573,23 +577,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
         PlayerAttributes.updatePlayerAttributes(client);
         if (textIsRainbow) setPlainTextColor(ColorUtil.getCurrentRainbowColor(), false);
 
-        String mouseDisplayLong = "-.-";
-        String mouseDisplayLat = "-.-";
-        String playerDisplayLat = "-.-";
-        String playerDisplayLon = "-.-";
-
-        if (!map.mouseIsOutOfBounds()) {
-            mouseDisplayLong = UnitConvert.floorToPlace(map.getMouseLong(), 5);
-            mouseDisplayLat = UnitConvert.floorToPlace(map.getMouseLat(), 5);
-        }
-
-        if (PlayerAttributes.positionIsValid()) {
-            playerDisplayLon = UnitConvert.floorToPlace(PlayerAttributes.getLongitude(), 5);
-            playerDisplayLat = UnitConvert.floorToPlace(PlayerAttributes.getLatitude(), 5);
-        } else {
-            map.setFollowPlayer(false);
-        }
-
         updateWidgetPositions(textRenderer); //update the positions of button and text field widgets in case window has been resized
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
@@ -602,17 +589,11 @@ public class MapScreen extends Screen { //Screen object that represents the full
         if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) toggleClaimRenderingButtonLayer.draw(context);
 
         //draws the Mouse and player coordinates text fields
-        String mouseLabelText = Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°";
-        String playerLabelText = Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°";
-        context.fill(0, windowScaledHeight - 16 - attributionOffset, 8 + textRenderer.getWidth(mouseLabelText), windowScaledHeight - attributionOffset, backingColor);
-        context.drawText(this.textRenderer, mouseLabelText, 4, windowScaledHeight + 7 - this.textRenderer.fontHeight - 10 - attributionOffset, plainTextColor, true);
-        context.fill(0, windowScaledHeight - 32 - attributionOffset,  8 + textRenderer.getWidth(playerLabelText), windowScaledHeight - 16 - attributionOffset, backingColor);
-        context.drawText(this.textRenderer, playerLabelText, 4, windowScaledHeight + 7  - this.textRenderer.fontHeight - 10 - 16 - attributionOffset, plainTextColor, true);
+        coordinateInfoLayer.drawWidget(height);
 
-        // -32 is for coordinate displays
         // -28 is for left shelf buttons
         // -23 on searchboxlayer is for the search box
-        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - 32 - 28 - attributionOffset - pinnedWaypointsLayer.getY() - (int) (RasterProvider.doMapboxAttribution() ? getMapboxAttributionSize() * 1.5 : 0));
+        pinnedWaypointsLayer.setRoundedHeight(windowScaledHeight - coordinateInfoLayer.getHeight() - 28 - attributionOffset - pinnedWaypointsLayer.getY() - (int) (RasterProvider.doMapboxAttribution() ? getMapboxAttributionSize() * 1.5 : 0));
         SearchBoxLayer.setMaxDisplayedResults(windowScaledHeight - 32 - 28 - attributionOffset - 23 - (int) (RasterProvider.doMapboxAttribution() ? getMapboxAttributionSize() * 1.5 : 0));
         purgeNotifiations();
         drawNotificationText(context);

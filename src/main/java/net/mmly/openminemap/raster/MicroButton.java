@@ -3,9 +3,11 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonState;
@@ -20,6 +22,9 @@ public class MicroButton extends ClickableWidget {
     public final LayerType layerType;
     private boolean apiKeyNeeded = false;
     private boolean disabaled = false;
+
+    private static final int DELETE_HOLD_DURATION_MS = 1000;
+    private long deleteStartTime = -1;
 
     public MicroButton(int x, int y, MicroButtonFunction function, LayerType layerType) {
         super(x, y, 12, 12, Text.of(""));
@@ -60,7 +65,16 @@ public class MicroButton extends ClickableWidget {
                     mouseY
             );
         }
-
+        else if (buttonFunction == MicroButtonFunction.DELETE) {
+            if (isMouseOver(mouseX, mouseY)) UContext.getContext().drawTooltip(
+                    MinecraftClient.getInstance().textRenderer,
+                    Text.of("Press and Hold to Delete"), //todo translate
+                    mouseX,
+                    mouseY
+            );
+            if (deleteStartTime != -1) parentWidget.setDeleteProgressPercent(deleteProgressPercent());
+            if (!isMouseOver(mouseX, mouseY)) stopDeleteTimer(mouseX, mouseY);
+        }
     }
 
     @Override
@@ -92,7 +106,8 @@ public class MicroButton extends ClickableWidget {
         switch (buttonFunction) {
             case EDIT: {
                 switch (layerType) {
-                    case BASE -> client.setScreen(new BaseRasterScreen());
+                    case null -> client.setScreen(new CreateRasterScreen(parentWidget.raster));
+                    case BASE -> client.setScreen(new BaseRasterScreen(true));
                     case LOCAL_GEN -> {
                         client.setScreen(new ConfigScreen());
                         ConfigScreen.getInstance().scrollToOverlay();
@@ -125,9 +140,36 @@ public class MicroButton extends ClickableWidget {
             case INFO: {
                 CreateRasterScreen.layerType = (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
                 MinecraftClient.getInstance().setScreen(new CreateRasterScreen(parentWidget.raster));
-                //TODO
+                break;
+            }
+            case DELETE: {
+                startDeleteTimer();
                 break;
             }
         }
+    }
+
+    private void startDeleteTimer() {
+        deleteStartTime = Util.getEpochTimeMs();
+    }
+
+    private float deleteProgressPercent() {
+        return Math.min(1f, (float) (Util.getEpochTimeMs() - deleteStartTime) / DELETE_HOLD_DURATION_MS);
+    }
+
+    private void stopDeleteTimer(double mouseX, double mouseY) {
+        if (isMouseOver(mouseX, mouseY) && deleteProgressPercent() == 1f) {
+            RasterProvider.deleteCustomRaster(parentWidget.raster);
+            if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen) MinecraftClient.getInstance().setScreen(new BaseRasterScreen(false));
+            if (MinecraftClient.getInstance().currentScreen instanceof OverlayRasterScreen) MinecraftClient.getInstance().setScreen(new OverlayRasterScreen(false));
+        }
+        parentWidget.setDeleteProgressPercent(0f);
+        deleteStartTime = -1;
+    }
+
+    @Override
+    public void onRelease(double mouseX, double mouseY) {
+        super.onRelease(mouseX, mouseY);
+        stopDeleteTimer(mouseX, mouseY);
     }
 }

@@ -80,21 +80,21 @@ public class CoordinateInfoLayer extends ClickableWidget {
 
         int lineNum = 1;
         if (showDistortion) { //todo translate
-            drawLine(
+            drawTextLine(
                     MinecraftClient.getInstance().textRenderer,
                     Text.of("Distortion: ").getString() + distortionBaseDisplay + " ±" + distortionMarginDisplay + "°",
                     lineNum++,
                     windowHeight);
         }
         if (showPlayerCoordinates) {
-            drawLine(
+            drawTextLine(
                     MinecraftClient.getInstance().textRenderer,
                     Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°",
                     lineNum++,
                     windowHeight);
         }
         if (showMouseCoordinates) {
-            drawLine(
+            drawTextLine(
                     MinecraftClient.getInstance().textRenderer,
                     Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°",
                     lineNum++,
@@ -104,7 +104,7 @@ public class CoordinateInfoLayer extends ClickableWidget {
 
     }
 
-    private void drawLine(TextRenderer renderer, String text, int num, int windowHeight) {
+    private void drawTextLine(TextRenderer renderer, String text, int num, int windowHeight) {
         UContext.fillZone(0, windowHeight - num * LINE_HEIGHT, 8 + renderer.getWidth(Text.of(text)), LINE_HEIGHT, MapScreen.backingColor);
         UContext.drawJustifiedText(Text.of(text), Justify.LEFT, 4, 4 + windowHeight - num * LINE_HEIGHT, MapScreen.getPlainTextColor(), true);
     }

@@ -11,6 +11,11 @@ public enum LayerType {
         MicroButtonFunction.EDIT,
     };
 
+    private static final MicroButtonFunction[] customFunctions = new MicroButtonFunction[] {
+        MicroButtonFunction.EDIT,
+        MicroButtonFunction.DELETE
+    };
+
     private static final MicroButtonFunction[] overlayFunctions = new MicroButtonFunction[] {
         MicroButtonFunction.EDIT,
         MicroButtonFunction.UP,
@@ -29,9 +34,9 @@ public enum LayerType {
         MicroButtonFunction.INFO
     };
 
-    public static MicroButtonFunction[] getMicroButtons(LayerType layerType) {
+    public static MicroButtonFunction[] getMicroButtons(LayerType layerType, boolean custom) {
         return switch (layerType) {
-            case null -> nullFunctions;
+            case null -> custom ? customFunctions : nullFunctions;
             case BASE -> TileUrlFile.loadFailed ? nullFunctions : baseFunctions;
             case OVERLAY -> overlayFunctions;
             case LOCAL_GEN -> TileUrlFile.loadFailed ? baseFunctions : localFunctions;

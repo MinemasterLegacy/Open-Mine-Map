@@ -21,6 +21,7 @@ import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public class RasterLayerWidget extends ClickableWidget {
@@ -35,6 +36,11 @@ public class RasterLayerWidget extends ClickableWidget {
     private boolean showKey = false;
     private int outlineFocusColor;
     private int outlineBaseColor;
+    private float deleteProgressPercent = 0f;
+
+    private static final int CUSTOM_RASTER_OUTLINE_COLOR = 0xFFa8afff;
+    private static final int ADD_BUTTON_OUTLINE_COLOR = 0xFFFFFCA8;
+    private static final int NORMAL_RASTER_OUTLINE_COLOR = 0xFFFFFFFF;
 
     public RasterLayerWidget(TileUrl url) {
         this(
@@ -53,7 +59,7 @@ public class RasterLayerWidget extends ClickableWidget {
         chooseOutlineColor();
 
         if (!isAddButton) {
-            MicroButtonFunction[] functions = LayerType.getMicroButtons(layerType);
+            MicroButtonFunction[] functions = LayerType.getMicroButtons(layerType, url != null && !url.isPreset());
             microButtons = new MicroButton[functions.length];
             for (int i = 0; i < functions.length; i++) {
                 microButtons[i] = new MicroButton(0, 0, functions[i], layerType);
@@ -102,23 +108,23 @@ public class RasterLayerWidget extends ClickableWidget {
 
     private void chooseOutlineColor() {
         if (layerType == null && raster == null) {
-            outlineBaseColor = ColorUtil.darken(0xFFFFFCA8, 0.5);
-            outlineFocusColor = 0xFFFFFCA8;
+            outlineBaseColor = ColorUtil.darken(ADD_BUTTON_OUTLINE_COLOR, 0.5);
+            outlineFocusColor = ADD_BUTTON_OUTLINE_COLOR;
             return;
         }
 
         if (raster == null || layerType == LayerType.LOCAL_GEN) {
-            outlineBaseColor = 0xFF7f7f7f;
-            outlineFocusColor = 0xFFFFFFFF;
+            outlineBaseColor = ColorUtil.darken(NORMAL_RASTER_OUTLINE_COLOR, 0.5);
+            outlineFocusColor = NORMAL_RASTER_OUTLINE_COLOR;
             return;
         }
 
         if (raster.isPreset()) {
-            outlineBaseColor = 0xFF7f7f7f;
-            outlineFocusColor = 0xFFFFFFFF;
+            outlineBaseColor = ColorUtil.darken(NORMAL_RASTER_OUTLINE_COLOR, 0.5);
+            outlineFocusColor = NORMAL_RASTER_OUTLINE_COLOR;
         } else {
-            outlineBaseColor = ColorUtil.darken(0xFFa8afff, 0.5);
-            outlineFocusColor = 0xFFa8afff;
+            outlineBaseColor = ColorUtil.darken(CUSTOM_RASTER_OUTLINE_COLOR, 0.5);
+            outlineFocusColor = CUSTOM_RASTER_OUTLINE_COLOR;
         }
     }
 
@@ -133,6 +139,10 @@ public class RasterLayerWidget extends ClickableWidget {
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
+    }
+
+    protected void setDeleteProgressPercent(float percent) {
+        deleteProgressPercent = percent;
     }
 
     public void setAnchor(AnchorWidget anchor) {
@@ -217,12 +227,14 @@ public class RasterLayerWidget extends ClickableWidget {
         else setTooltip(Tooltip.of(Text.empty()));
 
         UContext.borderWidget(this,
-                isFocused() ||
-                        (isHovered() &&
-                                (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen ||
-                                isAddButton)) ?
-                outlineFocusColor :
-                outlineBaseColor);
+                isFocused() || (isHovered() && (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen || isAddButton)) ?
+                    outlineFocusColor :
+                    outlineBaseColor
+        );
+        if (deleteProgressPercent != 0f) UContext.borderWidget(
+                this,
+                ColorUtil.setAlpha((int) (127 * deleteProgressPercent), 0xFFFF5555)
+        );
     }
 
     private void drawBackground(Identifier texture) {
@@ -278,6 +290,10 @@ public class RasterLayerWidget extends ClickableWidget {
             UContext.resetTextureAlpha();
         }
 
+        if (deleteProgressPercent != 0f) {
+            UContext.fillZone(getX(), getY(), (int) (getWidth() * deleteProgressPercent), getHeight(), 0x7fFF0000);
+        }
+
     }
 
     private Text getSubMessage() {
@@ -304,7 +320,7 @@ public class RasterLayerWidget extends ClickableWidget {
 
         if (isAddButton) {
             if (currentScreen instanceof ViewSetRastersScreen) {
-                MinecraftClient.getInstance().setScreen(new OverlayRasterScreen());
+                MinecraftClient.getInstance().setScreen(new OverlayRasterScreen(true));
             }
             if (currentScreen instanceof BaseRasterScreen || currentScreen instanceof OverlayRasterScreen) {
                 CreateRasterScreen.layerType = (currentScreen instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
@@ -338,6 +354,14 @@ public class RasterLayerWidget extends ClickableWidget {
         if (opacitySlider != null) {
             opacitySlider.onRelease(mouseX, mouseY);
             return false;
+        }
+
+        for (MicroButton mButton : microButtons) {
+            if (mButton.buttonFunction != MicroButtonFunction.DELETE) continue;
+            if (mButton.isMouseOver(mouseX, mouseY)) {
+                mButton.onRelease(mouseX, mouseY);
+                return false;
+            }
         }
 
         return super.mouseReleased(mouseX, mouseY, button);

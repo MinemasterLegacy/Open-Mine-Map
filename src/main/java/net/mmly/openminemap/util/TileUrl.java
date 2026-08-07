@@ -36,7 +36,7 @@ public class TileUrl {
 
     public TileUrl(String name, String source_url, String attribution, String[] attribution_links, LayerType layerType) {
         this.name = name;
-        this.identifierString = name.toLowerCase(Locale.US).replace(" ", "-");
+        this.identifierString = name == null ? "" : name.toLowerCase(Locale.US).replace(" ", "-");
         this.attribution = attribution;
         this.attribution_links = attribution_links;
         this.source_url = source_url;

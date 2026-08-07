@@ -349,8 +349,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     private static void updateWidgetPositions(TextRenderer textRenderer) {
-        attributionLayer.setDimensionsAndPosition(attributionLayer.textWidth + 10,  16, windowScaledWidth - attributionLayer.textWidth - 10, windowScaledHeight - 16);
-
+        attributionLayer.updatePositionAndDimensions(coordinateInfoLayer.getWidth(), windowScaledWidth, windowScaledHeight);
         //if attribution would overlay the coordinate display
         //coordinate sample is meant to simulate the longest possible case so movement doesn't occur when the mouse is moved
         if (attributionLayer.getWidth() + textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) + 8 > windowScaledWidth) { //if attribution and coordinates would overlap
@@ -609,7 +608,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
 
         //draws the attribution and report bug text fields
-        attributionLayer.drawWidget(context, this.textRenderer);
+        attributionLayer.newDrawWidget(context, this.textRenderer);
         bugReportLayer.drawWidget(context, this.textRenderer);
 
         networkStatusLayer.drawWidget(context);

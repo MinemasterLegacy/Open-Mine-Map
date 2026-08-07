@@ -48,6 +48,7 @@ public class ViewSetRastersScreen extends RasterScreen {
     public void close() {
         super.close();
         RasterProvider.writeOverlayInfo();
+        TileUrlFile.saveCustomRastersToFile();
         MapScreen.updateAltScreenMap(this, returnScreen);
      }
 

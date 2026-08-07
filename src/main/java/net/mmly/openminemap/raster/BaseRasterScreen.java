@@ -10,8 +10,8 @@ import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 
 public class BaseRasterScreen extends RasterScreen {
-    public BaseRasterScreen() {
-        super(40, true);
+    public BaseRasterScreen(boolean updateReturnScreen) {
+        super(40, updateReturnScreen);
     }
 
     public static ButtonWidget confirmButton;

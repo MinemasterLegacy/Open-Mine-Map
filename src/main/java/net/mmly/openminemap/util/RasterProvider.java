@@ -256,6 +256,12 @@ public class RasterProvider {
         TileManager.refreshRasterTileMap();
     }
 
+    public static void deleteCustomRaster(TileUrl raster) {
+        boolean b = customRasters.remove(raster);
+        if (b) OpenMineMap.LOGGER.info("Deleted raster \"" + raster.name + "\"");
+        else OpenMineMap.LOGGER.warn("Unable to delete raster \"" + raster.name + "\": Not found in customRasters array");
+    }
+
     public static void addCustomRaster(TileUrl raster) {
         customRasters.add(raster);
     }

@@ -97,9 +97,9 @@ public class HudMap {
         if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) { //todo translate
             MinecraftClient.getInstance().player.sendMessage(
                     Text.literal("Openminemap: ").formatted(Formatting.DARK_GREEN).formatted(Formatting.BOLD).append(
-                            Text.literal("Press  " +
+                            Text.literal("Press [" +
                             KeyBindingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getLocalizedText().getString().toUpperCase(Locale.US) +
-                            "  to open the Fullscreen Map").formatted(Formatting.RESET).formatted(Formatting.BLUE)
+                            "] to open the Fullscreen Map").formatted(Formatting.RESET).formatted(Formatting.BLUE)
                     )
             , false);
             ConfigFile.writeParameter(ConfigOptions._FIRST_SESSION_TIP_GIVEN, "true");

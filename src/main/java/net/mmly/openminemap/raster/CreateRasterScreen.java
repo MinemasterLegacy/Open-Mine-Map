@@ -11,12 +11,14 @@ import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.TileUrlErrorType;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -25,6 +27,7 @@ public class CreateRasterScreen extends Screen {
 
     private ArrayList<TextFieldWidget> fieldWidgets;
     private ButtonWidget doneButton;
+    private ButtonWidget cancelButton;
     private ButtonLayer addAttributionButton;
     private ButtonLayer removeAttributionButton;
     private static TileUrl tileUrl;
@@ -41,7 +44,6 @@ public class CreateRasterScreen extends Screen {
 
     @Override
     public void close() {
-        saveCurrentUrl();
         MinecraftClient.getInstance().setScreen(returnScreen);
         layerType = null;
     }
@@ -108,7 +110,10 @@ public class CreateRasterScreen extends Screen {
             fieldWidgets.getLast().setY(fieldWidgets.getLast().getY() + (int) perSpace);
         }
 
-        doneButton.setPosition(width / 2 - 100, height - 20 - (int) perSpace);
+        int edgeMargin = (width - 10 - 2 * ButtonWidget.DEFAULT_WIDTH_SMALL) / 2;
+        doneButton.setPosition(edgeMargin, height - 20 - (int) perSpace);
+        cancelButton.setPosition(edgeMargin + 10 + ButtonWidget.DEFAULT_WIDTH_SMALL, height - 20 - (int) perSpace);
+
 
         if (!baseFieldsEditable) return;
 
@@ -215,14 +220,37 @@ public class CreateRasterScreen extends Screen {
     }
 
     @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        boolean b = super.keyPressed(keyCode, scanCode, modifiers);
+        if (!ConfigOptions.__SHOW_DEVELOPER_OPTIONS.getAsBoolean()) return b;
+        if (keyCode != GLFW.GLFW_KEY_RIGHT_ALT) return b;
+        if (!isNew) return b;
+
+        fieldWidgets.get(0).setText("Dummy Raster");
+        fieldWidgets.get(1).setText("https://a.a.a{x}{y}{z}");
+        fieldWidgets.get(2).setText("{e}");
+        fieldWidgets.get(3).setText("https://a.a.a");
+        saveCurrentUrl();
+        close();
+        return b;
+    }
+
+    @Override
     protected void init() {
         super.init();
 
         doneButton = ButtonWidget.builder(isNew ? Text.translatable("omm.text.create") : Text.translatable("omm.text.done"), (widget) -> {
+            saveCurrentUrl();
             CreateRasterScreen.instance.close(); //todo validate raster on creation
         }).position(0, -100).build();
-        doneButton.setWidth(200);
+        doneButton.setWidth(ButtonWidget.DEFAULT_WIDTH_SMALL);
         addDrawableChild(doneButton);
+
+        cancelButton = ButtonWidget.builder(Text.translatable("gui.cancel"), (widget) -> {
+            CreateRasterScreen.instance.close();
+        }).position(0, -100).build();
+        cancelButton.setWidth(ButtonWidget.DEFAULT_WIDTH_SMALL);
+        addDrawableChild(cancelButton);
 
         initFieldWidgets();
 

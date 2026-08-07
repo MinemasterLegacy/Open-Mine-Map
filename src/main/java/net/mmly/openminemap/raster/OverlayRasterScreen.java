@@ -7,8 +7,8 @@ import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 
 public class OverlayRasterScreen extends RasterScreen {
-    public OverlayRasterScreen() {
-        super(40, true);
+    public OverlayRasterScreen(boolean updateReturnScreen) {
+        super(40, updateReturnScreen);
     }
 
     public static ButtonWidget confirmButton;

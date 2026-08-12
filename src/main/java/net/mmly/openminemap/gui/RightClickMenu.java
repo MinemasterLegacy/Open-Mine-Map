@@ -281,6 +281,8 @@ public class RightClickMenu extends ClickableWidget {
 
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         if (displayType == RightClickMenuType.HIDDEN) return;
+
+        if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 5, (int) clickY - 14, 10, 14);
         context.fill(getX(), getY(), getX() + width, getY() + height, displayType == RightClickMenuType.SCREEN_WAYPOINT ? 0xFF000000 : MapScreen.backingColor);
 
         for (int i = 0; i < menuOptions.size(); i++) {
@@ -322,8 +324,6 @@ public class RightClickMenu extends ClickableWidget {
 
             );
         }
-
-        if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 5, (int) clickY - 14, 10, 14);
 
     }
 

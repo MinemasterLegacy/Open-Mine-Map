@@ -865,6 +865,7 @@ public class OmmMap extends ClickableWidget {
             UContext.drawDiagonalLine(winRelPoints[i], winRelPoints[i + 1 >= winRelPoints.length ? 0 : i + 1], Math.clamp((int) Math.ceil((zoom - 9) / 3), 1, 3), outlineColor);
         }
 
+        UContext.fillZone(winRelPoints[0][0], winRelPoints[0][1], 1, 1, outlineColor);
         if (zoom > 12) for (int[] point : winRelPoints) {
             UContext.square(point[0], point[1], 1, outlineColor);
         }

@@ -38,7 +38,7 @@ public class ConfigScreen extends Screen {
     public static int windowScaledHeight;
     public static int windowScaledWidth;
 
-    private static WikiLinkLayer wikiLinkLayer;
+    private static CreditLayer creditLayer;
     private static ButtonLayer exitButtonLayer;
     private static ButtonLayer checkButtonLayer;
     ButtonWidget configHud;
@@ -143,8 +143,8 @@ public class ConfigScreen extends Screen {
         configList.setHeight(windowScaledHeight - BOTTOM_SPACE);
         this.addDrawableChild(configList);
 
-        wikiLinkLayer = new WikiLinkLayer(0, 0);
-        this.addDrawableChild(wikiLinkLayer);
+        creditLayer = new CreditLayer(0, 0);
+        this.addDrawableChild(creditLayer);
 
         exitButtonLayer = new ButtonLayer(windowScaledWidth - 22, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, ButtonFunction.EXIT);
         checkButtonLayer = new ButtonLayer(windowScaledWidth + 2, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, ButtonFunction.CHECKMARK);
@@ -288,7 +288,7 @@ public class ConfigScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         updateScreenDims();
 
-        wikiLinkLayer.setPosition(windowScaledWidth - wikiLinkLayer.getWidth(), windowScaledHeight - BOTTOM_SPACE + 7);
+        creditLayer.setPosition(windowScaledWidth - creditLayer.getWidth() - 3, windowScaledHeight - BOTTOM_SPACE + 7);
         exitButtonLayer.setPosition(windowScaledWidth / 2 - 22, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
         checkButtonLayer.setPosition(windowScaledWidth / 2 + 2, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
         configHud.setY(windowScaledHeight - BOTTOM_BUTTON_OFFSET);
@@ -297,7 +297,7 @@ public class ConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
 
         UContext.setContext(context);
-        wikiLinkLayer.drawWidget(context, textRenderer);
+        creditLayer.drawWidget(context, textRenderer);
         UContext.drawJustifiedText(Text.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF, true);
     }
 }

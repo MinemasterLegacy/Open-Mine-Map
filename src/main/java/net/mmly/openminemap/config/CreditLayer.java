@@ -1,4 +1,4 @@
-package net.mmly.openminemap.gui;
+package net.mmly.openminemap.config;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -9,18 +9,19 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.gui.MapScreen;
 
-import static net.mmly.openminemap.gui.MapScreen.windowScaledHeight;
-import static net.mmly.openminemap.gui.MapScreen.windowScaledWidth;
+import static net.mmly.openminemap.config.ConfigScreen.windowScaledHeight;
+import static net.mmly.openminemap.config.ConfigScreen.windowScaledWidth;
 
-public class BugReportLayer extends ClickableWidget {
+public class CreditLayer extends ClickableWidget {
 
-    private final MutableText text;
+    private static final int TEXT_COLOR = 0xff00AAAA;
+    private static final MutableText TEXT = Text.literal("By MinemasterLegacy");
+    private static final MutableText UNDERLINED_TEXT = Text.literal("By MinemasterLegacy").formatted(Formatting.UNDERLINE);
 
-    public BugReportLayer(int x, int y) {
-        super(x, y, 0, 16, Text.empty());
-        text = Text.translatable("omm.fullscreen.report-bugs");
-        setWidth(MinecraftClient.getInstance().textRenderer.getWidth(text) + 8);
+    public CreditLayer(int x, int y) {
+        super(x, y, MinecraftClient.getInstance().textRenderer.getWidth(TEXT) + 4, 12, Text.empty());
     }
 
     @Override
@@ -32,20 +33,18 @@ public class BugReportLayer extends ClickableWidget {
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
-        UContext.fillWidget(this, MapScreen.backingColor);
         context.drawText(textRenderer,
-                isHovered() ?
-                        text.formatted(Formatting.UNDERLINE) :
-                        text,
-                getX() + 4,
-                getY() + 4,
-                0xFF0B9207,
+                isHovered() ? UNDERLINED_TEXT : TEXT,
+                getX() + 2,
+                getY() + 1,
+                TEXT_COLOR,
                 true);
     }
 
     @Override
     public void onClick(double mouseX, double mouseY) {
         //FullscreenMapScreen.openBugReportScreen();
-        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new MapScreen(), true);
+        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", ConfigScreen.getInstance(), false);
     }
+
 }

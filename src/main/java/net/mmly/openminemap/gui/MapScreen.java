@@ -63,7 +63,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     private static RightClickMenu rightClickLayer;
     private static AttributionLayer attributionLayer;
-    private static BugReportLayer bugReportLayer;
+    private static WikiLinkLayer bugReportLayer;
     private static CoordinateInfoLayer coordinateInfoLayer;
     private static ToggleButtonLayer toggleHudMapButtonLayer;
     private static ToggleButtonLayer toggleClaimRenderingButtonLayer;
@@ -318,7 +318,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         this.addDrawableChild(coordinateInfoLayer);
         attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, LINE_HEIGHT);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
-        bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32);
+        bugReportLayer = new WikiLinkLayer(windowScaledWidth - 157, windowScaledHeight - 32);
         this.addDrawableChild(bugReportLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
 
         TileManager.initializeConfigParameters();

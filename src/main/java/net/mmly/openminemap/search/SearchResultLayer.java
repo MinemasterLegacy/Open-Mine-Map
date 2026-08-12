@@ -166,6 +166,7 @@ public class SearchResultLayer extends ClickableWidget {
             goToResult();
             return true;
         }
+
         MapScreen.getInstance().jumpToSearchBox(keyCode, scanCode, modifiers);
         return true;
 

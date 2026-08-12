@@ -49,6 +49,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     private static final int BUTTON_SIZE = 20;
     private static final int BUTTON_MARGIN = 4;
+    private static final int LINE_HEIGHT = 16;
     private static final String MAX_LENGTH_COORDINATE_STRING = "-99.99999°, -999.99999°";
     private static int attributionOffset = 0;
     private static final int[][] buttonPositions = new int[2][10];
@@ -315,7 +316,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         coordinateInfoLayer = new CoordinateInfoLayer();
         this.addDrawableChild(coordinateInfoLayer);
-        attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, 16);
+        attributionLayer = new AttributionLayer(windowScaledWidth - 157, windowScaledHeight - 16, 157, LINE_HEIGHT);
         this.addDrawableChild(attributionLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
         bugReportLayer = new BugReportLayer(windowScaledWidth - 157, windowScaledHeight - 32);
         this.addDrawableChild(bugReportLayer); //windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight,
@@ -349,23 +350,13 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     private static void updateWidgetPositions(TextRenderer textRenderer) {
-        attributionLayer.updatePositionAndDimensions(coordinateInfoLayer.getWidth(), windowScaledWidth, windowScaledHeight);
+        attributionLayer.updatePositionAndDimensions(coordinateInfoLayer.getWidth() + 3, windowScaledWidth, windowScaledHeight);
         //if attribution would overlay the coordinate display
         //coordinate sample is meant to simulate the longest possible case so movement doesn't occur when the mouse is moved
-        if (attributionLayer.getWidth() + textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) + 8 > windowScaledWidth) { //if attribution and coordinates would overlap
-            attributionOffset = attributionLayer.getHeight();
-        } else {
-            attributionOffset = 0;
-        }
 
         int buttonShelfWidth = (BUTTON_SIZE * buttonCenterShelf.size()) + (BUTTON_MARGIN * (buttonCenterShelf.size() - 1));
-        int shelfX = (int) ((float) (windowScaledWidth - buttonShelfWidth) / 2);
-        int buttonX = shelfX;
-        int buttonY = windowScaledHeight - (BUTTON_SIZE + 20);
-
-        if (textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) + 8 > shelfX) {
-            buttonY -= attributionOffset != 0 ? 32 : 16;
-        }
+        int buttonX = (int) ((float) (windowScaledWidth - buttonShelfWidth) / 2);
+        int buttonY = windowScaledHeight - BUTTON_SIZE - BUTTON_MARGIN - attributionLayer.getHeight();
 
         //calculate button positions
         for (ButtonFunction function : buttonCenterShelf.keySet()) {
@@ -382,15 +373,15 @@ public class MapScreen extends Screen { //Screen object that represents the full
         int i = 0;
         for (ButtonFunction function : buttonLeftShelf.keySet()) {
             buttonLeftShelf.get(function).setPosition(
-                    4 + (i * 24),
-                    windowScaledHeight - 24 - coordinateInfoLayer.getHeight()
+                    BUTTON_MARGIN + (i * (BUTTON_SIZE + BUTTON_MARGIN)),
+                    windowScaledHeight - BUTTON_SIZE - BUTTON_MARGIN - coordinateInfoLayer.getHeight()
             );
             i++;
         }
 
-        toggleHudMapButtonLayer.setPosition(windowScaledWidth - 25, windowScaledHeight - 57);
-        toggleClaimRenderingButtonLayer.setPosition(windowScaledWidth - 50, windowScaledHeight - 57);
-        bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), windowScaledHeight - 32);
+        bugReportLayer.setPosition(windowScaledWidth - bugReportLayer.getWidth(), attributionLayer.getY() - LINE_HEIGHT);
+        toggleHudMapButtonLayer.setPosition(windowScaledWidth - (BUTTON_MARGIN + BUTTON_SIZE), bugReportLayer.getY() - BUTTON_SIZE - BUTTON_MARGIN);
+        toggleClaimRenderingButtonLayer.setPosition(windowScaledWidth - 2 * (BUTTON_MARGIN + BUTTON_SIZE), bugReportLayer.getY() - BUTTON_SIZE - BUTTON_MARGIN);
 
         if (networkStatusLayer.shouldBeVisible()) networkStatusLayer.setX(instance.width - 26);
         else networkStatusLayer.setX(-100);
@@ -608,7 +599,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
 
         //draws the attribution and report bug text fields
-        attributionLayer.newDrawWidget(context, this.textRenderer);
+        attributionLayer.drawWidget(context, this.textRenderer);
         bugReportLayer.drawWidget(context, this.textRenderer);
 
         networkStatusLayer.drawWidget(context);
@@ -625,9 +616,10 @@ public class MapScreen extends Screen { //Screen object that represents the full
         searchBoxLayer.drawWidget(context);
 
         if (RasterProvider.doMapboxAttribution()) {
-            int size = getMapboxAttributionSize();
+            // 1.75x space for mapbox logo
+            int size = getMapboxAttributionSize(); //pixel size for attribution asset
             int margin = size / 4;
-            int yPos = height - (attributionOffset + 58 + margin * 2 + size);
+            int yPos = coordinateInfoLayer.getY() - BUTTON_SIZE - 2 * BUTTON_MARGIN - size - 2 * margin;
 
             UContext.fillZone(
                     0,

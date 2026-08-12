@@ -337,6 +337,7 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     public static void resetScroll() {
         searchScroll = 0;
+        updateResultElementPositions();
     }
 
     public static void scrollMenu(double verticalAmount) {

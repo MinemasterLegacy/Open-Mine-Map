@@ -1,5 +1,6 @@
 package net.mmly.openminemap.gui;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -7,14 +8,19 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.mmly.openminemap.draw.UContext;
 
 import static net.mmly.openminemap.gui.MapScreen.windowScaledHeight;
 import static net.mmly.openminemap.gui.MapScreen.windowScaledWidth;
 
 public class BugReportLayer extends ClickableWidget {
 
+    private final MutableText text;
+
     public BugReportLayer(int x, int y) {
-        super(x, y, 70, 16, Text.empty());
+        super(x, y, 0, 16, Text.empty());
+        text = Text.translatable("omm.fullscreen.report-bugs");
+        setWidth(MinecraftClient.getInstance().textRenderer.getWidth(text) + 8);
     }
 
     @Override
@@ -26,17 +32,13 @@ public class BugReportLayer extends ClickableWidget {
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
-        MutableText text = Text.translatable("omm.fullscreen.report-bugs");
-        int textWidth = textRenderer.getWidth(text);
-        context.fill(windowScaledWidth - (textWidth + 10), windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, MapScreen.backingColor);
-        setX(windowScaledWidth - (textWidth + 10));
-        setWidth(windowScaledWidth - getX());
+        UContext.fillWidget(this, MapScreen.backingColor);
         context.drawText(textRenderer,
                 isHovered() ?
                         text.formatted(Formatting.UNDERLINE) :
                         text,
-                windowScaledWidth - (textWidth + 5),
-                windowScaledHeight + 7 - textRenderer.fontHeight - 10 - 16,
+                getX() + 4,
+                getY() + 4,
                 0xFF0B9207,
                 true);
     }

@@ -41,12 +41,16 @@ public class CoordinateInfoLayer extends ClickableWidget {
                 ),
                 //TODO translate below
                 textRenderer.getWidth(Text.of("Distortion: ").getString() + MAX_LENGTH_DISTORTION_STRING)
-        );
+        ) + 8;
     }
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-
+        setY(context.getScaledWindowHeight()
+                - (showDistortion ? 16 : 0)
+                - (showPlayerCoordinates ? 16 : 0)
+                - (showMouseCoordinates ? 16 : 0)
+        );
     }
 
     public void drawWidget(int windowHeight) {

@@ -1,5 +1,6 @@
 package net.mmly.openminemap.gui;
 
+import com.google.common.collect.Maps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -13,9 +14,6 @@ import net.mmly.openminemap.util.TileUrlFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static net.mmly.openminemap.gui.MapScreen.windowScaledHeight;
-import static net.mmly.openminemap.gui.MapScreen.windowScaledWidth;
-
 public class AttributionLayer extends ClickableWidget {
 
     public final int textWidth;
@@ -23,9 +21,14 @@ public class AttributionLayer extends ClickableWidget {
     private final String attributionString;
     private final char[] attributionCharArray; //todo remove
     private int[][] selectionZones;
-    private int selection = -1;
+    private int hoveredZone = -1;
     private int oldScreenWidth = 0;
 
+    ArrayList<ArrayList<String>> words = new ArrayList<>();
+    ArrayList<int[]> clickZones = new ArrayList<>();
+    ArrayList<Integer> clickLinks = new ArrayList<>();
+
+    private static final int LINK_COLOR = 0xFF548AF7;
     public static final int LINE_HEIGHT = 16;
     public static final int X_MARGIN = 4;
     public static final int Y_MARGIN = 4;
@@ -48,7 +51,7 @@ public class AttributionLayer extends ClickableWidget {
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000);
-        calculateSelection(mouseX);
+        calculateSelection(mouseX, mouseY);
     }
 
     public void updatePositionAndDimensions(int coordinateWidth, int screenWidth, int screenHeight) {
@@ -57,7 +60,6 @@ public class AttributionLayer extends ClickableWidget {
 
         setWidth(Math.max(screenWidth - coordinateWidth, MIN_WIDTH));
         parseAttributionString(textRenderer, attributionString);
-        System.out.println("attr. string: \"" + attributionString + "\"");
         if (words.size() == 1) width = textRenderer.getWidth(attributionString.replaceAll("[{}]", "")) + 2 * X_MARGIN;
 
         oldScreenWidth = screenWidth;
@@ -65,16 +67,44 @@ public class AttributionLayer extends ClickableWidget {
         setPosition(screenWidth - width, screenHeight - height);
     }
 
-    public void newDrawWidget(DrawContext context, TextRenderer textRenderer) {
+    enum SelectState {
+        NONE,
+        LINK,
+        HOVER
+    }
+
+    public void drawWidget(DrawContext context, TextRenderer textRenderer) {
         context.fill(getX(), getY(), getRight(), getBottom(), MapScreen.backingColor);
         int offsetX = X_MARGIN;
         int offsetY = Y_MARGIN;
-        for (ArrayList<String> line : words) {
-            for (String word : line) {
-                context.drawText(textRenderer, Text.of(word), getX() + offsetX, getY() + offsetY, 0xFFFF0000, true);
+        for (int l = 0; l < words.size(); l++) {
+            ArrayList<String> line = words.get(l);
+            for (int i = 0; i < line.size(); i++) {
+                String word = line.get(i);
+
+                SelectState selectState = determineSelectState(l, offsetX);
+                context.drawText(
+                        textRenderer,
+                        Text.literal(word).formatted(selectState == SelectState.HOVER ? Formatting.UNDERLINE : Formatting.RESET),
+                        getX() + offsetX,
+                        getY() + offsetY,
+                        selectState == SelectState.NONE ? MapScreen.getPlainTextColor() : LINK_COLOR,
+                        true
+                );
+
                 offsetX += textRenderer.getWidth(word);
-                if (line.getLast().equals(word)) continue;
-                context.drawText(textRenderer, Text.of(" "), getX() + offsetX, getY() + offsetY, 0xFFFF0000, true);
+                if (line.size() - 1 == i) continue;
+
+                selectState = determineSelectState(l, offsetX);
+                context.drawText(
+                        textRenderer,
+                        Text.literal(" ").formatted(selectState == SelectState.HOVER ? Formatting.UNDERLINE : Formatting.RESET),
+                        getX() + offsetX,
+                        getY() + offsetY,
+                        selectState == SelectState.NONE ? MapScreen.getPlainTextColor() : LINK_COLOR,
+                        true
+                );
+
                 offsetX += SPACE_WIDTH;
             }
             offsetY += LINE_HEIGHT;
@@ -82,65 +112,41 @@ public class AttributionLayer extends ClickableWidget {
         }
     }
 
-    public void drawWidget(DrawContext context, TextRenderer textRenderer) {
-        //context.fill(windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, 0x88000000);
-        //context.drawText(textRenderer, "Map data from", windowScaledWidth - 152, windowScaledHeight + 7 - textRenderer.fontHeight - 10, 0xFFFFFFFF, true);
-        //context.drawText(textRenderer, Text.of("OpenStreetMap"), windowScaledWidth - 77, windowScaledHeight + 7 - textRenderer.fontHeight - 10, 0xFF548AF7, true); //0xFF1b75d0
-
-        context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, MapScreen.backingColor);
-
-        int y = windowScaledHeight + 7 -textRenderer.fontHeight - 10;
-        int drawCursorX = windowScaledWidth - textWidth - 3;
-        int startX = drawCursorX;
-        int attributionsCount = 0;
-        StringBuilder bufferedText = new StringBuilder();
-        //System.out.println("----");
-        for (char currentChar : attributionCharArray) {
-            //System.out.println(currentChar+"\t"+drawCursorX);
-            if (currentChar == '{') {
-                context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, MapScreen.getPlainTextColor(), true);
-            } else if (currentChar == '}') {
-                context.drawText(textRenderer,
-                        selection == attributionsCount ?
-                                Text.literal(bufferedText.toString()).formatted(Formatting.UNDERLINE):
-                                Text.of(bufferedText.toString()),
-                        startX, y, 0xFF548AF7, true);
-                selectionZones[attributionsCount][0] = startX;
-                selectionZones[attributionsCount][1] = drawCursorX;
-                attributionsCount++;
-            } else {
-                //System.out.print(currentChar);
-                bufferedText.append(currentChar);
-                drawCursorX += (textRenderer.getWidth(Character.toString(currentChar)));
-                continue;
-            }
-            startX = drawCursorX;
-            //System.out.println("StartX -> "+startX);
-            bufferedText = new StringBuilder();
+    private SelectState determineSelectState(int line, int xOffset) {
+        xOffset -= X_MARGIN;
+        for (int i = 0; i < clickZones.size(); i++) {
+            int[] zone = clickZones.get(i);
+            if (zone[0] != line) continue;
+            if (zone[1] <= xOffset && xOffset < zone[2]) {
+                if (hoveredZone == clickLinks.get(i)) return SelectState.HOVER;
+                else return SelectState.LINK;
+            };
         }
-        context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, MapScreen.getPlainTextColor(), true);
+        return SelectState.NONE;
     }
 
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
-    private void calculateSelection(double mouseX) {
+    private void calculateSelection(double mouseX, double mouseY) {
         if (!isHovered()) {
-            selection = -1;
+            hoveredZone = -1;
             return;
         }
-        for (int i = 0 ; i < selectionZones.length ; i++) {
-            if (mouseX > selectionZones[i][0] && mouseX < selectionZones[i][1]) {
-                selection = i;
+
+        int mouseLinkLine = (int) ((mouseY - getY()) / 16);
+        int mouseLinkX = ((int) mouseX) - getX() - 4;
+
+        for (int i = 0; i < clickZones.size(); i++) {
+            int[] zone = clickZones.get(i);
+            if (zone[0] != mouseLinkLine) continue;
+            if (zone[1] <= mouseLinkX && mouseLinkX < zone[2]) {
+                hoveredZone = clickLinks.get(i);
                 return;
             }
         }
-        selection = -1;
+        hoveredZone = -1;
     }
-
-    ArrayList<ArrayList<String>> words = new ArrayList<>();
-    ArrayList<int[]> clickZones = new ArrayList<>();
-    ArrayList<Integer> clickLinks = new ArrayList<>();
 
     private void parseAttributionString(TextRenderer textRenderer, String attributionString) {
         StringBuilder builder = new StringBuilder();
@@ -162,15 +168,19 @@ public class AttributionLayer extends ClickableWidget {
                 if (words.getLast().isEmpty()) {
                     words.getLast().add(builder.toString());
                     builder = new StringBuilder();
-                    line++;
+                }
+                if (inLink) {
+                    clickZones.add(new int[] {line, linkStartX, lineWidth - textRenderer.getWidth(builder.toString())});
+                    if (clickZones.getLast()[1] == clickZones.getLast()[2]) {
+                        clickZones.remove(clickZones.getLast());
+                    } else {
+                        clickLinks.add(linkPointer);
+                    }
                 }
                 words.add(new ArrayList<>());
-                if (inLink) {
-                    clickZones.add(new int[] {line, linkStartX, lineWidth - textRenderer.getWidth(builder.toString()) - SPACE_WIDTH});
-                    clickLinks.add(linkPointer);
-                }
                 lineWidth = textRenderer.getWidth(builder.toString());
                 linkStartX = 0;
+                line++;
             }
 
             if (c == '{') {
@@ -193,6 +203,8 @@ public class AttributionLayer extends ClickableWidget {
         if (!builder.toString().isBlank()) {
             words.getLast().add(builder.toString());
         }
+
+        if (true) return;
 
         System.out.println(Arrays.toString(words.toArray()));
         System.out.println(Arrays.deepToString(clickZones.toArray()));
@@ -222,10 +234,10 @@ public class AttributionLayer extends ClickableWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        if (selection == -1) return;
+        if (hoveredZone == -1) return;
         String link;
-        if (selection == 0) link = TileUrlFile.osmAttributionUrl;
-        else link = RasterProvider.getCurrentBaseRaster().attribution_links[selection - 1];
+        if (hoveredZone == 0) link = TileUrlFile.osmAttributionUrl;
+        else link = RasterProvider.getCurrentBaseRaster().attribution_links[hoveredZone - 1];
         MapScreen.openLinkScreen(link, new MapScreen(), true);
     }
 }

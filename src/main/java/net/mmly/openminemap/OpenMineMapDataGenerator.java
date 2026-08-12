@@ -234,7 +234,18 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
         translationBuilder.add("omm.config.option.teleport-method", "Teleport Method");
         translationBuilder.add("omm.config.tooltip.teleport-method", "The command that will be prioritized when teleporting. Dynamic uses /tp in singleplayer and /tpll in multiplayer.");
         translationBuilder.add("omm.error.tile-url.start", "OpenMineMap Rasters");
-
+        translationBuilder.add("omm.raster.click-info", "Click for more info");
+        translationBuilder.add("omm.config.option.hidden-claims", "Hidden Claims");
+        translationBuilder.add("omm.config.tooltip.hidden-claims", "Show claims that are marked to not normally display on the Claim Map");
+        translationBuilder.add("omm.config.option.distortion-display", "Display Distortion");
+        translationBuilder.add("omm.config.tooltip.distortion-display", "Show distortion value on the Fullscreen Map");
+        translationBuilder.add("omm.error.duplicate-name", "An existing raster has this name");
+        translationBuilder.add("omm.error.invalid-characters", "Names must be alphanumeric");
+        translationBuilder.add("omm.fullscreen.distortion-label", "Distortion: ");
+        translationBuilder.add("omm.hud.first-session-tooltip.start", "Press [");
+        translationBuilder.add("omm.hud.first-session-tooltip.end", "] to open the Fullscreen Map");
+        translationBuilder.add("omm.raster.hold-to-delete", "Press and Hold to Delete");
+        translationBuilder.add("omm.error.raster-load-failed", "Rasters failed to load and cannot be modified.");
     }
 }
 

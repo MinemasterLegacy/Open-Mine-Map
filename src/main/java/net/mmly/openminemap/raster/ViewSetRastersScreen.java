@@ -13,9 +13,6 @@ import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 
-//todo add done buton
-//todo add preview option
-
 public class ViewSetRastersScreen extends RasterScreen {
 
     private static ViewSetRastersScreen instance;
@@ -60,7 +57,7 @@ public class ViewSetRastersScreen extends RasterScreen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         if (TileUrlFile.loadFailed) UContext.drawJustifiedText(
-                Text.literal("Rasters failed to load and cannot be modified.").formatted(Formatting.RED).formatted(Formatting.ITALIC),
+                Text.translatable("omm.error.raster-load-failed").formatted(Formatting.RED).formatted(Formatting.ITALIC),
                 Justify.CENTER,
                 width / 2,
                 height - 25,

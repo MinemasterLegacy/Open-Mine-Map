@@ -68,7 +68,7 @@ public class MicroButton extends ClickableWidget {
         else if (buttonFunction == MicroButtonFunction.DELETE) {
             if (isMouseOver(mouseX, mouseY)) UContext.getContext().drawTooltip(
                     MinecraftClient.getInstance().textRenderer,
-                    Text.of("Press and Hold to Delete"), //todo translate
+                    Text.translatable("omm.raster.hold-to-delete"),
                     mouseX,
                     mouseY
             );

@@ -7,7 +7,6 @@ import net.mmly.openminemap.raster.LayerType;
 
 import java.util.*;
 
-//TODO move all raster determination logic here (including from tileManager)
 //TODO load/save current configuration from config file (base, overlays, opacity, visibility)
 
 public class RasterProvider {

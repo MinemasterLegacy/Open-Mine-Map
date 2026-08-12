@@ -1095,7 +1095,7 @@ public class OmmMap extends ClickableWidget {
         context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
         drawMapLayer(mapType, RasterProvider.getCurrentBaseRaster()); //draw the map tiles + background
 
-        for (TileUrl raster : RasterProvider.getCurrentOverlays()) { //TODO order in which the loop processes overlays may need to be reversed, we shall see
+        for (TileUrl raster : RasterProvider.getCurrentOverlays()) {
             UContext.setTextureAlpha((int) (RasterProvider.getOpacityOf(raster) * 255));
             if (raster.layerType == LayerType.LOCAL_GEN) {
                 drawGeneratedOverlays(context);

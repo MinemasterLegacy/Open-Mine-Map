@@ -23,6 +23,8 @@ public class CoordinateInfoLayer extends ClickableWidget {
     private static final String MAX_LENGTH_COORDINATE_STRING = "-99.99999°, -999.99999°";
     private static final String MAX_LENGTH_DISTORTION_STRING = "9.9999 ±9.9999°";
     private static final int LINE_HEIGHT = 16;
+    private static final int MIN_WIDTH = 24;
+    private static final int TEXT_MARGIN = 4;
 
     public CoordinateInfoLayer() {
         super(0, 0, 0, 0, Text.of(""));
@@ -38,20 +40,22 @@ public class CoordinateInfoLayer extends ClickableWidget {
     private int getMaxWidth(TextRenderer textRenderer) {
         return Math.max(
                 Math.max(
-                        textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING),
-                        textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING)
+                        Math.max(
+                                showMouseCoordinates ? textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) : 0,
+                                showPlayerCoordinates ? textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) : 0
+                        ),
+                        showDistortion ? textRenderer.getWidth(Text.translatable("omm.fullscreen.distortion-label").getString() + MAX_LENGTH_DISTORTION_STRING) : 0
                 ),
-                //TODO translate below
-                textRenderer.getWidth(Text.of("Distortion: ").getString() + MAX_LENGTH_DISTORTION_STRING)
-        ) + 8;
+                MIN_WIDTH
+        ) + 2 * TEXT_MARGIN;
     }
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         setY(context.getScaledWindowHeight()
-                - (showDistortion ? 16 : 0)
-                - (showPlayerCoordinates ? 16 : 0)
-                - (showMouseCoordinates ? 16 : 0)
+                - (showDistortion ? LINE_HEIGHT : 0)
+                - (showPlayerCoordinates ? LINE_HEIGHT : 0)
+                - (showMouseCoordinates ? LINE_HEIGHT : 0)
         );
     }
 
@@ -85,10 +89,10 @@ public class CoordinateInfoLayer extends ClickableWidget {
         }
 
         int lineNum = 1;
-        if (showDistortion) { //todo translate
+        if (showDistortion) {
             drawTextLine(
                     MinecraftClient.getInstance().textRenderer,
-                    Text.of("Distortion: ").getString() + distortionBaseDisplay + " ±" + distortionMarginDisplay + "°",
+                    Text.translatable("omm.fullscreen.distortion-label").getString() + distortionBaseDisplay + " ±" + distortionMarginDisplay + "°",
                     lineNum++,
                     windowHeight);
         }
@@ -111,8 +115,8 @@ public class CoordinateInfoLayer extends ClickableWidget {
     }
 
     private void drawTextLine(TextRenderer renderer, String text, int num, int windowHeight) {
-        UContext.fillZone(0, windowHeight - num * LINE_HEIGHT, 8 + renderer.getWidth(Text.of(text)), LINE_HEIGHT, MapScreen.backingColor);
-        UContext.drawJustifiedText(Text.of(text), Justify.LEFT, 4, 4 + windowHeight - num * LINE_HEIGHT, MapScreen.getPlainTextColor(), true);
+        UContext.fillZone(0, windowHeight - num * LINE_HEIGHT, TEXT_MARGIN * 2 + renderer.getWidth(Text.of(text)), LINE_HEIGHT, MapScreen.backingColor);
+        UContext.drawJustifiedText(Text.of(text), Justify.LEFT, TEXT_MARGIN, TEXT_MARGIN + windowHeight - num * LINE_HEIGHT, MapScreen.getPlainTextColor(), true);
     }
 
     @Override

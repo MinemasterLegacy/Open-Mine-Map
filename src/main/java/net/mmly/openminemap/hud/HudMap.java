@@ -94,12 +94,17 @@ public class HudMap {
 
         showBorder = ConfigOptions.HUDMAP_BORDER.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
 
-        if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) { //todo translate
-            MinecraftClient.getInstance().player.sendMessage(
-                    Text.literal("Openminemap: ").formatted(Formatting.DARK_GREEN).formatted(Formatting.BOLD).append(
-                            Text.literal("Press [" +
-                            KeyBindingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getLocalizedText().getString().toUpperCase(Locale.US) +
-                            "] to open the Fullscreen Map").formatted(Formatting.RESET).formatted(Formatting.BLUE)
+        if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) {
+            MinecraftClient.getInstance().player
+                    .sendMessage(Text
+                            .translatable("omm.category.openminemap")
+                            .append(": ")
+                            .formatted(Formatting.DARK_GREEN).formatted(Formatting.BOLD)
+                    .append(Text
+                            .translatable("omm.hud.first-session-tooltip.start")
+                            .append(KeyBindingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getLocalizedText().getString().toUpperCase(Locale.US))
+                            .append(Text.translatable("omm.hud.first-session-tooltip.end"))
+                            .formatted(Formatting.RESET).formatted(Formatting.BLUE)
                     )
             , false);
             ConfigFile.writeParameter(ConfigOptions._FIRST_SESSION_TIP_GIVEN, "true");

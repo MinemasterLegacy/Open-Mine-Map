@@ -272,8 +272,8 @@ public class WaypointScreen extends Screen {
         if (WaypointFile.deleteWaypoint(getInstance().editingWaypointName)) {
             WaypointFile.setWaypointsOfThisWorld(false);
             instance.generateWaypointEntries();
-        } else { //todo translate
-            OpenMineMapClient.debugMessages.add(Text.translatable("OpenMineMap: Waypoint delete failed").getString());
+        } else {
+            OpenMineMapClient.debugMessages.add(Text.translatable("omm.error.waypoint-delete-failed").toString());
         }
     }
 

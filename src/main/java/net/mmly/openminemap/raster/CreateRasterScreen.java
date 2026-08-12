@@ -304,7 +304,7 @@ enum Fields {
 
     public static final Fields[] inOrder = new Fields[] {NAME, SOURCE, ATTRIBUTION, LINKS, KEY};
 
-    public MutableText getTranslated() { //TODO
+    public MutableText getTranslated() {
         return Text.translatable("omm.raster.field." + this.toString().toLowerCase(Locale.US));
     }
 

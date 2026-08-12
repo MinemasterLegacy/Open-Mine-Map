@@ -19,8 +19,6 @@ public class AttributionLayer extends ClickableWidget {
     public final int textWidth;
     private final String attribution;
     private final String attributionString;
-    private final char[] attributionCharArray; //todo remove
-    private int[][] selectionZones;
     private int hoveredZone = -1;
     private int oldScreenWidth = 0;
 
@@ -41,9 +39,7 @@ public class AttributionLayer extends ClickableWidget {
         if (RasterProvider.getCurrentBaseRaster().presetID == 0) split = "";
         TileUrlFile.initOsmAttribution();
         attributionString = (TileUrlFile.osmAttribution + split + RasterProvider.getCurrentBaseRaster().attribution);
-        attributionCharArray = attributionString.toCharArray();
         attribution = (TileUrlFile.osmAttribution + split + RasterProvider.getCurrentBaseRaster().attribution).replaceAll("\\{", "").replaceAll("}", "");
-        selectionZones = new int[(attributionCharArray.length - attribution.length() / 2)][2];
         textWidth = MinecraftClient.getInstance().textRenderer.getWidth(attribution);
         SPACE_WIDTH = MinecraftClient.getInstance().textRenderer.getWidth(" ");
     }

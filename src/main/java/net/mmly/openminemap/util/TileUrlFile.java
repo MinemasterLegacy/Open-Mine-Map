@@ -277,6 +277,10 @@ public class TileUrlFile {
         return array;
     }
 
+    private static boolean charIsValid(char c) {
+        return c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == ' ' || c == '_';
+    }
+
     /// Check a raster provider to see if it is valid, returns an error as an enum if not
     public static TileUrlErrorType checkValidityOf(TileUrl tileUrl) {
         //System.out.println(" # Starting a TileUrl check.");
@@ -291,19 +295,19 @@ public class TileUrlFile {
             tileUrl.attribution_links == null
         ) return TileUrlErrorType.NULL_VALUE;
 
-        //Check for invalid directory characters
-        if (SystemUtils.IS_OS_WINDOWS) {
-            if (tileUrl.name.replaceAll("[<>:\"/\\\\|?*,]", "").length() != tileUrl.name.length()) return TileUrlErrorType.INVALID_CHARACTERS;
-            if (tileUrl.name.endsWith(".") || tileUrl.name.endsWith(" ")) return TileUrlErrorType.INVALID_CHARACTERS;
-        } else {
-            if (tileUrl.name.replaceAll("/,", "").length() != tileUrl.name.length()) return TileUrlErrorType.INVALID_CHARACTERS;
+        //Check for invalid characters
+        for (char c : tileUrl.name.toCharArray()) {
+            if (!charIsValid(c)) return TileUrlErrorType.INVALID_CHARACTERS;
         }
 
         //Check for duplicate names
         for (TileUrl raster : RasterProvider.getCustomRasters()) {
-            if (raster.name.equals(tileUrl.name)) return TileUrlErrorType.DUPLICATE_NAME;
+            if (raster.name.toLowerCase(Locale.US).equals(tileUrl.name.toLowerCase(Locale.US))) return TileUrlErrorType.DUPLICATE_NAME;
         }
-        if (tileUrl.name.equals(TileUrl.generatedLayerUrl.name)) return TileUrlErrorType.DUPLICATE_NAME;
+        for (TileUrl raster : RasterProvider.getPresetRasters()) {
+            if (raster.name.toLowerCase(Locale.US).equals(tileUrl.name.toLowerCase(Locale.US))) return TileUrlErrorType.DUPLICATE_NAME;
+        }
+        if (tileUrl.name.toLowerCase(Locale.US).equals(TileUrl.generatedLayerUrl.name)) return TileUrlErrorType.DUPLICATE_NAME;
 
         //check for zoom, x, and y fields
         if (tileUrl.source_url.replaceAll("\\{x}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_X_POSITION_FIELD;

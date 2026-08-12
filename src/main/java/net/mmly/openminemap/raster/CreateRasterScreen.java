@@ -240,8 +240,9 @@ public class CreateRasterScreen extends Screen {
         super.init();
 
         doneButton = ButtonWidget.builder(isNew ? Text.translatable("omm.text.create") : Text.translatable("omm.text.done"), (widget) -> {
+            if (TileUrlFile.checkValidityOf(buildRaster()) != TileUrlErrorType.NO_ERROR) return;
             saveCurrentUrl();
-            CreateRasterScreen.instance.close(); //todo validate raster on creation
+            CreateRasterScreen.instance.close();
         }).position(0, -100).build();
         doneButton.setWidth(ButtonWidget.DEFAULT_WIDTH_SMALL);
         addDrawableChild(doneButton);

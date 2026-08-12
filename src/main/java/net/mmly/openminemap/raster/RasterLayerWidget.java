@@ -12,6 +12,7 @@ import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
+import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.map.LoadableTile;
 import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.map.TileLoader;
@@ -223,7 +224,11 @@ public class RasterLayerWidget extends ClickableWidget {
         }
         UContext.resetTextureAlpha();
 
-        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.translatable("omm.raster.requires-api-key")));
+        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.of(
+                Text.translatable("omm.raster.requires-api-key").toString() +
+                "\n" +
+                Text.translatable("omm.raster.click-info").toString()
+        )));
         else setTooltip(Tooltip.of(Text.empty()));
 
         UContext.borderWidget(this,
@@ -342,6 +347,14 @@ public class RasterLayerWidget extends ClickableWidget {
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY) {
+        if (isHovered() && showKey && mouseIsOverKey((int) mouseX, (int) mouseY)) {
+            MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Rasters#api-keys", MinecraftClient.getInstance().currentScreen, false);
+        }
+        super.onClick(mouseX, mouseY);
     }
 
     public void releaseSlider(double mouseX, double mouseY) {

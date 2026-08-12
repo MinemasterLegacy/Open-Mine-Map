@@ -73,6 +73,7 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget hudmapBorderOption;
     ChoiceButtonWidget buttonStyleOption;
     ChoiceMultiSelectWidget webOptionsOption;
+    ChoiceButtonWidget distortionDisplayOption;
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -246,6 +247,9 @@ public class ConfigScreen extends Screen {
 
         webOptionsOption = new ChoiceMultiSelectWidget(WebIcon.ORDERED_LIST, ConfigOptions.WEB_OPTIONS);
         this.addConfigOptionWidget(webOptionsOption);
+
+        distortionDisplayOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.DISTORTION_DISPLAY);
+        this.addConfigOptionWidget(distortionDisplayOption);
 
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));

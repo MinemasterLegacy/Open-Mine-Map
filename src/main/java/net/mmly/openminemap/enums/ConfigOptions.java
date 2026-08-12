@@ -42,6 +42,7 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     WEB_OPTIONS(0, "WebOptions", "gm,osm,bte,mpy"),
     TELEPORT_INTERCEPT(0, "TeleportIntercept", "off", "teleport-intercept"),
     BUTTON_STYLE(0, "ButtonStyle", "texture", "button-style"),
+    DISTORTION_DISPLAY(0, "DistortionDisplay", "off", "distortion-display"), //todo translate
 
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),

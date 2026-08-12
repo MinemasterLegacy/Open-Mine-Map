@@ -8,6 +8,7 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
@@ -26,6 +27,7 @@ public class CoordinateInfoLayer extends ClickableWidget {
     public CoordinateInfoLayer() {
         super(0, 0, 0, 0, Text.of(""));
         setWidth(getMaxWidth(MinecraftClient.getInstance().textRenderer));
+        showDistortion = ConfigOptions.DISTORTION_DISPLAY.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF);
         setHeight(
                 (showMouseCoordinates ? LINE_HEIGHT : 0) +
                 (showPlayerCoordinates ? LINE_HEIGHT : 0) +

@@ -357,6 +357,9 @@ public class MapScreen extends Screen { //Screen object that represents the full
         int buttonShelfWidth = (BUTTON_SIZE * buttonCenterShelf.size()) + (BUTTON_MARGIN * (buttonCenterShelf.size() - 1));
         int buttonX = (int) ((float) (windowScaledWidth - buttonShelfWidth) / 2);
         int buttonY = windowScaledHeight - BUTTON_SIZE - BUTTON_MARGIN - attributionLayer.getHeight();
+        if (coordinateInfoLayer.getRight() >= (windowScaledWidth / 2) - (buttonShelfWidth / 2)) {
+            buttonY = Math.min(buttonY, coordinateInfoLayer.getY() - BUTTON_MARGIN - BUTTON_SIZE);
+        }
 
         //calculate button positions
         for (ButtonFunction function : buttonCenterShelf.keySet()) {

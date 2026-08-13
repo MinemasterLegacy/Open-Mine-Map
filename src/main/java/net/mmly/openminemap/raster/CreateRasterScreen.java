@@ -21,6 +21,7 @@ import net.mmly.openminemap.util.TileUrlFile;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class CreateRasterScreen extends Screen {
@@ -148,7 +149,11 @@ public class CreateRasterScreen extends Screen {
     }
 
     private String rasterIsValid(TileUrl raster) {
-        TileUrlErrorType errorType = TileUrlFile.checkValidityOf(raster);
+        return rasterIsValid(raster, null);
+    }
+
+    private String rasterIsValid(TileUrl raster, TileUrl nameIgnoredRaster) {
+        TileUrlErrorType errorType = TileUrlFile.checkValidityOf(raster, nameIgnoredRaster);
         if (errorType == TileUrlErrorType.NO_ERROR) return null;
         else return Text.translatable(errorType.translationKey).getString();
     }
@@ -170,8 +175,8 @@ public class CreateRasterScreen extends Screen {
     }
 
     private String[] getAttributionLinksList() {
-        String[] links = new String[fieldWidgets.size()-3];
-        for (int i = 0; i < fieldWidgets.size()-3; i++) {
+        String[] links = new String[fieldWidgets.size() - 3 - (hasKeyField ? 1 : 0)];
+        for (int i = 0; i < fieldWidgets.size() - 3 - (hasKeyField ? 1 : 0); i++) {
             links[i] = fieldWidgets.get(3+i).getText();
             if (links[i].isEmpty()) links[i] = null;
         }
@@ -274,7 +279,7 @@ public class CreateRasterScreen extends Screen {
         updateWidgetPositions();
 
         if (isNew) {
-            String validity = rasterIsValid(buildRaster());
+            String validity = rasterIsValid(buildRaster(), tileUrl);
             if (validity == null) {
                 doneButton.active = true;
                 doneButton.setTooltip(null);

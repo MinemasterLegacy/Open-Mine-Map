@@ -315,7 +315,7 @@ public class TileUrlFile {
 
         // if the mathching raster is meant to be ignored, ignore it, otherwise return error
         if (match != null) {
-            if (!(nameIgnoredRaster != null && match == nameIgnoredRaster)) {
+            if (!(nameIgnoredRaster != null && match.dataIsEqual(nameIgnoredRaster))) {
                 return TileUrlErrorType.DUPLICATE_NAME;
             }
         }

@@ -81,15 +81,28 @@ public class TileUrl {
         return layerType == LayerType.OVERLAY;
     }
 
-    public boolean dataIsEqual(JsonObject raster) {
-        if (!raster.get("name").getAsString().equals(name)) return false;
-        if (!raster.get("source_url").getAsString().equals(source_url)) return false;
-        if (!raster.get("attribution").getAsString().equals(attribution)) return false;
+    public boolean dataIsEqual(String name, String source_url, String attribution, String[] attribution_links) {
+        if (!name.equals(this.name)) return false;
+        if (!source_url.equals(this.source_url)) return false;
+        if (!attribution.equals(this.attribution)) return false;
         if (!Arrays.equals(
-                TileUrlFile.arrayOf(raster.get("attribution_links").getAsJsonArray()),
-                attribution_links
+                attribution_links,
+                this.attribution_links
         )) return false;
         return true;
+    }
+
+    public boolean dataIsEqual(TileUrl raster) {
+        return dataIsEqual(raster.name, raster.source_url, raster.attribution, raster.attribution_links);
+    }
+
+    public boolean dataIsEqual(JsonObject raster) {
+        return dataIsEqual(
+                raster.get("name").getAsString(),
+                raster.get("source_url").getAsString(),
+                raster.get("attribution").getAsString(),
+                TileUrlFile.arrayOf(raster.get("attribution_links").getAsJsonArray())
+        );
     }
 
 }

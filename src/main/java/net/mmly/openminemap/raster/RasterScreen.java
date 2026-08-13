@@ -3,12 +3,15 @@ package net.mmly.openminemap.raster;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.gui.AnchorWidget;
+import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -27,6 +30,7 @@ public abstract class RasterScreen extends Screen {
     public static LinkedList<RegisterableTile> tileRegisteringQueue = new LinkedList<>();
     public static HashMap<String, Identifier> backgroundTiles = new HashMap<>();
     protected Screen returnScreen;
+    protected ButtonLayer exitButton;
 
     public RasterScreen(int bottomPadding, boolean updateReturnScreen) {
         super(Text.of(""));
@@ -101,6 +105,7 @@ public abstract class RasterScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (exitButton.isMouseOver(mouseX, mouseY)) exitButton.onClick(mouseX, mouseY);
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -123,17 +128,23 @@ public abstract class RasterScreen extends Screen {
         super.init();
 
         rasterList = new RasterList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
+        exitButton = new ButtonLayer(ButtonFunction.EXIT);
+
         updateWidgetPositions();
         this.addDrawableChild(rasterList);
 
         //purgeRasterList();
         populateRasterList();
 
+        exitButton.setY(4);
+        this.addDrawableChild(exitButton);
+
     }
 
     protected void updateWidgetPositions() {
         rasterList.setWidth(width);
         rasterList.setHeight(height - BOTTOM_PADDING);
+        exitButton.setX(width - exitButton.getWidth() - 4);
     }
 
     @Override

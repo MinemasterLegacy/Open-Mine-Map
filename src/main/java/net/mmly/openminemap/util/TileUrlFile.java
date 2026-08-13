@@ -283,44 +283,55 @@ public class TileUrlFile {
 
     /// Check a raster provider to see if it is valid, returns an error as an enum if not
     public static TileUrlErrorType checkValidityOf(TileUrl tileUrl) {
-        //System.out.println(" # Starting a TileUrl check.");
-        //check for null values
+        return checkValidityOf(tileUrl, null);
+    }
 
-        if (tileUrl == null) {
+    /// Check a raster provider to see if it is valid, returns an error as an enum if not
+    public static TileUrlErrorType checkValidityOf(TileUrl raster, TileUrl nameIgnoredRaster) {
+        //check for null values
+        if (raster == null) {
             return TileUrlErrorType.NULL_TILE_URL;
         }
-        if (tileUrl.name == null ||
-            tileUrl.attribution == null ||
-            tileUrl.source_url == null ||
-            tileUrl.attribution_links == null
+        if (raster.name == null ||
+            raster.attribution == null ||
+            raster.source_url == null ||
+            raster.attribution_links == null
         ) return TileUrlErrorType.NULL_VALUE;
 
         //Check for invalid characters
-        for (char c : tileUrl.name.toCharArray()) {
+        for (char c : raster.name.toCharArray()) {
             if (!charIsValid(c)) return TileUrlErrorType.INVALID_CHARACTERS;
         }
 
         //Check for duplicate names
-        for (TileUrl raster : RasterProvider.getCustomRasters()) {
-            if (raster.name.toLowerCase(Locale.US).equals(tileUrl.name.toLowerCase(Locale.US))) return TileUrlErrorType.DUPLICATE_NAME;
+        TileUrl match = null;
+        for (TileUrl customRaster : RasterProvider.getCustomRasters()) {
+            if (customRaster.name.toLowerCase(Locale.US).equals(raster.name.toLowerCase(Locale.US))) match = customRaster;
         }
-        for (TileUrl raster : RasterProvider.getPresetRasters()) {
-            if (raster.name.toLowerCase(Locale.US).equals(tileUrl.name.toLowerCase(Locale.US))) return TileUrlErrorType.DUPLICATE_NAME;
+        for (TileUrl presetRaster : RasterProvider.getPresetRasters()) {
+            if (presetRaster.name.toLowerCase(Locale.US).equals(raster.name.toLowerCase(Locale.US))) match = presetRaster;
         }
-        if (tileUrl.name.toLowerCase(Locale.US).equals(TileUrl.generatedLayerUrl.name)) return TileUrlErrorType.DUPLICATE_NAME;
+        if (raster.name.toLowerCase(Locale.US).equals(TileUrl.generatedLayerUrl.name)) match = TileUrl.generatedLayerUrl;
+
+        // if the mathching raster is meant to be ignored, ignore it, otherwise return error
+        if (match != null) {
+            if (!(nameIgnoredRaster != null && match == nameIgnoredRaster)) {
+                return TileUrlErrorType.DUPLICATE_NAME;
+            }
+        }
 
         //check for zoom, x, and y fields
-        if (tileUrl.source_url.replaceAll("\\{x}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_X_POSITION_FIELD;
-        if (tileUrl.source_url.replaceAll("\\{y}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_Y_POSITION_FIELD;
-        if (tileUrl.source_url.replaceAll("\\{z}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_ZOOM_FIELD;
+        if (raster.source_url.replaceAll("\\{x}", "").length() == raster.source_url.length()) return TileUrlErrorType.MISSING_X_POSITION_FIELD;
+        if (raster.source_url.replaceAll("\\{y}", "").length() == raster.source_url.length()) return TileUrlErrorType.MISSING_Y_POSITION_FIELD;
+        if (raster.source_url.replaceAll("\\{z}", "").length() == raster.source_url.length()) return TileUrlErrorType.MISSING_ZOOM_FIELD;
 
         //check for invalid urls
         try {
-            new URL(tileUrl.source_url.replaceAll("\\{.}", "a")).toURI();
+            new URL(raster.source_url.replaceAll("\\{.}", "a")).toURI();
         } catch (MalformedURLException | URISyntaxException e) {
             return TileUrlErrorType.MALFORMED_SOURCE_URL;
         }
-        for (String url : tileUrl.attribution_links) {
+        for (String url : raster.attribution_links) {
             try {
                 new URL(url).toURI();
             } catch (MalformedURLException | URISyntaxException e) {
@@ -331,7 +342,7 @@ public class TileUrlFile {
         //check for bracket placement/formatting
         int numLinks = 0;
         boolean inBrackets = false;
-        for (char c : tileUrl.source_url.toCharArray()) {
+        for (char c : raster.source_url.toCharArray()) {
             if (c == '{') {
                 if (!inBrackets) inBrackets = true;
                  else return TileUrlErrorType.INVALID_SOURCE_URL_BRACKET_PLACEMENT;
@@ -342,7 +353,7 @@ public class TileUrlFile {
             }
         }
         if (inBrackets) return TileUrlErrorType.INVALID_SOURCE_URL_BRACKET_PLACEMENT;
-        for (char c : tileUrl.attribution.toCharArray()) {
+        for (char c : raster.attribution.toCharArray()) {
             if (c == '{') {
                 if (!inBrackets) inBrackets = true;
                 else return TileUrlErrorType.INVALID_ATTRIBUTION_BRACKET_PLACEMENT;
@@ -357,7 +368,7 @@ public class TileUrlFile {
         if (inBrackets) return TileUrlErrorType.INVALID_ATTRIBUTION_BRACKET_PLACEMENT;
 
         //check that number of attribution links is equal to brackets
-        if (tileUrl.attribution_links.length != numLinks) return TileUrlErrorType.MISMATCHED_ATTRIBUTION_LINKS;
+        if (raster.attribution_links.length != numLinks) return TileUrlErrorType.MISMATCHED_ATTRIBUTION_LINKS;
 
         //if all previous check were passed (nothing returned false), return true
         return TileUrlErrorType.NO_ERROR;
@@ -454,7 +465,7 @@ class CustomUrl {
 
 class TileUrlFileFormatException extends Exception { //done
     public TileUrlFileFormatException() {
-        super("Formatting error while reading tileSources.json");
+        super("Formatting error while reading rasters.json");
     }
 }
 

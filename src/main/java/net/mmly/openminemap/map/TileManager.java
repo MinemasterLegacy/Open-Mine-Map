@@ -71,6 +71,14 @@ public class TileManager {
         }
     }
 
+    /// Get a file from the openminemap directory.
+    /// The file path will be appended to the end of the openminemap directory:
+    ///
+    /// .../.minecraft/openminemap/ + filePath
+    public static File fileFromOmmDir(String filePath) {
+        return new File(System.getProperty("user.dir") + "/openminemap/" + filePath);
+    }
+
     public static String getRootFile() { //returns directory of .minecraft (or equivalent folder)
         return System.getProperty("user.dir") + File.separator;
     }
@@ -227,6 +235,24 @@ public class TileManager {
         }
         TileLoader.resetCacheSize();
         //System.out.println("Clearing loaded tiles...");
+    }
+
+    public static boolean renameRasterDirectory(String oldDirName, String newDirName) {
+        File oldDir = fileFromOmmDir(oldDirName);
+        File newDir = fileFromOmmDir(newDirName);
+
+        if (!oldDir.exists()) {
+            OpenMineMap.LOGGER.error("Could not rename directory \"" + oldDirName + "\" to \"" + newDirName + "\": Old directory does not exist.");
+            return false;
+        }
+        if (newDir.exists()) {
+            OpenMineMap.LOGGER.error("Could not rename directory \"" + oldDirName + "\" to \"" + newDirName + "\": New directory already exists.");
+            return false;
+        }
+
+        boolean success = oldDir.renameTo(newDir);
+        if (!success) OpenMineMap.LOGGER.error("Could not rename directory \"" + oldDirName + "\" to \"" + newDirName + "\": Renaming faled.");
+        return success;
     }
 
     public static void loadTopTile() {

@@ -106,7 +106,10 @@ public class MicroButton extends ClickableWidget {
         switch (buttonFunction) {
             case EDIT: {
                 switch (layerType) {
-                    case null -> client.setScreen(new CreateRasterScreen(parentWidget.raster));
+                    case null -> {
+                        CreateRasterScreen.layerType = parentWidget.raster.layerType;
+                        client.setScreen(new CreateRasterScreen(parentWidget.raster));
+                    }
                     case BASE -> client.setScreen(new BaseRasterScreen(true));
                     case LOCAL_GEN -> {
                         client.setScreen(new ConfigScreen());

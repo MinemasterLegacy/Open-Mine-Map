@@ -139,6 +139,29 @@ public class RasterProvider {
         ConfigFile.writeParameter(ConfigOptions.RASTER_OPACITIES, opacities);
     }
 
+    public static void replaceCustomRaster(TileUrl original, TileUrl replacement) {
+        if (!customRasters.contains(original)) {
+            OpenMineMap.LOGGER.error("Could not find custom raster \"" + original.name  + "\" for renaming.");
+            return;
+        }
+
+        if (!original.name.equals(replacement.name)) {
+            boolean success = TileManager.renameRasterDirectory(original.name, replacement.name);
+            if (!success) return;
+        }
+
+        customRasters.remove(original);
+        customRasters.add(replacement);
+        if (getCurrentBaseRaster() == original) {
+            setCurrentBaseRaster(replacement);
+        }
+        if (overlayInUse(original)) {
+            customRasters.set(customRasters.indexOf(original), replacement);
+        }
+
+        TileManager.refreshRasterTileMap();
+    }
+
     private static void determineBaseRaster() {
         String configRaster = ConfigOptions.TILE_MAP_URL.getAsString();
 

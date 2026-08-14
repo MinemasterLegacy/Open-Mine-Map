@@ -19,9 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class TileManager {
 
@@ -49,7 +47,8 @@ public class TileManager {
 
     /// Add to the raster tile map any in-use rasters that do not exist, and purge any that are no longer in use
     public static void refreshRasterTileMap() {
-        for (TileUrl raster : rasterTiles.keySet()) {
+        for (Iterator<TileUrl> iterator = rasterTiles.keySet().iterator(); iterator.hasNext();) {
+            TileUrl raster = iterator.next();
             if (!RasterProvider.rasterInUse(raster)) {
                 purgeRasterTileData(raster);
                 rasterTiles.remove(raster);

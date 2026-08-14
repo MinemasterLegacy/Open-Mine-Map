@@ -194,7 +194,6 @@ public class RasterProvider {
         return currentBaseRaster;
     }
 
-    //todo attribution for overlays
     public static void setCurrentBaseRaster(TileUrl raster) {
         currentBaseRaster = raster;
         TileManager.establishRasterDirectory(currentBaseRaster);

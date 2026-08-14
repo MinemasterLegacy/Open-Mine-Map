@@ -19,6 +19,8 @@ public class TileUrl {
     public static final TileUrl generatedLayerUrl = new TileUrl();
     //TODO check if preset when attempting to load from
 
+    public static final int OPENSTREETMAP_PRESET_ID = 0;
+
     private TileUrl() {
         this.name = "Generated Overlays";
         this.identifierString = "generated-overlays";

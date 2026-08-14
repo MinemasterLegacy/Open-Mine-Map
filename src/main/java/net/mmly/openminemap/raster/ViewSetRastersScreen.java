@@ -9,6 +9,7 @@ import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -46,6 +47,7 @@ public class ViewSetRastersScreen extends RasterScreen {
         super.close();
         RasterProvider.writeOverlayInfo();
         TileUrlFile.saveCustomRastersToFile();
+        ConfigFile.writeToFile();
         MapScreen.updateAltScreenMap(this, returnScreen);
      }
 

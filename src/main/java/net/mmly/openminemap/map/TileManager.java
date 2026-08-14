@@ -47,8 +47,8 @@ public class TileManager {
 
     /// Add to the raster tile map any in-use rasters that do not exist, and purge any that are no longer in use
     public static void refreshRasterTileMap() {
-        for (Iterator<TileUrl> iterator = rasterTiles.keySet().iterator(); iterator.hasNext();) {
-            TileUrl raster = iterator.next();
+        TileUrl[] rasters = rasterTiles.keySet().toArray(new TileUrl[0]);
+        for (TileUrl raster : rasters) {
             if (!RasterProvider.rasterInUse(raster)) {
                 purgeRasterTileData(raster);
                 rasterTiles.remove(raster);

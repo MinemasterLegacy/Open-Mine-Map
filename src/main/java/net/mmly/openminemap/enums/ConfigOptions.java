@@ -35,14 +35,15 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     SHOW_CONNECTION_STATUS(0, "ConnectionStatus", "hide", "connection-status"),
     TILE_SCALE(0, "TileScale", "128", "tile-scale"),
     CLAIMS_RENDERING(0, "ClaimsRendering", "off", "claims"),
+    HIDDEN_CLAIMS(0, "HiddenClaims", "off", "hidden-claims"),
     HUDMAP_BORDER(0, "HudmapBorder", "show", "border"),
     COMPASS(0, "ShowCompass", "show", "compass"),
     TEXT_COLOR(0, "TextColor", "#FFFFFF", "text-color"),
     WEB_OPTIONS(0, "WebOptions", "gm,osm,bte,mpy"),
-    TELEPORT_INTERCEPT(0, "TeleportIntercept", "false", "teleport-intercept"),
+    TELEPORT_INTERCEPT(0, "TeleportIntercept", "off", "teleport-intercept"),
     BUTTON_STYLE(0, "ButtonStyle", "texture", "button-style"),
+    DISTORTION_DISPLAY(0, "DistortionDisplay", "off", "distortion-display"),
 
-    _MOD_VERSION(1, "§modversion", "1.0.0"), //used for data fixing
     _CLAIMS_TOGGLE(1, "§claimstoggle", "true"),
     _HUD_TOGGLE(1, "§hudtoggle", "true"),
     _HUD_ENABLED(1, "§hudenabled", "true"),
@@ -52,11 +53,13 @@ public enum ConfigOptions { //no underscore for standard config option, one for 
     _FS_LAST_Y(1, "§fslasty", "64"),
     _FS_LAST_TILE_SIZE(1, "§fslasttilesize", "128"),
     _RASTER_WARNING_ACCEPTED(1, "§rasterwarningaccepted", "false"),
+    _FIRST_SESSION_TIP_GIVEN(1, "§firstsessiontipgiven", "false"),
 
     __SHOW_DEVELOPER_OPTIONS(2, "ShowDeveloperOptions", "false"),
     __DISABLE_WEB_REQUESTS(2, "DisableWebRequests", "false", "DisableWebRequests", ""),
     __SHOW_MEMORY_CACHE_SIZE(2, "ShowMemoryCacheSize", "false", "ShowMemoryCacheSize", ""),
-    __ALT_INFO_TOOLTIP(2, "AltInfoTooltip", "false", "AltInfoTooltip", "");
+    __ALT_INFO_TOOLTIP(2, "AltInfoTooltip", "false", "AltInfoTooltip", ""),
+    __LOG_HTTP_REQUESTS(2, "LogHttpRequests", "false", "LogHttpRequests", "");
 
     private final String defaultValue;
     private final String rawText;

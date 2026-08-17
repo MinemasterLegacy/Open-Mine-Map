@@ -11,6 +11,7 @@ public class TileUrl {
     public final String source_url;
     public final String attribution;
     public final String name;
+    public final String identifierString;
     public final String[] attribution_links;
     public final LayerType layerType;
     public final int presetID;
@@ -18,8 +19,11 @@ public class TileUrl {
     public static final TileUrl generatedLayerUrl = new TileUrl();
     //TODO check if preset when attempting to load from
 
+    public static final int OPENSTREETMAP_PRESET_ID = 0;
+
     private TileUrl() {
         this.name = "Generated Overlays";
+        this.identifierString = "generated-overlays";
         this.source_url = "";
         this.attribution_links = null;
         this.attribution = "";
@@ -34,6 +38,7 @@ public class TileUrl {
 
     public TileUrl(String name, String source_url, String attribution, String[] attribution_links, LayerType layerType) {
         this.name = name;
+        this.identifierString = name == null ? "" : name.toLowerCase(Locale.US).replace(" ", "-");
         this.attribution = attribution;
         this.attribution_links = attribution_links;
         this.source_url = source_url;
@@ -44,6 +49,7 @@ public class TileUrl {
 
     public TileUrl(int templateId, String name, String source_url, String attribution, String[] attribution_links, String layerType) {
         this.name = name;
+        this.identifierString = name.toLowerCase(Locale.US).replace(" ", "-");
         this.attribution = attribution;
         this.attribution_links = attribution_links;
         this.source_url = source_url;
@@ -77,15 +83,28 @@ public class TileUrl {
         return layerType == LayerType.OVERLAY;
     }
 
-    public boolean dataIsEqual(JsonObject raster) {
-        if (!raster.get("name").getAsString().equals(name)) return false;
-        if (!raster.get("source_url").getAsString().equals(source_url)) return false;
-        if (!raster.get("attribution").getAsString().equals(attribution)) return false;
+    public boolean dataIsEqual(String name, String source_url, String attribution, String[] attribution_links) {
+        if (!name.equals(this.name)) return false;
+        if (!source_url.equals(this.source_url)) return false;
+        if (!attribution.equals(this.attribution)) return false;
         if (!Arrays.equals(
-                TileUrlFile.arrayOf(raster.get("attribution_links").getAsJsonArray()),
-                attribution_links
+                attribution_links,
+                this.attribution_links
         )) return false;
         return true;
+    }
+
+    public boolean dataIsEqual(TileUrl raster) {
+        return dataIsEqual(raster.name, raster.source_url, raster.attribution, raster.attribution_links);
+    }
+
+    public boolean dataIsEqual(JsonObject raster) {
+        return dataIsEqual(
+                raster.get("name").getAsString(),
+                raster.get("source_url").getAsString(),
+                raster.get("attribution").getAsString(),
+                TileUrlFile.arrayOf(raster.get("attribution_links").getAsJsonArray())
+        );
     }
 
 }

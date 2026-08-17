@@ -17,7 +17,6 @@ public class OpacitySlider extends SliderWidget {
 
     public OpacitySlider(int x, int y, double value) {
         super(x, y, 42, 12, Text.empty(), value);
-        //TODO init with proper value
         this.value = value;
         updateMessage();
     }

@@ -7,9 +7,9 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.map.MappablePlayer;
 import net.mmly.openminemap.map.PlayersManager;
-import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
@@ -71,6 +71,8 @@ public class SearchBoxLayer extends TextFieldWidget {
         previousText = result.name;
         numResults = getNumResultsOf(searchResults);
         getInstance().setText(result.name);
+        MapScreen.map.setMouseDown(false);
+        MapScreen.semiTransparentUi = true;
         MapScreen.map.displaySearchResults(searchResults);
         MapScreen.getInstance().jumpToSearchBox();
         updateResultElements();
@@ -130,13 +132,15 @@ public class SearchBoxLayer extends TextFieldWidget {
         if (isFocused()) MapScreen.map.setFocusedResult(-1);
         numDisplayedResults = Math.min(numResults, maxDisplayedResults);
 
-        if (RequestManager.searchResultReturn != null) {
+        if (RequestManager.getSearchResults() != null) {
             toggleSearching(false);
             Arrays.fill(searchResults, null);
-            System.arraycopy(RequestManager.searchResultReturn, 0, searchResults, 0, RequestManager.searchResultReturn.length);
-            numResults = RequestManager.searchResultReturn.length;
+            System.arraycopy(RequestManager.getSearchResults(), 0, searchResults, 0, RequestManager.getSearchResults().length);
+            numResults = RequestManager.getSearchResults().length;
             numDisplayedResults = Math.min(maxDisplayedResults, numResults);
-            RequestManager.searchResultReturn = null;
+            RequestManager.clearSearchResults();
+            MapScreen.map.setMouseDown(false);
+            MapScreen.semiTransparentUi = true;
             if (!searchResults[0].name.isEmpty()) MapScreen.map.displaySearchResults(searchResults);
             MapScreen.getInstance().jumpToSearchBox();
             updateResultElements();
@@ -333,6 +337,7 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     public static void resetScroll() {
         searchScroll = 0;
+        updateResultElementPositions();
     }
 
     public static void scrollMenu(double verticalAmount) {

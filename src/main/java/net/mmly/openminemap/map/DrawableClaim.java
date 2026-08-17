@@ -9,6 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.Notification;
 import net.mmly.openminemap.util.PolygonTriangulator;
@@ -138,13 +139,15 @@ public class DrawableClaim {
                 DrawableClaim.succeededTriangulations = 0;
                 OmmMap.claims = null;
                 RequestManager.loadClaims();
-                while (!RequestManager.claimsLoaded()) {
+                do {
                     Thread.sleep(100);
-                }
-                if (RequestManager.claims == null) throw new Exception();
-                OmmMap.claims = DrawableClaim.of(RequestManager.claims);
+                } while (!RequestManager.claimsLoaded());
+
+                if (RequestManager.getClaims() == null) throw new Exception();
+                OmmMap.claims = DrawableClaim.of(RequestManager.getClaims());
                 //if (ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS).equals("true")) MinecraftClient.getInstance().player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
             } catch (Exception e) {
+                e.printStackTrace();
                 MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.load-claims"), false);
             }
         }

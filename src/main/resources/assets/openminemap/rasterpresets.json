@@ -30,7 +30,7 @@
         },
         {
             "templateId": 3,
-            "name": "ÖPNVKarte",
+            "name": "OPNVKarte",
             "source_url": "https://tile.memomaps.de/tilegen/{z}/{x}/{y}.png",
             "attribution": "Operated by {MeMoMaps}",
             "attribution_links": [

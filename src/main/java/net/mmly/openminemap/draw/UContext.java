@@ -23,6 +23,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
     public static VertexConsumerProvider.Immediate capturedVertexProvider;
     private static int textureAlphaColor = 0xFFFFFFFF;
+    public static int SEMI_TRANSPARENT_UI_ALPHA = 64;
 
     public static void setContext(DrawContext context) {
         drawContext = context;
@@ -94,7 +95,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
 
     /// Range 0-255
     public static void setTextureAlpha(int alpha) {
-        textureAlphaColor = ColorUtil.setAlpha(alpha, textureAlphaColor);
+        textureAlphaColor = ColorUtil.setAlpha(alpha, 0xFFFFFFFF);
     }
 
     public static void resetTextureAlpha() {
@@ -223,7 +224,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
                             Identifier.ofVanilla("widget/button_highlighted") :
                             Identifier.ofVanilla("widget/button")
                 ),
-                x, y, width, height);
+                x, y, width, height, textureAlphaColor);
     }
 
 }

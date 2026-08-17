@@ -7,17 +7,15 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
-import net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.hud.HudMap;
-import net.mmly.openminemap.map.Requester;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.network.NetworkState;
@@ -25,7 +23,6 @@ import net.mmly.openminemap.network.PlayerDataS2CPayload;
 import net.mmly.openminemap.search.SearchHistoryFile;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.RasterApiKeysFile;
-import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.WaypointFile;
 
 import java.util.ArrayList;
@@ -34,7 +31,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
     public static boolean SHOWDEVELOPEROPTIONS = false;
-    public static final String MODVERSION = "1.7.2";
+    public static final String MODVERSION = "1.8.0";
     public static final int MAX_PACKET_VERSION = 1;
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
@@ -53,8 +50,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         SearchHistoryFile.establishFile();
         //ScreenMouseEvents.EVENT.re
 
-        Requester osmTileRequester = new Requester();
-        osmTileRequester.start();
+        //RequestManager.startTileRequester();
         //TileLoader tileLoader = new TileLoader();
         //tileLoader.start();
 

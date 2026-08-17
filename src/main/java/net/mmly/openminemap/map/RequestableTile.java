@@ -1,19 +1,21 @@
 package net.mmly.openminemap.map;
 
+import net.mmly.openminemap.util.TileUrl;
+
 public class RequestableTile {
 
-    int x;
-    int y;
-    int zoom;
-    int proximityScore; //the lower the score, the closer the tile is to the center and the more it should be prioritised
-    String cacheName;
+    public int x;
+    public int y;
+    public int zoom;
+    public int proximityScore; //the lower the score, the closer the tile is to the center and the more it should be prioritised
+    public TileUrl raster;
 
-    public RequestableTile(int x, int y, int tileZoom, int proximityScore, String cacheName) {
+    public RequestableTile(int x, int y, int tileZoom, int proximityScore, TileUrl raster) {
         this.x = x;
         this.y = y;
         this.zoom = tileZoom;
         this.proximityScore = proximityScore;
-        this.cacheName = cacheName;
+        this.raster = raster;
         clampToZoom18();
     }
 

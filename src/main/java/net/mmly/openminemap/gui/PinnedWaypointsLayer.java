@@ -37,9 +37,9 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         this.textRenderer = renderer;
     }
 
-    public void setRoundedHeight(int height1) {
-        maxHeight = Math.max(20, height1 - (height1 % waypointHitboxSize));
-        visibleWaypointCount = Math.max(1, height1 / waypointHitboxSize);
+    public void setRoundedHeight(int availableHeight) {
+        maxHeight = Math.max(20, availableHeight - (availableHeight % waypointHitboxSize));
+        visibleWaypointCount = Math.max(1, availableHeight / waypointHitboxSize);
     }
 
     @Override

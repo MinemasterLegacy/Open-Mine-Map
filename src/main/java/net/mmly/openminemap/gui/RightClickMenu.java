@@ -20,9 +20,9 @@ import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.event.KeyInputHandler;
+import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayersManager;
-import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
@@ -56,6 +56,7 @@ public class RightClickMenu extends ClickableWidget {
     private WebIcon webIconSelection = null;
     private int webIconScroll = 0;
     private int webIconsTotalWidth = 0;
+    private boolean showWebIcons = false;
 
     private static final RightClickMenuOption[] waypointMenuOptions = {
         RightClickMenuOption.NAME,
@@ -149,7 +150,6 @@ public class RightClickMenu extends ClickableWidget {
 
     public static boolean useTp() {
         String option = ConfigOptions.TELEPORT_METHOD.getAsStringFromValues(ConfigOptions.Values.TP_COMMANDS);
-        System.out.println(option);
         if (option.equals("tpll")) return false;
         if (option.equals("tp")) return true;
         //option is dynamic
@@ -226,6 +226,7 @@ public class RightClickMenu extends ClickableWidget {
         clickX = mapX;
         clickY = mapY;
         instance.webIconScroll = 0;
+        instance.showWebIcons = false;
         instance.setPosition((int) mapX, (int) mapY);
 
         if (type.isLocationType) {
@@ -281,13 +282,15 @@ public class RightClickMenu extends ClickableWidget {
 
     public void drawWidget(DrawContext context, TextRenderer renderer) {
         if (displayType == RightClickMenuType.HIDDEN) return;
+
+        if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 5, (int) clickY - 14, 10, 14);
         context.fill(getX(), getY(), getX() + width, getY() + height, displayType == RightClickMenuType.SCREEN_WAYPOINT ? 0xFF000000 : MapScreen.backingColor);
 
         for (int i = 0; i < menuOptions.size(); i++) {
             boolean selected = selectedOption == menuOptions.get(i);
             MutableText text = getTextFor(menuOptions.get(i));
 
-            if (menuOptions.get(i) == RightClickMenuOption.OPEN_IN && selected) {
+            if (menuOptions.get(i) == RightClickMenuOption.OPEN_IN && selected && showWebIcons) {
                 context.enableScissor(getX() + 1, getY(), getRight() - 1, getBottom());
                 int x = getX() + 1 + webIconScroll;
                 for (WebIcon icon : webIcons) {
@@ -322,8 +325,6 @@ public class RightClickMenu extends ClickableWidget {
 
             );
         }
-
-        if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 7, (int) clickY - 14, 14, 14);
 
     }
 
@@ -374,6 +375,10 @@ public class RightClickMenu extends ClickableWidget {
                 break;
             }
             case OPEN_IN: {
+                if (!showWebIcons) {
+                    showWebIcons = true;
+                    return;
+                }
                 if (webIconSelection == null) return;
                 openUrl(webIconSelection);
                 return;
@@ -416,7 +421,7 @@ public class RightClickMenu extends ClickableWidget {
             }
             case REVERSE_SEARCH: {
                 MapScreen.addNotification(new Notification(Text.translatable("omm.notification.searching")));
-                RequestManager.setReverseSearchRequest(savedMouseLat, savedMouseLong);
+                RequestManager.reverseSearch(savedMouseLat, savedMouseLong);
                 break;
             }
             case NAME: {
@@ -474,6 +479,9 @@ public class RightClickMenu extends ClickableWidget {
                 break;
             } case MAPILLARY: {
                 openUrl("https://www.mapillary.com/app/?lat="+lat+"&lng="+lon+"&z="+Math.clamp(zoom, 1, 19.9), false);
+                break;
+            } case LOOKMAP: {
+                openUrl("https://lookmap.skzk.dev/#c="+Math.clamp(zoom, 3, 20)+"/"+lat+"/"+lon, false);
                 break;
             }
         }

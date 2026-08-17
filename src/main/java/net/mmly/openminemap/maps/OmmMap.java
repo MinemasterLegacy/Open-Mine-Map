@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -19,15 +20,16 @@ import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.gui.DirectionIndicator;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.gui.PinnedWaypointsLayer;
+import net.mmly.openminemap.http.MapType;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.*;
+import net.mmly.openminemap.raster.LayerType;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
@@ -75,15 +77,12 @@ public class OmmMap extends ClickableWidget {
 
     private double maxZoom = TILEMAXARTIFICIALZOOM;
     private int backgroundColor = 0x00000000;
-    private int tintColor = 0x00000000;
 
     private long lastSavedTime;
     //private static final int ZOOM_FADE_TIME_MS = 1000;
     public int zoomFadeAlpha = 255;
 
     private boolean doArtificialZoom = true;
-    private boolean cropMapTiles = true;
-    private boolean cropPlayers = true;
     private boolean draggable = false;
     private boolean tooltipPlayerNames = false;
 
@@ -251,12 +250,6 @@ public class OmmMap extends ClickableWidget {
     public void setDraggable(boolean draggable) {
         this.draggable = draggable;
     }
-    public void setCropMapTiles(boolean cropMapTiles) {
-        this.cropMapTiles = cropMapTiles;
-    }
-    public void setCropPlayers(boolean cropPlayers) {
-        this.cropPlayers = cropPlayers;
-    }
     public void setArtificialZoom(boolean setTo) {
         doArtificialZoom = setTo;
         if (doArtificialZoom) maxZoom = TILEMAXARTIFICIALZOOM;
@@ -419,6 +412,7 @@ public class OmmMap extends ClickableWidget {
                 Text.literal("Zoom: " + UnitConvert.floorToPlace(getZoom(), 3) + " (" + getTileZoom() + ")"),
                 Text.literal("  T:" + getTileSize() + " M:" + UnitConvert.floorToPlace(getMaxZoom(), 3) + " B:" + ConfigOptions.TILE_SCALE.getAsInt()),
                 Text.literal("Pos: [" + UnitConvert.floorToPlace(mapCenterX, 3) + ", " + UnitConvert.floorToPlace(mapCenterY, 3) + "]"),
+                Text.literal("Mouse: [" + UnitConvert.floorToPlace(mouseTileX, 3) + ", " + UnitConvert.floorToPlace(mouseTileY, 3) + "]"),
                 Text.literal((waypoints == null ? "n/a" : waypoints.length) + " Waypoints").formatted(Formatting.GRAY),
                 Text.literal((searchResults == null ? "n/a" : searchResults.length) + " Search Results").formatted(Formatting.GRAY),
                 Text.literal((claims == null ? "n/a" : claims.length) + " Claims").formatted(Formatting.GRAY)
@@ -451,6 +445,8 @@ public class OmmMap extends ClickableWidget {
 
     public void keyNavigate(int keyCode, int modifiers) {
         if (!draggable) return;
+        if (mouseDown) return;
+        MapScreen.semiTransparentUi = false;
         //modifiers: bit 1 is shift, bit 2 is control, but 3 is alt
 
         modifiers %= 4;
@@ -482,6 +478,7 @@ public class OmmMap extends ClickableWidget {
 
     public void setMouseDown(boolean mouseDown) {
         this.mouseDown = mouseDown;
+        MapScreen.semiTransparentUi = false;
     }
 
     @Override
@@ -495,7 +492,7 @@ public class OmmMap extends ClickableWidget {
             return false;
         }
         if (button == 0) { //left click
-            mouseDown = true;
+            setMouseDown(true);
             mouseHoldX = mouseTileX;
             mouseHoldY = mouseTileY;
             leftClickProcedure.execute();
@@ -509,7 +506,7 @@ public class OmmMap extends ClickableWidget {
 
     @Override
     public void onRelease(double mouseX, double mouseY) {
-        mouseDown = false;
+        setMouseDown(false);
     }
 
     @Override
@@ -547,6 +544,7 @@ public class OmmMap extends ClickableWidget {
         if (amount <= 0) return;
         double originalZoom = zoom;
         if (!followPlayer && withMouse) {
+            if (mouseDown) return;
             double v = (Math.pow(2, amount) - 1) / Math.pow(2, amount);
             mapCenterX -= (mapCenterX - mouseTileX) * v;
             mapCenterY -= (mapCenterY - mouseTileY) * v;
@@ -559,8 +557,10 @@ public class OmmMap extends ClickableWidget {
         if (amount <= 0) return;
         double originalZoom = zoom;
         if (!followPlayer && withMouse) {
-            mapCenterX += (mapCenterX - mouseTileX) * (Math.pow(2, amount) - 1);
-            mapCenterY += (mapCenterY - mouseTileY) * (Math.pow(2, amount) - 1);
+            if (mouseDown) return;
+            double v = (Math.pow(2, amount) - 1);
+            mapCenterX += (mapCenterX - mouseTileX) * v;
+            mapCenterY += (mapCenterY - mouseTileY) * v;
         }
         zoom -= amount;
         normalizeZoom(originalZoom);
@@ -633,6 +633,11 @@ public class OmmMap extends ClickableWidget {
         showSearchResults = false;
     }
 
+    public void setSearchResults(SearchResult[] results) {
+        searchResults = results;
+        showSearchResults = true;
+    }
+
     public void displaySearchResults(SearchResult[] results) {
         double minLat = 90;
         double maxLat = -90;
@@ -648,8 +653,7 @@ public class OmmMap extends ClickableWidget {
         }
 
         goAndZoomToBounds(new double[] {minLat, maxLat, minLon, maxLon}, true);
-        searchResults = results;
-        showSearchResults = true;
+        setSearchResults(results);
     }
 
     @Override
@@ -657,19 +661,13 @@ public class OmmMap extends ClickableWidget {
         // play no sound
     }
 
-    private void drawMap(DrawContext context, boolean isHudMap) {
-
-        context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
-        context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, tintColor);
-
-        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight, isHudMap);
+    private void drawMapLayer(MapType mapType, TileUrl raster) {
+        DrawableMapTile[][] tiles = TileManager.getRangeOfDrawableTiles((int) mapCenterX, (int) mapCenterY, (int) Math.round(zoom), tileSize, renderAreaWidth, renderAreaHeight, mapType, raster);
         for (DrawableMapTile[] column : tiles) {
             for (DrawableMapTile tile : column) {
-                drawTile(context, tile);
+                drawTile(tile, raster);
             }
         }
-
-
 
         //context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, 0x33FFFFFF);
     }
@@ -679,12 +677,6 @@ public class OmmMap extends ClickableWidget {
     }
     public void setBackgroundColor(int argb) {
         backgroundColor = argb;
-    }
-    public void setTintColor(int red, int green, int blue, int alpha) {
-        tintColor = (alpha << 24) | (red << 16) | (green << 8) | blue;
-    }
-    public void setTintColor(int argb) {
-        tintColor = argb;
     }
 
     @Override
@@ -835,12 +827,12 @@ public class OmmMap extends ClickableWidget {
         hoveredResultId = -1;
         for (int i = 0 ; i < searchResults.length ; i++) {
             if (searchResults[i] == null) return;
-            int x = getWindowRelativeX(UnitConvert.longToMapX(searchResults[i].longitude, zoom, tileSize), WAYPOINTSIZE / 2);
-            int y = getWindowRelativeY(UnitConvert.latToMapY(searchResults[i].latitude, zoom, tileSize), WAYPOINTSIZE / 2);
+            int x = getWindowRelativeX(UnitConvert.longToMapX(searchResults[i].longitude, zoom, tileSize), 0);
+            int y = getWindowRelativeY(UnitConvert.latToMapY(searchResults[i].latitude, zoom, tileSize), 0);
             //int x = (int) (((double) renderAreaWidth / 2) - 4 + (UnitConvert.longToMapX(waypoint.longitude, zoom, tileSize) - mapCenterX)) + renderAreaX;
             //int y = (int) (((double) renderAreaHeight / 2) - 4 + (UnitConvert.latToMapY(waypoint.latitude, zoom, tileSize) - mapCenterY)) + renderAreaY;
 
-            if (mouseX >= x - 1 && mouseX <= x + 8 && mouseY >= y - 10 && mouseY <= y + 4) {
+            if (mouseX >= x - 5 && mouseX < x + 5 && mouseY >= y - 14 && mouseY < y) {
                 hoveredResultId = i;
                 return;
             }
@@ -848,13 +840,13 @@ public class OmmMap extends ClickableWidget {
     }
 
     private void drawSearchResultLocation(SearchResult location, boolean highlight) {
+        int x = getWindowRelativeX(UnitConvert.longToMapX(location.longitude, zoom, tileSize), 5);
+        int y = getWindowRelativeY(UnitConvert.latToMapY(location.latitude, zoom, tileSize), 14);
         UContext.drawTexture(
                 Identifier.of("openminemap", highlight ? "locationhighlight.png" : "location.png"),
-                getWindowRelativeX(UnitConvert.longToMapX(location.longitude, zoom, tileSize), 7),
-                getWindowRelativeY(UnitConvert.latToMapY(location.latitude, zoom, tileSize), 14),
-                14,
-                14,
-                14,
+                x,
+                y,
+                10,
                 14
         );
     }
@@ -873,6 +865,7 @@ public class OmmMap extends ClickableWidget {
             UContext.drawDiagonalLine(winRelPoints[i], winRelPoints[i + 1 >= winRelPoints.length ? 0 : i + 1], Math.clamp((int) Math.ceil((zoom - 9) / 3), 1, 3), outlineColor);
         }
 
+        UContext.fillZone(winRelPoints[0][0], winRelPoints[0][1], 1, 1, outlineColor);
         if (zoom > 12) for (int[] point : winRelPoints) {
             UContext.square(point[0], point[1], 1, outlineColor);
         }
@@ -881,7 +874,7 @@ public class OmmMap extends ClickableWidget {
 
     }
 
-    private void drawTile(DrawContext context, DrawableMapTile tile) {
+    private void drawTile(DrawableMapTile tile, TileUrl raster) {
 
         //offset the tiles so that the map is centered on the render area
         int relativeX = getWindowRelativeX(tile.x, 0);
@@ -913,15 +906,14 @@ public class OmmMap extends ClickableWidget {
         int width = tileSize;
         int height = tileSize;
 
-        context.drawTexture(
-                RenderPipelines.GUI_TEXTURED,
+        UContext.drawTexture(
                 tile.identifier,
                 relativeX,
                 relativeY,
-                u,
-                v,
                 width,
                 height,
+                u,
+                v,
                 regionWidth,
                 regionHeight,
                 textureWidth,
@@ -970,8 +962,6 @@ public class OmmMap extends ClickableWidget {
 
         mouseTileX = mapCenterX + mouseX - ((double) renderAreaWidth / 2);
         mouseTileY = mapCenterY + mouseY - ((double) renderAreaHeight / 2);
-
-
     }
 
     private void drawClientPlayerCentered(DrawContext context) {
@@ -1096,17 +1086,26 @@ public class OmmMap extends ClickableWidget {
 
     }
 
-    public void renderMap(DrawContext context, RenderTickCounter renderTickCounter, boolean isHudMap) {
-
+    public void renderMap(DrawContext context, MapType mapType) {
         updateFields();
 
-        if (isHudMap && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
+        if (mapType == MapType.HUD && HudMap.showBorder) context.enableScissor(renderAreaX + 1, renderAreaY + 1, renderAreaX2 - 1, renderAreaY2 - 1);
         else context.enableScissor(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2);
 
-        drawMap(context, isHudMap); //draw the map tiles + background
+        context.fill(renderAreaX, renderAreaY, renderAreaX2, renderAreaY2, backgroundColor);
+        drawMapLayer(mapType, RasterProvider.getCurrentBaseRaster()); //draw the map tiles + background
 
-        drawGeneratedOverlays(context);
+        for (TileUrl raster : RasterProvider.getCurrentOverlays()) {
+            UContext.setTextureAlpha((int) (RasterProvider.getOpacityOf(raster) * 255));
+            if (raster.layerType == LayerType.LOCAL_GEN) {
+                drawGeneratedOverlays(context);
+                continue;
+            }
+            if (!RasterProvider.getVisibilityOf(raster)) continue;
+            drawMapLayer(mapType, raster);
+        }
 
+        UContext.resetTextureAlpha();
         context.disableScissor();
 
     }

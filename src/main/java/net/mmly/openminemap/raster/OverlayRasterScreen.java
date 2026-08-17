@@ -7,8 +7,8 @@ import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 
 public class OverlayRasterScreen extends RasterScreen {
-    public OverlayRasterScreen() {
-        super(40, true);
+    public OverlayRasterScreen(boolean updateReturnScreen) {
+        super(40, updateReturnScreen);
     }
 
     public static ButtonWidget confirmButton;
@@ -25,13 +25,13 @@ public class OverlayRasterScreen extends RasterScreen {
 
     @Override
     protected void init() {
-        super.init();
-
-        confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> { 
-            RasterProvider.insertOverlayOnTop(getSelectedLayerWidget().raster);
+        confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
+            RasterProvider.pushOverlayOnTop(getSelectedLayerWidget().raster);
             MinecraftClient.getInstance().currentScreen.close();
         }).width(200).build();
         this.addDrawableChild(confirmButton);
+
+        super.init();
     }
 
     @Override

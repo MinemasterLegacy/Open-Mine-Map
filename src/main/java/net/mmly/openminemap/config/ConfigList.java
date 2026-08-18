@@ -5,9 +5,9 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.mmly.openminemap.enums.ConfigOptions;
-import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.gui.AnchorWidget;
 
-public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
+public class ConfigList extends EntryListWidget<AnchorWidget> {
 
     private static double savedScrollAmount;
 
@@ -20,26 +20,17 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
     }
 
     @Override
-    public int addEntry(ConfigAnchorWidget entry) {
+    public int addEntry(AnchorWidget entry) {
         return super.addEntry(entry);
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        //list seems to be blocking the arrows, so pass through a click event here
-        ConfigScreen.getInstance().getChoiceWidget().getUpArrowWidget().mouseClicked(mouseX, mouseY, 0);
-        ConfigScreen.getInstance().getChoiceWidget().getDownArrowWidget().mouseClicked(mouseX, mouseY, 0);
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-
     }
 
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
+    }
+
+    public int getEntryCount() {
+        return super.getEntryCount();
     }
 
     @Override
@@ -55,7 +46,6 @@ public class ConfigList extends EntryListWidget<ConfigAnchorWidget> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        if (ConfigOptions.REVERSE_SCROLL.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) verticalAmount *= -1;
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 }

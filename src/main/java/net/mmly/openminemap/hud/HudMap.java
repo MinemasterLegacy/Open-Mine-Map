@@ -1,5 +1,6 @@
 package net.mmly.openminemap.hud;
 
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
@@ -13,19 +14,24 @@ import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.event.KeyInputHandler;
+import net.mmly.openminemap.http.MapType;
 import net.mmly.openminemap.map.PlayerAttributes;
-import net.mmly.openminemap.map.RequestManager;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
+import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.WaypointFile;
+
+import java.util.Locale;
 
 public class HudMap {
 
     public static final int MIN_SIZE = 20;
-    static boolean initialized = false;
+    public static boolean initialized = false;
+    private static boolean rastersInitialized;
     public static boolean renderHud = ConfigOptions._HUD_TOGGLE.getAsBoolean(); //is toggled by the keybind
     public static boolean hudEnabled = ConfigOptions._HUD_ENABLED.getAsBoolean(); //is toggled by the fullscreen map button and is dominant over the keybind
     public static int hudCompassX = ConfigOptions.HUD_COMPASS_X.getAsInt();
@@ -88,6 +94,23 @@ public class HudMap {
         WaypointFile.setWaypointsOfThisWorld(true);
 
         showBorder = ConfigOptions.HUDMAP_BORDER.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
+
+        if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) {
+            MinecraftClient.getInstance().player
+                    .sendMessage(Text
+                            .translatable("omm.category.openminemap")
+                            .append(": ")
+                            .formatted(Formatting.DARK_GREEN).formatted(Formatting.BOLD)
+                    .append(Text
+                            .translatable("omm.hud.first-session-tooltip.start")
+                            .append(KeyBindingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getLocalizedText().getString().toUpperCase(Locale.US))
+                            .append(Text.translatable("omm.hud.first-session-tooltip.end"))
+                            .formatted(Formatting.RESET).formatted(Formatting.BLUE)
+                    )
+            , false);
+            ConfigFile.writeParameter(ConfigOptions._FIRST_SESSION_TIP_GIVEN, "true");
+        }
+
     }
 
     public static void zoomIn() {
@@ -134,17 +157,22 @@ public class HudMap {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+
         //method is called every frame, so a couple of things are included here that need to run every frame
         while (!OpenMineMapClient.debugMessages.isEmpty()) {
             if (OpenMineMapClient.debugMessages.getFirst() != null) MinecraftClient.getInstance().player.sendMessage(Text.literal(OpenMineMapClient.debugMessages.getFirst()).formatted(Formatting.RED), false);
             OpenMineMapClient.debugMessages.removeFirst();
         }
 
-        RequestManager.setMapType(MinecraftClient.getInstance().currentScreen == null);
+        //OldRequestManager.setMapType(MinecraftClient.getInstance().currentScreen == null);
+        if (!rastersInitialized) {
+            TileUrlFile.loadRastersFromFile();
+            rastersInitialized = true;
+        }
 
-        //now do actuall hudmap stuff
+        //now do actual hudmap stuff
         if (!initialized) initialize(context); //initialize hudmap if not done already
-        if (TileManager.themeColor == 0xFF808080) TileManager.loadTopTile();
+        if (TileManager.getThemeColor() == 0xFF808080) TileManager.loadTopTile();
 
         if ((!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) && !(MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
 
@@ -154,15 +182,11 @@ public class HudMap {
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw
         hudCompassCenter = Math.round((float) hudCompassWidth / 2); //center of the hud compass
 
-        map.setBackgroundColor(TileManager.themeColor);
-        map.setTintColor(0x10000000);
-
         if (!PlayerAttributes.positionIsValid()) {//if the player is out of bounds this will be NaN. all other rendering is skipped due to this
             //draw error message and exit
             Text text = Text.translatable("omm.hud.out-of-bounds").formatted(Formatting.ITALIC);
             //context.fill(hudMapX + 2, hudMapY + 2, hudMapY + 74, hudMapY + 10, 0xFFFFFFFF);
-            context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), TileManager.themeColor);
-            context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x10000000);
+            context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), TileManager.getThemeColor());
             context.drawText(
                     MinecraftClient.getInstance().textRenderer, text,
                     map.getRenderAreaX() + (map.getRenderAreaWidth() / 2) - (MinecraftClient.getInstance().textRenderer.getWidth(text) / 2),
@@ -175,7 +199,7 @@ public class HudMap {
         }
 
         map.setArtificialZoom(TileManager.doArtificialZoom);
-        map.renderMap(context, null, true);
+        map.renderMap(context, MapType.HUD);
 
         //0xD9D9D9
         if (PlayerAttributes.positionIsValid() && showCompass) { //skip drawing the compass if direction is NaN (it can be separate of long-lat due to the two-point sampling system)

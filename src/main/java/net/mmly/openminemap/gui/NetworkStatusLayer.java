@@ -22,10 +22,15 @@ public class NetworkStatusLayer extends ClickableWidget {
         if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
+    public boolean shouldBeVisible() {
+        return !MinecraftClient.getInstance().isInSingleplayer() && ConfigOptions.SHOW_CONNECTION_STATUS.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
+    }
+
     protected void drawWidget(DrawContext context) {
-        if (MinecraftClient.getInstance().isInSingleplayer() || !ConfigOptions.SHOW_CONNECTION_STATUS.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE)) return;
+        if (!shouldBeVisible()) return;
         int winWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         UContext.fillZone(winWidth - 26, 0, 26, 26, MapScreen.backingColor);
+        if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (isHovered()) {
             UContext.drawTexture(NetworkState.getNetworkState().selectionIdentifier, winWidth - 24, 2, 22, 22, 22, 22);
             setTooltip(Tooltip.of(Text.translatable(NetworkState.getNetworkState().translationKey)));
@@ -33,6 +38,7 @@ public class NetworkStatusLayer extends ClickableWidget {
             setTooltip(null);
         }
         UContext.drawTexture(NetworkState.getNetworkState().identifier, winWidth - 23, 3, 20, 20, 20, 20);
+        UContext.resetTextureAlpha();
     }
 
     /*

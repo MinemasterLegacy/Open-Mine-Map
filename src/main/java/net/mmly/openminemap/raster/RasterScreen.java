@@ -4,12 +4,15 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.gui.AnchorWidget;
+import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
@@ -19,7 +22,7 @@ import java.io.IOException;
 import java.util.*;
 
 public abstract class RasterScreen extends Screen {
-//TODO disallow modification if load failed
+    //TODO disallow modification if load failed
     public static final int ITEM_HEIGHT = 40;
     public final int BOTTOM_PADDING;
     RasterList rasterList;
@@ -29,6 +32,7 @@ public abstract class RasterScreen extends Screen {
     public static LinkedList<RegisterableTile> tileRegisteringQueue = new LinkedList<>();
     public static HashMap<String, Identifier> backgroundTiles = new HashMap<>();
     protected Screen returnScreen;
+    protected ButtonLayer exitButton;
 
     public RasterScreen(int bottomPadding, boolean updateReturnScreen) {
         super(Text.of(""));
@@ -55,9 +59,9 @@ public abstract class RasterScreen extends Screen {
                 //System.out.println("Registering Tile: " + tile.key);
                 NativeImage nImage = NativeImage.read(tile.image);
                 //register new dynamic texture and store it again to be referenced later
-                Identifier identifier = Identifier.of("openminemap-tile", tile.cacheName.toLowerCase(Locale.US));
+                Identifier identifier = Identifier.of("openminemap-tile", tile.raster.identifierString);
                 MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(new nameSupplier(), nImage));
-                backgroundTiles.put(tile.cacheName.toLowerCase(Locale.US), identifier);
+                backgroundTiles.put(tile.raster.identifierString, identifier);
                 //System.out.println("New Dynamic tile");
 
                 tile.image.close();
@@ -72,14 +76,14 @@ public abstract class RasterScreen extends Screen {
     }
 
     public static void registerBackgroundTile(RegisterableTile tile) {
-        TileUrl url = TileUrlFile.getUrlByName(tile.cacheName);
+        TileUrl url = TileUrlFile.getUrlByName(tile.raster.name);
         if (url == null) return;
         try {
             NativeImage nImage = NativeImage.read(tile.image);
-            Identifier identifier = Identifier.of("openminemap-btile", tile.cacheName.toLowerCase(Locale.US));
+            Identifier identifier = Identifier.of("openminemap-btile", tile.raster.identifierString);
             //Identifier identifier = Identifier.of("openminemap-btile", "testimage.png");
             MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(new nameSupplier(), nImage));
-            backgroundTiles.put(url.name.toLowerCase(Locale.US), identifier);
+            backgroundTiles.put(url.identifierString, identifier);
 
             tile.image.close();
             nImage.close();
@@ -103,6 +107,7 @@ public abstract class RasterScreen extends Screen {
 
     @Override
     public boolean mouseClicked(Click click, boolean doubled) {
+        if (exitButton.isMouseOver(click.x(), click.y())) exitButton.onClick(click, doubled);
         return super.mouseClicked(click, doubled);
     }
 
@@ -125,17 +130,23 @@ public abstract class RasterScreen extends Screen {
         super.init();
 
         rasterList = new RasterList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
+        exitButton = new ButtonLayer(ButtonFunction.EXIT);
+
         updateWidgetPositions();
         this.addDrawableChild(rasterList);
 
         //purgeRasterList();
         populateRasterList();
 
+        exitButton.setY(4);
+        this.addDrawableChild(exitButton);
+
     }
 
     protected void updateWidgetPositions() {
         rasterList.setWidth(width);
         rasterList.setHeight(height - BOTTOM_PADDING);
+        exitButton.setX(width - exitButton.getWidth() - 4);
     }
 
     @Override

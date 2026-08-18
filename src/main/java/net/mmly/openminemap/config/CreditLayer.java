@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
@@ -9,15 +10,20 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
 
 import static net.mmly.openminemap.config.ConfigScreen.windowScaledHeight;
 import static net.mmly.openminemap.config.ConfigScreen.windowScaledWidth;
 
-public class WikiLinkLayer extends ClickableWidget {
+public class CreditLayer extends ClickableWidget {
 
-    public WikiLinkLayer(int x, int y) {
-        super(x, y, 91, 16, Text.empty());
+    private static final int TEXT_COLOR = 0xff00AAAA;
+    private static final MutableText TEXT = Text.literal("By MinemasterLegacy");
+    private static final MutableText UNDERLINED_TEXT = Text.literal("By MinemasterLegacy").formatted(Formatting.UNDERLINE);
+
+    public CreditLayer(int x, int y) {
+        super(x, y, MinecraftClient.getInstance().textRenderer.getWidth(TEXT) + 4, 12, Text.empty());
     }
 
     @Override
@@ -30,17 +36,11 @@ public class WikiLinkLayer extends ClickableWidget {
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
-        MutableText text = Text.translatable("omm.config.gui.omm-wiki");
-        int textWidth = textRenderer.getWidth(text);
-        //context.fill(windowScaledWidth - 70, windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, 0x88000000);
         context.drawText(textRenderer,
-                isHovered() ?
-                        text.formatted(Formatting.UNDERLINE) :
-                        text,
-                windowScaledWidth - (textWidth + 5),
-                windowScaledHeight + 7 - textRenderer.fontHeight - 10 - 16,
-                //0xFF890792,
-                0xFFff55ff,
+                isHovered() ? UNDERLINED_TEXT : TEXT,
+                getX() + 2,
+                getY() + 1,
+                TEXT_COLOR,
                 true);
     }
 

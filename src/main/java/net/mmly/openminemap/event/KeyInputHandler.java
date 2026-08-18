@@ -26,13 +26,13 @@ public class KeyInputHandler {
     public static final String KEY_RASTER_SCREEN = "omm.key.open-raster-screen";
 
     //objects for all custom keybindings
-    private static KeyBinding openFullscreenOsmMapKey;
-    private static KeyBinding hudMapZoomInKey;
-    private static KeyBinding hudMapZoomOutKey;
-    private static KeyBinding hudMapToggleKey;
-    private static KeyBinding copyCoordinatesKey;
-    private static KeyBinding snapAngleKey;
-    private static KeyBinding rasterScreenKey;
+    public static KeyBinding openFullscreenOsmMapKey;
+    public static KeyBinding hudMapZoomInKey;
+    public static KeyBinding hudMapZoomOutKey;
+    public static KeyBinding hudMapToggleKey;
+    public static KeyBinding copyCoordinatesKey;
+    public static KeyBinding snapAngleKey;
+    public static KeyBinding rasterScreenKey;
     private static int stopIt = 0;
 
     public static KeyBinding getOpenFullscreenOsmMapKey() {

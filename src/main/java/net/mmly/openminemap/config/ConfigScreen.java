@@ -18,7 +18,7 @@ import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
-import net.mmly.openminemap.map.Requester;
+import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
@@ -38,7 +38,7 @@ public class ConfigScreen extends Screen {
     public static int windowScaledHeight;
     public static int windowScaledWidth;
 
-    private static WikiLinkLayer wikiLinkLayer;
+    private static CreditLayer creditLayer;
     private static ButtonLayer exitButtonLayer;
     private static ButtonLayer checkButtonLayer;
     ButtonWidget configHud;
@@ -54,6 +54,7 @@ public class ConfigScreen extends Screen {
 
     CategoryLabelWidget overlayLabel;
     ChoiceButtonWidget renderClaimsOption;
+    ChoiceButtonWidget hiddenClaimsOption;
     ChoiceSliderWidget playerShowSlider;
     ChoiceSliderWidget directionIndicatorShowSlider;
     ChoiceSliderWidget playerSizeSlider;
@@ -72,6 +73,7 @@ public class ConfigScreen extends Screen {
     ChoiceButtonWidget hudmapBorderOption;
     ChoiceButtonWidget buttonStyleOption;
     ChoiceMultiSelectWidget webOptionsOption;
+    ChoiceButtonWidget distortionDisplayOption;
 
     /*
         each button/text field is 20 tall, with a buffer zome of 5 between buttons.
@@ -142,8 +144,8 @@ public class ConfigScreen extends Screen {
         configList.setHeight(windowScaledHeight - BOTTOM_SPACE);
         this.addDrawableChild(configList);
 
-        wikiLinkLayer = new WikiLinkLayer(0, 0);
-        this.addDrawableChild(wikiLinkLayer);
+        creditLayer = new CreditLayer(0, 0);
+        this.addDrawableChild(creditLayer);
 
         exitButtonLayer = new ButtonLayer(windowScaledWidth - 22, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, ButtonFunction.EXIT);
         checkButtonLayer = new ButtonLayer(windowScaledWidth + 2, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, ButtonFunction.CHECKMARK);
@@ -195,6 +197,9 @@ public class ConfigScreen extends Screen {
         renderClaimsOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.CLAIMS_RENDERING);
         this.addConfigOptionWidget(renderClaimsOption);
 
+        hiddenClaimsOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.HIDDEN_CLAIMS);
+        this.addConfigOptionWidget(hiddenClaimsOption);
+
         playerShowSlider = new ChoiceSliderWidget(ConfigOptions.Values.VISIBILITY, ConfigOptions.SHOW_PLAYERS);
         this.addConfigOptionWidget(playerShowSlider);
 
@@ -243,11 +248,15 @@ public class ConfigScreen extends Screen {
         webOptionsOption = new ChoiceMultiSelectWidget(WebIcon.ORDERED_LIST, ConfigOptions.WEB_OPTIONS);
         this.addConfigOptionWidget(webOptionsOption);
 
+        distortionDisplayOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.DISTORTION_DISPLAY);
+        this.addConfigOptionWidget(distortionDisplayOption);
+
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
             this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
-            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__ALT_INFO_TOOLTIP, true));
+            this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__LOG_HTTP_REQUESTS, true));
         }
 
         configList.restoreScroll();
@@ -272,16 +281,18 @@ public class ConfigScreen extends Screen {
         MapScreen.map.tryLoadClaims();
         HudMap.loadConfigParameters();
         ConfigFile.writeToFile();
-        Requester.disableWebRequests = ConfigOptions.__DISABLE_WEB_REQUESTS.getAsBoolean();
         ButtonLayer.texturedButtons = ConfigOptions.BUTTON_STYLE.getAsBooleanFromValues(ConfigOptions.Values.BUTTON_STYLES);
         MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
+            DrawableClaim.reloadClaimData(false, false, true);
+        }
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         updateScreenDims();
 
-        wikiLinkLayer.setPosition(windowScaledWidth - wikiLinkLayer.getWidth(), windowScaledHeight - BOTTOM_SPACE + 7);
+        creditLayer.setPosition(windowScaledWidth - creditLayer.getWidth() - 3, windowScaledHeight - BOTTOM_SPACE + 7);
         exitButtonLayer.setPosition(windowScaledWidth / 2 - 22, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
         checkButtonLayer.setPosition(windowScaledWidth / 2 + 2, windowScaledHeight - BOTTOM_BUTTON_OFFSET);
         configHud.setY(windowScaledHeight - BOTTOM_BUTTON_OFFSET);
@@ -290,7 +301,7 @@ public class ConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
 
         UContext.setContext(context);
-        wikiLinkLayer.drawWidget(context, textRenderer);
+        creditLayer.drawWidget(context, textRenderer);
         UContext.drawJustifiedText(Text.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF, true);
     }
 }

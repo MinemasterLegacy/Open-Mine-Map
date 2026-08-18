@@ -12,7 +12,7 @@ import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
@@ -24,7 +24,6 @@ import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
-import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 
@@ -35,28 +34,37 @@ public class CommandHander {
 
     public static final Formatting FEEDBACK_COLOR = Formatting.BLUE;
     public static final Formatting ERROR_COLOR = Formatting.RED;
+    public static boolean forceNoIntercept = false;
 
     public static void register() { //this chaining is f***ing horrible
         ArgumentTypeRegistry.registerArgumentType(Identifier.of("openminemap", "coordinateargument"), CoordinateArgumentType.class, ConstantArgumentSerializer.of(CoordinateArgumentType::coordinateArgumentType));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("omm")
+
                     .then(ClientCommandManager.literal("tpllwtp")
                             .then(ClientCommandManager.argument("latitude longitude [altitude]", CoordinateArgumentType.coordinateArgumentType())
                             .executes(CommandHander::tpllwtp)))
+
                     .then(ClientCommandManager.literal("tpwtpll")
                             .then(ClientCommandManager.argument("x y z", CoordinateArgumentType.coordinateArgumentType())
                             .executes(CommandHander::tpwtpll)))
+
                     .then(ClientCommandManager.literal("tpllto")
                             .then(ClientCommandManager.argument("player name", CoordinateArgumentType.coordinateArgumentType())
                             .suggests(new TplltoSuggestionProvider())
                             .executes(CommandHander::tpllto)))
+
                     .then(ClientCommandManager.literal("warp")
                             .then(ClientCommandManager.argument("warp", CoordinateArgumentType.coordinateArgumentType())
                             .suggests(new WarpSuggestionProvider())
                             .executes(CommandHander::warp)))
+
                     .then(ClientCommandManager.literal("distortion")
-                            .executes(CommandHander::distortion))
+                            .executes(CommandHander::distortionAtPlayer)
+                                .then(ClientCommandManager.argument("[latitude longitude]", CoordinateArgumentType.coordinateArgumentType())
+                                .executes(CommandHander::distortionAtLocation)))
+
                     .then(ClientCommandManager.literal("reloadclaims")
                             .executes(CommandHander::reloadclaims))
         );});
@@ -72,10 +80,93 @@ public class CommandHander {
         return 0;
     }
 
+    private static int distortionTeleport(double lat, double lon) {
+        try {
+            double[] distortion = Projection.getDistortion(lon, lat);
+            String distString = UnitConvert.floorToPlace(Math.sqrt(Math.abs(distortion[0])), 10);
+            String errString = UnitConvert.floorToPlace(Math.toDegrees(distortion[1]), 10);
+
+            MutableText distText = Text.literal(distString).styled((style) -> style
+                    .withColor(FEEDBACK_COLOR)
+                    .withFormatting(Formatting.ITALIC)
+                    .withClickEvent(new ClickEvent.CopyToClipboard(distString))
+                    .withHoverEvent(new HoverEvent.ShowText(Text.translatable("chat.copy.click")))
+            );
+            MutableText errText = Text.literal(errString).styled((style) -> style
+                    .withColor(FEEDBACK_COLOR)
+                    .withFormatting(Formatting.ITALIC)
+                    .withClickEvent(new ClickEvent.CopyToClipboard(errString))
+                    .withHoverEvent(new HoverEvent.ShowText(Text.translatable("chat.copy.click")))
+            );
+
+            MinecraftClient.getInstance().player.sendMessage(
+                Text.translatable("omm.text.distortion")
+                        .append(" \n")
+                        .append(distText)
+                        .append(" ± ")
+                        .append(errText)
+                        .append("°")
+                .formatted(Formatting.ITALIC).formatted(FEEDBACK_COLOR), false);
+        } catch (CoordinateValueError e) {
+            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.distortion").formatted(ERROR_COLOR).formatted(Formatting.ITALIC), false);
+        }
+
+        return 0;
+    }
+
+    private static int distortionAtPlayer(CommandContext<FabricClientCommandSource> context) {
+        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
+        return distortionTeleport(PlayerAttributes.getLatitude(), PlayerAttributes.getLongitude());
+    }
+
+    private static int distortionAtLocation(CommandContext<FabricClientCommandSource> context) {
+        double latitide;
+        double longitude;
+
+        String[] coords = context.getArgument("[latitude longitude]", CoordinateValue.class).value.split(" ");
+        if (coords.length < 2) {
+            context.getSource().sendFeedback(Text.translatable("omm.error.incomplete-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+            return 0;
+        }
+
+        try {
+            latitide = Double.parseDouble(coords[0]);
+            longitude = Double.parseDouble(coords[1]);
+        } catch (NumberFormatException e) {
+            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+            return 0;
+        }
+
+        return distortionTeleport(latitide, longitude);
+    }
+
+    /*
     private static int distortion(CommandContext<FabricClientCommandSource> context) {
         PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
         try {
-            double[] distortion = Projection.getDistortion(PlayerAttributes.getLongitude(), PlayerAttributes.getLatitude());
+            double latitide;
+            double longitude;
+            if (!context.getArgument("[latitude longitude]", CoordinateValue.class).value.isBlank()) {
+
+                String[] coords = context.getArgument("[latitude longitude]", CoordinateValue.class).value.split(" ");
+                if (coords.length < 2) {
+                    context.getSource().sendFeedback(Text.translatable("omm.error.incomplete-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+                    return 0;
+                }
+
+                try {
+                    latitide = Double.parseDouble(coords[0]);
+                    longitude = Double.parseDouble(coords[1]);
+                } catch (NumberFormatException e) {
+                    context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+                    return 0;
+                }
+
+            } else {
+                latitide = PlayerAttributes.getLatitude();
+                longitude = PlayerAttributes.getLongitude();
+            }
+            double[] distortion = Projection.getDistortion(latitide, longitude);
             MinecraftClient.getInstance().player.sendMessage(Text.literal(
                     Text.translatable("omm.text.distortion").getString() + " \n" +
                         UnitConvert.floorToPlace(Math.sqrt(Math.abs(distortion[0])), 10) +
@@ -89,6 +180,7 @@ public class CommandHander {
 
         return 0;
     }
+     */
 
     private static int warp(CommandContext<FabricClientCommandSource> context) {
 
@@ -140,7 +232,9 @@ public class CommandHander {
         try {
             double[] coordsToTp = Projection.from_geo(convertedCoords[0], convertedCoords[1]);
             if (altitude == null) altitude = Double.toString(PlayersManager.getHighestPoint(coordsToTp[0], coordsToTp[1]));
+            forceNoIntercept = true;
             MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+String.format("%.7f", coordsToTp[0])+" "+altitude+" "+String.format("%.7f", coordsToTp[1]));
+            forceNoIntercept = false;
             return 1;
         } catch (CoordinateValueError e) {
             context.getSource().sendFeedback(Text.translatable("omm.error.invalid-or-out-of-bounds").formatted(Formatting.RED).formatted(Formatting.ITALIC));

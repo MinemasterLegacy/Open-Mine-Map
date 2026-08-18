@@ -30,11 +30,13 @@ public class ToggleButtonLayer extends ClickableWidget {
     }
 
     public void draw(DrawContext context) {
+        if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (!ButtonLayer.texturedButtons) {
             UContext.drawButtonOnWidget(this, false, isHovered());
             UContext.drawTexture(type.getShadowIdentifier(isOn()), getX() + 1, getY() + 1, getWidth(), getHeight());
         }
         UContext.drawTexture(type.getIdentifier(isOn(), isHovered()), getX(), getY(), getWidth(), getHeight());
+        UContext.resetTextureAlpha();
     }
 
     private boolean isOn() {

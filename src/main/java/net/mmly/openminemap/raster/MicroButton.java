@@ -5,9 +5,11 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
+import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonState;
@@ -20,8 +22,11 @@ public class MicroButton extends ClickableWidget {
     public final MicroButtonFunction buttonFunction;
     private RasterLayerWidget parentWidget;
     public final LayerType layerType;
-    private boolean flash = false;
+    private boolean apiKeyNeeded = false;
     private boolean disabaled = false;
+
+    private static final int DELETE_HOLD_DURATION_MS = 1000;
+    private long deleteStartTime = -1;
 
     public MicroButton(int x, int y, MicroButtonFunction function, LayerType layerType) {
         super(x, y, 12, 12, Text.of(""));
@@ -56,7 +61,25 @@ public class MicroButton extends ClickableWidget {
                 buttonFunction.getTexture(disabaled ? ButtonState.LOCKED : isMouseOver(mouseX, mouseY) ? ButtonState.HOVER : ButtonState.DEFAULT),
                 getX(), getY(), width, height, 12, 12);
 
-        if (flash) drawFlash();
+        if (apiKeyNeeded) {
+            drawFlash();
+            if (parentWidget.isHovered()) UContext.getContext().drawTooltip(
+                    MinecraftClient.getInstance().textRenderer,
+                    Text.translatable("omm.raster.requires-api-key"),
+                    mouseX,
+                    mouseY
+            );
+        }
+        else if (buttonFunction == MicroButtonFunction.DELETE) {
+            if (isMouseOver(mouseX, mouseY)) UContext.getContext().drawTooltip(
+                    MinecraftClient.getInstance().textRenderer,
+                    Text.translatable("omm.raster.hold-to-delete"),
+                    mouseX,
+                    mouseY
+            );
+            if (deleteStartTime != -1) parentWidget.setDeleteProgressPercent(deleteProgressPercent());
+            if (!isMouseOver(mouseX, mouseY)) stopDeleteTimer(mouseX, mouseY);
+        }
         if (isMouseOver(mouseX, mouseY)) UContext.setCursorContext(disabaled ? StandardCursors.NOT_ALLOWED : StandardCursors.POINTING_HAND);
     }
 
@@ -65,16 +88,21 @@ public class MicroButton extends ClickableWidget {
 
     }
 
-    public void setFlash(boolean flash) {
-        this.flash = flash;
+    public void setApiKeyNeeded(boolean apiKeyNeeded) {
+        this.apiKeyNeeded = apiKeyNeeded;
     }
 
     private void drawFlash() {
         int alpha = Math.abs(((int) (Util.getEpochTimeMs() >>> 3) % 256) + 128);
         int color = ColorUtil.setAlpha(alpha, 0xFFFFFFFF);
-        UContext.fillZone(getX() + 1, getY(), getWidth() - 2, getHeight(), color);
-        UContext.fillZone(getX(), getY() + 1, 1, getHeight() - 2, color);
-        UContext.fillZone(getRight() - 1, getY() + 1, 1, getHeight() - 2, color);
+        if (ButtonLayer.texturedButtons) {
+            UContext.fillZone(getX() + 1, getY(), getWidth() - 2, getHeight(), color);
+            UContext.fillZone(getX(), getY() + 1, 1, getHeight() - 2, color);
+            UContext.fillZone(getRight() - 1, getY() + 1, 1, getHeight() - 2, color);
+        } else {
+            UContext.fillWidget(this, color);
+        }
+
     }
 
     @Override
@@ -85,7 +113,11 @@ public class MicroButton extends ClickableWidget {
         switch (buttonFunction) {
             case EDIT: {
                 switch (layerType) {
-                    case BASE -> client.setScreen(new BaseRasterScreen());
+                    case null -> {
+                        CreateRasterScreen.layerType = parentWidget.raster.layerType;
+                        client.setScreen(new CreateRasterScreen(parentWidget.raster));
+                    }
+                    case BASE -> client.setScreen(new BaseRasterScreen(true));
                     case LOCAL_GEN -> {
                         client.setScreen(new ConfigScreen());
                         ConfigScreen.getInstance().scrollToOverlay();
@@ -111,16 +143,43 @@ public class MicroButton extends ClickableWidget {
                 break;
             }
             case REMOVE: {
-                RasterProvider.extractOverlay(parentWidget.raster);
+                RasterProvider.popOverlay(parentWidget.raster);
                 MinecraftClient.getInstance().setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case INFO: {
                 CreateRasterScreen.layerType = (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
                 MinecraftClient.getInstance().setScreen(new CreateRasterScreen(parentWidget.raster));
-                //TODO
+                break;
+            }
+            case DELETE: {
+                startDeleteTimer();
                 break;
             }
         }
+    }
+
+    private void startDeleteTimer() {
+        deleteStartTime = Util.getEpochTimeMs();
+    }
+
+    private float deleteProgressPercent() {
+        return Math.min(1f, (float) (Util.getEpochTimeMs() - deleteStartTime) / DELETE_HOLD_DURATION_MS);
+    }
+
+    private void stopDeleteTimer(double mouseX, double mouseY) {
+        if (isMouseOver(mouseX, mouseY) && deleteProgressPercent() == 1f) {
+            RasterProvider.deleteCustomRaster(parentWidget.raster);
+            if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen) MinecraftClient.getInstance().setScreen(new BaseRasterScreen(false));
+            if (MinecraftClient.getInstance().currentScreen instanceof OverlayRasterScreen) MinecraftClient.getInstance().setScreen(new OverlayRasterScreen(false));
+        }
+        parentWidget.setDeleteProgressPercent(0f);
+        deleteStartTime = -1;
+    }
+
+    @Override
+    public void onRelease(Click click) {
+        super.onRelease(click);
+        stopDeleteTimer(click.x(), click.y());
     }
 }

@@ -11,6 +11,7 @@ public enum MicroButtonFunction {
     UP,
     DOWN,
     REMOVE,
+    DELETE,
     VISIBILITY,
     INFO;
 

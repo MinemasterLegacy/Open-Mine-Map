@@ -9,103 +9,253 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.mmly.openminemap.raster.LayerType;
 import net.mmly.openminemap.util.RasterProvider;
+import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
-import net.mmly.openminemap.util.UnitConvert;
 
-import static net.mmly.openminemap.gui.MapScreen.windowScaledHeight;
-import static net.mmly.openminemap.gui.MapScreen.windowScaledWidth;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class AttributionLayer extends ClickableWidget {
 
     public final int textWidth;
-    private final String attribution;
-    private final char[] attributionString;
-    private int[][] selectionZones;
-    private int selection = -1;
+    private String visibleAttribution; // does *not* contain curly braces
+    private String fullAttribution; // does contain curly braces
+    private int hoveredZone = -1;
+    private int oldScreenWidth = 0;
+
+    ArrayList<ArrayList<String>> words = new ArrayList<>();
+    ArrayList<int[]> clickZones = new ArrayList<>();
+    ArrayList<Integer> clickLinkPointers = new ArrayList<>();
+    ArrayList<String> attributionLinks = new ArrayList<>();
+
+    private static final int LINK_COLOR = 0xFF548AF7;
+    public static final int LINE_HEIGHT = 16;
+    public static final int X_MARGIN = 4;
+    public static final int Y_MARGIN = 4;
+    public static final int MIN_WIDTH = 120;
+    private final int SPACE_WIDTH;
+
+    private void setAttributionInfo() {
+        ArrayList<String> attributionStrings = new ArrayList<>();
+
+        for (TileUrl raster : RasterProvider.getCurrentOverlays()) {
+            if (raster.layerType == LayerType.LOCAL_GEN) continue;
+            attributionStrings.add(raster.attribution);
+            attributionLinks.addAll(Arrays.asList(raster.attribution_links));
+        }
+
+        if (RasterProvider.getCurrentBaseRaster().presetID != TileUrl.OPENSTREETMAP_PRESET_ID) {
+            attributionStrings.add(RasterProvider.getCurrentBaseRaster().attribution);
+            attributionLinks.addAll(Arrays.asList(RasterProvider.getCurrentBaseRaster().attribution_links));
+        }
+
+        attributionStrings.add(TileUrlFile.osmAttribution);
+        attributionLinks.add(TileUrlFile.osmAttributionUrl);
+
+        fullAttribution = String.join(" | ", attributionStrings);
+        visibleAttribution = fullAttribution.replace("{", "").replace("}", "");
+    }
 
     public AttributionLayer(int x, int y, int width, int height) {
         super(x, y, width, height, Text.empty());
-        String split = " | ";
-        if (RasterProvider.getCurrentBaseRaster().attribution.equals("")) split = "";
         TileUrlFile.initOsmAttribution();
-        attributionString = (TileUrlFile.osmAttribution + split + RasterProvider.getCurrentBaseRaster().attribution).toCharArray();
-        attribution = (TileUrlFile.osmAttribution + split + RasterProvider.getCurrentBaseRaster().attribution).replaceAll("\\{", "").replaceAll("}", "");
-        selectionZones = new int[(attributionString.length - attribution.length() / 2)][2];
-        textWidth = MinecraftClient.getInstance().textRenderer.getWidth(attribution);
+        setAttributionInfo();
+        textWidth = MinecraftClient.getInstance().textRenderer.getWidth(visibleAttribution);
+        SPACE_WIDTH = MinecraftClient.getInstance().textRenderer.getWidth(" ");
     }
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000);
         if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+        calculateSelection(mouseX, mouseY);
+    }
+
+    public void updatePositionAndDimensions(int coordinateWidth, int screenWidth, int screenHeight) {
+        if (oldScreenWidth == screenWidth) return;
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+
+        setWidth(Math.max(screenWidth - coordinateWidth, MIN_WIDTH));
+        parseAttributionString(textRenderer, fullAttribution);
+        if (words.size() == 1) width = textRenderer.getWidth(fullAttribution.replaceAll("[{}]", "")) + 2 * X_MARGIN;
+
+        oldScreenWidth = screenWidth;
+        setHeight(words.size() * LINE_HEIGHT);
+        setPosition(screenWidth - width, screenHeight - height);
+    }
+
+    enum SelectState {
+        NONE,
+        LINK,
+        HOVER
     }
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
-        //context.fill(windowScaledWidth - 157, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, 0x88000000);
-        //context.drawText(textRenderer, "Map data from", windowScaledWidth - 152, windowScaledHeight + 7 - textRenderer.fontHeight - 10, 0xFFFFFFFF, true);
-        //context.drawText(textRenderer, Text.of("OpenStreetMap"), windowScaledWidth - 77, windowScaledHeight + 7 - textRenderer.fontHeight - 10, 0xFF548AF7, true); //0xFF1b75d0
+        context.fill(getX(), getY(), getRight(), getBottom(), MapScreen.backingColor);
+        int offsetX = X_MARGIN;
+        int offsetY = Y_MARGIN;
+        for (int l = 0; l < words.size(); l++) {
+            ArrayList<String> line = words.get(l);
+            for (int i = 0; i < line.size(); i++) {
+                String word = line.get(i);
 
-        calculateSelection();
+                SelectState selectState = determineSelectState(l, offsetX);
+                context.drawText(
+                        textRenderer,
+                        Text.literal(word).formatted(selectState == SelectState.HOVER ? Formatting.UNDERLINE : Formatting.RESET),
+                        getX() + offsetX,
+                        getY() + offsetY,
+                        selectState == SelectState.NONE ? MapScreen.getPlainTextColor() : LINK_COLOR,
+                        true
+                );
 
-        context.fill(windowScaledWidth - textWidth - 8, windowScaledHeight - 16, windowScaledWidth, windowScaledHeight, MapScreen.backingColor);
+                offsetX += textRenderer.getWidth(word);
+                if (line.size() - 1 == i) continue;
 
-        int y = windowScaledHeight + 7 -textRenderer.fontHeight - 10;
-        int drawCursorX = windowScaledWidth - textWidth - 3;
-        int startX = drawCursorX;
-        int attributionsCount = 0;
-        StringBuilder bufferedText = new StringBuilder();
-        //System.out.println("----");
-        for (char currentChar : attributionString) {
-            //System.out.println(currentChar+"\t"+drawCursorX);
-            if (currentChar == '{') {
-                context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, MapScreen.getPlainTextColor(), true);
-            } else if (currentChar == '}') {
-                context.drawText(textRenderer,
-                        selection == attributionsCount ?
-                                Text.literal(bufferedText.toString()).formatted(Formatting.UNDERLINE):
-                                Text.of(bufferedText.toString()),
-                        startX, y, 0xFF548AF7, true);
-                selectionZones[attributionsCount][0] = startX;
-                selectionZones[attributionsCount][1] = drawCursorX;
-                attributionsCount++;
-            } else {
-                //System.out.print(currentChar);
-                bufferedText.append(currentChar);
-                drawCursorX += (textRenderer.getWidth(Character.toString(currentChar)));
-                continue;
+                selectState = determineSelectState(l, offsetX);
+                context.drawText(
+                        textRenderer,
+                        Text.literal(" ").formatted(selectState == SelectState.HOVER ? Formatting.UNDERLINE : Formatting.RESET),
+                        getX() + offsetX,
+                        getY() + offsetY,
+                        selectState == SelectState.NONE ? MapScreen.getPlainTextColor() : LINK_COLOR,
+                        true
+                );
+
+                offsetX += SPACE_WIDTH;
             }
-            startX = drawCursorX;
-            //System.out.println("StartX -> "+startX);
-            bufferedText = new StringBuilder();
+            offsetY += LINE_HEIGHT;
+            offsetX = X_MARGIN;
         }
-        context.drawText(textRenderer, Text.of(bufferedText.toString()), startX, y, MapScreen.getPlainTextColor(), true);
+    }
+
+    private SelectState determineSelectState(int line, int xOffset) {
+        xOffset -= X_MARGIN;
+        for (int i = 0; i < clickZones.size(); i++) {
+            int[] zone = clickZones.get(i);
+            if (zone[0] != line) continue;
+            if (zone[1] <= xOffset && xOffset < zone[2]) {
+                if (hoveredZone == clickLinkPointers.get(i)) return SelectState.HOVER;
+                else return SelectState.LINK;
+            };
+        }
+        return SelectState.NONE;
     }
 
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
-    private void calculateSelection() {
+    private void calculateSelection(double mouseX, double mouseY) {
         if (!isHovered()) {
-            selection = -1;
+            hoveredZone = -1;
             return;
         }
-        double mouseX = UnitConvert.pixelToScaledCoords((float) MinecraftClient.getInstance().mouse.getX());
-        for (int i = 0 ; i < selectionZones.length ; i++) {
-            if (mouseX > selectionZones[i][0] && mouseX < selectionZones[i][1]) {
-                selection = i;
+
+        int mouseLinkLine = (int) ((mouseY - getY()) / 16);
+        int mouseLinkX = ((int) mouseX) - getX() - 4;
+
+        for (int i = 0; i < clickZones.size(); i++) {
+            int[] zone = clickZones.get(i);
+            if (zone[0] != mouseLinkLine) continue;
+            if (zone[1] <= mouseLinkX && mouseLinkX < zone[2]) {
+                hoveredZone = clickLinkPointers.get(i);
                 return;
             }
         }
-        selection = -1;
+        hoveredZone = -1;
+    }
+
+    private void parseAttributionString(TextRenderer textRenderer, String attributionString) {
+        StringBuilder builder = new StringBuilder();
+        boolean inLink = false;
+        int linkPointer = 0;
+        int linkStartX = 0;
+        int lineWidth = 0;
+        int line = 0;
+        int maxWidth = width - 2 * X_MARGIN;
+
+        words.clear();
+        clickLinkPointers.clear();
+        clickZones.clear();
+
+        words.add(new ArrayList<>());
+
+        for (char c : attributionString.toCharArray()) {
+            if (lineWidth >= maxWidth) {
+                if (words.getLast().isEmpty()) {
+                    words.getLast().add(builder.toString());
+                    builder = new StringBuilder();
+                }
+                if (inLink) {
+                    clickZones.add(new int[] {line, linkStartX, lineWidth - textRenderer.getWidth(builder.toString())});
+                    if (clickZones.getLast()[1] == clickZones.getLast()[2]) {
+                        clickZones.remove(clickZones.getLast());
+                    } else {
+                        clickLinkPointers.add(linkPointer);
+                    }
+                }
+                words.add(new ArrayList<>());
+                lineWidth = textRenderer.getWidth(builder.toString());
+                linkStartX = 0;
+                line++;
+            }
+
+            if (c == '{') {
+                linkStartX = lineWidth;
+                inLink = true;
+            } else if (c == ' ') {
+                words.getLast().add(builder.toString());
+                builder = new StringBuilder();
+                lineWidth += textRenderer.getWidth(Character.toString(c));
+            } else if (c == '}') {
+                clickZones.add(new int[] {line, linkStartX, lineWidth});
+                clickLinkPointers.add(linkPointer++);
+                inLink = false;
+            } else {
+                builder.append(c);
+                lineWidth += textRenderer.getWidth(Character.toString(c));
+            }
+        }
+
+        if (!builder.toString().isBlank()) {
+            words.getLast().add(builder.toString());
+        }
+
+        /*
+        System.out.println(Arrays.toString(words.toArray()));
+        System.out.println(Arrays.deepToString(clickZones.toArray()));
+
+        System.out.println();
+        for (ArrayList<String> lineArray : words) {
+            System.out.print(" ");
+            for (String s : lineArray) {
+                System.out.print(s + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println();
+        linkPointer = 0;
+        for (int[] zone : clickZones) {
+            System.out.print(clickLinkPointers.get(linkPointer++));
+            for (int i = 0; i < zone[1]; i++) {
+                System.out.print(" ");
+            }
+            for (int i = 0; i < zone[2] - zone[1]; i++) {
+                System.out.print("=");
+            }
+            System.out.println();
+        }
+
+         */
     }
 
     @Override
     public void onClick(Click click, boolean doubled) {
-        if (selection == -1) return;
-        String link;
-        if (selection == 0) link = TileUrlFile.osmAttributionUrl;
-        else link = RasterProvider.getCurrentBaseRaster().attribution_links[selection - 1];
+        if (hoveredZone == -1) return;
+        String link = attributionLinks.get(hoveredZone);
         MapScreen.openLinkScreen(link, new MapScreen(), true);
     }
 }

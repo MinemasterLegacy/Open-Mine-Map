@@ -16,7 +16,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
-import net.mmly.openminemap.map.RequestManager;
+import net.mmly.openminemap.http.RequestManager;
 import org.lwjgl.glfw.GLFW;
 
 import java.time.Duration;
@@ -143,12 +143,12 @@ public class SearchResultLayer extends ClickableWidget {
         }
 
         if (myResult.resultType == SearchResultType.SEARCH) {
-            RequestManager.setSearchRequest(MapScreen.getInstance().getSearchBoxContents());
+            RequestManager.search(MapScreen.getInstance().getSearchBoxContents());
             return;
         }
 
         if (myResult.resultType == SearchResultType.SEARCHLOCAL) {
-            RequestManager.setSearchRequest(
+            RequestManager.search(
                     MapScreen.getInstance().getSearchBoxContents(),
                     MapScreen.map.getMapCenterLat(),
                     MapScreen.map.getMapCenterLon()
@@ -157,7 +157,7 @@ public class SearchResultLayer extends ClickableWidget {
         }
 
         if (myResult.resultType == SearchResultType.COORDINATES) {
-            MapScreen.map.displaySearchResults(new SearchResult[]{myResult});
+            MapScreen.map.setSearchResults(new SearchResult[]{myResult});
             MapScreen.map.setFocusedResult(0);
         }
 

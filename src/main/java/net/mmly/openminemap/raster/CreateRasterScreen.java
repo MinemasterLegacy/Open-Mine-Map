@@ -6,17 +6,20 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.TileUrlErrorType;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -25,9 +28,10 @@ public class CreateRasterScreen extends Screen {
 
     private ArrayList<TextFieldWidget> fieldWidgets;
     private ButtonWidget doneButton;
+    private ButtonWidget cancelButton;
     private ButtonLayer addAttributionButton;
     private ButtonLayer removeAttributionButton;
-    private static TileUrl tileUrl;
+    private static TileUrl originalRaster;
     protected static boolean isNew;
     protected static boolean hasKeyField;
     protected static boolean baseFieldsEditable; // should not affect the key field
@@ -41,41 +45,41 @@ public class CreateRasterScreen extends Screen {
 
     @Override
     public void close() {
-        saveCurrentUrl();
         MinecraftClient.getInstance().setScreen(returnScreen);
         layerType = null;
     }
 
     private void saveCurrentUrl() {
         if (hasKeyField) {
-            RasterApiKeysFile.writeApiKey(tileUrl.presetID, fieldWidgets.getLast().getText());
+            RasterApiKeysFile.writeApiKey(originalRaster.presetID, fieldWidgets.getLast().getText());
             return;
         }
+
         if (baseFieldsEditable) {
             TileUrl raster = buildRaster();
-            if (rasterIsValid(raster) != null) return;
+            if (rasterIsValid(raster, originalRaster) != null) return;
             if (layerType == null) return;
             if (isNew) RasterProvider.addCustomRaster(raster);
+            else RasterProvider.replaceCustomRaster(originalRaster, raster);
             TileUrlFile.saveCustomRastersToFile();
         }
-        //TODO
     }
 
     /// Pass null for a new tile url
     public CreateRasterScreen(TileUrl url) { //for modifying some existing raster
         super(Text.of(""));
         instance = this;
-        tileUrl = url;
-        isNew = tileUrl == null;
+        originalRaster = url;
+        isNew = originalRaster == null;
 
         if (!isNew) {
-            hasKeyField = tileUrl.hasKeyField();
+            hasKeyField = originalRaster.hasKeyField();
         } else {
             hasKeyField = false;
         }
 
-        if (tileUrl == null) baseFieldsEditable = true;
-        else baseFieldsEditable = !tileUrl.isPreset();
+        if (originalRaster == null) baseFieldsEditable = true;
+        else baseFieldsEditable = !originalRaster.isPreset();
 
         if (MinecraftClient.getInstance().currentScreen instanceof RasterWarningScreen) {
             returnScreen = ((RasterWarningScreen) MinecraftClient.getInstance().currentScreen).parent;
@@ -108,7 +112,10 @@ public class CreateRasterScreen extends Screen {
             fieldWidgets.getLast().setY(fieldWidgets.getLast().getY() + (int) perSpace);
         }
 
-        doneButton.setPosition(width / 2 - 100, height - 20 - (int) perSpace);
+        int edgeMargin = (width - 10 - 2 * ButtonWidget.DEFAULT_WIDTH_SMALL) / 2;
+        doneButton.setPosition(edgeMargin, height - 20 - (int) perSpace);
+        cancelButton.setPosition(edgeMargin + 10 + ButtonWidget.DEFAULT_WIDTH_SMALL, height - 20 - (int) perSpace);
+
 
         if (!baseFieldsEditable) return;
 
@@ -143,7 +150,11 @@ public class CreateRasterScreen extends Screen {
     }
 
     private String rasterIsValid(TileUrl raster) {
-        TileUrlErrorType errorType = TileUrlFile.checkValidityOf(raster);
+        return rasterIsValid(raster, null);
+    }
+
+    private String rasterIsValid(TileUrl raster, TileUrl nameIgnoredRaster) {
+        TileUrlErrorType errorType = TileUrlFile.checkValidityOf(raster, nameIgnoredRaster);
         if (errorType == TileUrlErrorType.NO_ERROR) return null;
         else return Text.translatable(errorType.translationKey).getString();
     }
@@ -165,8 +176,8 @@ public class CreateRasterScreen extends Screen {
     }
 
     private String[] getAttributionLinksList() {
-        String[] links = new String[fieldWidgets.size()-3];
-        for (int i = 0; i < fieldWidgets.size()-3; i++) {
+        String[] links = new String[fieldWidgets.size() - 3 - (hasKeyField ? 1 : 0)];
+        for (int i = 0; i < fieldWidgets.size() - 3 - (hasKeyField ? 1 : 0); i++) {
             links[i] = fieldWidgets.get(3+i).getText();
             if (links[i].isEmpty()) links[i] = null;
         }
@@ -196,22 +207,38 @@ public class CreateRasterScreen extends Screen {
         }
         //tileUrl will not be null past this point
 
-        for (int i = 0; i < 3 + tileUrl.attribution_links.length; i++) {
-            fieldWidgets.add(getNewFieldWidget(!tileUrl.isPreset()));
+        for (int i = 0; i < 3 + originalRaster.attribution_links.length; i++) {
+            fieldWidgets.add(getNewFieldWidget(!originalRaster.isPreset()));
         }
 
-        fieldWidgets.get(0).setText(tileUrl.name);
-        fieldWidgets.get(1).setText(tileUrl.source_url);
-        if (tileUrl.presetID == 0) fieldWidgets.get(2).setText(Text.translatable("omm.osm-attribution").getString());
-        else fieldWidgets.get(2).setText(tileUrl.attribution);
-        for (int i = 0; i < tileUrl.attribution_links.length; i++) {
-            fieldWidgets.get(3+i).setText(tileUrl.attribution_links[i]);
+        fieldWidgets.get(0).setText(originalRaster.name);
+        fieldWidgets.get(1).setText(originalRaster.source_url);
+        if (originalRaster.presetID == 0) fieldWidgets.get(2).setText(Text.translatable("omm.osm-attribution").getString());
+        else fieldWidgets.get(2).setText(originalRaster.attribution);
+        for (int i = 0; i < originalRaster.attribution_links.length; i++) {
+            fieldWidgets.get(3+i).setText(originalRaster.attribution_links[i]);
         }
 
         if (hasKeyField) {
             fieldWidgets.add(getNewFieldWidget(true));
-            fieldWidgets.getLast().setText(RasterApiKeysFile.readApiKey(tileUrl.presetID));
+            fieldWidgets.getLast().setText(RasterApiKeysFile.readApiKey(originalRaster.presetID));
         }
+    }
+
+    @Override
+    public boolean keyPressed(KeyInput input) {
+        boolean b = super.keyPressed(input);
+        if (!ConfigOptions.__SHOW_DEVELOPER_OPTIONS.getAsBoolean()) return b;
+        if (input.getKeycode() != GLFW.GLFW_KEY_RIGHT_ALT) return b;
+        if (!isNew) return b;
+
+        fieldWidgets.get(0).setText("Dummy Raster");
+        fieldWidgets.get(1).setText("https://a.a.a{x}{y}{z}");
+        fieldWidgets.get(2).setText("{e}");
+        fieldWidgets.get(3).setText("https://a.a.a");
+        saveCurrentUrl();
+        close();
+        return b;
     }
 
     @Override
@@ -219,10 +246,18 @@ public class CreateRasterScreen extends Screen {
         super.init();
 
         doneButton = ButtonWidget.builder(isNew ? Text.translatable("omm.text.create") : Text.translatable("omm.text.done"), (widget) -> {
-            CreateRasterScreen.instance.close(); //todo validate raster on creation
+            if (TileUrlFile.checkValidityOf(buildRaster(), originalRaster) != TileUrlErrorType.NO_ERROR) return;
+            saveCurrentUrl();
+            CreateRasterScreen.instance.close();
         }).position(0, -100).build();
-        doneButton.setWidth(200);
+        doneButton.setWidth(ButtonWidget.DEFAULT_WIDTH_SMALL);
         addDrawableChild(doneButton);
+
+        cancelButton = ButtonWidget.builder(Text.translatable("gui.cancel"), (widget) -> {
+            CreateRasterScreen.instance.close();
+        }).position(0, -100).build();
+        cancelButton.setWidth(ButtonWidget.DEFAULT_WIDTH_SMALL);
+        addDrawableChild(cancelButton);
 
         initFieldWidgets();
 
@@ -245,7 +280,7 @@ public class CreateRasterScreen extends Screen {
         updateWidgetPositions();
 
         if (isNew) {
-            String validity = rasterIsValid(buildRaster());
+            String validity = rasterIsValid(buildRaster(), originalRaster);
             if (validity == null) {
                 doneButton.active = true;
                 doneButton.setTooltip(null);
@@ -275,7 +310,7 @@ enum Fields {
 
     public static final Fields[] inOrder = new Fields[] {NAME, SOURCE, ATTRIBUTION, LINKS, KEY};
 
-    public MutableText getTranslated() { //TODO
+    public MutableText getTranslated() {
         return Text.translatable("omm.raster.field." + this.toString().toLowerCase(Locale.US));
     }
 

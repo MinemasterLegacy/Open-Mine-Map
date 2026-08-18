@@ -6,11 +6,12 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
 
 public class ChoiceNumberWidget extends TextFieldWidget implements ConfigChoice{
 
-    ConfigAnchorWidget anchor;
+    AnchorWidget anchor;
     Text placeholder;
     TextRenderer textRenderer;
 
@@ -26,7 +27,7 @@ public class ChoiceNumberWidget extends TextFieldWidget implements ConfigChoice{
     }
 
     @Override
-    public void setAnchor(ConfigAnchorWidget anchor) {
+    public void setAnchor(AnchorWidget anchor) {
         this.anchor = anchor;
     }
 

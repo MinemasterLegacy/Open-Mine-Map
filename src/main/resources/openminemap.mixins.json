@@ -3,7 +3,7 @@
 	"package": "net.mmly.openminemap.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"TeleportMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

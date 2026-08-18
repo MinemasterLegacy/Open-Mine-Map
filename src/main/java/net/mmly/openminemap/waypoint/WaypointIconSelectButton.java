@@ -31,9 +31,13 @@ public class WaypointIconSelectButton extends ClickableWidget {
         if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
 
+    public void onClick(double mouseX, double mouseY) {
+        WaypointScreen.instance.styleSelection = WaypointStyle.getByOrdinal(WaypointScreen.instance.styleSelection.ordinal() + typeId);
+    }
+
     @Override
     public void onClick(Click click, boolean doubled) {
-        WaypointScreen.instance.styleSelection = WaypointStyle.getByOrdinal(WaypointScreen.instance.styleSelection.ordinal() + typeId);
+        onClick(click.x(), click.y());
     }
 
     @Override

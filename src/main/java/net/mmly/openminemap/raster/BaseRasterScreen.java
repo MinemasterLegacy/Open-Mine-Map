@@ -10,8 +10,8 @@ import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 
 public class BaseRasterScreen extends RasterScreen {
-    public BaseRasterScreen() {
-        super(40, true);
+    public BaseRasterScreen(boolean updateReturnScreen) {
+        super(40, updateReturnScreen);
     }
 
     public static ButtonWidget confirmButton;
@@ -35,7 +35,7 @@ public class BaseRasterScreen extends RasterScreen {
         confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
             try {
                 if (getSelectedLayerWidget().raster.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().raster.presetID)) return;
-                TileManager.setTileUrl(getSelectedLayerWidget().raster);
+                RasterProvider.setCurrentBaseRaster(getSelectedLayerWidget().raster);
                 MinecraftClient.getInstance().currentScreen.close();
             } catch (NullPointerException ignored) {}
         }).width(200).build();

@@ -45,6 +45,7 @@ public class ButtonLayer extends ClickableWidget {
     }
 
     public void drawWidget(DrawContext context) {
+        if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (!texturedButtons) {
             UContext.drawButtonOnWidget(this, disableCondition.getAsBoolean(), isHovered());
             UContext.drawTexture(function.generatedShadowIdentifier, getX() + 1, getY() + 1, BUTTONSIZE, BUTTONSIZE);
@@ -56,6 +57,7 @@ public class ButtonLayer extends ClickableWidget {
                 BUTTONSIZE,
                 BUTTONSIZE
         );
+        UContext.resetTextureAlpha();
     }
 
     @Override
@@ -70,6 +72,7 @@ public class ButtonLayer extends ClickableWidget {
     @Override
     public void onClick(Click click, boolean doubled) {
         RightClickMenu.disableMenu();
+        System.out.println("clicked");
         switch (function) {
             case ZOOMIN: //zoom in
                 MapScreen.zoomIn();

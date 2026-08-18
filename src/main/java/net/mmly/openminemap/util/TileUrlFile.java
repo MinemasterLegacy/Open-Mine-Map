@@ -25,16 +25,13 @@ import java.util.Optional;
 
 public class TileUrlFile {
 
-    public static boolean loadWasFailed = false;
+    public static boolean loadFailed = false;
     public static String osmAttribution;
     public static final String osmAttributionUrl = "https://openstreetmap.org/copyright";
     public static File rasterFile;
 
     private static TileUrlErrorType loadError = TileUrlErrorType.NO_ERROR;
     private static TileUrl errorUrl;
-    //TODO make sure names must be custom
-    //TODO validate if name is valid for file path
-    //TODO show mapbox logo for mapbox urls
     private static TileUrl[] tileUrls;
     public static final TileUrl defaultUrl = new TileUrl(
             0,
@@ -89,25 +86,26 @@ public class TileUrlFile {
         errorUrl = url;
     }
 
-    public static boolean loadRastersFromFile() {
+    public static void loadRastersFromFile() {
         rasterFile = new File(TileManager.getRootFile() + "openminemap/rasters.json");
         try {
             TileUrlFile.establishPresets();
-            TileUrlFile.establishUrls();
-            RasterProvider.finishInitialization();
-        } catch (IOException | NullPointerException ignored) {
+            TileUrlFile.establishRasterProviders();
+        } catch (TileUrlFileFormatException | IOException | NullPointerException ignored) {
             //do nothing, will try again next requester cycle
             //ignored.printStackTrace();
             //System.out.println("failed cycle");
-            return false;
+            loadFailed = true;
+            OpenMineMap.LOGGER.warn("Raster Providers failed to load, will fallback to default settings");
+            addApplicableErrors();
+            RasterProvider.initWithFailedLoad();
         }
+        RasterProvider.finishInitialization();
         OpenMineMap.LOGGER.info("Loaded Raster Providers");
-        addApplicableErrors(null);
-        return true;
     }
 
     /// Adds url load errors to chat as needed
-    private static void addApplicableErrors(MinecraftClient client) {
+    private static void addApplicableErrors() {
         Text debugStart = Text.translatable("omm.error.tile-url.start");
         if (loadError != TileUrlErrorType.NO_ERROR) {
             String name;
@@ -120,7 +118,7 @@ public class TileUrlFile {
         }
     }
 
-    private static void establishUrls() throws IOException {
+    private static void establishRasterProviders() throws IOException, TileUrlFileFormatException {
 
         try {
             if (!rasterFile.exists()) if (!createDefaultFile(rasterFile)) {
@@ -146,15 +144,14 @@ public class TileUrlFile {
             RasterProvider.initCustomRasters(tileUrlArray);
 
         } catch (IOException | TileUrlFileFormatException e) {
-            loadWasFailed = true;
-            RasterProvider.initWithFailedLoad();
+            OpenMineMap.LOGGER.error("Custom Rasters failed to load: ");
+            e.printStackTrace();
+            throw e;
         }
 
-        //TODO check urls with undefined template id for presets
     }
 
-    private static void establishPresets() throws NullPointerException, IOException {
-        //TODO specific error handling for presets
+    private static void establishPresets() throws NullPointerException, IOException, TileUrlFileFormatException {
         try {
             TileUrl[] tileUrlArray;
             try {
@@ -179,9 +176,11 @@ public class TileUrlFile {
             checkArrayValidity(tileUrlArray, true);
             RasterProvider.initPresetRasters(tileUrlArray);
 
-        } catch (TileUrlFileFormatException e) {
+        } catch (TileUrlFileFormatException | IOException | NullPointerException e) {
             //urlPresets = new TileUrl[]{};
-            OpenMineMap.LOGGER.error("Raster Presets failed to load.");
+            OpenMineMap.LOGGER.error("Raster Presets failed to load: ");
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -278,46 +277,61 @@ public class TileUrlFile {
         return array;
     }
 
+    private static boolean charIsValid(char c) {
+        return c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == ' ' || c == '_';
+    }
+
     /// Check a raster provider to see if it is valid, returns an error as an enum if not
     public static TileUrlErrorType checkValidityOf(TileUrl tileUrl) {
-        //System.out.println(" # Starting a TileUrl check.");
-        //check for null values
+        return checkValidityOf(tileUrl, null);
+    }
 
-        if (tileUrl == null) {
+    /// Check a raster provider to see if it is valid, returns an error as an enum if not
+    public static TileUrlErrorType checkValidityOf(TileUrl raster, TileUrl nameIgnoredRaster) {
+        //check for null values
+        if (raster == null) {
             return TileUrlErrorType.NULL_TILE_URL;
         }
-        if (tileUrl.name == null ||
-            tileUrl.attribution == null ||
-            tileUrl.source_url == null ||
-            tileUrl.attribution_links == null
+        if (raster.name == null ||
+            raster.attribution == null ||
+            raster.source_url == null ||
+            raster.attribution_links == null
         ) return TileUrlErrorType.NULL_VALUE;
 
-        //Check for invalid directory characters
-        if (SystemUtils.IS_OS_WINDOWS) {
-            if (tileUrl.name.replaceAll("[<>:\"/\\\\|?*,]", "").length() != tileUrl.name.length()) return TileUrlErrorType.INVALID_CHARACTERS;
-            if (tileUrl.name.endsWith(".") || tileUrl.name.endsWith(" ")) return TileUrlErrorType.INVALID_CHARACTERS;
-        } else {
-            if (tileUrl.name.replaceAll("/,", "").length() != tileUrl.name.length()) return TileUrlErrorType.INVALID_CHARACTERS;
+        //Check for invalid characters
+        for (char c : raster.name.toCharArray()) {
+            if (!charIsValid(c)) return TileUrlErrorType.INVALID_CHARACTERS;
         }
 
         //Check for duplicate names
-        for (TileUrl raster : RasterProvider.getCustomRasters()) {
-            if (raster.name.equals(tileUrl.name)) return TileUrlErrorType.DUPLICATE_NAME;
+        TileUrl match = null;
+        for (TileUrl customRaster : RasterProvider.getCustomRasters()) {
+            if (customRaster.name.toLowerCase(Locale.US).equals(raster.name.toLowerCase(Locale.US))) match = customRaster;
         }
-        if (tileUrl.name.equals(TileUrl.generatedLayerUrl.name)) return TileUrlErrorType.DUPLICATE_NAME;
+        for (TileUrl presetRaster : RasterProvider.getPresetRasters()) {
+            if (presetRaster.name.toLowerCase(Locale.US).equals(raster.name.toLowerCase(Locale.US))) match = presetRaster;
+        }
+        if (raster.name.toLowerCase(Locale.US).equals(TileUrl.generatedLayerUrl.name)) match = TileUrl.generatedLayerUrl;
+
+        // if the mathching raster is meant to be ignored, ignore it, otherwise return error
+        if (match != null) {
+            if (!(nameIgnoredRaster != null && match.dataIsEqual(nameIgnoredRaster))) {
+                return TileUrlErrorType.DUPLICATE_NAME;
+            }
+        }
 
         //check for zoom, x, and y fields
-        if (tileUrl.source_url.replaceAll("\\{x}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_X_POSITION_FIELD;
-        if (tileUrl.source_url.replaceAll("\\{y}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_Y_POSITION_FIELD;
-        if (tileUrl.source_url.replaceAll("\\{z}", "").length() == tileUrl.source_url.length()) return TileUrlErrorType.MISSING_ZOOM_FIELD;
+        if (raster.source_url.replaceAll("\\{x}", "").length() == raster.source_url.length()) return TileUrlErrorType.MISSING_X_POSITION_FIELD;
+        if (raster.source_url.replaceAll("\\{y}", "").length() == raster.source_url.length()) return TileUrlErrorType.MISSING_Y_POSITION_FIELD;
+        if (raster.source_url.replaceAll("\\{z}", "").length() == raster.source_url.length()) return TileUrlErrorType.MISSING_ZOOM_FIELD;
 
         //check for invalid urls
         try {
-            new URL(tileUrl.source_url.replaceAll("\\{.}", "a")).toURI();
+            new URL(raster.source_url.replaceAll("\\{.}", "a")).toURI();
         } catch (MalformedURLException | URISyntaxException e) {
             return TileUrlErrorType.MALFORMED_SOURCE_URL;
         }
-        for (String url : tileUrl.attribution_links) {
+        for (String url : raster.attribution_links) {
             try {
                 new URL(url).toURI();
             } catch (MalformedURLException | URISyntaxException e) {
@@ -328,7 +342,7 @@ public class TileUrlFile {
         //check for bracket placement/formatting
         int numLinks = 0;
         boolean inBrackets = false;
-        for (char c : tileUrl.source_url.toCharArray()) {
+        for (char c : raster.source_url.toCharArray()) {
             if (c == '{') {
                 if (!inBrackets) inBrackets = true;
                  else return TileUrlErrorType.INVALID_SOURCE_URL_BRACKET_PLACEMENT;
@@ -339,7 +353,7 @@ public class TileUrlFile {
             }
         }
         if (inBrackets) return TileUrlErrorType.INVALID_SOURCE_URL_BRACKET_PLACEMENT;
-        for (char c : tileUrl.attribution.toCharArray()) {
+        for (char c : raster.attribution.toCharArray()) {
             if (c == '{') {
                 if (!inBrackets) inBrackets = true;
                 else return TileUrlErrorType.INVALID_ATTRIBUTION_BRACKET_PLACEMENT;
@@ -354,7 +368,7 @@ public class TileUrlFile {
         if (inBrackets) return TileUrlErrorType.INVALID_ATTRIBUTION_BRACKET_PLACEMENT;
 
         //check that number of attribution links is equal to brackets
-        if (tileUrl.attribution_links.length != numLinks) return TileUrlErrorType.MISMATCHED_ATTRIBUTION_LINKS;
+        if (raster.attribution_links.length != numLinks) return TileUrlErrorType.MISMATCHED_ATTRIBUTION_LINKS;
 
         //if all previous check were passed (nothing returned false), return true
         return TileUrlErrorType.NO_ERROR;
@@ -404,6 +418,7 @@ public class TileUrlFile {
      */
 
     public static void saveCustomRastersToFile() {
+        if (loadFailed) return;
         Gson gson = new Gson();
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(rasterFile));
@@ -450,9 +465,13 @@ class CustomUrl {
 
 class TileUrlFileFormatException extends Exception { //done
     public TileUrlFileFormatException() {
-        super("Formatting error while reading tileSources.json");
+        super("Formatting error while reading rasters.json");
     }
 }
 
-
+class RasterLoadException extends Exception {
+    public RasterLoadException() {
+        super("Raster Providers failed to initialize");
+    }
+}
 

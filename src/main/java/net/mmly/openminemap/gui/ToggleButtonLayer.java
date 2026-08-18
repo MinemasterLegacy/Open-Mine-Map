@@ -6,6 +6,7 @@ import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.input.MouseInput;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.draw.UContext;
@@ -30,17 +31,24 @@ public class ToggleButtonLayer extends ClickableWidget {
     }
 
     public void draw(DrawContext context) {
+        if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (!ButtonLayer.texturedButtons) {
             UContext.drawButtonOnWidget(this, false, isHovered());
             UContext.drawTexture(type.getShadowIdentifier(isOn()), getX() + 1, getY() + 1, getWidth(), getHeight());
         }
         UContext.drawTexture(type.getIdentifier(isOn(), isHovered()), getX(), getY(), getWidth(), getHeight());
+        UContext.resetTextureAlpha();
     }
 
     private boolean isOn() {
         if (type == Type.CLAIM_RENDERING) return OmmMap.renderClaimsToggle;
         if (type == Type.TOGGLE_HUDMAP) return HudMap.hudEnabled;
         return false;
+    }
+
+    @Override
+    protected boolean isValidClickButton(MouseInput input) {
+        return input.button() == 0 || input.button() == 1;
     }
 
     private void setOwnTooltip() {
@@ -62,12 +70,12 @@ public class ToggleButtonLayer extends ClickableWidget {
     @Override
     public void onClick(Click click, boolean doubled) {
         if (type == Type.CLAIM_RENDERING) {
-            if (lastCheckedButton == 0) {
+            if (click.button() == 0) {
                 OmmMap.renderClaimsToggle = !OmmMap.renderClaimsToggle;
                 setOwnTooltip();
                 ConfigFile.writeParameter(ConfigOptions._CLAIMS_TOGGLE, Boolean.toString(OmmMap.renderClaimsToggle));
             }
-            if (lastCheckedButton == 1) {
+            if (click.button() == 1) {
                 DrawableClaim.reloadClaimData(true, false, true);
             }
         }

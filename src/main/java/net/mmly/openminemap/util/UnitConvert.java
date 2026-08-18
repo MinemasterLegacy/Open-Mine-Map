@@ -54,11 +54,11 @@ public class UnitConvert {
     }
 
     public static float scaledToPixelCoords(float x) {
-        return (x*((float) MapScreen.windowHeight/ MapScreen.windowScaledHeight));
+        return (x*((float) MapScreen.getInstance().height / MapScreen.windowScaledHeight));
     }
 
     public static float pixelToScaledCoords(float x) {
-        return (x*((float) MapScreen.windowScaledHeight/ MapScreen.windowHeight));
+        return (x*((float) MapScreen.windowScaledHeight / MapScreen.getInstance().height));
     }
 
     public static double[] toDecimalDegrees(String lat, String lon) {

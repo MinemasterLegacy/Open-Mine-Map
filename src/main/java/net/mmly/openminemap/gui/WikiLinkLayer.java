@@ -1,5 +1,6 @@
 package net.mmly.openminemap.gui;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
@@ -9,14 +10,17 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.mmly.openminemap.draw.UContext;
 
-import static net.mmly.openminemap.gui.MapScreen.windowScaledHeight;
-import static net.mmly.openminemap.gui.MapScreen.windowScaledWidth;
+public class WikiLinkLayer extends ClickableWidget {
 
-public class BugReportLayer extends ClickableWidget {
+    private static final int TEXT_COLOR = 0xFFaa00aa;
+    private static final MutableText TEXT = Text.translatable("omm.config.gui.omm-wiki");
+    private static final MutableText UNDERLINED_TEXT = Text.translatable("omm.config.gui.omm-wiki").formatted(Formatting.UNDERLINE);
 
-    public BugReportLayer(int x, int y) {
-        super(x, y, 70, 16, Text.empty());
+    public WikiLinkLayer(int x, int y) {
+        super(x, y, 0, 16, Text.empty());
+        setWidth(MinecraftClient.getInstance().textRenderer.getWidth(TEXT) + 8);
     }
 
     @Override
@@ -28,18 +32,12 @@ public class BugReportLayer extends ClickableWidget {
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
     public void drawWidget(DrawContext context, TextRenderer textRenderer) {
-        MutableText text = Text.translatable("omm.fullscreen.report-bugs");
-        int textWidth = textRenderer.getWidth(text);
-        context.fill(windowScaledWidth - (textWidth + 10), windowScaledHeight - 32, windowScaledWidth, windowScaledHeight - 16, MapScreen.backingColor);
-        setX(windowScaledWidth - (textWidth + 10));
-        setWidth(windowScaledWidth - getX());
+        UContext.fillWidget(this, MapScreen.backingColor);
         context.drawText(textRenderer,
-                isHovered() ?
-                        text.formatted(Formatting.UNDERLINE) :
-                        text,
-                windowScaledWidth - (textWidth + 5),
-                windowScaledHeight + 7 - textRenderer.fontHeight - 10 - 16,
-                0xFF0B9207,
+                isHovered() ? UNDERLINED_TEXT : TEXT,
+                getX() + 4,
+                getY() + 4,
+                TEXT_COLOR,
                 true);
         if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
     }
@@ -47,6 +45,6 @@ public class BugReportLayer extends ClickableWidget {
     @Override
     public void onClick(Click click, boolean doubled) {
         //FullscreenMapScreen.openBugReportScreen();
-        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/issues/new", new MapScreen(), true);
+        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", new MapScreen(), true);
     }
 }

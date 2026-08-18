@@ -15,7 +15,8 @@ public enum WebIcon {
     BING_MAPS("Bing Maps", "bm"),
     APPLE_MAPS("Apple Maps", "am"),
     BUILD_THE_EARTH("BuildTheEarth", "bte"),
-    MAPILLARY("Mapillary", "mpy");
+    MAPILLARY("Mapillary", "mpy"),
+    LOOKMAP("Lookmap", "lm");
 
     //public final Tooltip tooltip;
     public final Text tooltipText;
@@ -23,7 +24,7 @@ public enum WebIcon {
     public final Identifier icon;
     public final Identifier highlight;
 
-    public static final List<WebIcon> ORDERED_LIST = List.of(GOOGLE_MAPS, GOOGLE_EARTH, GOOGLE_EARTH_PRO, OPEN_STREET_MAP, YANDEX_MAPS, BING_MAPS, APPLE_MAPS, BUILD_THE_EARTH, MAPILLARY);
+    public static final List<WebIcon> ORDERED_LIST = List.of(GOOGLE_MAPS, GOOGLE_EARTH, GOOGLE_EARTH_PRO, OPEN_STREET_MAP, YANDEX_MAPS, BING_MAPS, APPLE_MAPS, BUILD_THE_EARTH, MAPILLARY, LOOKMAP);
 
     WebIcon(String tooltipString, String imageName) {
         this.imageName = imageName;

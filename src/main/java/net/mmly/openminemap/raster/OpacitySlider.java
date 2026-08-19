@@ -1,6 +1,6 @@
 package net.mmly.openminemap.raster;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -58,8 +58,8 @@ public class OpacitySlider extends AbstractSliderButton {
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.renderWidget(context, mouseX, mouseY, delta);
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractWidgetRenderState(context, mouseX, mouseY, delta);
         if (mouseDown) super.onDrag(null, mouseX - recordedMouseX, 0);
         //if (mouseDown) super.onDrag(mouseX, mouseY, mouseX - recordedMouseX, 0);
     }

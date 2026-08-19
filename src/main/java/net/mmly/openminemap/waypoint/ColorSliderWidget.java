@@ -1,6 +1,6 @@
 package net.mmly.openminemap.waypoint;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -30,7 +30,7 @@ public class ColorSliderWidget extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         switch (type) {
             case HUE -> {
                 context.blit(RenderPipelines.GUI_TEXTURED, drawTexture, getX(), getY(), 0, 0, width, height, width, height);
@@ -47,7 +47,7 @@ public class ColorSliderWidget extends AbstractWidget {
         }
     }
 
-    private void drawSelectionBox(GuiGraphics context, float channel) {
+    private void drawSelectionBox(GuiGraphicsExtractor context, float channel) {
         UContext.drawBorder(getX() - 1, (int) (getY() - 1 + ((height-1) * channel)), width + 2, 3, 0xFF888888);
     }
 

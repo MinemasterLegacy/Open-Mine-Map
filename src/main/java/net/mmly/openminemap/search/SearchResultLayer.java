@@ -3,7 +3,7 @@ package net.mmly.openminemap.search;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -33,7 +33,7 @@ public class SearchResultLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
@@ -52,7 +52,7 @@ public class SearchResultLayer extends AbstractWidget {
         }
     }
 
-    public void drawWidget(GuiGraphics context, Font renderer) {
+    public void drawWidget(GuiGraphicsExtractor context, Font renderer) {
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFFFF0000);
 
         if (!MapScreen.getSearchMenuState() || myResult == null || !SearchBoxLayer.isResultVisible(resultNumber)) {
@@ -69,9 +69,9 @@ public class SearchResultLayer extends AbstractWidget {
         }
 
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
-        context.drawString(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), true);
+        context.text(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), true);
         if (!myResult.context.isBlank()) {
-            context.drawString(renderer, myResult.context, getX() + 16 + renderer.width(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : MapScreen.getSemiDarkTextColor(), true);
+            context.text(renderer, myResult.context, getX() + 16 + renderer.width(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : MapScreen.getSemiDarkTextColor(), true);
             //renderer.fontHeight = 5;
             //context.drawText();
         }

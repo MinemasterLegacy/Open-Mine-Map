@@ -2,7 +2,7 @@ package net.mmly.openminemap.raster;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -46,7 +46,7 @@ public class MicroButton extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (this.isHovered()) {
             context.requestCursor(disabaled ? CursorTypes.POINTING_HAND : CursorTypes.NOT_ALLOWED);
         }

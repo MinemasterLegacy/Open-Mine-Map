@@ -2,7 +2,7 @@ package net.mmly.openminemap.event;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -79,49 +79,49 @@ public class KeyInputHandler {
     }
 
     public static void register() { //function for registering the new keybinds; called in TutorialModClient
-        openFullscreenOsmMapKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        openFullscreenOsmMapKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_FULLSCREEN_OSM_MAP, //translation key of the keybinding's name
                 InputConstants.Type.KEYSYM, //the type of the keybinding, KEYSYM for keyboard, MOUSE for mouse
                 GLFW.GLFW_KEY_N, //the keycode of the key
                 KEY_CATEGORY_OPENMINEMAP //the translation key of the keybinding's category
         ));
 
-        hudMapZoomInKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        hudMapZoomInKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_ZOOMIN_HUD_OSM_MAP,
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_EQUAL,
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
-        hudMapZoomOutKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        hudMapZoomOutKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_ZOOMOUT_HUD_OSM_MAP,
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_MINUS,
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
-        hudMapToggleKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        hudMapToggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_TOGGLE_HUD_OSM_MAP,
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_M,
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
-        copyCoordinatesKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        copyCoordinatesKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_COPY_COORDINATES,
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
-        snapAngleKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        snapAngleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_SNAP_ANGLE,
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
-        rasterScreenKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        rasterScreenKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_RASTER_SCREEN,
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
@@ -149,14 +149,14 @@ public class KeyInputHandler {
 
         //System.out.println(snapAngle);
         if (minecraftClient.player == null) {
-            minecraftClient.player.displayClientMessage(Component.translatable("omm.key.execute.error.snap-angle")
+            minecraftClient.player.sendSystemMessage(Component.translatable("omm.key.execute.error.snap-angle")
                     .withStyle(ChatFormatting.RED)
-                    .withStyle(ChatFormatting.ITALIC), false);
+                    .withStyle(ChatFormatting.ITALIC));
         } else {
             minecraftClient.player.setYRot((float) snapAngle);
-            minecraftClient.player.displayClientMessage(Component.translatable("omm.key.execute.snap-angle")
+            minecraftClient.player.sendSystemMessage(Component.translatable("omm.key.execute.snap-angle")
                     .withStyle(ChatFormatting.GRAY)
-                    .withStyle(ChatFormatting.ITALIC), false);
+                    .withStyle(ChatFormatting.ITALIC));
         }
 
     }
@@ -169,28 +169,28 @@ public class KeyInputHandler {
             if (Double.isNaN(PlayerAttributes.latitude)) {
                 stopIt++;
                 if (stopIt >= 10) {
-                    minecraftClient.player.displayClientMessage(Component.literal("stop it.")
+                    minecraftClient.player.sendSystemMessage(Component.literal("stop it.")
                             .withStyle(ChatFormatting.RED)
                             .withStyle(ChatFormatting.ITALIC)
-                            .withStyle(ChatFormatting.BOLD), false);
+                            .withStyle(ChatFormatting.BOLD));
                     stopIt = 0;
                 } else {
-                    minecraftClient.player.displayClientMessage(Component.translatable("omm.key.execute.error.out-of-bounds")
+                    minecraftClient.player.sendSystemMessage(Component.translatable("omm.key.execute.error.out-of-bounds")
                             .withStyle(ChatFormatting.GRAY)
-                            .withStyle(ChatFormatting.ITALIC), false);
+                            .withStyle(ChatFormatting.ITALIC));
                 }
 
             } else {
                 Minecraft.getInstance().keyboardHandler.setClipboard(UnitConvert.floorToPlace(PlayerAttributes.latitude, 7) + " " + UnitConvert.floorToPlace(PlayerAttributes.longitude, 7));
-                minecraftClient.player.displayClientMessage(Component.translatable("omm.key.execute.copy-coordinates")
+                minecraftClient.player.sendSystemMessage(Component.translatable("omm.key.execute.copy-coordinates")
                         .withStyle(ChatFormatting.GRAY)
-                        .withStyle(ChatFormatting.ITALIC), false);
+                        .withStyle(ChatFormatting.ITALIC));
             }
         } catch (Exception e) {
-                minecraftClient.player.displayClientMessage(Component.translatable("omm.key.execute.error.copy-coordinates")
+                minecraftClient.player.sendSystemMessage(Component.translatable("omm.key.execute.error.copy-coordinates")
                         .withStyle(ChatFormatting.RED)
                         //.formatted(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/say e"))));
-                        .withStyle(ChatFormatting.ITALIC), false);
+                        .withStyle(ChatFormatting.ITALIC));
         }
     }
 

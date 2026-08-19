@@ -1,7 +1,7 @@
 package net.mmly.openminemap.waypoint;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -36,18 +36,13 @@ public class WaypointList extends AbstractSelectionList<AnchorWidget> {
     }
 
     @Override
-    protected void renderSelection(GuiGraphics guiGraphics, AnchorWidget entry, int i) {
+    protected void extractSelection(GuiGraphicsExtractor guiGraphics, AnchorWidget entry, int i) {
         //do nothing
     }
-    /*
-    @Override
-    protected void drawSelectionHighlight(GuiGraphics context, AnchorWidget entry, int color) {
-        //do nothing
-    }*/
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.renderWidget(context, mouseX, mouseY, delta);
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractWidgetRenderState(context, mouseX, mouseY, delta);
         savedScrollAmount = scrollAmount();
     }
 

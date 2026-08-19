@@ -2,7 +2,7 @@ package net.mmly.openminemap.waypoint;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
@@ -428,12 +428,12 @@ public class WaypointScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
 
         deleteWaypointButton.active = inEditMode;
         deleteWaypointButton.setTooltip(inEditMode ? Tooltip.create(Component.translatable("omm.waypoints.delete-tooltip")) : null);
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
         UContext.setContext(context);
 
         while (pathInt > -1) {
@@ -443,7 +443,7 @@ public class WaypointScreen extends Screen {
         pathInt = 0;
 
         updateWidgetPositions();
-        context.vLine(midPoint, -3, height, GRAY);
+        context.verticalLine(midPoint, -3, height, GRAY);
 
         if ((inEditMode && saveWaypointButton.isHovered()) || (!inEditMode && createWaypointButton.isHovered())) {
             if (nameField.valueIsValid() && longitudeWidget.valueIsValid() && latitudeWidget.valueIsValid() && angleWidget.valueIsValid()) {
@@ -493,7 +493,7 @@ public class WaypointScreen extends Screen {
         return (angle % 360 + 360) % 360;
     }
 
-    private static void drawColorizedImage(GuiGraphics context, Identifier identifier, int x, int y, int width, int height) {
+    private static void drawColorizedImage(GuiGraphicsExtractor context, Identifier identifier, int x, int y, int width, int height) {
         try {
             BufferedImage image = ImageIO.read(Minecraft.getInstance().getResourceManager().getResource(identifier).get().open());
             image = colorize(image, ColorSliderWidget.hue, ColorSliderWidget.saturation, ColorSliderWidget.value);

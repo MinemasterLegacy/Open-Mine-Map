@@ -1,7 +1,7 @@
 package net.mmly.openminemap.waypoint;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.UContext;
@@ -28,8 +28,8 @@ public class WaypointParameterWidget extends EditBox {
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.renderWidget(context, mouseX, mouseY, delta);
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractWidgetRenderState(context, mouseX, mouseY, delta);
 
         if (!valueIsValid()) {
             UContext.drawBorder(getX(), getY(), width, height, 0xFFFF5555);
@@ -40,7 +40,7 @@ public class WaypointParameterWidget extends EditBox {
 
         if (getValue().isBlank()) {
             int textWidth = renderer.width(suggestion);
-            context.drawString(renderer, suggestion, getX() + (width / 2) - (textWidth / 2), getY() + (height / 2) - (renderer.lineHeight / 2), 0xFF404040);
+            context.text(renderer, suggestion, getX() + (width / 2) - (textWidth / 2), getY() + (height / 2) - (renderer.lineHeight / 2), 0xFF404040);
         }
 
     }

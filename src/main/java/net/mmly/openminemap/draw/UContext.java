@@ -47,15 +47,15 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     public static void drawJustifiedText(Component text, Justify justify, int x, int y, int color, boolean shadow) {
         switch (justify) {
             case LEFT: {
-                drawContext.drawString(textRenderer, text, x, y, color, shadow);
+                drawContext.text(textRenderer, text, x, y, color, shadow);
                 break;
             }
             case RIGHT: {
-                drawContext.drawString(textRenderer, text, x - textRenderer.width(text), y, color, shadow);
+                drawContext.text(textRenderer, text, x - textRenderer.width(text), y, color, shadow);
                 break;
             }
             case CENTER: {
-                drawContext.drawString(textRenderer, text, x - (textRenderer.width(text) / 2), y, color, shadow);
+                drawContext.text(textRenderer, text, x - (textRenderer.width(text) / 2), y, color, shadow);
                 break;
             }
         }
@@ -125,7 +125,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     }
 
     public static void drawTriangle(int[][] triangle, int fillColor) {
-        drawContext.guiRenderState.submitGuiElement(new ColoredPolygonGuiElementRenderState(
+        drawContext.guiRenderState.addGuiElement(new ColoredPolygonGuiElementRenderState(
                 drawContext.pose(),
                 new int[][][] {triangle},
                 triangle[0][0],
@@ -138,7 +138,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     }
 
     public static void drawPolygon(int[][][] polygon, int fillColor) {
-        drawContext.guiRenderState.submitGuiElement(new ColoredPolygonGuiElementRenderState(
+        drawContext.guiRenderState.addGuiElement(new ColoredPolygonGuiElementRenderState(
                 drawContext.pose(),
                 polygon,
                 polygon[0][0][0],

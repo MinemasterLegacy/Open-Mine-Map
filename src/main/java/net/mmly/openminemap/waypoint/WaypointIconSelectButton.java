@@ -1,7 +1,7 @@
 package net.mmly.openminemap.waypoint;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -22,7 +22,7 @@ public class WaypointIconSelectButton extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (isHovered()) {
             context.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("openminemap", "arrowselect/"+type+"selected.png"), getX(), getY(), 0, 0, width, height, 7, 11);
         } else {

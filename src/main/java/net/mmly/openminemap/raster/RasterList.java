@@ -1,7 +1,7 @@
 package net.mmly.openminemap.raster;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.mmly.openminemap.gui.AnchorWidget;
@@ -23,19 +23,14 @@ public class RasterList extends AbstractSelectionList<AnchorWidget> {
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.renderWidget(context, mouseX, mouseY, delta);
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractWidgetRenderState(context, mouseX, mouseY, delta);
     }
 
     @Override
-    protected void renderSelection(GuiGraphics guiGraphics, AnchorWidget entry, int i) {
+    protected void extractSelection(GuiGraphicsExtractor graphics, AnchorWidget entry, int outlineColor) {
         //do nothing
     }
-    /*
-    @Override
-    protected void drawSelectionHighlight(GuiGraphics context, AnchorWidget entry, int color) {
-        //do nothing
-    }*/
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {

@@ -1,6 +1,6 @@
 package net.mmly.openminemap.hud;
 
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -103,11 +103,11 @@ public class HudMap {
                             .withStyle(ChatFormatting.DARK_GREEN).withStyle(ChatFormatting.BOLD)
                     .append(Component
                             .translatable("omm.hud.first-session-tooltip.start")
-                            .append(KeyBindingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getDisplayName().getString().toUpperCase(Locale.US))
+                            .append(KeyMappingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getDisplayName().getString().toUpperCase(Locale.US))
                             .append(Component.translatable("omm.hud.first-session-tooltip.end"))
                             .withStyle(ChatFormatting.RESET).withStyle(ChatFormatting.BLUE)
                     )
-            , false);
+            );
             ConfigFile.writeParameter(ConfigOptions._FIRST_SESSION_TIP_GIVEN, "true");
         }
 
@@ -160,7 +160,7 @@ public class HudMap {
 
         //method is called every frame, so a couple of things are included here that need to run every frame
         while (!OpenMineMapClient.debugMessages.isEmpty()) {
-            if (OpenMineMapClient.debugMessages.getFirst() != null) Minecraft.getInstance().player.sendSystemMessage(Component.literal(OpenMineMapClient.debugMessages.getFirst()).withStyle(ChatFormatting.RED), false);
+            if (OpenMineMapClient.debugMessages.getFirst() != null) Minecraft.getInstance().player.sendSystemMessage(Component.literal(OpenMineMapClient.debugMessages.getFirst()).withStyle(ChatFormatting.RED));
             OpenMineMapClient.debugMessages.removeFirst();
         }
 
@@ -189,7 +189,7 @@ public class HudMap {
             Component text = Component.translatable("omm.hud.out-of-bounds").withStyle(ChatFormatting.ITALIC);
             //context.fill(hudMapX + 2, hudMapY + 2, hudMapY + 74, hudMapY + 10, 0xFFFFFFFF);
             context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), TileManager.getThemeColor());
-            context.drawString(
+            context.text(
                     Minecraft.getInstance().font, text,
                     map.getRenderAreaX() + (map.getRenderAreaWidth() / 2) - (Minecraft.getInstance().font.width(text) / 2),
                     map.getRenderAreaY() + (map.getRenderAreaHeight() / 2) - (Minecraft.getInstance().font.lineHeight / 2),

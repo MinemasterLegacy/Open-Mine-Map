@@ -1,7 +1,7 @@
 package net.mmly.openminemap.raster;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
@@ -53,8 +53,8 @@ public class ViewSetRastersScreen extends RasterScreen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(context, mouseX, mouseY, delta);
         if (TileUrlFile.loadFailed) UContext.drawJustifiedText(
                 Component.translatable("omm.error.raster-load-failed").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC),
                 Justify.CENTER,

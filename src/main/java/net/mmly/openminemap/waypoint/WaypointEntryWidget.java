@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -99,7 +99,7 @@ public class WaypointEntryWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
 
         if (!anchor.drawNow) return;
 
@@ -137,13 +137,13 @@ public class WaypointEntryWidget extends AbstractWidget {
                 (getBottom() < RightClickMenu.instance.getBottom() && getY() >= RightClickMenu.instance.getY())
             )) {
             context.enableScissor(0, 0, getX() + width - 52, Minecraft.getInstance().getWindow().getGuiScaledHeight());
-            context.drawString(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Component.translatable("omm.waypoints.editing").withStyle(ChatFormatting.BOLD) : Component.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.lineHeight / 2), 0xFFFFFFFF, true);
+            context.text(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Component.translatable("omm.waypoints.editing").withStyle(ChatFormatting.BOLD) : Component.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.lineHeight / 2), 0xFFFFFFFF, true);
             context.disableScissor();
         }
 
         UContext.drawBorder(getX(), getY(), getWidth(), getHeight(), borderColor);
-        context.vLine(getX() + width - 52, getY(), getY() + height, borderColor);
-        context.vLine(getX() + 19, getY(), getY() + height, borderColor);
+        context.verticalLine(getX() + width - 52, getY(), getY() + height, borderColor);
+        context.verticalLine(getX() + 19, getY(), getY() + height, borderColor);
 
     }
 

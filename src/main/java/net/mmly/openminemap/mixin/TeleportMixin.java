@@ -36,24 +36,24 @@ public class TeleportMixin {
             "minecraft:tp"
     );
 
-    @ModifyVariable(method = "sendCommand", at = @At(value = "HEAD"), argsOnly = true, name = "string")
-    private static String injected(String string) {
-        if (!ConfigOptions.TELEPORT_INTERCEPT.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) return string;
-        if (!RightClickMenu.useTpll()) return string;
-        if (CommandHander.forceNoIntercept) return string;
+    @ModifyVariable(method = "sendCommand", at = @At(value = "HEAD"), argsOnly = true, name = "command")
+    private static String injected(String command) {
+        if (!ConfigOptions.TELEPORT_INTERCEPT.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) return command;
+        if (!RightClickMenu.useTpll()) return command;
+        if (CommandHander.forceNoIntercept) return command;
 
         String prefix = null;
         for (String s : prefixes) {
-            if (string.startsWith(s)) {
+            if (command.startsWith(s)) {
                 prefix = s;
                 break;
             }
         }
-        if (prefix == null) return string;
+        if (prefix == null) return command;
 
-        ArrayList<String> arguments = new ArrayList<>(Arrays.asList(string.replaceFirst(prefix, "").split(" ")));
+        ArrayList<String> arguments = new ArrayList<>(Arrays.asList(command.replaceFirst(prefix, "").split(" ")));
         arguments.removeFirst(); //remove always blank first element
-        if (arguments.size() < 3) return string;
+        if (arguments.size() < 3) return command;
 
         //remove possible target selector
         if (arguments.size() > 3) {
@@ -63,7 +63,7 @@ public class TeleportMixin {
         double[] latLon;
         try {
             latLon = Projection.to_geo(Double.parseDouble(arguments.get(0)), Double.parseDouble(arguments.get(2)));
-            string = "tpll " +
+            command = "tpll " +
                 latLon[0] + " " +
                 latLon[1] + " " +
                 arguments.get(1);
@@ -71,6 +71,6 @@ public class TeleportMixin {
             //do nothing, command will not be modified
         }
 
-        return string;
+        return command;
     }
 }

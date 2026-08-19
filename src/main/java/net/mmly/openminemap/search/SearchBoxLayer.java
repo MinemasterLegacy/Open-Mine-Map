@@ -2,7 +2,7 @@ package net.mmly.openminemap.search;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
@@ -110,12 +110,12 @@ public class SearchBoxLayer extends EditBox {
         }
     }
 
-    private void drawTopScrollIndicator(GuiGraphics context) {
+    private void drawTopScrollIndicator(GuiGraphicsExtractor context) {
         if (searchScroll == 0) return;
         UContext.drawDottedHorizontalLine(getX(), getRight(), getY() + height, 0xFFFFFFFF);
     }
 
-    private void drawBottomScrollIndicator(GuiGraphics context) {
+    private void drawBottomScrollIndicator(GuiGraphicsExtractor context) {
         if (numDisplayedResults + searchScroll == numResults || numDisplayedResults < maxDisplayedResults) return;
         int yOffset = numDisplayedResults * 20;
         UContext.drawDottedHorizontalLine(getX(), getRight(), getBottom() + yOffset - 1, 0xFFFFFFFF);
@@ -130,7 +130,7 @@ public class SearchBoxLayer extends EditBox {
 
      */
 
-    public void drawWidget(GuiGraphics context) {
+    public void drawWidget(GuiGraphicsExtractor context) {
         if (isFocused()) MapScreen.map.setFocusedResult(-1);
         numDisplayedResults = Math.min(numResults, maxDisplayedResults);
 
@@ -155,7 +155,7 @@ public class SearchBoxLayer extends EditBox {
         if (searching) setHint(Component.translatable("omm.notification.searching"));
         else setHint(Component.translatable("omm.search.anything"));
 
-        this.render(context, 0, 0, 0);
+        this.extractRenderState(context, 0, 0, 0);
 
         if (this.getValue().isEmpty() && this.isVisible() && !this.isHoveredOrFocused()) UContext.drawJustifiedText(
                 Component.translatable("omm.search.anything"),

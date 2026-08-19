@@ -5,7 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
@@ -43,32 +43,32 @@ public class CommandHander {
         ArgumentTypeRegistry.registerArgumentType(Identifier.fromNamespaceAndPath("openminemap", "coordinateargument"), CoordinateArgumentType.class, SingletonArgumentInfo.contextFree(CoordinateArgumentType::coordinateArgumentType));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("omm")
+            dispatcher.register(ClientCommands.literal("omm")
 
-                    .then(ClientCommandManager.literal("tpllwtp")
-                            .then(ClientCommandManager.argument("latitude longitude [altitude]", CoordinateArgumentType.coordinateArgumentType())
+                    .then(ClientCommands.literal("tpllwtp")
+                            .then(ClientCommands.argument("latitude longitude [altitude]", CoordinateArgumentType.coordinateArgumentType())
                             .executes(CommandHander::tpllwtp)))
 
-                    .then(ClientCommandManager.literal("tpwtpll")
-                            .then(ClientCommandManager.argument("x y z", CoordinateArgumentType.coordinateArgumentType())
+                    .then(ClientCommands.literal("tpwtpll")
+                            .then(ClientCommands.argument("x y z", CoordinateArgumentType.coordinateArgumentType())
                             .executes(CommandHander::tpwtpll)))
 
-                    .then(ClientCommandManager.literal("tpllto")
-                            .then(ClientCommandManager.argument("player name", CoordinateArgumentType.coordinateArgumentType())
+                    .then(ClientCommands.literal("tpllto")
+                            .then(ClientCommands.argument("player name", CoordinateArgumentType.coordinateArgumentType())
                             .suggests(new TplltoSuggestionProvider())
                             .executes(CommandHander::tpllto)))
 
-                    .then(ClientCommandManager.literal("warp")
-                            .then(ClientCommandManager.argument("warp", CoordinateArgumentType.coordinateArgumentType())
+                    .then(ClientCommands.literal("warp")
+                            .then(ClientCommands.argument("warp", CoordinateArgumentType.coordinateArgumentType())
                             .suggests(new WarpSuggestionProvider())
                             .executes(CommandHander::warp)))
 
-                    .then(ClientCommandManager.literal("distortion")
+                    .then(ClientCommands.literal("distortion")
                             .executes(CommandHander::distortionAtPlayer)
-                                .then(ClientCommandManager.argument("[latitude longitude]", CoordinateArgumentType.coordinateArgumentType())
+                                .then(ClientCommands.argument("[latitude longitude]", CoordinateArgumentType.coordinateArgumentType())
                                 .executes(CommandHander::distortionAtLocation)))
 
-                    .then(ClientCommandManager.literal("reloadclaims")
+                    .then(ClientCommands.literal("reloadclaims")
                             .executes(CommandHander::reloadclaims))
         );});
         //registerCommands();
@@ -76,7 +76,7 @@ public class CommandHander {
 
     private static int reloadclaims(CommandContext<FabricClientCommandSource> context) {
         if (!ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
-            Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.claims.not-enabled").withStyle(ERROR_COLOR), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.translatable("omm.claims.not-enabled").withStyle(ERROR_COLOR));
             return 0;
         }
         DrawableClaim.reloadClaimData(false, true, true);
@@ -102,16 +102,16 @@ public class CommandHander {
                     .withHoverEvent(new HoverEvent.ShowText(Component.translatable("chat.copy.click")))
             );
 
-            Minecraft.getInstance().player.displayClientMessage(
+            Minecraft.getInstance().player.sendSystemMessage(
                 Component.translatable("omm.text.distortion")
                         .append(" \n")
                         .append(distText)
                         .append(" ± ")
                         .append(errText)
                         .append("°")
-                .withStyle(ChatFormatting.ITALIC).withStyle(FEEDBACK_COLOR), false);
+                .withStyle(ChatFormatting.ITALIC).withStyle(FEEDBACK_COLOR));
         } catch (CoordinateValueError e) {
-            Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.error.distortion").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.translatable("omm.error.distortion").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
         }
 
         return 0;
@@ -195,7 +195,7 @@ public class CommandHander {
                 return 1;
             }
         }
-        Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.key.execute.error.snap-angle").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC), false);
+        Minecraft.getInstance().player.sendSystemMessage(Component.translatable("omm.key.execute.error.snap-angle").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
         return 0;
     }
 

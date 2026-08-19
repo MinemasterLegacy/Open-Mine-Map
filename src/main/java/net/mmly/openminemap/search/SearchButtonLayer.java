@@ -1,7 +1,7 @@
 package net.mmly.openminemap.search;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.KeyEvent;
@@ -25,7 +25,7 @@ public class SearchButtonLayer extends AbstractWidget {
     private static final Identifier generatedShadowIdentifier = ColorUtil.getColoredIdentifier(generatedIdentifier,0x00003e);
     private static final Identifier generatedDarkIdentifier = ColorUtil.getColoredIdentifier(generatedIdentifier, 0x00007f);
 
-    public void drawWidget(GuiGraphics context) {
+    public void drawWidget(GuiGraphicsExtractor context) {
         if (!ButtonLayer.texturedButtons) {
             UContext.drawButtonOnWidget(this, MapScreen.getSearchMenuState() && !isHovered(), isHovered());
             UContext.drawTexture(generatedShadowIdentifier, getX() + 1, getY() + 1, getWidth(), getHeight());
@@ -45,7 +45,7 @@ public class SearchButtonLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (this.isHovered()) {
             context.requestCursor(CursorTypes.POINTING_HAND);
         }

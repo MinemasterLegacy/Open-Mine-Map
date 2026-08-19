@@ -30,6 +30,11 @@ public class ConfigList extends EntryListWidget<AnchorWidget> {
 
     }
 
+    @Override
+    protected void drawSelectionHighlight(DrawContext context, AnchorWidget entry, int color) {
+        //do nothing
+    }
+
     public int getEntryCount() {
         return super.getEntryCount();
     }

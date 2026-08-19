@@ -38,6 +38,11 @@ public class WaypointList extends EntryListWidget<AnchorWidget> {
     }
 
     @Override
+    protected void drawSelectionHighlight(DrawContext context, AnchorWidget entry, int color) {
+        //do nothing
+    }
+
+    @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         super.renderWidget(context, mouseX, mouseY, delta);
         savedScrollAmount = getScrollY();

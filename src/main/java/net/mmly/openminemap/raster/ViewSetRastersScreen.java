@@ -1,9 +1,8 @@
 package net.mmly.openminemap.raster;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
@@ -30,21 +29,21 @@ public class ViewSetRastersScreen extends RasterScreen {
 
     @Override
     void populateRasterList() {
-        if (!TileUrlFile.loadFailed) this.addRaster(new RasterLayerWidget(Text.of("Add Overlay"), null, null));
+        if (!TileUrlFile.loadFailed) this.addRaster(new RasterLayerWidget(Component.nullToEmpty("Add Overlay"), null, null));
 
         for (TileUrl url : RasterProvider.getCurrentOverlays().reversed()) {
             if (url.layerType == LayerType.LOCAL_GEN)
-                addRaster(new RasterLayerWidget(Text.of("OpenMineMap"), TileUrl.generatedLayerUrl, LayerType.LOCAL_GEN));
+                addRaster(new RasterLayerWidget(Component.nullToEmpty("OpenMineMap"), TileUrl.generatedLayerUrl, LayerType.LOCAL_GEN));
             else
-                addRaster(new RasterLayerWidget(Text.of(url.name), url, LayerType.OVERLAY));
+                addRaster(new RasterLayerWidget(Component.nullToEmpty(url.name), url, LayerType.OVERLAY));
         }
 
         addRaster(new RasterLayerWidget(RasterProvider.getCurrentBaseRaster()));
     }
 
     @Override
-    public void close() {
-        super.close();
+    public void onClose() {
+        super.onClose();
         RasterProvider.writeOverlayInfo();
         TileUrlFile.saveCustomRastersToFile();
         ConfigFile.writeToFile();
@@ -52,14 +51,14 @@ public class ViewSetRastersScreen extends RasterScreen {
      }
 
     public void addOpacitySlider(OpacitySlider slider) {
-        this.addDrawableChild(slider);
+        this.addRenderableWidget(slider);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         if (TileUrlFile.loadFailed) UContext.drawJustifiedText(
-                Text.translatable("omm.error.raster-load-failed").formatted(Formatting.RED).formatted(Formatting.ITALIC),
+                Component.translatable("omm.error.raster-load-failed").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC),
                 Justify.CENTER,
                 width / 2,
                 height - 25,

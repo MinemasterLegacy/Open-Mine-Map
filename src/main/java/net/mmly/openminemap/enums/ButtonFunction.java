@@ -1,6 +1,6 @@
 package net.mmly.openminemap.enums;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.ToggleButtonLayer;
 import net.mmly.openminemap.util.ColorUtil;
@@ -41,10 +41,10 @@ public enum ButtonFunction {
     ButtonFunction(String textureFileName, int id) {
         this.id = id;
 
-        defaultIdentifier = Identifier.of("openminemap", "buttons/vanilla/default/" + textureFileName);
-        highlightedIdentifer = Identifier.of("openminemap", "buttons/vanilla/hover/" + textureFileName);
-        disabledIdentifer = Identifier.of("openminemap", "buttons/vanilla/locked/" + textureFileName);
-        generatedIdentifier = Identifier.of("openminemap", "buttons/vanilla/generated/" + textureFileName);
+        defaultIdentifier = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/default/" + textureFileName);
+        highlightedIdentifer = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/hover/" + textureFileName);
+        disabledIdentifer = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/locked/" + textureFileName);
+        generatedIdentifier = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/generated/" + textureFileName);
         generatedShadowIdentifier = ColorUtil.getColoredIdentifier(generatedIdentifier,0x00003e);
         generatedDarkIdentifier = ColorUtil.getColoredIdentifier(generatedIdentifier, 0x00007f);
     }

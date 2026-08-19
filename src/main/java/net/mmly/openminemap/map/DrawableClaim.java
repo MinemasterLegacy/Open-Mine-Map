@@ -3,9 +3,9 @@ package net.mmly.openminemap.map;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.gui.MapScreen;
@@ -111,21 +111,21 @@ public class DrawableClaim {
     public static void reloadClaimData(boolean notifyMapScreen, boolean notifyChat, boolean considerTimeLimit) {
         if (considerTimeLimit) {
             long neededTime = (lastReloaded + 60000);
-            if (Util.getMeasuringTimeMs() < neededTime) {
-                MutableText waitNotifyText = Text.literal(
-                        Text.translatable("omm.claims.wait-start").getString() +
-                                ((int) (neededTime - Util.getMeasuringTimeMs() + 1000) / 1000) +
-                                Text.translatable("omm.claims.wait-end").getString()
+            if (Util.getMillis() < neededTime) {
+                MutableComponent waitNotifyText = Component.literal(
+                        Component.translatable("omm.claims.wait-start").getString() +
+                                ((int) (neededTime - Util.getMillis() + 1000) / 1000) +
+                                Component.translatable("omm.claims.wait-end").getString()
                 );
                 if (notifyMapScreen) MapScreen.addNotification(new Notification(waitNotifyText));
-                if (notifyChat) MinecraftClient.getInstance().player.sendMessage(waitNotifyText.formatted(CommandHander.ERROR_COLOR), false);
+                if (notifyChat) Minecraft.getInstance().player.displayClientMessage(waitNotifyText.withStyle(CommandHander.ERROR_COLOR), false);
                 return;
             }
         }
-        if (notifyMapScreen) MapScreen.addNotification(new Notification(Text.translatable("omm.claims.reloading")));
-        if (notifyChat) MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.claims.reloading").formatted(CommandHander.FEEDBACK_COLOR), false);
+        if (notifyMapScreen) MapScreen.addNotification(new Notification(Component.translatable("omm.claims.reloading")));
+        if (notifyChat) Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.claims.reloading").withStyle(CommandHander.FEEDBACK_COLOR), false);
         new Loader().start();
-        if (considerTimeLimit) lastReloaded = Util.getMeasuringTimeMs();
+        if (considerTimeLimit) lastReloaded = Util.getMillis();
     }
 
     public static class Loader extends Thread {
@@ -148,7 +148,7 @@ public class DrawableClaim {
                 //if (ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS).equals("true")) MinecraftClient.getInstance().player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
             } catch (Exception e) {
                 e.printStackTrace();
-                MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.load-claims"), false);
+                Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.error.load-claims"), false);
             }
         }
     }

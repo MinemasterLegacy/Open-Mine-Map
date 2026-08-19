@@ -1,14 +1,12 @@
 package net.mmly.openminemap.raster;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.gui.AnchorWidget;
@@ -17,7 +15,7 @@ import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.nameSupplier;
-
+import com.mojang.blaze3d.platform.NativeImage;
 import java.io.IOException;
 import java.util.*;
 
@@ -35,16 +33,16 @@ public abstract class RasterScreen extends Screen {
     protected ButtonLayer exitButton;
 
     public RasterScreen(int bottomPadding, boolean updateReturnScreen) {
-        super(Text.of(""));
+        super(Component.nullToEmpty(""));
         instance = this;
         this.BOTTOM_PADDING = bottomPadding;
-        if (updateReturnScreen) returnScreen = MinecraftClient.getInstance().currentScreen;
-        else returnScreen = ((RasterScreen) MinecraftClient.getInstance().currentScreen).returnScreen;
+        if (updateReturnScreen) returnScreen = Minecraft.getInstance().screen;
+        else returnScreen = ((RasterScreen) Minecraft.getInstance().screen).returnScreen;
     }
 
     @Override
-    public void close() {
-        MinecraftClient.getInstance().setScreen(returnScreen);
+    public void onClose() {
+        Minecraft.getInstance().setScreen(returnScreen);
     }
 
     private static void registerQueue() {
@@ -59,8 +57,8 @@ public abstract class RasterScreen extends Screen {
                 //System.out.println("Registering Tile: " + tile.key);
                 NativeImage nImage = NativeImage.read(tile.image);
                 //register new dynamic texture and store it again to be referenced later
-                Identifier identifier = Identifier.of("openminemap-tile", tile.raster.identifierString);
-                MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(new nameSupplier(), nImage));
+                Identifier identifier = Identifier.fromNamespaceAndPath("openminemap-tile", tile.raster.identifierString);
+                Minecraft.getInstance().getTextureManager().register(identifier, new DynamicTexture(new nameSupplier(), nImage));
                 backgroundTiles.put(tile.raster.identifierString, identifier);
                 //System.out.println("New Dynamic tile");
 
@@ -80,9 +78,9 @@ public abstract class RasterScreen extends Screen {
         if (url == null) return;
         try {
             NativeImage nImage = NativeImage.read(tile.image);
-            Identifier identifier = Identifier.of("openminemap-btile", tile.raster.identifierString);
+            Identifier identifier = Identifier.fromNamespaceAndPath("openminemap-btile", tile.raster.identifierString);
             //Identifier identifier = Identifier.of("openminemap-btile", "testimage.png");
-            MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(new nameSupplier(), nImage));
+            Minecraft.getInstance().getTextureManager().register(identifier, new DynamicTexture(new nameSupplier(), nImage));
             backgroundTiles.put(url.identifierString, identifier);
 
             tile.image.close();
@@ -106,7 +104,7 @@ public abstract class RasterScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         if (exitButton.isMouseOver(click.x(), click.y())) exitButton.onClick(click, doubled);
         return super.mouseClicked(click, doubled);
     }
@@ -129,17 +127,17 @@ public abstract class RasterScreen extends Screen {
     protected void init() {
         super.init();
 
-        rasterList = new RasterList(MinecraftClient.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
+        rasterList = new RasterList(Minecraft.getInstance(), 0, 0, 0, ITEM_HEIGHT + 4);
         exitButton = new ButtonLayer(ButtonFunction.EXIT);
 
         updateWidgetPositions();
-        this.addDrawableChild(rasterList);
+        this.addRenderableWidget(rasterList);
 
         //purgeRasterList();
         populateRasterList();
 
         exitButton.setY(4);
-        this.addDrawableChild(exitButton);
+        this.addRenderableWidget(exitButton);
 
     }
 
@@ -150,7 +148,7 @@ public abstract class RasterScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         UContext.setContext(context);
         updateWidgetPositions();
         registerQueue();
@@ -162,7 +160,7 @@ public abstract class RasterScreen extends Screen {
     protected final void addRaster(RasterLayerWidget widget) {
         rasterWidgets.add(widget);
         AnchorWidget anchor = new AnchorWidget();
-        this.addDrawableChild(widget);
+        this.addRenderableWidget(widget);
 
         rasterList.addEntry(anchor);
         anchorWidgets.add(anchor);
@@ -171,7 +169,7 @@ public abstract class RasterScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         boolean b = super.mouseReleased(click);
         for (RasterLayerWidget widget : rasterWidgets) {
             widget.releaseSlider(click.x(), click.y());

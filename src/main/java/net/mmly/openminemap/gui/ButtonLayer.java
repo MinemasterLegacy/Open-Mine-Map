@@ -1,13 +1,11 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.draw.UContext;
@@ -19,10 +17,10 @@ import net.mmly.openminemap.raster.CreateRasterScreen;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.waypoint.WaypointScreen;
-
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import java.util.function.BooleanSupplier;
 
-public class ButtonLayer extends ClickableWidget {
+public class ButtonLayer extends AbstractWidget {
 
     private final ButtonFunction function;
     private BooleanSupplier disableCondition;
@@ -38,13 +36,13 @@ public class ButtonLayer extends ClickableWidget {
     }
 
     public ButtonLayer(int x, int y, ButtonFunction f, BooleanSupplier disableCondition) {
-        super(x, y, BUTTONSIZE, BUTTONSIZE, Text.empty());
+        super(x, y, BUTTONSIZE, BUTTONSIZE, Component.empty());
         function = f;
         if (disableCondition == null) this.disableCondition = () -> false;
         else this.disableCondition = disableCondition;
     }
 
-    public void drawWidget(DrawContext context) {
+    public void drawWidget(GuiGraphics context) {
         if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (!texturedButtons) {
             UContext.drawButtonOnWidget(this, disableCondition.getAsBoolean(), isHovered());
@@ -61,16 +59,16 @@ public class ButtonLayer extends ClickableWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000); //0x00000000
         drawWidget(context);
         if (this.isHovered()) {
-            context.setCursor(!disableCondition.getAsBoolean() ? StandardCursors.POINTING_HAND : StandardCursors.NOT_ALLOWED);
+            context.requestCursor(!disableCondition.getAsBoolean() ? CursorTypes.POINTING_HAND : CursorTypes.NOT_ALLOWED);
         }
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         RightClickMenu.disableMenu();
         System.out.println("clicked");
         switch (function) {
@@ -87,33 +85,33 @@ public class ButtonLayer extends ClickableWidget {
                 if (PlayerAttributes.positionIsValid()) MapScreen.followPlayer(true);
                 break;
             case CONFIG: //config
-                MinecraftClient.getInstance().setScreen(
+                Minecraft.getInstance().setScreen(
                         new ConfigScreen()
                 );
                 break;
             case EXIT: //exit
-                MinecraftClient.getInstance().currentScreen.close();
+                Minecraft.getInstance().screen.onClose();
                 break;
             case WAYPOINTS:
-                MinecraftClient.getInstance().setScreen(
+                Minecraft.getInstance().setScreen(
                         new WaypointScreen()
                 );
                 break;
             case CHECKMARK:
-                if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreen) {
+                if (Minecraft.getInstance().screen instanceof ConfigScreen) {
                     ConfigScreen.getInstance().saveChanges();
-                    MinecraftClient.getInstance().setScreen(
+                    Minecraft.getInstance().setScreen(
                             new MapScreen()
                     );
                     MapScreen.updateAltScreenMap(ConfigScreen.getInstance());
                     break;
-                } else if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
+                } else if (Minecraft.getInstance().screen instanceof MapConfigScreen) {
                     MapConfigScreen.saveChanges();
-                    MapScreen.updateAltScreenMap(MinecraftClient.getInstance().currentScreen, null);
+                    MapScreen.updateAltScreenMap(Minecraft.getInstance().screen, null);
                 } else {
                     break;
                 }
-                MinecraftClient.getInstance().setScreen(null);
+                Minecraft.getInstance().setScreen(null);
                 break;
             case RESETCONFIG:
                 HudMap.map.setRenderPositionAndSize(
@@ -128,7 +126,7 @@ public class ButtonLayer extends ClickableWidget {
                 MapConfigScreen.updateResizePos();
                 break;
             case RASTER:
-                MinecraftClient.getInstance().setScreen(
+                Minecraft.getInstance().setScreen(
                         new ViewSetRastersScreen(true)
                 );
                 break;
@@ -145,7 +143,7 @@ public class ButtonLayer extends ClickableWidget {
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
     @Override
     public boolean isHovered() {

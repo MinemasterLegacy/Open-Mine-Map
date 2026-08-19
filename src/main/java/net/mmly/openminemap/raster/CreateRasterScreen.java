@@ -1,14 +1,14 @@
 package net.mmly.openminemap.raster;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonFunction;
@@ -26,9 +26,9 @@ import java.util.Locale;
 
 public class CreateRasterScreen extends Screen {
 
-    private ArrayList<TextFieldWidget> fieldWidgets;
-    private ButtonWidget doneButton;
-    private ButtonWidget cancelButton;
+    private ArrayList<EditBox> fieldWidgets;
+    private Button doneButton;
+    private Button cancelButton;
     private ButtonLayer addAttributionButton;
     private ButtonLayer removeAttributionButton;
     private static TileUrl originalRaster;
@@ -44,14 +44,14 @@ public class CreateRasterScreen extends Screen {
     }
 
     @Override
-    public void close() {
-        MinecraftClient.getInstance().setScreen(returnScreen);
+    public void onClose() {
+        Minecraft.getInstance().setScreen(returnScreen);
         layerType = null;
     }
 
     private void saveCurrentUrl() {
         if (hasKeyField) {
-            RasterApiKeysFile.writeApiKey(originalRaster.presetID, fieldWidgets.getLast().getText());
+            RasterApiKeysFile.writeApiKey(originalRaster.presetID, fieldWidgets.getLast().getValue());
             return;
         }
 
@@ -67,7 +67,7 @@ public class CreateRasterScreen extends Screen {
 
     /// Pass null for a new tile url
     public CreateRasterScreen(TileUrl url) { //for modifying some existing raster
-        super(Text.of(""));
+        super(Component.nullToEmpty(""));
         instance = this;
         originalRaster = url;
         isNew = originalRaster == null;
@@ -81,10 +81,10 @@ public class CreateRasterScreen extends Screen {
         if (originalRaster == null) baseFieldsEditable = true;
         else baseFieldsEditable = !originalRaster.isPreset();
 
-        if (MinecraftClient.getInstance().currentScreen instanceof RasterWarningScreen) {
-            returnScreen = ((RasterWarningScreen) MinecraftClient.getInstance().currentScreen).parent;
+        if (Minecraft.getInstance().screen instanceof RasterWarningScreen) {
+            returnScreen = ((RasterWarningScreen) Minecraft.getInstance().screen).parent;
         } else {
-            returnScreen = MinecraftClient.getInstance().currentScreen;
+            returnScreen = Minecraft.getInstance().screen;
         }
     }
 
@@ -112,9 +112,9 @@ public class CreateRasterScreen extends Screen {
             fieldWidgets.getLast().setY(fieldWidgets.getLast().getY() + (int) perSpace);
         }
 
-        int edgeMargin = (width - 10 - 2 * ButtonWidget.DEFAULT_WIDTH_SMALL) / 2;
+        int edgeMargin = (width - 10 - 2 * Button.SMALL_WIDTH) / 2;
         doneButton.setPosition(edgeMargin, height - 20 - (int) perSpace);
-        cancelButton.setPosition(edgeMargin + 10 + ButtonWidget.DEFAULT_WIDTH_SMALL, height - 20 - (int) perSpace);
+        cancelButton.setPosition(edgeMargin + 10 + Button.SMALL_WIDTH, height - 20 - (int) perSpace);
 
 
         if (!baseFieldsEditable) return;
@@ -122,8 +122,8 @@ public class CreateRasterScreen extends Screen {
         addAttributionButton.setPosition(fieldWidgets.get(3).getRight() + 5, fieldWidgets.get(3).getY());
 
         removeAttributionButton.visible = false;
-        if (getFocused() instanceof TextFieldWidget) {
-            TextFieldWidget candidate = (TextFieldWidget) getFocused();
+        if (getFocused() instanceof EditBox) {
+            EditBox candidate = (EditBox) getFocused();
             int numField = fieldWidgets.indexOf(candidate);
             if (hasKeyField && numField == fieldWidgets.size()) return;
             if (numField < 4) return;
@@ -156,13 +156,13 @@ public class CreateRasterScreen extends Screen {
     private String rasterIsValid(TileUrl raster, TileUrl nameIgnoredRaster) {
         TileUrlErrorType errorType = TileUrlFile.checkValidityOf(raster, nameIgnoredRaster);
         if (errorType == TileUrlErrorType.NO_ERROR) return null;
-        else return Text.translatable(errorType.translationKey).getString();
+        else return Component.translatable(errorType.translationKey).getString();
     }
 
     public TileUrl buildRaster() {
-        String name = fieldWidgets.get(0).getText();
-        String source = fieldWidgets.get(1).getText();
-        String attribution = fieldWidgets.get(2).getText();
+        String name = fieldWidgets.get(0).getValue();
+        String source = fieldWidgets.get(1).getValue();
+        String attribution = fieldWidgets.get(2).getValue();
         if (name.isEmpty()) name = null;
         if (source.isEmpty()) source = null;
         if (attribution.isEmpty()) attribution = null;
@@ -178,19 +178,19 @@ public class CreateRasterScreen extends Screen {
     private String[] getAttributionLinksList() {
         String[] links = new String[fieldWidgets.size() - 3 - (hasKeyField ? 1 : 0)];
         for (int i = 0; i < fieldWidgets.size() - 3 - (hasKeyField ? 1 : 0); i++) {
-            links[i] = fieldWidgets.get(3+i).getText();
+            links[i] = fieldWidgets.get(3+i).getValue();
             if (links[i].isEmpty()) links[i] = null;
         }
         return links;
     }
 
-    private TextFieldWidget getNewFieldWidget(boolean isEditable) {
-        TextFieldWidget f = new TextFieldWidget(textRenderer, 0, -100, 200, 20, Text.of(""));
-        addDrawableChild(f);
+    private EditBox getNewFieldWidget(boolean isEditable) {
+        EditBox f = new EditBox(font, 0, -100, 200, 20, Component.nullToEmpty(""));
+        addRenderableWidget(f);
         f.setMaxLength(1000);
         if (!isEditable) {
-            f.setUneditableColor(0xFF7f7f7f);
-            f.setEditableColor(0xFF7f7f7f);
+            f.setTextColorUneditable(0xFF7f7f7f);
+            f.setTextColor(0xFF7f7f7f);
             f.setEditable(false);
         }
         return f;
@@ -211,33 +211,33 @@ public class CreateRasterScreen extends Screen {
             fieldWidgets.add(getNewFieldWidget(!originalRaster.isPreset()));
         }
 
-        fieldWidgets.get(0).setText(originalRaster.name);
-        fieldWidgets.get(1).setText(originalRaster.source_url);
-        if (originalRaster.presetID == 0) fieldWidgets.get(2).setText(Text.translatable("omm.osm-attribution").getString());
-        else fieldWidgets.get(2).setText(originalRaster.attribution);
+        fieldWidgets.get(0).setValue(originalRaster.name);
+        fieldWidgets.get(1).setValue(originalRaster.source_url);
+        if (originalRaster.presetID == 0) fieldWidgets.get(2).setValue(Component.translatable("omm.osm-attribution").getString());
+        else fieldWidgets.get(2).setValue(originalRaster.attribution);
         for (int i = 0; i < originalRaster.attribution_links.length; i++) {
-            fieldWidgets.get(3+i).setText(originalRaster.attribution_links[i]);
+            fieldWidgets.get(3+i).setValue(originalRaster.attribution_links[i]);
         }
 
         if (hasKeyField) {
             fieldWidgets.add(getNewFieldWidget(true));
-            fieldWidgets.getLast().setText(RasterApiKeysFile.readApiKey(originalRaster.presetID));
+            fieldWidgets.getLast().setValue(RasterApiKeysFile.readApiKey(originalRaster.presetID));
         }
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         boolean b = super.keyPressed(input);
         if (!ConfigOptions.__SHOW_DEVELOPER_OPTIONS.getAsBoolean()) return b;
-        if (input.getKeycode() != GLFW.GLFW_KEY_RIGHT_ALT) return b;
+        if (input.input() != GLFW.GLFW_KEY_RIGHT_ALT) return b;
         if (!isNew) return b;
 
-        fieldWidgets.get(0).setText("Dummy Raster");
-        fieldWidgets.get(1).setText("https://a.a.a{x}{y}{z}");
-        fieldWidgets.get(2).setText("{e}");
-        fieldWidgets.get(3).setText("https://a.a.a");
+        fieldWidgets.get(0).setValue("Dummy Raster");
+        fieldWidgets.get(1).setValue("https://a.a.a{x}{y}{z}");
+        fieldWidgets.get(2).setValue("{e}");
+        fieldWidgets.get(3).setValue("https://a.a.a");
         saveCurrentUrl();
-        close();
+        onClose();
         return b;
     }
 
@@ -245,27 +245,27 @@ public class CreateRasterScreen extends Screen {
     protected void init() {
         super.init();
 
-        doneButton = ButtonWidget.builder(isNew ? Text.translatable("omm.text.create") : Text.translatable("omm.text.done"), (widget) -> {
+        doneButton = Button.builder(isNew ? Component.translatable("omm.text.create") : Component.translatable("omm.text.done"), (widget) -> {
             if (TileUrlFile.checkValidityOf(buildRaster(), originalRaster) != TileUrlErrorType.NO_ERROR) return;
             saveCurrentUrl();
-            CreateRasterScreen.instance.close();
-        }).position(0, -100).build();
-        doneButton.setWidth(ButtonWidget.DEFAULT_WIDTH_SMALL);
-        addDrawableChild(doneButton);
+            CreateRasterScreen.instance.onClose();
+        }).pos(0, -100).build();
+        doneButton.setWidth(Button.SMALL_WIDTH);
+        addRenderableWidget(doneButton);
 
-        cancelButton = ButtonWidget.builder(Text.translatable("gui.cancel"), (widget) -> {
-            CreateRasterScreen.instance.close();
-        }).position(0, -100).build();
-        cancelButton.setWidth(ButtonWidget.DEFAULT_WIDTH_SMALL);
-        addDrawableChild(cancelButton);
+        cancelButton = Button.builder(Component.translatable("gui.cancel"), (widget) -> {
+            CreateRasterScreen.instance.onClose();
+        }).pos(0, -100).build();
+        cancelButton.setWidth(Button.SMALL_WIDTH);
+        addRenderableWidget(cancelButton);
 
         initFieldWidgets();
 
         if (baseFieldsEditable) {
             addAttributionButton = new ButtonLayer(ButtonFunction.ADDRASTER);
             removeAttributionButton = new ButtonLayer(ButtonFunction.REMOVERASTER);
-            addDrawableChild(addAttributionButton);
-            addDrawableChild(removeAttributionButton);
+            addRenderableWidget(addAttributionButton);
+            addRenderableWidget(removeAttributionButton);
             removeAttributionButton.visible = false;
         }
 
@@ -274,7 +274,7 @@ public class CreateRasterScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         UContext.setContext(context);
         updateWidgetPositions();
@@ -286,7 +286,7 @@ public class CreateRasterScreen extends Screen {
                 doneButton.setTooltip(null);
             } else {
                 doneButton.active = false;
-                doneButton.setTooltip(Tooltip.of(Text.of(validity)));
+                doneButton.setTooltip(Tooltip.create(Component.nullToEmpty(validity)));
             }
         }
 
@@ -310,8 +310,8 @@ enum Fields {
 
     public static final Fields[] inOrder = new Fields[] {NAME, SOURCE, ATTRIBUTION, LINKS, KEY};
 
-    public MutableText getTranslated() {
-        return Text.translatable("omm.raster.field." + this.toString().toLowerCase(Locale.US));
+    public MutableComponent getTranslated() {
+        return Component.translatable("omm.raster.field." + this.toString().toLowerCase(Locale.US));
     }
 
 }

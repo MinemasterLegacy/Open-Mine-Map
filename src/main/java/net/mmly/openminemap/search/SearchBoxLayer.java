@@ -1,12 +1,11 @@
 package net.mmly.openminemap.search;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.draw.UContext;
@@ -22,7 +21,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class SearchBoxLayer extends TextFieldWidget {
+public class SearchBoxLayer extends EditBox {
 
     public static final int MAX_RESULTS = 15; //max number of thing sto be shown, controls the number of widgets to be created
     public static int maxDisplayedResults = 0; //max number of displayed results, controls the max amount that is rendered
@@ -38,12 +37,12 @@ public class SearchBoxLayer extends TextFieldWidget {
     private static SearchBoxLayer instance;
 
 
-    public SearchBoxLayer(TextRenderer textRenderer, int x, int y) {
-        super(textRenderer, x, y, 250, 20, Text.of(""));
+    public SearchBoxLayer(Font textRenderer, int x, int y) {
+        super(textRenderer, x, y, 250, 20, Component.nullToEmpty(""));
         this.setEditable(true);
         this.setMaxLength(1000);
         instance = this;
-        this.setUneditableColor(MapScreen.getDarkTextColor());
+        this.setTextColorUneditable(MapScreen.getDarkTextColor());
     }
 
     public static int getNumDisplayedResults() {
@@ -74,7 +73,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         searchResults = SearchHistoryFile.getResultsOf(result);
         previousText = result.name;
         numResults = getNumResultsOf(searchResults);
-        getInstance().setText(result.name);
+        getInstance().setValue(result.name);
         MapScreen.map.setMouseDown(false);
         MapScreen.semiTransparentUi = true;
         MapScreen.map.displaySearchResults(searchResults);
@@ -90,20 +89,20 @@ public class SearchBoxLayer extends TextFieldWidget {
         searching = toggle;
         if (searching) {
             getInstance().setEditable(false);
-            valueStore = getInstance().getText();
-            getInstance().setText("");
+            valueStore = getInstance().getValue();
+            getInstance().setValue("");
             //SearchHistoryFile.writeToFile();
         } else {
             getInstance().setEditable(true);
-            getInstance().setText(valueStore);
+            getInstance().setValue(valueStore);
             resetScroll();
         }
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         if (searching) return true;
-        if (input.getKeycode() == GLFW.GLFW_KEY_ENTER && !getText().isEmpty()) {
+        if (input.input() == GLFW.GLFW_KEY_ENTER && !getValue().isEmpty()) {
             MapScreen.getInstance().jumpToBestOption();
             //RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return true;
@@ -112,12 +111,12 @@ public class SearchBoxLayer extends TextFieldWidget {
         }
     }
 
-    private void drawTopScrollIndicator(DrawContext context) {
+    private void drawTopScrollIndicator(GuiGraphics context) {
         if (searchScroll == 0) return;
         UContext.drawDottedHorizontalLine(getX(), getRight(), getY() + height, 0xFFFFFFFF);
     }
 
-    private void drawBottomScrollIndicator(DrawContext context) {
+    private void drawBottomScrollIndicator(GuiGraphics context) {
         if (numDisplayedResults + searchScroll == numResults || numDisplayedResults < maxDisplayedResults) return;
         int yOffset = numDisplayedResults * 20;
         UContext.drawDottedHorizontalLine(getX(), getRight(), getBottom() + yOffset - 1, 0xFFFFFFFF);
@@ -132,7 +131,7 @@ public class SearchBoxLayer extends TextFieldWidget {
 
      */
 
-    public void drawWidget(DrawContext context) {
+    public void drawWidget(GuiGraphics context) {
         if (isFocused()) MapScreen.map.setFocusedResult(-1);
         numDisplayedResults = Math.min(numResults, maxDisplayedResults);
 
@@ -148,19 +147,19 @@ public class SearchBoxLayer extends TextFieldWidget {
             if (!searchResults[0].name.isEmpty()) MapScreen.map.displaySearchResults(searchResults);
             MapScreen.getInstance().jumpToSearchBox();
             updateResultElements();
-        } else if (!previousText.equals(getText()) && !searching) {
-            previousText = getText();
+        } else if (!previousText.equals(getValue()) && !searching) {
+            previousText = getValue();
             recalculateResults();
         }
 
-        setEditableColor(getText().isEmpty() && !isFocused() ? MapScreen.getDarkTextColor() : MapScreen.getPlainTextColor());
-        if (searching) setPlaceholder(Text.translatable("omm.notification.searching"));
-        else setPlaceholder(Text.translatable("omm.search.anything"));
+        setTextColor(getValue().isEmpty() && !isFocused() ? MapScreen.getDarkTextColor() : MapScreen.getPlainTextColor());
+        if (searching) setHint(Component.translatable("omm.notification.searching"));
+        else setHint(Component.translatable("omm.search.anything"));
 
         this.render(context, 0, 0, 0);
 
-        if (this.getText().isEmpty() && this.isVisible() && !this.isSelected()) UContext.drawJustifiedText(
-                Text.translatable("omm.search.anything"),
+        if (this.getValue().isEmpty() && this.isVisible() && !this.isHoveredOrFocused()) UContext.drawJustifiedText(
+                Component.translatable("omm.search.anything"),
                 Justify.LEFT,
                 getX() + 4,
                 getY() + 6,
@@ -226,7 +225,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         MapScreen.map.disableSearchResults();
 
         //if nothing has been typed yet, show recent search history
-        if (this.getText().isBlank()) {
+        if (this.getValue().isBlank()) {
             for (SearchResult result : getSearchHistory()) {
                 addSearchResult(result);
             }
@@ -236,7 +235,7 @@ public class SearchBoxLayer extends TextFieldWidget {
 
         //If the search text is coordinates, add that as an option
         try {
-            String[] coordinateStrings = this.getText().trim().replaceAll(",", " ").split(" ");
+            String[] coordinateStrings = this.getValue().trim().replaceAll(",", " ").split(" ");
             coordinateStrings = removeExtra(coordinateStrings);
             double[] coordinateAttempt = UnitConvert.toDecimalDegrees(coordinateStrings[0], coordinateStrings[1]);
             if (coordinateAttempt != null && !OmmMap.geoCoordsOutOfBounds(coordinateAttempt[0], coordinateAttempt[1])) {
@@ -253,7 +252,7 @@ public class SearchBoxLayer extends TextFieldWidget {
 
         //If the search text references any waypoints, add those
         for (Waypoint waypoint : OmmMap.getWaypoints()) {
-            if (waypoint.name.toLowerCase().contains(getText().toLowerCase())) {
+            if (waypoint.name.toLowerCase().contains(getValue().toLowerCase())) {
                 addSearchResult(new SearchResult(
                         SearchResultType.WAYPOINT,
                         waypoint.latitude,
@@ -268,36 +267,36 @@ public class SearchBoxLayer extends TextFieldWidget {
         for (MappablePlayer player : PlayersManager.getMappablePlayers()) {
             try {
                 if (player.outOfBounds) continue;
-                if (player.stylizedName.getString().toLowerCase().contains(getText().toLowerCase()) && player.uuid != MinecraftClient.getInstance().player.getUuid()) {
+                if (player.stylizedName.getString().toLowerCase().contains(getValue().toLowerCase()) && player.uuid != Minecraft.getInstance().player.getUUID()) {
                     addSearchResult(new SearchResult(
                             SearchResultType.PLAYER,
                             player.latitude,
                             player.longitude,
                             false,
                             player.stylizedName.getString(),
-                            ((int) player.distanceTo(MinecraftClient.getInstance().player)) + Text.translatable("omm.search.blocks-away").getString()));
+                            ((int) player.distanceTo(Minecraft.getInstance().player)) + Component.translatable("omm.search.blocks-away").getString()));
                 }
             } catch (NullPointerException ignored) {}
         }
 
         for (SearchResult result : getSearchHistory()) {
-            if (result.name.toLowerCase().contains(getText().toLowerCase())) {
+            if (result.name.toLowerCase().contains(getValue().toLowerCase())) {
                 addSearchResult(result);
             }
         }
 
-        if (getText().length() >= 3) {
+        if (getValue().length() >= 3) {
             displayingSearch = true;
             addSearchResult(new SearchResult(
                     SearchResultType.SEARCHLOCAL,
                     0, 0, false,
-                    Text.translatable("omm.search.places").getString(),
+                    Component.translatable("omm.search.places").getString(),
                     "Photon"));
 
             addSearchResult(new SearchResult(
                     SearchResultType.SEARCH,
                     0, 0, false,
-                    Text.translatable("omm.search.places").getString(),
+                    Component.translatable("omm.search.places").getString(),
                     "Photon"));
         } else displayingSearch = false;
 

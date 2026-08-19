@@ -1,55 +1,55 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.UContext;
 
-public class AnchorWidget extends AlwaysSelectedEntryListWidget.Entry<AnchorWidget> {
+public class AnchorWidget extends ObjectSelectionList.Entry<AnchorWidget> {
 
-    public ClickableWidget widget;
+    public AbstractWidget widget;
     public boolean drawNow = false;
 
     @Override
-    public Text getNarration() {
-        return Text.of("");
+    public Component getNarration() {
+        return Component.nullToEmpty("");
     }
 
-    public void setWidget(ClickableWidget widget) {
+    public void setWidget(AbstractWidget widget) {
         this.widget = widget;
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         return widget.mouseClicked(click, doubled);
     }
 
     @Override
-    public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+    public boolean mouseDragged(MouseButtonEvent click, double offsetX, double offsetY) {
         return widget.mouseDragged(click, offsetX, offsetY);
     }
 
     @Override
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         return widget.mouseReleased(click);
     }
 
     @Override
-    public boolean charTyped(CharInput input) {
+    public boolean charTyped(CharacterEvent input) {
         return widget.charTyped(input);
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         return widget.keyPressed(input);
     }
 
     @Override
-    public boolean keyReleased(KeyInput input) {
+    public boolean keyReleased(KeyEvent input) {
         return widget.keyReleased(input);
     }
 
@@ -64,7 +64,7 @@ public class AnchorWidget extends AlwaysSelectedEntryListWidget.Entry<AnchorWidg
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+    public void renderContent(GuiGraphics context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
         drawNow = true;
         widget.render(context, mouseX, mouseY, deltaTicks);
         drawNow = false;

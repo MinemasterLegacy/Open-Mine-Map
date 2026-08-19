@@ -1,10 +1,8 @@
 package net.mmly.openminemap.enums;
 
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
 import java.util.List;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 public enum WebIcon {
     GOOGLE_MAPS("Google Maps", "gm"),
@@ -19,7 +17,7 @@ public enum WebIcon {
     LOOKMAP("Lookmap", "lm");
 
     //public final Tooltip tooltip;
-    public final Text tooltipText;
+    public final Component tooltipText;
     public final String imageName;
     public final Identifier icon;
     public final Identifier highlight;
@@ -29,9 +27,9 @@ public enum WebIcon {
     WebIcon(String tooltipString, String imageName) {
         this.imageName = imageName;
         //this.tooltip = Tooltip.of(Text.of(tooltipString));
-        this.tooltipText = Text.of(tooltipString);
-        this.icon = Identifier.of("openminemap", "webicons/icons/" + imageName + ".png");
-        this.highlight = Identifier.of("openminemap", "webicons/selections/" + imageName + ".png");
+        this.tooltipText = Component.nullToEmpty(tooltipString);
+        this.icon = Identifier.fromNamespaceAndPath("openminemap", "webicons/icons/" + imageName + ".png");
+        this.highlight = Identifier.fromNamespaceAndPath("openminemap", "webicons/selections/" + imageName + ".png");
     }
 
     public static WebIcon getEnumFromName(String imageName) {

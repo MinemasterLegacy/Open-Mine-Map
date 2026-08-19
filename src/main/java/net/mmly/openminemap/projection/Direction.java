@@ -1,7 +1,7 @@
 package net.mmly.openminemap.projection;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
 import net.mmly.openminemap.map.PlayerAttributes;
 
 public class Direction {
@@ -9,7 +9,7 @@ public class Direction {
 
     @Deprecated //use getGeoAzimuth
     public static double calcDymaxionAngleDifference() { //returns the change in agle between mine
-        MinecraftClient minecraftClient = MinecraftClient.getInstance();
+        Minecraft minecraftClient = Minecraft.getInstance();
         double playerX = minecraftClient.player.getX();
         double playerZ = minecraftClient.player.getZ();
         double playerLon = PlayerAttributes.longitude;
@@ -71,7 +71,7 @@ public class Direction {
 
     public static double getGeoAzimuth(Entity entity) {
         if (entity == null) return 0;
-        return getGeoAzimuth(entity.getX(), entity.getZ(), entity.getYaw());
+        return getGeoAzimuth(entity.getX(), entity.getZ(), entity.getYRot());
     }
 
     public static double getGeoAzimuth(double mX, double mZ, double mAngle) {

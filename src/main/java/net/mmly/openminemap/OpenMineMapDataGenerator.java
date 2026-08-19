@@ -4,8 +4,7 @@ import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
-import net.minecraft.registry.RegistryWrapper;
-
+import net.minecraft.core.HolderLookup;
 import java.util.concurrent.CompletableFuture;
 
 public class OpenMineMapDataGenerator implements DataGeneratorEntrypoint {
@@ -41,13 +40,13 @@ public class OpenMineMapDataGenerator implements DataGeneratorEntrypoint {
 }
 
 class OmmEnglishLanguageProvider extends FabricLanguageProvider {
-    protected OmmEnglishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmEnglishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "en_us", registryLookup);
     }
 
     // ----- ENGLISH -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         //language-wide translations
         translationBuilder.add("omm.config.state.tpll", "/tpll");
         translationBuilder.add("omm.config.state.tp", "/tp");
@@ -250,13 +249,13 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
 }
 
 abstract class OmmSpanishLanguageProvider extends FabricLanguageProvider {
-    protected OmmSpanishLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmSpanishLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
     // ----- SPANISH -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "Zoom artificial");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "El zoom artificial permite niveles de zoom más altos de lo normal (+6 niveles) aumentando el tamaño del tile más pequeño.");
         translationBuilder.add("omm.osm-attribution", "© {Colaboradores de OpenStreetMap}");
@@ -409,49 +408,49 @@ abstract class OmmSpanishLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmArgentinianSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmArgentinianSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmArgentinianSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_ar", registryLookup);
     }
 }
 class OmmChileanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmChileanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmChileanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_cl", registryLookup);
     }
 }
 class OmmEcuadorianSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmEcuadorianSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmEcuadorianSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_ec", registryLookup);
     }
 }
 class OmmEuropeanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmEuropeanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmEuropeanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_es", registryLookup);
     }
 }
 class OmmMexicanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmMexicanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmMexicanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_mx", registryLookup);
     }
 }
 class OmmUruguayanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmUruguayanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmUruguayanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_uy", registryLookup);
     }
 }
 class OmmVenezuelanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmVenezuelanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmVenezuelanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_ve", registryLookup);
     }
 }
 
 class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
-    protected OmmSimplifiedChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmSimplifiedChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "zh_cn", registryLookup);
     }
 
     // ----- SIMPLIFIED CHINESE -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "人工缩放");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "通过人为手段放大图块，使可用的缩放等级突破正常范围（可再多 6 级）。");
         translationBuilder.add("omm.osm-attribution", "© {OpenStreetMap 贡献者}");
@@ -563,13 +562,13 @@ class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
 }
 
 abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvider {
-    protected OmmTraditionalChineseLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmTraditionalChineseLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
     // ----- TRADITIONAL CHINESE -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "人工縮放");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "透過人為手段放大圖磚，使可用的縮放等級突破正常範圍（可再多 6 級）。");
         translationBuilder.add("omm.osm-attribution", "© {開放街圖貢獻者}");
@@ -680,24 +679,24 @@ abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvi
     }
 }
 class OmmTraditionalHongKongChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {
-    protected OmmTraditionalHongKongChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmTraditionalHongKongChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "zh_hk", registryLookup);
     }
 }
 class OmmTraditionalTaiwaneseChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {
-    protected OmmTraditionalTaiwaneseChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmTraditionalTaiwaneseChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "zh_tw", registryLookup);
     }
 }
 
 abstract class OmmFrenchLanguageProvider extends FabricLanguageProvider {
-    protected OmmFrenchLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmFrenchLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
     // ----- FRENCH -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "Zoom artificiel");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "Le zoom artificiel permet des niveaux de zoom plus élevés que la normale (+6 niveaux) en agrandissant la taille minimale des tuiles.");
         translationBuilder.add("omm.osm-attribution", "© {Contributeurs OpenStreetMap}");
@@ -797,24 +796,24 @@ abstract class OmmFrenchLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmEuropeanFrenchLanguageProvider extends OmmFrenchLanguageProvider {
-    protected OmmEuropeanFrenchLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmEuropeanFrenchLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "fr_fr", registryLookup);
     }
 }
 class OmmCanadianFrenchLanguageProvider extends OmmFrenchLanguageProvider {
-    protected OmmCanadianFrenchLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmCanadianFrenchLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "fr_ca", registryLookup);
     }
 }
 
 abstract class OmmRussianLanguageProvider extends FabricLanguageProvider {
-    protected OmmRussianLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmRussianLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
     // ----- RUSSIAN -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "Искусственный зум");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "Искусственный зум позволяет увеличивать масштаб выше обычного (+6 уровней) за счёт увеличения минимального размера тайлов.");
         translationBuilder.add("omm.osm-attribution", "© {Участники OpenStreetMap}");
@@ -914,24 +913,24 @@ abstract class OmmRussianLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmModernRussianLanguageProvider extends OmmRussianLanguageProvider {
-    protected OmmModernRussianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmModernRussianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "ru_ru", registryLookup);
     }
 }
 class OmmPreRevolutionaryRussianLanguageProvider extends OmmRussianLanguageProvider {
-    protected OmmPreRevolutionaryRussianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmPreRevolutionaryRussianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "rpr", registryLookup);
     }
 }
 
 abstract class OmmGermanLanguageProvider extends FabricLanguageProvider {
-    protected OmmGermanLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmGermanLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
     // ----- GERMAN -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "Künstlicher Zoom");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "Künstlicher Zoom ermöglicht höhere Zoomstufen als normal (+6 Stufen) durch Vergrößerung der kleinsten Kachelgröße.");
         translationBuilder.add("omm.osm-attribution", "© {OpenStreetMap Mitwirkende}");
@@ -1031,29 +1030,29 @@ abstract class OmmGermanLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmEuropeanGermanLanguageProvider extends OmmGermanLanguageProvider {
-    protected OmmEuropeanGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmEuropeanGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "de_de", registryLookup);
     }
 }
 class OmmSwissGermanLanguageProvider extends OmmGermanLanguageProvider {
-    protected OmmSwissGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmSwissGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "de_ch", registryLookup);
     }
 }
 class OmmAustrianGermanLanguageProvider extends OmmGermanLanguageProvider {
-    protected OmmAustrianGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmAustrianGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "de_at", registryLookup);
     }
 }
 
 abstract class OmmPortugueseLanguageProvider extends FabricLanguageProvider {
-    protected OmmPortugueseLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmPortugueseLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
     // ----- PORTUGUESE -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "Zoom Artificial");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "O Zoom Artificial permite níveis de zoom mais altos que o normal (+6 níveis) aumentando o tamanho da menor telha.");
         translationBuilder.add("omm.osm-attribution", "© {Contribuidores do OpenStreetMap}");
@@ -1153,24 +1152,24 @@ abstract class OmmPortugueseLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmBrazilianPortugueseLanguageProvider extends OmmPortugueseLanguageProvider {
-    protected OmmBrazilianPortugueseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmBrazilianPortugueseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "pt_br", registryLookup);
     }
 }
 class OmmEuropeanPortugueseLanguageProvider extends OmmPortugueseLanguageProvider {
-    protected OmmEuropeanPortugueseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmEuropeanPortugueseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "pt_pt", registryLookup);
     }
 }
 
 abstract class OmmIndonesianLanguageProvider extends FabricLanguageProvider {
-    protected OmmIndonesianLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmIndonesianLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
     // ----- INDONESIAN -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "Zoom Buatan");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "Zoom Buatan memungkinkan level zoom lebih tinggi dari normal (+6 level) dengan memperbesar ukuran tile terkecil.");
         translationBuilder.add("omm.osm-attribution", "© {Kontributor OpenStreetMap}");
@@ -1270,24 +1269,24 @@ abstract class OmmIndonesianLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmModernIndonesianLanguageProvider extends OmmIndonesianLanguageProvider {
-    protected OmmModernIndonesianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmModernIndonesianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "id_id", registryLookup);
     }
 }
 class OmmPreReformIndonesianLanguageProvider extends OmmIndonesianLanguageProvider {
-    protected OmmPreReformIndonesianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmPreReformIndonesianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "qid", registryLookup);
     }
 }
 
 class OmmJapaneseLanguageProvider extends FabricLanguageProvider {
-    protected OmmJapaneseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmJapaneseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "ja_jp", registryLookup);
     }
 
     // ----- JAPANESE -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "人工ズーム");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "人工ズームは通常より高いズームレベル(+6レベル)を、最小タイルサイズを拡大することで可能にします。");
         translationBuilder.add("omm.osm-attribution", "© {OpenStreetMapの貢献者}");
@@ -1388,13 +1387,13 @@ class OmmJapaneseLanguageProvider extends FabricLanguageProvider {
 }
 
 class OmmItalianLanguageProvider extends FabricLanguageProvider {
-    protected OmmItalianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmItalianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "it_it", registryLookup);
     }
 
     // ----- ITALIAN -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.option.artificial-zoom", "Zoom Artificiale");
         translationBuilder.add("omm.config.tooltip.artificial-zoom", "Lo Zoom Artificiale permette livelli di zoom superiori al normale (+6 livelli) ingrandendo la dimensione del tile più piccolo.");
         translationBuilder.add("omm.osm-attribution", "© {Contributori di OpenStreetMap}");
@@ -1495,13 +1494,13 @@ class OmmItalianLanguageProvider extends FabricLanguageProvider {
 }
 
 class OmmPolishLanguageProvider extends FabricLanguageProvider {
-    protected OmmPolishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    protected OmmPolishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "pl_pl", registryLookup);
     }
 
     // ----- POLISH -----
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add("omm.config.state.on", "Włącz");
         translationBuilder.add("omm.config.state.off", "Wyłącz");
         translationBuilder.add("omm.config.option.artificial-zoom", "Sztuczny zoom");

@@ -2,8 +2,7 @@ package net.mmly.openminemap.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.gui.RightClickMenu;
@@ -27,7 +26,7 @@ public class TeleportMixin {
     }*/
 
 
-@Mixin(ClientPlayNetworkHandler.class)
+@Mixin(ClientPacketListener.class)
 public class TeleportMixin {
 
     @Unique
@@ -39,24 +38,24 @@ public class TeleportMixin {
             "minecraft:tp"
     );
 
-    @ModifyVariable(method = "sendChatCommand", at = @At(value = "HEAD"), argsOnly = true, name = "command")
-    private static String injected(String command) {
-        if (!ConfigOptions.TELEPORT_INTERCEPT.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) return command;
-        if (!RightClickMenu.useTpll()) return command;
-        if (CommandHander.forceNoIntercept) return command;
+    @ModifyVariable(method = "sendCommand", at = @At(value = "HEAD"), argsOnly = true, name = "string")
+    private static String injected(String string) {
+        if (!ConfigOptions.TELEPORT_INTERCEPT.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) return string;
+        if (!RightClickMenu.useTpll()) return string;
+        if (CommandHander.forceNoIntercept) return string;
 
         String prefix = null;
         for (String s : prefixes) {
-            if (command.startsWith(s)) {
+            if (string.startsWith(s)) {
                 prefix = s;
                 break;
             }
         }
-        if (prefix == null) return command;
+        if (prefix == null) return string;
 
-        ArrayList<String> arguments = new ArrayList<>(Arrays.asList(command.replaceFirst(prefix, "").split(" ")));
+        ArrayList<String> arguments = new ArrayList<>(Arrays.asList(string.replaceFirst(prefix, "").split(" ")));
         arguments.removeFirst(); //remove always blank first element
-        if (arguments.size() < 3) return command;
+        if (arguments.size() < 3) return string;
 
         //remove possible target selector
         if (arguments.size() > 3) {
@@ -66,7 +65,7 @@ public class TeleportMixin {
         double[] latLon;
         try {
             latLon = Projection.to_geo(Double.parseDouble(arguments.get(0)), Double.parseDouble(arguments.get(2)));
-            command = "tpll " +
+            string = "tpll " +
                 latLon[0] + " " +
                 latLon[1] + " " +
                 arguments.get(1);
@@ -74,6 +73,6 @@ public class TeleportMixin {
             //do nothing, command will not be modified
         }
 
-        return command;
+        return string;
     }
 }

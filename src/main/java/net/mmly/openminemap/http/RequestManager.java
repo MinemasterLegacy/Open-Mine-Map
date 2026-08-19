@@ -1,6 +1,6 @@
 package net.mmly.openminemap.http;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.hud.HudMap;
@@ -128,6 +128,6 @@ public class RequestManager {
     }
 
     public static MapType currentPriorityMapType() {
-        return MinecraftClient.getInstance().currentScreen == null ? MapType.HUD : MapType.FULLSCREEN;
+        return Minecraft.getInstance().screen == null ? MapType.HUD : MapType.FULLSCREEN;
     }
 }

@@ -1,15 +1,14 @@
 package net.mmly.openminemap.raster;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.WarningScreen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
-import net.minecraft.client.gui.widget.LayoutWidget;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.multiplayer.WarningScreen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ConfigFile;
 
@@ -19,30 +18,30 @@ public class RasterWarningScreen extends WarningScreen {
 
     protected RasterWarningScreen() {
         super(
-                Text.translatable("omm.raster.warning.title").formatted(Formatting.BOLD),
-                Text.translatable("omm.raster.warning.body")
-                        .append(Text.translatable("omm.raster.warning.disclaimer").formatted(Formatting.BOLD)),
-                Text.translatable("multiplayerWarning.check"), Text.literal(""));
-        parent = MinecraftClient.getInstance().currentScreen;
+                Component.translatable("omm.raster.warning.title").withStyle(ChatFormatting.BOLD),
+                Component.translatable("omm.raster.warning.body")
+                        .append(Component.translatable("omm.raster.warning.disclaimer").withStyle(ChatFormatting.BOLD)),
+                Component.translatable("multiplayerWarning.check"), Component.literal(""));
+        parent = Minecraft.getInstance().screen;
     }
 
     @Override
-    protected LayoutWidget getLayout() {
-        DirectionalLayoutWidget directionalLayoutWidget = DirectionalLayoutWidget.horizontal().spacing(8);
-        directionalLayoutWidget.add(ButtonWidget.builder(ScreenTexts.PROCEED, (button) -> {
-            if (this.checkbox.isChecked()) {
+    protected Layout addFooterButtons() {
+        LinearLayout directionalLayoutWidget = LinearLayout.horizontal().spacing(8);
+        directionalLayoutWidget.addChild(Button.builder(CommonComponents.GUI_PROCEED, (button) -> {
+            if (this.stopShowing.selected()) {
                 ConfigOptions._RASTER_WARNING_ACCEPTED.write("true");
                 ConfigFile.writeToFile();
             }
 
-            this.client.setScreen(new CreateRasterScreen(null));
+            this.minecraft.setScreen(new CreateRasterScreen(null));
         }).build());
-        directionalLayoutWidget.add(ButtonWidget.builder(ScreenTexts.BACK, (button) -> this.close()).build());
+        directionalLayoutWidget.addChild(Button.builder(CommonComponents.GUI_BACK, (button) -> this.onClose()).build());
         return directionalLayoutWidget;
     }
 
     @Override
-    public void close() {
-        MinecraftClient.getInstance().setScreen(parent);
+    public void onClose() {
+        Minecraft.getInstance().setScreen(parent);
     }
 }

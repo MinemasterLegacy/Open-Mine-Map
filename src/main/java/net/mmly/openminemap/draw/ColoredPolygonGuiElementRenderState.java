@@ -2,46 +2,46 @@ package net.mmly.openminemap.draw;
 
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.ScreenRect;
-import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.texture.TextureSetup;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.gui.render.state.GuiElementRenderState;
+import net.minecraft.client.renderer.RenderPipelines;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2f;
 
 import static net.mmly.openminemap.draw.UContext.sortTriangleToDrawOrder;
 
-public record ColoredPolygonGuiElementRenderState(RenderPipeline pipeline, TextureSetup textureSetup, Matrix3x2f pose, int[][][] polygon, int x0, int y0, int x1, int y1, int color, @Nullable ScreenRect scissorArea, @Nullable ScreenRect bounds) implements SimpleGuiElementRenderState {
-    public ColoredPolygonGuiElementRenderState(Matrix3x2f pose, int[][][] polygon, int x0, int y0, int x1, int y1, int color, @Nullable ScreenRect scissorArea) {
-        this(RenderPipelines.GUI, TextureSetup.empty(), pose, polygon, x0, y0, x1, y1, color, scissorArea, createBounds(pose, scissorArea));
+public record ColoredPolygonGuiElementRenderState(RenderPipeline pipeline, TextureSetup textureSetup, Matrix3x2f pose, int[][][] polygon, int x0, int y0, int x1, int y1, int color, @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds) implements GuiElementRenderState {
+    public ColoredPolygonGuiElementRenderState(Matrix3x2f pose, int[][][] polygon, int x0, int y0, int x1, int y1, int color, @Nullable ScreenRectangle scissorArea) {
+        this(RenderPipelines.GUI, TextureSetup.noTexture(), pose, polygon, x0, y0, x1, y1, color, scissorArea, createBounds(pose, scissorArea));
     }
 
-    public void setupVertices(VertexConsumer vertices) {
+    public void buildVertices(VertexConsumer vertices) {
         boolean writtenVertices = false;
         for (int[][] triangle : polygon()) {
             triangle = sortTriangleToDrawOrder(triangle);
             if (triangle == null) continue;
             writtenVertices = true;
 
-            vertices.vertex(this.pose(), (float) triangle[0][0], (float) triangle[0][1]).color(this.color());
-            vertices.vertex(this.pose(), (float) triangle[1][0], (float) triangle[1][1]).color(this.color());
-            vertices.vertex(this.pose(), (float) triangle[2][0], (float) triangle[2][1]).color(this.color());
-            vertices.vertex(this.pose(), (float) triangle[1][0], (float) triangle[1][1]).color(this.color());
+            vertices.addVertexWith2DPose(this.pose(), (float) triangle[0][0], (float) triangle[0][1]).setColor(this.color());
+            vertices.addVertexWith2DPose(this.pose(), (float) triangle[1][0], (float) triangle[1][1]).setColor(this.color());
+            vertices.addVertexWith2DPose(this.pose(), (float) triangle[2][0], (float) triangle[2][1]).setColor(this.color());
+            vertices.addVertexWith2DPose(this.pose(), (float) triangle[1][0], (float) triangle[1][1]).setColor(this.color());
         }
 
         //if i don't write anything at this step it crashes (but only on a server for some f***ing reason) so i have to do this
         if (!writtenVertices) {
             for (int i = 0; i < 4; i++) {
-                vertices.vertex(this.pose(), 0, 0).color(this.color());
+                vertices.addVertexWith2DPose(this.pose(), 0, 0).setColor(this.color());
             }
         }
 
     }
 
     @Nullable
-    private static ScreenRect createBounds(Matrix3x2f pose, @Nullable ScreenRect scissorArea) {
-        ScreenRect screenRect = (new ScreenRect(0, 0, 0x7FFFFFFF, 0x7FFFFFFF)).transformEachVertex(pose);
+    private static ScreenRectangle createBounds(Matrix3x2f pose, @Nullable ScreenRectangle scissorArea) {
+        ScreenRectangle screenRect = (new ScreenRectangle(0, 0, 0x7FFFFFFF, 0x7FFFFFFF)).transformMaxBounds(pose);
         return scissorArea != null ? scissorArea.intersection(screenRect) : screenRect;
     }
 /*

@@ -1,7 +1,7 @@
 package net.mmly.openminemap.map;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
 import net.mmly.openminemap.projection.Projection;
@@ -17,15 +17,15 @@ public class PlayerAttributes {
 
     //private static MinecraftClient mClient = MinecraftClient.getInstance();
 
-    public static void updatePlayerAttributes(MinecraftClient minecraftClient) {
+    public static void updatePlayerAttributes(Minecraft minecraftClient) {
 
-        identifier = MinecraftClient.getInstance().player.getSkin().body().texturePath();
+        identifier = Minecraft.getInstance().player.getSkin().body().texturePath();
 
-        yaw = minecraftClient.player.getYaw() % 360;
+        yaw = minecraftClient.player.getYRot() % 360;
         if (yaw < 0) {
             yaw = yaw + 360;
         }
-        geoYaw = Direction.getGeoAzimuth(MinecraftClient.getInstance().player); //yaw value for use with geo-based elements, like the compass and direction indicators
+        geoYaw = Direction.getGeoAzimuth(Minecraft.getInstance().player); //yaw value for use with geo-based elements, like the compass and direction indicators
         //geoYaw can be NaN
 
         try {

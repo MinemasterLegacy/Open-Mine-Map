@@ -1,34 +1,34 @@
 package net.mmly.openminemap.waypoint;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
-public class WaypointIconSelectButton extends ClickableWidget {
+public class WaypointIconSelectButton extends AbstractWidget {
 
     String type;
     int typeId;
 
     public WaypointIconSelectButton(int type) {
-        super(0, 0, 7, 11, Text.of(""));
+        super(0, 0, 7, 11, Component.nullToEmpty(""));
         if (type == -1) this.type = "left";
         if (type == 1) this.type = "right";
         typeId = type;
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (isHovered()) {
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of("openminemap", "arrowselect/"+type+"selected.png"), getX(), getY(), 0, 0, width, height, 7, 11);
+            context.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("openminemap", "arrowselect/"+type+"selected.png"), getX(), getY(), 0, 0, width, height, 7, 11);
         } else {
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of("openminemap", "arrowselect/"+type+".png"), getX(), getY(), 0, 0, width, height, 7, 11);
+            context.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("openminemap", "arrowselect/"+type+".png"), getX(), getY(), 0, 0, width, height, 7, 11);
         }
-        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+        if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
     public void onClick(double mouseX, double mouseY) {
@@ -36,12 +36,12 @@ public class WaypointIconSelectButton extends ClickableWidget {
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         onClick(click.x(), click.y());
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 }

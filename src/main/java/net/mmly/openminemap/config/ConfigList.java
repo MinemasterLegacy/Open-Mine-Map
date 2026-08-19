@@ -1,23 +1,22 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSelectionList;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
 
-public class ConfigList extends EntryListWidget<AnchorWidget> {
+public class ConfigList extends AbstractSelectionList<AnchorWidget> {
 
     private static double savedScrollAmount;
 
-    public ConfigList(MinecraftClient minecraftClient, int width, int height, int y, int itemHeight) {
+    public ConfigList(Minecraft minecraftClient, int width, int height, int y, int itemHeight) {
         super(minecraftClient, width, height, y, itemHeight);
     }
 
     public void restoreScroll() {
-        setScrollY(savedScrollAmount);
+        setScrollAmount(savedScrollAmount);
     }
 
     @Override
@@ -26,23 +25,28 @@ public class ConfigList extends EntryListWidget<AnchorWidget> {
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 
     @Override
-    protected void drawSelectionHighlight(DrawContext context, AnchorWidget entry, int color) {
+    protected void renderSelection(GuiGraphics guiGraphics, AnchorWidget entry, int i) {
         //do nothing
     }
+    /*
+    @Override
+    protected void drawSelectionHighlight(GuiGraphics context, AnchorWidget entry, int color) {
+        //do nothing
+    }*/
 
-    public int getEntryCount() {
-        return super.getEntryCount();
+    public int getItemCount() {
+        return super.getItemCount();
     }
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.renderWidget(context, mouseX, mouseY, delta);
-        savedScrollAmount = getScrollY();
+        savedScrollAmount = scrollAmount();
     }
 
     @Override

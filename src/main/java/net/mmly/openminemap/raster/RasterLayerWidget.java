@@ -1,15 +1,14 @@
 package net.mmly.openminemap.raster;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -23,11 +22,11 @@ import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
-
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import java.util.Arrays;
 import java.util.Locale;
 
-public class RasterLayerWidget extends ClickableWidget {
+public class RasterLayerWidget extends AbstractWidget {
 
     private AnchorWidget anchor;
     protected final TileUrl raster;
@@ -47,13 +46,13 @@ public class RasterLayerWidget extends ClickableWidget {
 
     public RasterLayerWidget(TileUrl url) {
         this(
-                url == null ? Text.literal("null") : Text.literal(url.name),
+                url == null ? Component.literal("null") : Component.literal(url.name),
                 url,
                 url == null ? null : url.layerType
         );
     }
 
-    public RasterLayerWidget(Text message, TileUrl url, LayerType type) {
+    public RasterLayerWidget(Component message, TileUrl url, LayerType type) {
         super(10, 0, 0, RasterScreen.ITEM_HEIGHT, message);
         this.raster = url;
         this.layerType = type;
@@ -74,11 +73,11 @@ public class RasterLayerWidget extends ClickableWidget {
 
         if (url != null) {
             if (url.hasKeyField()) {
-                if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen) showKey = true;
+                if (Minecraft.getInstance().screen instanceof BaseRasterScreen) showKey = true;
                 if (!RasterApiKeysFile.hasApiKey(url.presetID)) microButtons[0].setApiKeyNeeded(true);
             }
 
-            if (layerType == LayerType.OVERLAY && MinecraftClient.getInstance().currentScreen instanceof ViewSetRastersScreen) {
+            if (layerType == LayerType.OVERLAY && Minecraft.getInstance().screen instanceof ViewSetRastersScreen) {
                 opacitySlider = new OpacitySlider(0, 0, RasterProvider.getOpacityOf(raster));
                 opacitySlider.setParentWidget(this);
                 ViewSetRastersScreen.getInstance().addOpacitySlider(opacitySlider);
@@ -132,15 +131,15 @@ public class RasterLayerWidget extends ClickableWidget {
     }
 
     private Identifier getBackgroundTexture() {
-        if (isAddButton) return Identifier.of("openminemap", "customtile.png"); //for the add option
-        if (layerType == LayerType.LOCAL_GEN) return Identifier.of("openminemap", "icon-texture.png"); //for the generated overlays option
+        if (isAddButton) return Identifier.fromNamespaceAndPath("openminemap", "customtile.png"); //for the add option
+        if (layerType == LayerType.LOCAL_GEN) return Identifier.fromNamespaceAndPath("openminemap", "icon-texture.png"); //for the generated overlays option
         Identifier texture = RasterScreen.backgroundTiles.get(textureKey); // for custom layers
         if (texture == null) return TileManager.getErrorIdentifier(layerType);
         else return texture;
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 
@@ -187,7 +186,7 @@ public class RasterLayerWidget extends ClickableWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
 
         updatePositions(mouseX);
@@ -197,7 +196,7 @@ public class RasterLayerWidget extends ClickableWidget {
         UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
         if (raster != null) if (!raster.isPreset()) UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
 
-        if (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen && isHovered()) UContext.borderWidget(this, 0xFFFFFFFF);
+        if (Minecraft.getInstance().screen instanceof BaseRasterScreen && isHovered()) UContext.borderWidget(this, 0xFFFFFFFF);
 
         if (isAddButton) {
             UContext.drawJustifiedText(getMessage(), Justify.CENTER, getX() + getWidth() / 2, getY() + (getHeight() / 2) - 4,0xFFFFFCA8, true);
@@ -210,7 +209,7 @@ public class RasterLayerWidget extends ClickableWidget {
 
         if (showKey) {
             UContext.drawTexture(
-                    Identifier.of("openminemap", "rasterkey.png"),
+                    Identifier.fromNamespaceAndPath("openminemap", "rasterkey.png"),
                     getX() - 1,
                     getBottom() - 18,
                     16,
@@ -226,15 +225,15 @@ public class RasterLayerWidget extends ClickableWidget {
         }
         UContext.resetTextureAlpha();
 
-        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.of(Text.of(
-                Text.translatable("omm.raster.requires-api-key").toString() +
+        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.create(Component.nullToEmpty(
+                Component.translatable("omm.raster.requires-api-key").toString() +
                 "\n" +
-                Text.translatable("omm.raster.click-info").toString()
+                Component.translatable("omm.raster.click-info").toString()
         )));
-        else setTooltip(Tooltip.of(Text.empty()));
+        else setTooltip(Tooltip.create(Component.empty()));
 
         UContext.borderWidget(this,
-                isFocused() || (isHovered() && (MinecraftClient.getInstance().currentScreen instanceof BaseRasterScreen || isAddButton)) ?
+                isFocused() || (isHovered() && (Minecraft.getInstance().screen instanceof BaseRasterScreen || isAddButton)) ?
                     outlineFocusColor :
                     outlineBaseColor
         );
@@ -242,7 +241,7 @@ public class RasterLayerWidget extends ClickableWidget {
                 this,
                 ColorUtil.setAlpha((int) (127 * deleteProgressPercent), 0xFFFF5555)
         );
-        if (isAddButton && isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+        if (isAddButton && isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
     private void drawBackground(Identifier texture) {
@@ -284,13 +283,13 @@ public class RasterLayerWidget extends ClickableWidget {
         if (raster != null) if (layerType == LayerType.OVERLAY && !RasterProvider.getVisibilityOf(raster)) {
             UContext.setTextureAlpha(127);
             UContext.drawTexture(
-                    Identifier.of("openminemap", "unvisible.png"),
+                    Identifier.fromNamespaceAndPath("openminemap", "unvisible.png"),
                     getX() + (getWidth() / 2) - 10 - 40,
                     getY() + (getHeight() / 2) - 10,
                     20, 20, 0, 0, 20, 20
             );
             UContext.drawTexture(
-                    Identifier.of("openminemap", "unvisible.png"),
+                    Identifier.fromNamespaceAndPath("openminemap", "unvisible.png"),
                     getX() + (getWidth() / 2) - 10 + 40,
                     getY() + (getHeight() / 2) - 10,
                     20, 20, 0, 0, 20, 20
@@ -304,8 +303,8 @@ public class RasterLayerWidget extends ClickableWidget {
 
     }
 
-    private Text getSubMessage() {
-        return Text.translatable("omm.raster.type." + switch (layerType) {
+    private Component getSubMessage() {
+        return Component.translatable("omm.raster.type." + switch (layerType) {
             case BASE -> "base-layer";
             case OVERLAY -> "overlay";
             case LOCAL_GEN -> "local-gen";
@@ -317,8 +316,8 @@ public class RasterLayerWidget extends ClickableWidget {
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        Screen currentScreen = MinecraftClient.getInstance().currentScreen;
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        Screen currentScreen = Minecraft.getInstance().screen;
         if (currentScreen instanceof BaseRasterScreen) {
             if (click.y() > BaseRasterScreen.getInstance().rasterList.getBottom()) {
                 BaseRasterScreen.confirmButton.mouseClicked(click, doubled);
@@ -328,12 +327,12 @@ public class RasterLayerWidget extends ClickableWidget {
 
         if (isAddButton) {
             if (currentScreen instanceof ViewSetRastersScreen) {
-                MinecraftClient.getInstance().setScreen(new OverlayRasterScreen(true));
+                Minecraft.getInstance().setScreen(new OverlayRasterScreen(true));
             }
             if (currentScreen instanceof BaseRasterScreen || currentScreen instanceof OverlayRasterScreen) {
                 CreateRasterScreen.layerType = (currentScreen instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
-                if (ConfigOptions._RASTER_WARNING_ACCEPTED.getAsBoolean()) MinecraftClient.getInstance().setScreen(new CreateRasterScreen(null)); //conditional should be a config setting for if the warning screen was passed already
-                else MinecraftClient.getInstance().setScreen(new RasterWarningScreen());
+                if (ConfigOptions._RASTER_WARNING_ACCEPTED.getAsBoolean()) Minecraft.getInstance().setScreen(new CreateRasterScreen(null)); //conditional should be a config setting for if the warning screen was passed already
+                else Minecraft.getInstance().setScreen(new RasterWarningScreen());
             }
         }
 
@@ -353,9 +352,9 @@ public class RasterLayerWidget extends ClickableWidget {
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         if (isHovered() && showKey && mouseIsOverKey((int) click.x(), (int) click.y())) {
-            MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Rasters#api-keys", MinecraftClient.getInstance().currentScreen, false);
+            MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Rasters#api-keys", Minecraft.getInstance().screen, false);
         }
         super.onClick(click, doubled);
     }
@@ -366,7 +365,7 @@ public class RasterLayerWidget extends ClickableWidget {
     }
 
     @Override
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         if (opacitySlider != null) {
             opacitySlider.onRelease(null);
             return false;

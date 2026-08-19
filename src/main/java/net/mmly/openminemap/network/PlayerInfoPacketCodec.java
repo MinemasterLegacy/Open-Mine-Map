@@ -1,14 +1,14 @@
 package net.mmly.openminemap.network;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.StreamCodec;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.map.PlayersManager;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class PlayerInfoPacketCodec implements PacketCodec<ByteBuf, NetworkPlayerData> {
+public class PlayerInfoPacketCodec implements StreamCodec<ByteBuf, NetworkPlayerData> {
 
     /*
     public static final Codec<NetworkPlayerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(

@@ -1,23 +1,23 @@
 package net.mmly.openminemap.util;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 
 public class Notification {
-    public Text text;
+    public Component text;
     private double expirationTime;
 
-    public Notification(Text text, double durationMs) {
+    public Notification(Component text, double durationMs) {
         this.text = text;
-        this.expirationTime = Util.getMeasuringTimeMs() + durationMs;
+        this.expirationTime = Util.getMillis() + durationMs;
     }
 
-    public Notification(Text text) {
+    public Notification(Component text) {
         this(text, 3000);
     }
 
     public int timeToExpirationMs() {
-        return (int) (expirationTime - Util.getMeasuringTimeMs());
+        return (int) (expirationTime - Util.getMillis());
     }
 
 }

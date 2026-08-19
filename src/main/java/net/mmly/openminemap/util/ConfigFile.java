@@ -1,6 +1,6 @@
 package net.mmly.openminemap.util;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.MapScreen;
@@ -62,7 +62,7 @@ public class ConfigFile {
 
      */
 
-    public static void writeOnClose(MinecraftClient client) {
+    public static void writeOnClose(Minecraft client) {
         MapScreen.writeParameters();
         writeToFile();
     }

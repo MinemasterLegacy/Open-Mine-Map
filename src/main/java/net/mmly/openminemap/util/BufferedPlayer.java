@@ -1,14 +1,14 @@
 package net.mmly.openminemap.util;
 
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 public class BufferedPlayer {
     public double mapX;
     public double mapY;
     public Identifier texture;
     public double y = Double.NaN;
-    public Text name;
+    public Component name;
 
     public BufferedPlayer(double mapX, double mapY, Identifier texture) {
         this.mapX = mapX;
@@ -16,12 +16,12 @@ public class BufferedPlayer {
         this.texture = texture;
     }
 
-    public BufferedPlayer(double mapX, double mapY, Identifier texture, double y, Text name) {
+    public BufferedPlayer(double mapX, double mapY, Identifier texture, double y, Component name) {
         this(mapX, mapY, texture);
         this.y = y;
         this.name = name;
         if (this.name.getString().equals("FreeCamera")) {
-            this.texture = Identifier.of("openminemap", "freecam-skin.png");
+            this.texture = Identifier.fromNamespaceAndPath("openminemap", "freecam-skin.png");
         }
     }
 }

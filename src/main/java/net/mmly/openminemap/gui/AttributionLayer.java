@@ -1,23 +1,22 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.raster.LayerType;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
-
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class AttributionLayer extends ClickableWidget {
+public class AttributionLayer extends AbstractWidget {
 
     public final int textWidth;
     private String visibleAttribution; // does *not* contain curly braces
@@ -59,27 +58,27 @@ public class AttributionLayer extends ClickableWidget {
     }
 
     public AttributionLayer(int x, int y, int width, int height) {
-        super(x, y, width, height, Text.empty());
+        super(x, y, width, height, Component.empty());
         TileUrlFile.initOsmAttribution();
         setAttributionInfo();
-        textWidth = MinecraftClient.getInstance().textRenderer.getWidth(visibleAttribution);
-        SPACE_WIDTH = MinecraftClient.getInstance().textRenderer.getWidth(" ");
+        textWidth = Minecraft.getInstance().font.width(visibleAttribution);
+        SPACE_WIDTH = Minecraft.getInstance().font.width(" ");
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000);
-        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+        if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
         calculateSelection(mouseX, mouseY);
     }
 
     public void updatePositionAndDimensions(int coordinateWidth, int screenWidth, int screenHeight) {
         if (oldScreenWidth == screenWidth) return;
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        Font textRenderer = Minecraft.getInstance().font;
 
         setWidth(Math.max(screenWidth - coordinateWidth, MIN_WIDTH));
         parseAttributionString(textRenderer, fullAttribution);
-        if (words.size() == 1) width = textRenderer.getWidth(fullAttribution.replaceAll("[{}]", "")) + 2 * X_MARGIN;
+        if (words.size() == 1) width = textRenderer.width(fullAttribution.replaceAll("[{}]", "")) + 2 * X_MARGIN;
 
         oldScreenWidth = screenWidth;
         setHeight(words.size() * LINE_HEIGHT);
@@ -92,7 +91,7 @@ public class AttributionLayer extends ClickableWidget {
         HOVER
     }
 
-    public void drawWidget(DrawContext context, TextRenderer textRenderer) {
+    public void drawWidget(GuiGraphics context, Font textRenderer) {
         context.fill(getX(), getY(), getRight(), getBottom(), MapScreen.backingColor);
         int offsetX = X_MARGIN;
         int offsetY = Y_MARGIN;
@@ -102,22 +101,22 @@ public class AttributionLayer extends ClickableWidget {
                 String word = line.get(i);
 
                 SelectState selectState = determineSelectState(l, offsetX);
-                context.drawText(
+                context.drawString(
                         textRenderer,
-                        Text.literal(word).formatted(selectState == SelectState.HOVER ? Formatting.UNDERLINE : Formatting.RESET),
+                        Component.literal(word).withStyle(selectState == SelectState.HOVER ? ChatFormatting.UNDERLINE : ChatFormatting.RESET),
                         getX() + offsetX,
                         getY() + offsetY,
                         selectState == SelectState.NONE ? MapScreen.getPlainTextColor() : LINK_COLOR,
                         true
                 );
 
-                offsetX += textRenderer.getWidth(word);
+                offsetX += textRenderer.width(word);
                 if (line.size() - 1 == i) continue;
 
                 selectState = determineSelectState(l, offsetX);
-                context.drawText(
+                context.drawString(
                         textRenderer,
-                        Text.literal(" ").formatted(selectState == SelectState.HOVER ? Formatting.UNDERLINE : Formatting.RESET),
+                        Component.literal(" ").withStyle(selectState == SelectState.HOVER ? ChatFormatting.UNDERLINE : ChatFormatting.RESET),
                         getX() + offsetX,
                         getY() + offsetY,
                         selectState == SelectState.NONE ? MapScreen.getPlainTextColor() : LINK_COLOR,
@@ -145,7 +144,7 @@ public class AttributionLayer extends ClickableWidget {
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
     private void calculateSelection(double mouseX, double mouseY) {
         if (!isHovered()) {
@@ -167,7 +166,7 @@ public class AttributionLayer extends ClickableWidget {
         hoveredZone = -1;
     }
 
-    private void parseAttributionString(TextRenderer textRenderer, String attributionString) {
+    private void parseAttributionString(Font textRenderer, String attributionString) {
         StringBuilder builder = new StringBuilder();
         boolean inLink = false;
         int linkPointer = 0;
@@ -189,7 +188,7 @@ public class AttributionLayer extends ClickableWidget {
                     builder = new StringBuilder();
                 }
                 if (inLink) {
-                    clickZones.add(new int[] {line, linkStartX, lineWidth - textRenderer.getWidth(builder.toString())});
+                    clickZones.add(new int[] {line, linkStartX, lineWidth - textRenderer.width(builder.toString())});
                     if (clickZones.getLast()[1] == clickZones.getLast()[2]) {
                         clickZones.remove(clickZones.getLast());
                     } else {
@@ -197,7 +196,7 @@ public class AttributionLayer extends ClickableWidget {
                     }
                 }
                 words.add(new ArrayList<>());
-                lineWidth = textRenderer.getWidth(builder.toString());
+                lineWidth = textRenderer.width(builder.toString());
                 linkStartX = 0;
                 line++;
             }
@@ -208,14 +207,14 @@ public class AttributionLayer extends ClickableWidget {
             } else if (c == ' ') {
                 words.getLast().add(builder.toString());
                 builder = new StringBuilder();
-                lineWidth += textRenderer.getWidth(Character.toString(c));
+                lineWidth += textRenderer.width(Character.toString(c));
             } else if (c == '}') {
                 clickZones.add(new int[] {line, linkStartX, lineWidth});
                 clickLinkPointers.add(linkPointer++);
                 inLink = false;
             } else {
                 builder.append(c);
-                lineWidth += textRenderer.getWidth(Character.toString(c));
+                lineWidth += textRenderer.width(Character.toString(c));
             }
         }
 
@@ -253,7 +252,7 @@ public class AttributionLayer extends ClickableWidget {
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         if (hoveredZone == -1) return;
         String link = attributionLinks.get(hoveredZone);
         MapScreen.openLinkScreen(link, new MapScreen(), true);

@@ -1,21 +1,20 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.input.MouseInput;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.Waypoint;
-
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import java.awt.*;
 
-public class PinnedWaypointsLayer extends ClickableWidget {
+public class PinnedWaypointsLayer extends AbstractWidget {
 
     int waypointRenderSize; // how big the waypoints look
     int waypointHitboxSize;
@@ -25,13 +24,13 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     private static Waypoint[] pinnedWaypoints;
     int mouseX = 0;
     int mouseY = 0;
-    TextRenderer textRenderer;
+    Font textRenderer;
     public static int menuSelection = -1;
 
     private int scrollOffset = 0;
 
-    public PinnedWaypointsLayer(int x, int y, int width, int margin, TextRenderer renderer) {
-        super(x, y, width, width, Text.of(""));
+    public PinnedWaypointsLayer(int x, int y, int width, int margin, Font renderer) {
+        super(x, y, width, width, Component.nullToEmpty(""));
 
         waypointRenderSize = Math.max(0, width - (margin * 2));
         maxHeight = width;
@@ -62,7 +61,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         scrollOffset = Math.clamp(scrollOffset, 0, Math.max(0, pinnedWaypoints.length - visibleWaypointCount));
     }
 
-    public void drawWidget(DrawContext context) {
+    public void drawWidget(GuiGraphics context) {
 
         if (!visible) return;
         setHeight(Math.min(maxHeight, pinnedWaypoints.length * width));
@@ -77,14 +76,14 @@ public class PinnedWaypointsLayer extends ClickableWidget {
             int selectedWaypointId = selectedPosition + scrollOffset;
             UContext.drawBorder(getX() + margin - 1, getY() + margin - 1 + (selectedPosition * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFFFF);
             if (RightClickMenu.getDisplayType() == RightClickMenuType.HIDDEN) {
-                UContext.fillZone(getX() + width + 3, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2) - 2, textRenderer.getWidth(pinnedWaypoints[selectedWaypointId].name) + 3, textRenderer.fontHeight + 3, MapScreen.backingColor);
-                context.drawText(textRenderer, pinnedWaypoints[selectedWaypointId].name, getX() + width + 5, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2), RGBof(pinnedWaypoints[selectedWaypointId].color), true);
+                UContext.fillZone(getX() + width + 3, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.lineHeight / 2) - 2, textRenderer.width(pinnedWaypoints[selectedWaypointId].name) + 3, textRenderer.lineHeight + 3, MapScreen.backingColor);
+                context.drawString(textRenderer, pinnedWaypoints[selectedWaypointId].name, getX() + width + 5, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.lineHeight / 2), RGBof(pinnedWaypoints[selectedWaypointId].color), true);
             }
         }
 
         clampScroll();
         for (int i = 0; i < Math.min(pinnedWaypoints.length, visibleWaypointCount); i++) {
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, pinnedWaypoints[i+scrollOffset].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
+            context.blit(RenderPipelines.GUI_TEXTURED, pinnedWaypoints[i+scrollOffset].identifier, getX() + margin, getY() + (i * waypointHitboxSize) + margin, 0, 0, waypointRenderSize, waypointRenderSize, waypointRenderSize, waypointRenderSize);
         }
 
         if (visibleWaypointCount < pinnedWaypoints.length) {
@@ -112,7 +111,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         int selection = ((((int) mouseY) - getY()) / waypointHitboxSize) + scrollOffset;
         if (RightClickMenu.getDisplayType() == RightClickMenuType.PINNED_WAYPOINT && MapScreen.getRightClickMenuLocation().name.equals(pinnedWaypoints[selection].name)) {
             RightClickMenu.disableMenu();
@@ -131,7 +130,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     }
 
     @Override
-    protected boolean isValidClickButton(MouseInput input) {
+    protected boolean isValidClickButton(MouseButtonInfo input) {
         return input.button() == 0 || input.button() == 1;
     }
 
@@ -153,14 +152,14 @@ public class PinnedWaypointsLayer extends ClickableWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
-        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+        if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
     }
 
 }

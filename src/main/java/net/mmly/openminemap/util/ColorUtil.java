@@ -1,13 +1,13 @@
 package net.mmly.openminemap.util;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import javax.imageio.ImageIO;
+import com.mojang.blaze3d.platform.NativeImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -110,18 +110,18 @@ public class ColorUtil {
     }
 
     public static int getCurrentRainbowColor() {
-        return hsl(255, (int) ((Util.getEpochTimeMs() >>> 6) % 360), 0.95f, 0.75f);
+        return hsl(255, (int) ((Util.getEpochMillis() >>> 6) % 360), 0.95f, 0.75f);
     }
 
     public static Identifier getColoredIdentifier(Identifier identifier, int colorHSV) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
 
         int value = colorHSV & 0x0000FF;
         int saturation = (colorHSV >> 8) & 0x0000FF;
         int hue = (colorHSV >> 16) & 0x0000FF;
 
         try {
-            BufferedImage image = ImageIO.read(client.getResourceManager().getResource(identifier).get().getInputStream());
+            BufferedImage image = ImageIO.read(client.getResourceManager().getResource(identifier).get().open());
             image = WaypointScreen.colorize(image, (float) hue /256, (float) saturation /256, (float) value /256);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -129,8 +129,8 @@ public class ColorUtil {
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             NativeImage nImage = NativeImage.read(is);
 
-            Identifier wayIdent = Identifier.of("openminemap", "recolored-texture-"+ pathInt);
-            client.getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(new nameSupplier(), nImage));
+            Identifier wayIdent = Identifier.fromNamespaceAndPath("openminemap", "recolored-texture-"+ pathInt);
+            client.getTextureManager().register(wayIdent, new DynamicTexture(new nameSupplier(), nImage));
             pathInt++;
 
             is.close();

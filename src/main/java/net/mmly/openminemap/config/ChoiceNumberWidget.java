@@ -1,29 +1,29 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
 
-public class ChoiceNumberWidget extends TextFieldWidget implements ConfigChoice{
+public class ChoiceNumberWidget extends EditBox implements ConfigChoice{
 
     AnchorWidget anchor;
-    Text placeholder;
-    TextRenderer textRenderer;
+    Component placeholder;
+    Font textRenderer;
 
-    public ChoiceNumberWidget(TextRenderer textRenderer) {
-        super(textRenderer, 0, -100, 20, 20, Text.empty());
+    public ChoiceNumberWidget(Font textRenderer) {
+        super(textRenderer, 0, -100, 20, 20, Component.empty());
         this.setMaxLength(50);
-        this.setText(ConfigOptions.SNAP_ANGLE.getAsString());
-        setTooltip(Tooltip.of(Text.translatable(ConfigOptions.SNAP_ANGLE.tooltip)));
+        this.setValue(ConfigOptions.SNAP_ANGLE.getAsString());
+        setTooltip(Tooltip.create(Component.translatable(ConfigOptions.SNAP_ANGLE.tooltip)));
         this.setEditable(true);
-        this.placeholder = Text.translatable(ConfigOptions.SNAP_ANGLE.message);
+        this.placeholder = Component.translatable(ConfigOptions.SNAP_ANGLE.message);
         this.textRenderer = textRenderer;
-        this.setCursorToStart(false);
+        this.moveCursorToStart(false);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class ChoiceNumberWidget extends TextFieldWidget implements ConfigChoice{
     public void writeParameterToFile() {
         String snapAngle;
         try {
-            snapAngle = Double.toString(Double.parseDouble(getText())); //will ensure that the snap angle is a number
+            snapAngle = Double.toString(Double.parseDouble(getValue())); //will ensure that the snap angle is a number
         } catch (NumberFormatException e) {
             snapAngle = "";
         }
@@ -43,14 +43,14 @@ public class ChoiceNumberWidget extends TextFieldWidget implements ConfigChoice{
     }
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
         this.setX(anchor.getX());
         this.setY(anchor.getY());
         this.width = anchor.getWidth();
         super.renderWidget(context, mouseX, mouseY, delta);
-        if (getText().isEmpty() && !isFocused()) {
-            context.drawTextWithShadow(textRenderer, placeholder, getX() + 4, getY() + 6, 0xFF404040);
+        if (getValue().isEmpty() && !isFocused()) {
+            context.drawString(textRenderer, placeholder, getX() + 4, getY() + 6, 0xFF404040);
         }
     }
 }

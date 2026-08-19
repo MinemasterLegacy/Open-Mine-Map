@@ -1,12 +1,12 @@
 package net.mmly.openminemap.raster;
 
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.util.RasterProvider;
 
-public class OpacitySlider extends SliderWidget {
+public class OpacitySlider extends AbstractSliderButton {
 
     private RasterLayerWidget parentWidget;
     private int recordedMouseX = 0;
@@ -17,7 +17,7 @@ public class OpacitySlider extends SliderWidget {
     }
 
     public OpacitySlider(int x, int y, double value) {
-        super(x, y, 42, 12, Text.empty(), value);
+        super(x, y, 42, 12, Component.empty(), value);
         this.value = value;
         updateMessage();
     }
@@ -28,7 +28,7 @@ public class OpacitySlider extends SliderWidget {
 
     @Override
     protected void updateMessage() {
-        this.setMessage(Text.of(
+        this.setMessage(Component.nullToEmpty(
                 ((int) (value * 100)) + "%"
         ));
     }
@@ -48,17 +48,17 @@ public class OpacitySlider extends SliderWidget {
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         mouseDown = true;
     }
 
     @Override
-    public void onRelease(Click click) {
+    public void onRelease(MouseButtonEvent click) {
         mouseDown = false;
     }
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.renderWidget(context, mouseX, mouseY, delta);
         if (mouseDown) super.onDrag(null, mouseX - recordedMouseX, 0);
         //if (mouseDown) super.onDrag(mouseX, mouseY, mouseX - recordedMouseX, 0);

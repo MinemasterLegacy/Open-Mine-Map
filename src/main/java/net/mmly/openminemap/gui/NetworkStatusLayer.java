@@ -1,39 +1,39 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.network.NetworkState;
 import net.mmly.openminemap.util.ConfigFile;
 
-public class NetworkStatusLayer extends ClickableWidget {
+public class NetworkStatusLayer extends AbstractWidget {
     public NetworkStatusLayer(int x, int y) {
-        super(x, y, 26, 26, Text.of(""));
+        super(x, y, 26, 26, Component.nullToEmpty(""));
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
     public boolean shouldBeVisible() {
-        return !MinecraftClient.getInstance().isInSingleplayer() && ConfigOptions.SHOW_CONNECTION_STATUS.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
+        return !Minecraft.getInstance().isLocalServer() && ConfigOptions.SHOW_CONNECTION_STATUS.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
     }
 
-    protected void drawWidget(DrawContext context) {
+    protected void drawWidget(GuiGraphics context) {
         if (!shouldBeVisible()) return;
-        int winWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
+        int winWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         UContext.fillZone(winWidth - 26, 0, 26, 26, MapScreen.backingColor);
         if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (isHovered()) {
             UContext.drawTexture(NetworkState.getNetworkState().selectionIdentifier, winWidth - 24, 2, 22, 22, 22, 22);
-            setTooltip(Tooltip.of(Text.translatable(NetworkState.getNetworkState().translationKey)));
+            setTooltip(Tooltip.create(Component.translatable(NetworkState.getNetworkState().translationKey)));
         } else {
             setTooltip(null);
         }
@@ -54,7 +54,7 @@ public class NetworkStatusLayer extends ClickableWidget {
      */
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 }

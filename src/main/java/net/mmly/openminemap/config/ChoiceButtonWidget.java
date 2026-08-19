@@ -1,30 +1,29 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.input.AbstractInput;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.input.InputWithModifiers;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
 
 import java.util.List;
 
-public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
+public class ChoiceButtonWidget extends Button implements ConfigChoice {
 
     List<String> options;
     int selection;
-    net.minecraft.text.Text message;
+    net.minecraft.network.chat.Component message;
     ConfigOptions configOption;
     AnchorWidget anchor;
     boolean optionIsLiteral;
 
     protected ChoiceButtonWidget(List<String> options, ConfigOptions configOption, boolean optionIsLiteral) {
-        super(0, -100, 120, 20, net.minecraft.text.Text.empty(), (buttonWidget) -> {buttonWidget.onPress(null);}, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
+        super(0, -100, 120, 20, net.minecraft.network.chat.Component.empty(), (buttonWidget) -> {buttonWidget.onPress(null);}, Button.DEFAULT_NARRATION);
         this.options = options;
-        this.message = net.minecraft.text.Text.translatable(configOption.message);
-        this.setTooltip(Tooltip.of(net.minecraft.text.Text.translatable(configOption.tooltip)));
+        this.message = net.minecraft.network.chat.Component.translatable(configOption.message);
+        this.setTooltip(Tooltip.create(net.minecraft.network.chat.Component.translatable(configOption.tooltip)));
         this.configOption = configOption;
         selection = getSelectedOption();
         this.optionIsLiteral = optionIsLiteral;
@@ -45,16 +44,16 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
 
     private String getTranslatedOption(String option) {
          if (optionIsLiteral) return option;
-         return net.minecraft.text.Text.translatable("omm.config.state."+(option.toLowerCase())).getString();
+         return net.minecraft.network.chat.Component.translatable("omm.config.state."+(option.toLowerCase())).getString();
     }
 
     @Override
-    public void onPress(AbstractInput input) {
+    public void onPress(InputWithModifiers input) {
         cycleOption();
     }
 
     private void refreshMessage() {
-        this.setMessage(net.minecraft.text.Text.of(message.getString() + ": " + getTranslatedOption(options.get(selection))));
+        this.setMessage(net.minecraft.network.chat.Component.nullToEmpty(message.getString() + ": " + getTranslatedOption(options.get(selection))));
     }
 
     private void cycleOption() {
@@ -64,7 +63,7 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     }
 
     @Deprecated
-    protected ButtonWidget getButtonWidget() {
+    protected Button getButtonWidget() {
         return this;
     }
 
@@ -78,13 +77,13 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     }
 
     @Override
-    protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+    protected void renderContents(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
         if (!anchor.drawNow) return;
         this.setX(anchor.getX());
         this.setY(anchor.getY());
         this.width = anchor.getWidth();
-        this.drawButton(context);
-        this.drawLabel(context.getHoverListener(this, DrawContext.HoverType.NONE));
+        this.renderDefaultSprite(context);
+        this.renderDefaultLabel(context.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
         //context.fill(getX(), getY(), getRight(), getBottom(), 0x3300FF00);
     }
 

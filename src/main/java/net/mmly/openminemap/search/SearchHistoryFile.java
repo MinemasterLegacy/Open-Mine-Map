@@ -2,7 +2,7 @@ package net.mmly.openminemap.search;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.map.TileManager;
 
@@ -105,7 +105,7 @@ public class SearchHistoryFile {
                         Double.NaN,
                         false,
                         "",
-                        Text.translatable("omm.notification.something-wrong").getString(),
+                        Component.translatable("omm.notification.something-wrong").getString(),
                         0
                 ),
                 null, null, null, null, null, null, null

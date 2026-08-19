@@ -9,12 +9,15 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.DrawableClaim;
@@ -32,12 +35,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class CommandHander {
 
-    public static final Formatting FEEDBACK_COLOR = Formatting.BLUE;
-    public static final Formatting ERROR_COLOR = Formatting.RED;
+    public static final ChatFormatting FEEDBACK_COLOR = ChatFormatting.BLUE;
+    public static final ChatFormatting ERROR_COLOR = ChatFormatting.RED;
     public static boolean forceNoIntercept = false;
 
     public static void register() { //this chaining is f***ing horrible
-        ArgumentTypeRegistry.registerArgumentType(Identifier.of("openminemap", "coordinateargument"), CoordinateArgumentType.class, ConstantArgumentSerializer.of(CoordinateArgumentType::coordinateArgumentType));
+        ArgumentTypeRegistry.registerArgumentType(Identifier.fromNamespaceAndPath("openminemap", "coordinateargument"), CoordinateArgumentType.class, SingletonArgumentInfo.contextFree(CoordinateArgumentType::coordinateArgumentType));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("omm")
@@ -73,7 +76,7 @@ public class CommandHander {
 
     private static int reloadclaims(CommandContext<FabricClientCommandSource> context) {
         if (!ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
-            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.claims.not-enabled").formatted(ERROR_COLOR), false);
+            Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.claims.not-enabled").withStyle(ERROR_COLOR), false);
             return 0;
         }
         DrawableClaim.reloadClaimData(false, true, true);
@@ -86,36 +89,36 @@ public class CommandHander {
             String distString = UnitConvert.floorToPlace(Math.sqrt(Math.abs(distortion[0])), 10);
             String errString = UnitConvert.floorToPlace(Math.toDegrees(distortion[1]), 10);
 
-            MutableText distText = Text.literal(distString).styled((style) -> style
+            MutableComponent distText = Component.literal(distString).withStyle((style) -> style
                     .withColor(FEEDBACK_COLOR)
-                    .withFormatting(Formatting.ITALIC)
+                    .applyFormat(ChatFormatting.ITALIC)
                     .withClickEvent(new ClickEvent.CopyToClipboard(distString))
-                    .withHoverEvent(new HoverEvent.ShowText(Text.translatable("chat.copy.click")))
+                    .withHoverEvent(new HoverEvent.ShowText(Component.translatable("chat.copy.click")))
             );
-            MutableText errText = Text.literal(errString).styled((style) -> style
+            MutableComponent errText = Component.literal(errString).withStyle((style) -> style
                     .withColor(FEEDBACK_COLOR)
-                    .withFormatting(Formatting.ITALIC)
+                    .applyFormat(ChatFormatting.ITALIC)
                     .withClickEvent(new ClickEvent.CopyToClipboard(errString))
-                    .withHoverEvent(new HoverEvent.ShowText(Text.translatable("chat.copy.click")))
+                    .withHoverEvent(new HoverEvent.ShowText(Component.translatable("chat.copy.click")))
             );
 
-            MinecraftClient.getInstance().player.sendMessage(
-                Text.translatable("omm.text.distortion")
+            Minecraft.getInstance().player.displayClientMessage(
+                Component.translatable("omm.text.distortion")
                         .append(" \n")
                         .append(distText)
                         .append(" ± ")
                         .append(errText)
                         .append("°")
-                .formatted(Formatting.ITALIC).formatted(FEEDBACK_COLOR), false);
+                .withStyle(ChatFormatting.ITALIC).withStyle(FEEDBACK_COLOR), false);
         } catch (CoordinateValueError e) {
-            MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.error.distortion").formatted(ERROR_COLOR).formatted(Formatting.ITALIC), false);
+            Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.error.distortion").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC), false);
         }
 
         return 0;
     }
 
     private static int distortionAtPlayer(CommandContext<FabricClientCommandSource> context) {
-        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance());
+        PlayerAttributes.updatePlayerAttributes(Minecraft.getInstance());
         return distortionTeleport(PlayerAttributes.getLatitude(), PlayerAttributes.getLongitude());
     }
 
@@ -125,7 +128,7 @@ public class CommandHander {
 
         String[] coords = context.getArgument("[latitude longitude]", CoordinateValue.class).value.split(" ");
         if (coords.length < 2) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.incomplete-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Component.translatable("omm.error.incomplete-coordinates").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
             return 0;
         }
 
@@ -133,7 +136,7 @@ public class CommandHander {
             latitide = Double.parseDouble(coords[0]);
             longitude = Double.parseDouble(coords[1]);
         } catch (NumberFormatException e) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Component.translatable("omm.error.formatted-coordinates").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
             return 0;
         }
 
@@ -188,11 +191,11 @@ public class CommandHander {
 
         for (Waypoint waypoint : OmmMap.getWaypoints()) {
             if (waypoint.name.equals(warp)) {
-                MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+waypoint.latitude+" "+waypoint.longitude);
+                Minecraft.getInstance().player.connection.sendCommand("tpll "+waypoint.latitude+" "+waypoint.longitude);
                 return 1;
             }
         }
-        MinecraftClient.getInstance().player.sendMessage(Text.translatable("omm.key.execute.error.snap-angle").formatted(Formatting.RED).formatted(Formatting.ITALIC), false);
+        Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.key.execute.error.snap-angle").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC), false);
         return 0;
     }
 
@@ -207,7 +210,7 @@ public class CommandHander {
 
         String[] coords = context.getArgument("latitude longitude [altitude]", CoordinateValue.class).value.split(" ");
         if (coords.length < 2) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.incomplete-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Component.translatable("omm.error.incomplete-coordinates").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
             return 0;
         }
         String lat = coords[0];
@@ -218,7 +221,7 @@ public class CommandHander {
 
         double[] convertedCoords = UnitConvert.toDecimalDegrees(lat, lon);
         if (convertedCoords == null) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Component.translatable("omm.error.formatted-coordinates").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
             return 0;
         }
         /*
@@ -233,11 +236,11 @@ public class CommandHander {
             double[] coordsToTp = Projection.from_geo(convertedCoords[0], convertedCoords[1]);
             if (altitude == null) altitude = Double.toString(PlayersManager.getHighestPoint(coordsToTp[0], coordsToTp[1]));
             forceNoIntercept = true;
-            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+String.format("%.7f", coordsToTp[0])+" "+altitude+" "+String.format("%.7f", coordsToTp[1]));
+            Minecraft.getInstance().player.connection.sendCommand("tp "+String.format("%.7f", coordsToTp[0])+" "+altitude+" "+String.format("%.7f", coordsToTp[1]));
             forceNoIntercept = false;
             return 1;
         } catch (CoordinateValueError e) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.invalid-or-out-of-bounds").formatted(Formatting.RED).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Component.translatable("omm.error.invalid-or-out-of-bounds").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
             return 0;
         }
 
@@ -247,7 +250,7 @@ public class CommandHander {
     private static int tpwtpll(CommandContext<FabricClientCommandSource> context) {
         String[] xyzStrings = context.getArgument("x y z", CoordinateValue.class).value.split(" ");
 
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        LocalPlayer player = Minecraft.getInstance().player;
         double[] xyz = new double[3];
         double[] xyzPlayer = new double[] {player.getX(), player.getY(), player.getZ()};
 
@@ -261,20 +264,20 @@ public class CommandHander {
                 }
             }
         } catch (NumberFormatException error) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.formatted-coordinates").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Component.translatable("omm.error.formatted-coordinates").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
             return 0;
         }
 
         try {
             double[] coordsToTp = Projection.to_geo(xyz[0], xyz[2]);
             if (Double.isNaN(coordsToTp[0])) {
-                context.getSource().sendFeedback(Text.translatable("omm.error.out-of-bounds").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+                context.getSource().sendFeedback(Component.translatable("omm.error.out-of-bounds").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
                 return 0;
             }
-            player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", coordsToTp[0])+" "+String.format("%.7f", coordsToTp[1])+" "+xyz[1]);
+            player.connection.sendCommand("tpll "+String.format("%.7f", coordsToTp[0])+" "+String.format("%.7f", coordsToTp[1])+" "+xyz[1]);
             return 1;
         } catch (CoordinateValueError e) {
-            context.getSource().sendFeedback(Text.translatable("omm.error.invalid-or-out-of-bounds").formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+            context.getSource().sendFeedback(Component.translatable("omm.error.invalid-or-out-of-bounds").withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
             return 0;
         }
     }
@@ -287,20 +290,20 @@ public class CommandHander {
             try {
                 if (Objects.equals(Objects.requireNonNull(knownPlayer.name).getString(), desiredPlayer)) {
                     double desiredY = knownPlayer.altitude;
-                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+String.format("%.7f", knownPlayer.latitude)+" "+String.format("%.7f", knownPlayer.longitude)+" "+desiredY);
+                    Minecraft.getInstance().player.connection.sendCommand("tpll "+String.format("%.7f", knownPlayer.latitude)+" "+String.format("%.7f", knownPlayer.longitude)+" "+desiredY);
                     return 1;
                 }
             } catch (NullPointerException e) {
-                OpenMineMapClient.debugMessages.add(Text.translatable("omm.notification.something-wrong").getString());
+                OpenMineMapClient.debugMessages.add(Component.translatable("omm.notification.something-wrong").getString());
                 return 0;
             }
         }
 
-        context.getSource().sendFeedback(Text.literal(
-                Text.translatable("omm.error.cannot-find-player-start").getString()
+        context.getSource().sendFeedback(Component.literal(
+                Component.translatable("omm.error.cannot-find-player-start").getString()
                     +desiredPlayer+
-                    Text.translatable("omm.error.cannot-find-player-end").getString()
-        ).formatted(ERROR_COLOR).formatted(Formatting.ITALIC));
+                    Component.translatable("omm.error.cannot-find-player-end").getString()
+        ).withStyle(ERROR_COLOR).withStyle(ChatFormatting.ITALIC));
 
         return 1;
     }
@@ -314,7 +317,7 @@ class TplltoSuggestionProvider implements SuggestionProvider<FabricClientCommand
         for (MappablePlayer knownPlayer : PlayersManager.getMappablePlayers()) {
             if (knownPlayer.outOfBounds) continue;
             String name = knownPlayer.name.getString();
-            if (name.equals(MinecraftClient.getInstance().player.getName().getString())) continue;
+            if (name.equals(Minecraft.getInstance().player.getName().getString())) continue;
             builder.suggest(name);
         }
         return builder.buildFuture();

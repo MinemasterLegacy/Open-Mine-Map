@@ -1,8 +1,8 @@
 package net.mmly.openminemap.raster;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 
@@ -11,25 +11,25 @@ public class OverlayRasterScreen extends RasterScreen {
         super(40, updateReturnScreen);
     }
 
-    public static ButtonWidget confirmButton;
+    public static Button confirmButton;
 
     @Override
     void populateRasterList() {
-        this.addRaster(new RasterLayerWidget(Text.of("Create New Overlay Layer"), null, null));
+        this.addRaster(new RasterLayerWidget(Component.nullToEmpty("Create New Overlay Layer"), null, null));
 
         for (TileUrl url : RasterProvider.getCustomRasters()) {
             if (url.layerType != LayerType.OVERLAY) continue;
-            addRaster(new RasterLayerWidget(Text.of(url.name), url, null));
+            addRaster(new RasterLayerWidget(Component.nullToEmpty(url.name), url, null));
         }
     }
 
     @Override
     protected void init() {
-        confirmButton = ButtonWidget.builder(Text.of(""),(buttonWidget) -> {
+        confirmButton = Button.builder(Component.nullToEmpty(""),(buttonWidget) -> {
             RasterProvider.pushOverlayOnTop(getSelectedLayerWidget().raster);
-            MinecraftClient.getInstance().currentScreen.close();
+            Minecraft.getInstance().screen.onClose();
         }).width(200).build();
-        this.addDrawableChild(confirmButton);
+        this.addRenderableWidget(confirmButton);
 
         super.init();
     }
@@ -42,14 +42,14 @@ public class OverlayRasterScreen extends RasterScreen {
 
         confirmButton.active = false;
         if (getSelectedLayerWidget() == null) {
-            confirmButton.setMessage(Text.translatable("omm.raster.select-overlay"));
+            confirmButton.setMessage(Component.translatable("omm.raster.select-overlay"));
             return;
         }
         if (RasterProvider.overlayInUse(getSelectedLayerWidget().raster)) {
-            confirmButton.setMessage(Text.translatable("omm.raster.overlay-already-in-use"));
+            confirmButton.setMessage(Component.translatable("omm.raster.overlay-already-in-use"));
             return;
         }
-        confirmButton.setMessage(Text.translatable("omm.raster.add-overlay").append(" " + getSelectedLayerWidget().raster.name));
+        confirmButton.setMessage(Component.translatable("omm.raster.add-overlay").append(" " + getSelectedLayerWidget().raster.name));
         confirmButton.active = true;
     }
 }

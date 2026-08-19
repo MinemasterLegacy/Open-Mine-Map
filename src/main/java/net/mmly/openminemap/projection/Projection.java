@@ -1,8 +1,8 @@
 package net.mmly.openminemap.projection;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.mmly.openminemap.OpenMineMap;
 
 import java.io.*;
@@ -61,12 +61,12 @@ public class Projection {
     static double[][] load_conformal_data() {
         File conformal_file = new File(System.getProperty("user.dir") + File.separator + "openminemap/conformal2.txt");
         //System.out.println(conformal_file.getAbsolutePath());
-        ResourceManager manager = MinecraftClient.getInstance().getResourceManager();
+        ResourceManager manager = Minecraft.getInstance().getResourceManager();
         InputStream stream;
         int available = -1;
 
         try {
-            stream = manager.getResource(Identifier.of("openminemap", "conformal2.txt")).get().getInputStream();
+            stream = manager.getResource(Identifier.fromNamespaceAndPath("openminemap", "conformal2.txt")).get().open();
             //System.out.println(stream.available());
             //System.out.println(new BufferedReader(new InputStreamReader(stream, "UTF-8")).readLine());
             available = stream.available();

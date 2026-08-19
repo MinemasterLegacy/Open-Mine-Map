@@ -1,14 +1,13 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.input.MouseInput;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.hud.HudMap;
@@ -16,21 +15,21 @@ import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
-
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import java.util.function.BooleanSupplier;
 
-public class ToggleButtonLayer extends ClickableWidget {
+public class ToggleButtonLayer extends AbstractWidget {
 
     private int lastCheckedButton = 0;
     private final Type type;
 
     public ToggleButtonLayer(int x, int y, Type type) {
-        super(x, y, 20,20, Text.of(""));
+        super(x, y, 20,20, Component.nullToEmpty(""));
         this.type = type;
         setOwnTooltip();
     }
 
-    public void draw(DrawContext context) {
+    public void draw(GuiGraphics context) {
         if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (!ButtonLayer.texturedButtons) {
             UContext.drawButtonOnWidget(this, false, isHovered());
@@ -47,28 +46,28 @@ public class ToggleButtonLayer extends ClickableWidget {
     }
 
     @Override
-    protected boolean isValidClickButton(MouseInput input) {
+    protected boolean isValidClickButton(MouseButtonInfo input) {
         return input.button() == 0 || input.button() == 1;
     }
 
     private void setOwnTooltip() {
-        this.setTooltip(Tooltip.of(Text.of(
-                Text.translatable(type.topTooltipKey).getString() +
+        this.setTooltip(Tooltip.create(Component.nullToEmpty(
+                Component.translatable(type.topTooltipKey).getString() +
                         "\n" +
-                        Text.translatable(type.bottomTooltipKey).getString() +
+                        Component.translatable(type.bottomTooltipKey).getString() +
                         "\n" +
-                        (type.isEnabled() ? Text.translatable("omm.fullscreen.hud-toggle.enabled").getString() : Text.translatable("omm.fullscreen.hud-toggle.disabled").getString())
+                        (type.isEnabled() ? Component.translatable("omm.fullscreen.hud-toggle.enabled").getString() : Component.translatable("omm.fullscreen.hud-toggle.disabled").getString())
         )));
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000); //0x00000000
-        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+        if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         if (type == Type.CLAIM_RENDERING) {
             if (click.button() == 0) {
                 OmmMap.renderClaimsToggle = !OmmMap.renderClaimsToggle;
@@ -88,7 +87,7 @@ public class ToggleButtonLayer extends ClickableWidget {
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 
@@ -126,8 +125,8 @@ public class ToggleButtonLayer extends ClickableWidget {
             this.rightClickAllowed = rightClickAllowed;
             this.fileName = fileName;
 
-            onGeneratedIdentifier = Identifier.of("openminemap", "buttons/vanilla/generated/" + fileName + "on.png");
-            offGeneratedIdentifier = Identifier.of("openminemap", "buttons/vanilla/generated/" + fileName + "off.png");
+            onGeneratedIdentifier = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/generated/" + fileName + "on.png");
+            offGeneratedIdentifier = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/generated/" + fileName + "off.png");
             onGeneratedShadowIdentifier = ColorUtil.getColoredIdentifier(onGeneratedIdentifier,0x00003e);
             offGeneratedShadowIdentifier = ColorUtil.getColoredIdentifier(offGeneratedIdentifier,0x00003e);
 
@@ -142,7 +141,7 @@ public class ToggleButtonLayer extends ClickableWidget {
                 if (on) return onGeneratedIdentifier;
                 return offGeneratedIdentifier;
             }
-            return Identifier.of("openminemap", "buttons/vanilla/" + (highlighted ? "hover" : "default") + "/" + fileName + (on ? "on" : "off") + ".png");
+            return Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/" + (highlighted ? "hover" : "default") + "/" + fileName + (on ? "on" : "off") + ".png");
         }
 
         public boolean isEnabled() {

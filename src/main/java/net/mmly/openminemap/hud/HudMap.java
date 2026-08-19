@@ -1,14 +1,14 @@
 package net.mmly.openminemap.hud;
 
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.config.MapConfigScreen;
 import net.mmly.openminemap.draw.UContext;
@@ -37,8 +37,8 @@ public class HudMap {
     public static int hudCompassX = ConfigOptions.HUD_COMPASS_X.getAsInt();
     public static int hudCompassY = ConfigOptions.HUD_COMPASS_Y.getAsInt();
     public static int hudCompassWidth = ConfigOptions.HUD_COMPASS_WIDTH.getAsInt();
-    protected static Identifier compassIdentifier = Identifier.of("openminemap", "stripcompass.png");
-    protected static Identifier snapAngleIdentifier = Identifier.of("openminemap", "snapangle.png");
+    protected static Identifier compassIdentifier = Identifier.fromNamespaceAndPath("openminemap", "stripcompass.png");
+    protected static Identifier snapAngleIdentifier = Identifier.fromNamespaceAndPath("openminemap", "snapangle.png");
     protected static int hudCompassCenter;
     static double snapAngleInput;
     public static double snapAngle; //range: (-90, 0]
@@ -76,7 +76,7 @@ public class HudMap {
         }
     }
 
-    public static void initialize(DrawContext context) {
+    public static void initialize(GuiGraphics context) {
         //TileManager.initializeConfigParameters();
         setSnapAngle();
         loadConfigParameters();
@@ -87,7 +87,7 @@ public class HudMap {
         map.setMapZoom(
                 ConfigOptions._HUD_LAST_ZOOM.getAsDouble()
         );
-        map.setTextRenderer(MinecraftClient.getInstance().textRenderer);
+        map.setTextRenderer(Minecraft.getInstance().font);
         map.doPlayerTooltipNames(false);
 
         initialized = true;
@@ -96,16 +96,16 @@ public class HudMap {
         showBorder = ConfigOptions.HUDMAP_BORDER.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
 
         if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) {
-            MinecraftClient.getInstance().player
-                    .sendMessage(Text
+            Minecraft.getInstance().player
+                    .displayClientMessage(Component
                             .translatable("omm.category.openminemap")
                             .append(": ")
-                            .formatted(Formatting.DARK_GREEN).formatted(Formatting.BOLD)
-                    .append(Text
+                            .withStyle(ChatFormatting.DARK_GREEN).withStyle(ChatFormatting.BOLD)
+                    .append(Component
                             .translatable("omm.hud.first-session-tooltip.start")
-                            .append(KeyBindingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getLocalizedText().getString().toUpperCase(Locale.US))
-                            .append(Text.translatable("omm.hud.first-session-tooltip.end"))
-                            .formatted(Formatting.RESET).formatted(Formatting.BLUE)
+                            .append(KeyBindingHelper.getBoundKeyOf(KeyInputHandler.openFullscreenOsmMapKey).getDisplayName().getString().toUpperCase(Locale.US))
+                            .append(Component.translatable("omm.hud.first-session-tooltip.end"))
+                            .withStyle(ChatFormatting.RESET).withStyle(ChatFormatting.BLUE)
                     )
             , false);
             ConfigFile.writeParameter(ConfigOptions._FIRST_SESSION_TIP_GIVEN, "true");
@@ -137,30 +137,30 @@ public class HudMap {
         ConfigFile.writeToFile();
     }
 
-    private static void drawCompass(DrawContext context) {
+    private static void drawCompass(GuiGraphics context) {
         drawCompassBackground(context);
-        PlayerEntity player = MinecraftClient.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         //draw the compass
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, compassIdentifier, hudCompassX, hudCompassY, (float) (Direction.getGeoAzimuth(player) - ((double) hudCompassWidth / 2)), 0, hudCompassWidth, 16, 360, 16);
+        context.blit(RenderPipelines.GUI_TEXTURED, compassIdentifier, hudCompassX, hudCompassY, (float) (Direction.getGeoAzimuth(player) - ((double) hudCompassWidth / 2)), 0, hudCompassWidth, 16, 360, 16);
         //draw the snap angle indicator
-        if (doSnapAngle) context.drawTexture(RenderPipelines.GUI_TEXTURED, snapAngleIdentifier, hudCompassX, hudCompassY, (float) (Direction.getGeoAzimuth(player) - Direction.getGeoAzimuth(player.getX(), player.getZ(), -snapAngle) - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 90, 16);
+        if (doSnapAngle) context.blit(RenderPipelines.GUI_TEXTURED, snapAngleIdentifier, hudCompassX, hudCompassY, (float) (Direction.getGeoAzimuth(player) - Direction.getGeoAzimuth(player.getX(), player.getZ(), -snapAngle) - ((double) hudCompassWidth / 2)) , 0, hudCompassWidth, 16, hudCompassWidth, 16, 90, 16);
         //context.drawTexture(compassIdentifier, hudCompassX, hudCompassY, hudCompassWidth, 16, 0, 0, hudCompassWidth, 16, 360, 16);
         //draw the compass direction needle line thing (i dont have a good name for it)
         context.fill(hudCompassX + hudCompassCenter, hudCompassY, hudCompassX + hudCompassCenter + 1, hudCompassY + 16, 0xFFaa9d94);
 
     }
 
-    private static void drawCompassBackground(DrawContext context) {
+    private static void drawCompassBackground(GuiGraphics context) {
         for (int i = 2; i >= 0; i--) { //draw the semi-transparent compass background
             context.fill(hudCompassX + i, hudCompassY + i, hudCompassX + hudCompassWidth - i, hudCompassY + 16 - i, 0x33CCCCCC);
         }
     }
 
-    public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+    public static void render(GuiGraphics context, DeltaTracker renderTickCounter) {
 
         //method is called every frame, so a couple of things are included here that need to run every frame
         while (!OpenMineMapClient.debugMessages.isEmpty()) {
-            if (OpenMineMapClient.debugMessages.getFirst() != null) MinecraftClient.getInstance().player.sendMessage(Text.literal(OpenMineMapClient.debugMessages.getFirst()).formatted(Formatting.RED), false);
+            if (OpenMineMapClient.debugMessages.getFirst() != null) Minecraft.getInstance().player.displayClientMessage(Component.literal(OpenMineMapClient.debugMessages.getFirst()).withStyle(ChatFormatting.RED), false);
             OpenMineMapClient.debugMessages.removeFirst();
         }
 
@@ -174,27 +174,27 @@ public class HudMap {
         if (!initialized) initialize(context); //initialize hudmap if not done already
         if (TileManager.getThemeColor() == 0xFF808080) TileManager.loadTopTile();
 
-        if ((!renderHud || !hudEnabled || MinecraftClient.getInstance().options.hudHidden) && !(MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
+        if ((!renderHud || !hudEnabled || Minecraft.getInstance().options.hideGui) && !(Minecraft.getInstance().screen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
 
         UContext.setContext(context);
-        playerIdentifier = MinecraftClient.getInstance().player.getSkin().body().texturePath();
+        playerIdentifier = Minecraft.getInstance().player.getSkin().body().texturePath();
 
         PlayersManager.updatePlayerSkinList();
 
-        PlayerAttributes.updatePlayerAttributes(MinecraftClient.getInstance()); //refreshes values for geographic longitude, latitude and yaw
+        PlayerAttributes.updatePlayerAttributes(Minecraft.getInstance()); //refreshes values for geographic longitude, latitude and yaw
         hudCompassCenter = Math.round((float) hudCompassWidth / 2); //center of the hud compass
 
         if (!PlayerAttributes.positionIsValid()) {//if the player is out of bounds this will be NaN. all other rendering is skipped due to this
             //draw error message and exit
-            Text text = Text.translatable("omm.hud.out-of-bounds").formatted(Formatting.ITALIC);
+            Component text = Component.translatable("omm.hud.out-of-bounds").withStyle(ChatFormatting.ITALIC);
             //context.fill(hudMapX + 2, hudMapY + 2, hudMapY + 74, hudMapY + 10, 0xFFFFFFFF);
             context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), TileManager.getThemeColor());
-            context.drawText(
-                    MinecraftClient.getInstance().textRenderer, text,
-                    map.getRenderAreaX() + (map.getRenderAreaWidth() / 2) - (MinecraftClient.getInstance().textRenderer.getWidth(text) / 2),
-                    map.getRenderAreaY() + (map.getRenderAreaHeight() / 2) - (MinecraftClient.getInstance().textRenderer.fontHeight / 2),
+            context.drawString(
+                    Minecraft.getInstance().font, text,
+                    map.getRenderAreaX() + (map.getRenderAreaWidth() / 2) - (Minecraft.getInstance().font.width(text) / 2),
+                    map.getRenderAreaY() + (map.getRenderAreaHeight() / 2) - (Minecraft.getInstance().font.lineHeight / 2),
                     0xFFcccccc, true);
-            if (MinecraftClient.getInstance().currentScreen instanceof MapConfigScreen) {
+            if (Minecraft.getInstance().screen instanceof MapConfigScreen) {
                 drawCompassBackground(context);
             }
             return;

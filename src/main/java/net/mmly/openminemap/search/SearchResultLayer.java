@@ -1,40 +1,39 @@
 package net.mmly.openminemap.search;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.http.RequestManager;
 import org.lwjgl.glfw.GLFW;
-
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import java.time.Duration;
 
-public class SearchResultLayer extends ClickableWidget {
+public class SearchResultLayer extends AbstractWidget {
 
     private int resultNumber;
     private SearchResult myResult;
 
     public SearchResultLayer(int x, int y, int width, int resultNumber) {
-        super(x, y, width, 20, Text.of(""));
+        super(x, y, width, 20, Component.nullToEmpty(""));
         this.resultNumber = resultNumber;
         this.setTooltipDelay(Duration.ofMillis(500));
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
     public void setResult(SearchResult result) {
@@ -52,7 +51,7 @@ public class SearchResultLayer extends ClickableWidget {
         }
     }
 
-    public void drawWidget(DrawContext context, TextRenderer renderer) {
+    public void drawWidget(GuiGraphics context, Font renderer) {
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFFFF0000);
 
         if (!MapScreen.getSearchMenuState() || myResult == null || !SearchBoxLayer.isResultVisible(resultNumber)) {
@@ -69,22 +68,22 @@ public class SearchResultLayer extends ClickableWidget {
         }
 
         context.enableScissor(getX(), getY(), getX() + width - 20 - (myResult.historic ? 20 : 0), getY() + height);
-        context.drawText(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), true);
+        context.drawString(renderer, myResult.name, getX() + 8, getY() + 6, MapScreen.getPlainTextColor(), true);
         if (!myResult.context.isBlank()) {
-            context.drawText(renderer, myResult.context, getX() + 16 + renderer.getWidth(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : MapScreen.getSemiDarkTextColor(), true);
+            context.drawString(renderer, myResult.context, getX() + 16 + renderer.width(myResult.name), getY() + 6, myResult.resultType.isSearchType() ? 0xFF548AF7 : MapScreen.getSemiDarkTextColor(), true);
             //renderer.fontHeight = 5;
             //context.drawText();
         }
         context.disableScissor();
 
-        MutableText tooltip = Text.literal(myResult.name);
+        MutableComponent tooltip = Component.literal(myResult.name);
         if (!myResult.name.isBlank() && !myResult.context.isBlank()) tooltip.append("\n");
-        if (!myResult.context.isBlank()) tooltip = tooltip.append(Text.literal(myResult.context).formatted(Formatting.GRAY));
-        setTooltip(Tooltip.of(tooltip));
+        if (!myResult.context.isBlank()) tooltip = tooltip.append(Component.literal(myResult.context).withStyle(ChatFormatting.GRAY));
+        setTooltip(Tooltip.create(tooltip));
 
-        if (myResult.resultType != SearchResultType.LOCATION) context.drawTexture(
+        if (myResult.resultType != SearchResultType.LOCATION) context.blit(
                 RenderPipelines.GUI_TEXTURED,
-                Identifier.of("openminemap", "search/" + myResult.resultType.toString().toLowerCase() + ".png"),
+                Identifier.fromNamespaceAndPath("openminemap", "search/" + myResult.resultType.toString().toLowerCase() + ".png"),
                 getX() + getWidth() - 17,
                 getY() + 3,
                 0,
@@ -94,9 +93,9 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
-        if (myResult.historic) context.drawTexture(
+        if (myResult.historic) context.blit(
                 RenderPipelines.GUI_TEXTURED,
-                Identifier.of("openminemap", "search/history.png"),
+                Identifier.fromNamespaceAndPath("openminemap", "search/history.png"),
                 getX() + getWidth() - 32,
                 getY() + 3,
                 0,
@@ -106,9 +105,9 @@ public class SearchResultLayer extends ClickableWidget {
                 14,
                 14
         );
-        else if (myResult.resultType.isSearchType()) context.drawTexture(
+        else if (myResult.resultType.isSearchType()) context.blit(
                 RenderPipelines.GUI_TEXTURED,
-                Identifier.of("openminemap", "search/photon.png"),
+                Identifier.fromNamespaceAndPath("openminemap", "search/photon.png"),
                 getX() + getWidth() - 34,
                 getY() + 3,
                 0,
@@ -121,7 +120,7 @@ public class SearchResultLayer extends ClickableWidget {
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         if (isFocused()) goToResult();
     }
 
@@ -165,8 +164,8 @@ public class SearchResultLayer extends ClickableWidget {
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
-        if (input.getKeycode() == GLFW.GLFW_KEY_ENTER) {
+    public boolean keyPressed(KeyEvent input) {
+        if (input.input() == GLFW.GLFW_KEY_ENTER) {
             goToResult();
             return true;
         }
@@ -178,7 +177,7 @@ public class SearchResultLayer extends ClickableWidget {
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 

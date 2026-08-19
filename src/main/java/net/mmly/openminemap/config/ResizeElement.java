@@ -1,17 +1,17 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.enums.ResizeDirection;
 import net.mmly.openminemap.hud.HudMap;
 
-public class ResizeElement extends ClickableWidget {
+public class ResizeElement extends AbstractWidget {
 
     Identifier texture;
     ResizeDirection direction;
@@ -19,7 +19,7 @@ public class ResizeElement extends ClickableWidget {
 
     //for parameter direction - up:0 right:1 down:2 left:3
     public ResizeElement(int x, int y, ResizeDirection direction) {
-        super(x, y, 0, 0, Text.empty());
+        super(x, y, 0, 0, Component.empty());
         this.direction = direction;
         this.texture = direction.identifier;
         setWidth(direction.width());
@@ -27,18 +27,18 @@ public class ResizeElement extends ClickableWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         //context.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), 0xFF0000FF);
-        if (isHovered()) context.setCursor(direction.isVertical() ? StandardCursors.RESIZE_NS : StandardCursors.RESIZE_EW);
+        if (isHovered()) context.requestCursor(direction.isVertical() ? CursorTypes.RESIZE_NS : CursorTypes.RESIZE_EW);
 
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
 
     @Override
-    protected void onDrag(Click click, double offsetX, double offsetY) {
+    protected void onDrag(MouseButtonEvent click, double offsetX, double offsetY) {
         if (direction.isHorizontal()) {
             switch (direction) {
                 case ResizeDirection.RIGHT_MAP: {
@@ -89,8 +89,8 @@ public class ResizeElement extends ClickableWidget {
         }
     }
 
-    public void drawWidget(DrawContext context) {
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, texture, getX(), getY(), 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
+    public void drawWidget(GuiGraphics context) {
+        context.blit(RenderPipelines.GUI_TEXTURED, texture, getX(), getY(), 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
     }
 
     /*

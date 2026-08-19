@@ -1,9 +1,8 @@
 package net.mmly.openminemap.map;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.OverlayVisibility;
@@ -13,7 +12,7 @@ import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.raster.LayerType;
 import net.mmly.openminemap.util.*;
-
+import com.mojang.blaze3d.platform.NativeImage;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +26,7 @@ import java.util.function.Supplier;
 
 public class TileManager {
 
-    private static MinecraftClient client = MinecraftClient.getInstance();
+    private static Minecraft client = Minecraft.getInstance();
     private static final HashMap<TileUrl, HashMap<String, Identifier>> rasterTiles = new HashMap<>();
     public static boolean doArtificialZoom;
     public static boolean doReverseScroll;
@@ -70,7 +69,7 @@ public class TileManager {
 
     private static void purgeRasterTileData(TileUrl raster) {
         for (Identifier identifier : rasterTiles.get(raster).values()) {
-            client.getTextureManager().destroyTexture(identifier);
+            client.getTextureManager().release(identifier);
         }
     }
 
@@ -87,17 +86,17 @@ public class TileManager {
     }
 
     public static Identifier getErrorIdentifier(LayerType layerType) { //tile used when there was an error getting an expected tile
-        if (layerType == LayerType.BASE) return Identifier.of("openminemap", "errortile.png");
-        return Identifier.of("openminemap", "errortileoverlay.png");
+        if (layerType == LayerType.BASE) return Identifier.fromNamespaceAndPath("openminemap", "errortile.png");
+        return Identifier.fromNamespaceAndPath("openminemap", "errortileoverlay.png");
     }
 
     public static Identifier getBlankIdentifier() { //tile used for out of bounds tiles
-        return Identifier.of("openminemap", "blanktile.png");
+        return Identifier.fromNamespaceAndPath("openminemap", "blanktile.png");
     }
 
     public static Identifier getLoadingIdentifier(LayerType layerType) { //tile used for currently loading tiles
-        if (layerType == LayerType.BASE) return Identifier.of("openminemap", "loadingtile.png");
-        return Identifier.of("openminemap", "loadingtileoverlay.png");
+        if (layerType == LayerType.BASE) return Identifier.fromNamespaceAndPath("openminemap", "loadingtile.png");
+        return Identifier.fromNamespaceAndPath("openminemap", "loadingtileoverlay.png");
     }
 
     public static Identifier getLoadingIdentifier() { //tile used for currently loading tiles
@@ -120,8 +119,8 @@ public class TileManager {
                 NativeImage nImage = NativeImage.read(tile.image);
                 //register new dynamic texture and store it again to be referenced later
                 rasterTiles.get(tile.raster).remove(tile.identifierString);
-                Identifier identifier = Identifier.of("openminemap-tile", tile.identifierString);
-                client.getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(new nameSupplier(), nImage));
+                Identifier identifier = Identifier.fromNamespaceAndPath("openminemap-tile", tile.identifierString);
+                client.getTextureManager().register(identifier, new DynamicTexture(new nameSupplier(), nImage));
                 rasterTiles.get(tile.raster).put(tile.identifierString, identifier);
                 //System.out.println("New Dynamic tile");
 

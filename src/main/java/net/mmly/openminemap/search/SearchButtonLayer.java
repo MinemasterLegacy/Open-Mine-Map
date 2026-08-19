@@ -1,33 +1,31 @@
 package net.mmly.openminemap.search;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.util.ColorUtil;
 
-public class SearchButtonLayer extends ClickableWidget {
+public class SearchButtonLayer extends AbstractWidget {
     public SearchButtonLayer(int x, int y) {
-        super(x, y, 20, 20, Text.of(""));
+        super(x, y, 20, 20, Component.nullToEmpty(""));
     }
 
-    private static final Identifier defaultIdentifier = Identifier.of("openminemap", "buttons/vanilla/default/search.png");
-    private static final Identifier highlightedIdentifer = Identifier.of("openminemap", "buttons/vanilla/hover/search.png");
-    private static final Identifier disabledIdentifer = Identifier.of("openminemap", "buttons/vanilla/locked/search.png");
-    private static final Identifier generatedIdentifier = Identifier.of("openminemap", "buttons/vanilla/generated/search.png");
+    private static final Identifier defaultIdentifier = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/default/search.png");
+    private static final Identifier highlightedIdentifer = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/hover/search.png");
+    private static final Identifier disabledIdentifer = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/locked/search.png");
+    private static final Identifier generatedIdentifier = Identifier.fromNamespaceAndPath("openminemap", "buttons/vanilla/generated/search.png");
     private static final Identifier generatedShadowIdentifier = ColorUtil.getColoredIdentifier(generatedIdentifier,0x00003e);
     private static final Identifier generatedDarkIdentifier = ColorUtil.getColoredIdentifier(generatedIdentifier, 0x00007f);
 
-    public void drawWidget(DrawContext context) {
+    public void drawWidget(GuiGraphics context) {
         if (!ButtonLayer.texturedButtons) {
             UContext.drawButtonOnWidget(this, MapScreen.getSearchMenuState() && !isHovered(), isHovered());
             UContext.drawTexture(generatedShadowIdentifier, getX() + 1, getY() + 1, getWidth(), getHeight());
@@ -47,26 +45,26 @@ public class SearchButtonLayer extends ClickableWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (this.isHovered()) {
-            context.setCursor(StandardCursors.POINTING_HAND);
+            context.requestCursor(CursorTypes.POINTING_HAND);
         }
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         MapScreen.toggleSearchMenu(!MapScreen.getSearchMenuState());
         MapScreen.getInstance().jumpToSearchBox();
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         MapScreen.getInstance().jumpToSearchBox(input);
         return true;
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 }

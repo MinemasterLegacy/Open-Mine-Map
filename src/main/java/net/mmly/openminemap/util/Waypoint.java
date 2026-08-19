@@ -1,6 +1,6 @@
 package net.mmly.openminemap.util;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.waypoint.WaypointStyle;
 
 import java.util.function.Supplier;
@@ -23,7 +23,7 @@ public class Waypoint extends NamedLocation{
         } catch (IllegalArgumentException e) {
             sty = WaypointStyle.DIAMOND;
         }
-        identifier = ColorUtil.getColoredIdentifier(Identifier.of("openminemap", "waypoints/"+sty.name().toLowerCase()+".png"), colorHSV);
+        identifier = ColorUtil.getColoredIdentifier(Identifier.fromNamespaceAndPath("openminemap", "waypoints/"+sty.name().toLowerCase()+".png"), colorHSV);
 
         this.pinned = pinned;
         this.visible = visible;

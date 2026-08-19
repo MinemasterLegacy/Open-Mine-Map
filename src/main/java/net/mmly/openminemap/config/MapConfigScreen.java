@@ -1,13 +1,13 @@
 package net.mmly.openminemap.config;
 
 import com.google.common.collect.Maps;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.util.Window;
-import net.minecraft.text.Text;
+import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.enums.ButtonFunction;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.RepositionType;
@@ -35,14 +35,14 @@ public class MapConfigScreen extends Screen {
     private static int windowHeight = 480;
 
     protected MapConfigScreen() {
-        super(Text.of("OMM Map Config"));
+        super(Component.nullToEmpty("OMM Map Config"));
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
-        if (input.getKeycode() == 256 && this.shouldCloseOnEsc()) {
+    public boolean keyPressed(KeyEvent input) {
+        if (input.input() == 256 && this.shouldCloseOnEsc()) {
             revertChanges();
-            MinecraftClient.getInstance().setScreen(
+            Minecraft.getInstance().setScreen(
                     new ConfigScreen()
             );
             return true;
@@ -60,9 +60,9 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    protected void renderDarkening(DrawContext context) {}
+    protected void renderMenuBackground(GuiGraphics context) {}
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {}
+    public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {}
 
     public static void saveChanges() {
         ConfigFile.writeParameter(ConfigOptions.HUD_MAP_X, Integer.toString(HudMap.map.getRenderAreaX()));
@@ -88,9 +88,9 @@ public class MapConfigScreen extends Screen {
     }
 
     private void updateScreenDims() {
-        window = MinecraftClient.getInstance().getWindow();
-        windowWidth = window.getScaledWidth();
-        windowHeight = window.getScaledHeight();
+        window = Minecraft.getInstance().getWindow();
+        windowWidth = window.getGuiScaledWidth();
+        windowHeight = window.getGuiScaledHeight();
     }
 
     @Override
@@ -102,16 +102,16 @@ public class MapConfigScreen extends Screen {
         updateScreenDims();
 
         saveButton = new ButtonLayer(ButtonFunction.CHECKMARK);
-        saveButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.save-and-exit")));
-        this.addDrawableChild(saveButton);
+        saveButton.setTooltip(Tooltip.create(Component.translatable("omm.config.gui.save-and-exit")));
+        this.addRenderableWidget(saveButton);
 
         exitButton = new ButtonLayer(ButtonFunction.EXIT);
-        exitButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.exit-without-saving")));
-        this.addDrawableChild(exitButton);
+        exitButton.setTooltip(Tooltip.create(Component.translatable("omm.config.gui.exit-without-saving")));
+        this.addRenderableWidget(exitButton);
 
         resetConfigButton = new ButtonLayer(ButtonFunction.RESETCONFIG);
-        resetConfigButton.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.reset-to-default")));
-        this.addDrawableChild(resetConfigButton);
+        resetConfigButton.setTooltip(Tooltip.create(Component.translatable("omm.config.gui.reset-to-default")));
+        this.addRenderableWidget(resetConfigButton);
 
         rightResize = new ResizeElement(0, 0, ResizeDirection.RIGHT_MAP);
         leftResize = new ResizeElement(0, 0, ResizeDirection.LEFT_MAP);
@@ -121,24 +121,24 @@ public class MapConfigScreen extends Screen {
         compassRightResize = new ResizeElement(0, 0, ResizeDirection.RIGHT_COMPASS);
         updateResizePos();
 
-        this.addDrawableChild(rightResize);
-        this.addDrawableChild(leftResize);
-        this.addDrawableChild(downResize);
-        this.addDrawableChild(upResize);
+        this.addRenderableWidget(rightResize);
+        this.addRenderableWidget(leftResize);
+        this.addRenderableWidget(downResize);
+        this.addRenderableWidget(upResize);
         if (HudMap.showCompass) {
-            this.addDrawableChild(compassLeftResize);
-            this.addDrawableChild(compassRightResize);
+            this.addRenderableWidget(compassLeftResize);
+            this.addRenderableWidget(compassRightResize);
         }
 
         repositionElement = new RepositionElement(RepositionType.MAP);
         compassRepositionElement = new RepositionElement(RepositionType.COMPASS);
-        this.addDrawableChild(repositionElement);
-        if (HudMap.showCompass) this.addDrawableChild(compassRepositionElement);
+        this.addRenderableWidget(repositionElement);
+        if (HudMap.showCompass) this.addRenderableWidget(compassRepositionElement);
 
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         HudMap.render(context, null);
         saveButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10));
         exitButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 + 24));
@@ -160,9 +160,9 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         MapConfigScreen.revertChanges();
-        MinecraftClient.getInstance().setScreen(new ConfigScreen());
+        Minecraft.getInstance().setScreen(new ConfigScreen());
         MapScreen.updateAltScreenMap(this);
     }
 }

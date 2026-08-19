@@ -1,19 +1,19 @@
 package net.mmly.openminemap.waypoint;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.draw.UContext;
 
 import java.awt.*;
 
-public class ColorSliderWidget extends ClickableWidget {
+public class ColorSliderWidget extends AbstractWidget {
 
-    private static Identifier drawTexture = Identifier.of("openminemap", "colorspectrum.png");
+    private static Identifier drawTexture = Identifier.fromNamespaceAndPath("openminemap", "colorspectrum.png");
     private ColorSliderType type;
 
     public static final float defaultHue = 0.614F;
@@ -25,15 +25,15 @@ public class ColorSliderWidget extends ClickableWidget {
     public static float value = defaultValue;
 
     public ColorSliderWidget(int x, int y, int width, int height, ColorSliderType type) {
-        super(x, y, width, height, Text.of(""));
+        super(x, y, width, height, Component.nullToEmpty(""));
         this.type = type;
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         switch (type) {
             case HUE -> {
-                context.drawTexture(RenderPipelines.GUI_TEXTURED, drawTexture, getX(), getY(), 0, 0, width, height, width, height);
+                context.blit(RenderPipelines.GUI_TEXTURED, drawTexture, getX(), getY(), 0, 0, width, height, width, height);
                 drawSelectionBox(context, hue);
             }
             case SATURATION -> {
@@ -47,15 +47,15 @@ public class ColorSliderWidget extends ClickableWidget {
         }
     }
 
-    private void drawSelectionBox(DrawContext context, float channel) {
+    private void drawSelectionBox(GuiGraphics context, float channel) {
         UContext.drawBorder(getX() - 1, (int) (getY() - 1 + ((height-1) * channel)), width + 2, 3, 0xFF888888);
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
     @Override
-    protected void onDrag(Click click, double offsetX, double offsetY) {
+    protected void onDrag(MouseButtonEvent click, double offsetX, double offsetY) {
         super.onDrag(click, offsetX, offsetY);
         switch (type) {
             case HUE -> hue = Math.clamp((float) (click.y() - getY()) / (height-1), 0, 1);

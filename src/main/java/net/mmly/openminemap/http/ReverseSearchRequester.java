@@ -1,7 +1,7 @@
 package net.mmly.openminemap.http;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.Notification;
@@ -38,10 +38,10 @@ public class ReverseSearchRequester extends LocationJsonRequester<double[]> {
     private void doReverseSearch() {
         SearchResult result = reverseSearchRequest(pendingRequest[0], pendingRequest[1]);
         if (noResults) {
-            MapScreen.addNotification(new Notification(Text.translatable("omm.search.no-results")));
+            MapScreen.addNotification(new Notification(Component.translatable("omm.search.no-results")));
         }
         else if (result == null) {
-            MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+            MapScreen.addNotification(new Notification(Component.translatable("omm.notification.something-wrong")));
         } else {
             try {
                 String location = "";
@@ -49,10 +49,10 @@ public class ReverseSearchRequester extends LocationJsonRequester<double[]> {
                 if (result.context != null) location += result.context + ", ";
                 if (!location.isEmpty()) location = location.substring(0, location.length() - 2);
 
-                MinecraftClient.getInstance().keyboard.setClipboard(location);
-                MapScreen.addNotification(new Notification(Text.translatable("omm.notification.location-copied")));
+                Minecraft.getInstance().keyboardHandler.setClipboard(location);
+                MapScreen.addNotification(new Notification(Component.translatable("omm.notification.location-copied")));
             } catch (HeadlessException e) {
-                MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+                MapScreen.addNotification(new Notification(Component.translatable("omm.notification.something-wrong")));
             }
         }
     }

@@ -1,32 +1,32 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
 
 import java.util.List;
 
-public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
+public class ChoiceSliderWidget extends AbstractSliderButton implements ConfigChoice {
 
     List<String> options;
     int selection;
-    Text message;
+    Component message;
     ConfigOptions configOption;
     AnchorWidget anchor;
     boolean optionIsLiteral;
 
     public ChoiceSliderWidget(List<String> options, ConfigOptions configOption, boolean optionIsLiteral) {
-        super(0, -100, 200, 20, Text.empty(), 0);
+        super(0, -100, 200, 20, Component.empty(), 0);
         this.options = options;
-        this.message = Text.translatable(configOption.message);
+        this.message = Component.translatable(configOption.message);
         this.configOption = configOption;
         selection = getSelectedOption();
         this.value = (1F / (options.size() - 1)) * selection;
-        this.setTooltip(Tooltip.of(Text.translatable(configOption.tooltip)));
+        this.setTooltip(Tooltip.create(Component.translatable(configOption.tooltip)));
         this.optionIsLiteral = optionIsLiteral;
         updateMessage();
     }
@@ -37,7 +37,7 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
 
     @Override
     protected void updateMessage() {
-        this.setMessage(Text.of(message.getString() + ": " + getTranslatedOption(options.get(selection))));
+        this.setMessage(Component.nullToEmpty(message.getString() + ": " + getTranslatedOption(options.get(selection))));
         //System.out.println(message.getString() + ": " + options[selection]);
     }
 
@@ -51,7 +51,7 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
 
     private String getTranslatedOption(String option) {
         if (optionIsLiteral) return option;
-        else return Text.translatable("omm.config.state." + (option.toLowerCase())).getString();
+        else return Component.translatable("omm.config.state." + (option.toLowerCase())).getString();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ChoiceSliderWidget extends SliderWidget implements ConfigChoice {
     }
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
         this.setX(anchor.getX());
         this.setY(anchor.getY());

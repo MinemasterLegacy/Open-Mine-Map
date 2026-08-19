@@ -1,18 +1,18 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.AnchorWidget;
 
-public class CategoryLabelWidget extends TextWidget implements ConfigChoice {
+public class CategoryLabelWidget extends StringWidget implements ConfigChoice {
 
     AnchorWidget anchor;
 
-    public CategoryLabelWidget( Text message, TextRenderer textRenderer) {
+    public CategoryLabelWidget( Component message, Font textRenderer) {
         super(0, -100, 200, 20, message, textRenderer);
     }
 
@@ -27,7 +27,7 @@ public class CategoryLabelWidget extends TextWidget implements ConfigChoice {
     }
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
         setY(anchor.getY());
         setX(anchor.getX());

@@ -1,9 +1,9 @@
 package net.mmly.openminemap.network;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.map.PlayersManager;
 
 public enum NetworkState {
@@ -18,8 +18,8 @@ public enum NetworkState {
     private static NetworkState currentNetworkState = NetworkState.NOT_CONNECTED;
 
     NetworkState(String baseName) {
-        this.identifier = Identifier.of("openminemap", "network/" + baseName + ".png");
-        this.selectionIdentifier = Identifier.of("openminemap", "network/" + baseName + "selection.png");
+        this.identifier = Identifier.fromNamespaceAndPath("openminemap", "network/" + baseName + ".png");
+        this.selectionIdentifier = Identifier.fromNamespaceAndPath("openminemap", "network/" + baseName + "selection.png");
         this.translationKey = "omm.network." + baseName;
     }
 
@@ -35,16 +35,16 @@ public enum NetworkState {
         currentNetworkState = BAD_CONNECTION;
     }
 
-    public static void resetNetworkState(ClientPlayNetworkHandler clientPlayNetworkHandler, MinecraftClient client) {
+    public static void resetNetworkState(ClientPacketListener clientPlayNetworkHandler, Minecraft client) {
         PlayersManager.lastReceivedData = NetworkPlayerData.empty();
         currentNetworkState = NOT_CONNECTED;
     }
 
-    public Formatting getTranslationTextColor() {
+    public ChatFormatting getTranslationTextColor() {
         return switch (this) {
-            case CONNECTED -> Formatting.GREEN;
-            case BAD_CONNECTION -> Formatting.YELLOW;
-            case NOT_CONNECTED -> Formatting.RED;
+            case CONNECTED -> ChatFormatting.GREEN;
+            case BAD_CONNECTION -> ChatFormatting.YELLOW;
+            case NOT_CONNECTED -> ChatFormatting.RED;
         };
     }
 

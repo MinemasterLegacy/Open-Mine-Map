@@ -1,7 +1,7 @@
 package net.mmly.openminemap.util;
 
 import com.google.gson.JsonObject;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.raster.LayerType;
 
 import java.util.Arrays;
@@ -55,7 +55,7 @@ public class TileUrl {
         this.source_url = source_url;
         this.layerType = LayerType.BASE; //TODO will have to be changed if overlay presets are added
         presetID = templateId;
-        presetIdentifier = Identifier.of("openminemap", "rastertiles/" + name
+        presetIdentifier = Identifier.fromNamespaceAndPath("openminemap", "rastertiles/" + name
                 .replace("Ö", "O")
                 .toLowerCase(Locale.US)
                 .replace(" ", "")

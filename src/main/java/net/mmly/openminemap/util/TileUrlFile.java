@@ -1,10 +1,10 @@
 package net.mmly.openminemap.util;
 
 import com.google.gson.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.Resource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.Resource;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.TileUrlErrorType;
@@ -78,7 +78,7 @@ public class TileUrlFile {
     }
 
     public static void initOsmAttribution() {
-        osmAttribution = Text.translatable("omm.osm-attribution").getString();
+        osmAttribution = Component.translatable("omm.osm-attribution").getString();
     }
 
     private static void setError(TileUrlErrorType errorType, TileUrl url) {
@@ -106,15 +106,15 @@ public class TileUrlFile {
 
     /// Adds url load errors to chat as needed
     private static void addApplicableErrors() {
-        Text debugStart = Text.translatable("omm.error.tile-url.start");
+        Component debugStart = Component.translatable("omm.error.tile-url.start");
         if (loadError != TileUrlErrorType.NO_ERROR) {
             String name;
             if (errorUrl == null) {
                 name = ": ";
             } else if (errorUrl.name == null)  {
                 name = ": ";
-            } else name = " - " + Text.translatable("omm.error.tile-url.parse").getString() +" "+ errorUrl.name + ": ";
-            OpenMineMapClient.debugMessages.add(debugStart.getString() + name + Text.translatable(loadError.translationKey).getString());
+            } else name = " - " + Component.translatable("omm.error.tile-url.parse").getString() +" "+ errorUrl.name + ": ";
+            OpenMineMapClient.debugMessages.add(debugStart.getString() + name + Component.translatable(loadError.translationKey).getString());
         }
     }
 
@@ -155,11 +155,11 @@ public class TileUrlFile {
         try {
             TileUrl[] tileUrlArray;
             try {
-                Optional<Resource> file = MinecraftClient.getInstance().getResourceManager().getResource(Identifier.of("openminemap", "rasterpresets.json"));
+                Optional<Resource> file = Minecraft.getInstance().getResourceManager().getResource(Identifier.fromNamespaceAndPath("openminemap", "rasterpresets.json"));
                 if (file.isEmpty()) {
                     throw new IOException();
                 }
-                tileUrlArray = loadRasters(file.get().getInputStream(), true);
+                tileUrlArray = loadRasters(file.get().open(), true);
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
                 setError(TileUrlErrorType.MALFORMED_JSON_FILE, null);

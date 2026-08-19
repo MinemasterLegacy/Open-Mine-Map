@@ -1,7 +1,7 @@
 package net.mmly.openminemap.http;
 
 import com.google.gson.Gson;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.search.SearchResultType;
@@ -26,7 +26,7 @@ public abstract class LocationJsonRequester<T> extends Requester<T> {
                         Double.NaN,
                         false,
                         "",
-                        Text.translatable("omm.notification.something-wrong").getString(),
+                        Component.translatable("omm.notification.something-wrong").getString(),
                         0
                 )
         });
@@ -40,7 +40,7 @@ public abstract class LocationJsonRequester<T> extends Requester<T> {
                         Double.NaN,
                         false,
                         "",
-                        Text.translatable("omm.search.no-results").getString(),
+                        Component.translatable("omm.search.no-results").getString(),
                         0
                 )
         });

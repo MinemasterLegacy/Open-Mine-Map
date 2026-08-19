@@ -1,44 +1,42 @@
 package net.mmly.openminemap.draw;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.Cursor;
-import net.minecraft.client.gui.cursor.StandardCursors;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.render.state.GuiRenderState;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix3x2fStack;
 import net.mmly.openminemap.util.ColorUtil;
-
+import com.mojang.blaze3d.platform.cursor.CursorType;
 import java.util.TreeMap;
 
 public class UContext { //UniversalContext ; makes it easier to update draw methods per-version and allows for adding custom ones ; also eliminates the need to pass a context with draw methods
 
-    static DrawContext drawContext;
-    static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+    static GuiGraphics drawContext;
+    static Font textRenderer = Minecraft.getInstance().font;
     @Deprecated
-    public static VertexConsumerProvider.Immediate capturedVertexProvider;
+    public static MultiBufferSource.BufferSource capturedVertexProvider;
     private static int textureAlphaColor = 0xFFFFFFFF;
     public static int SEMI_TRANSPARENT_UI_ALPHA = 64;
 
-    public static void setContext(DrawContext context) {
+    public static void setContext(GuiGraphics context) {
         drawContext = context;
     }
 
-    public static DrawContext getContext() {
+    public static GuiGraphics getContext() {
         return drawContext;
     }
 
-    public static void setCursorContext(Cursor cursor) {
-        drawContext.setCursor(cursor);
+    public static void setCursorContext(CursorType cursor) {
+        drawContext.requestCursor(cursor);
     }
 
-    public static void setTextRenderer(TextRenderer renderer) {
+    public static void setTextRenderer(Font renderer) {
         textRenderer = renderer;
     }
 
@@ -46,23 +44,23 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     //  - Left: defines leftmost edge
     //  - Right: defines rightmost edge
     //  - Center: defines center
-    public static void drawJustifiedText(Text text, Justify justify, int x, int y, int color, boolean shadow) {
+    public static void drawJustifiedText(Component text, Justify justify, int x, int y, int color, boolean shadow) {
         switch (justify) {
             case LEFT: {
-                drawContext.drawText(textRenderer, text, x, y, color, shadow);
+                drawContext.drawString(textRenderer, text, x, y, color, shadow);
                 break;
             }
             case RIGHT: {
-                drawContext.drawText(textRenderer, text, x - textRenderer.getWidth(text), y, color, shadow);
+                drawContext.drawString(textRenderer, text, x - textRenderer.width(text), y, color, shadow);
                 break;
             }
             case CENTER: {
-                drawContext.drawText(textRenderer, text, x - (textRenderer.getWidth(text) / 2), y, color, shadow);
+                drawContext.drawString(textRenderer, text, x - (textRenderer.width(text) / 2), y, color, shadow);
                 break;
             }
         }
     }
-    public static void drawJustifiedText(MutableText text, Justify justify, int x, int y, int color) {
+    public static void drawJustifiedText(MutableComponent text, Justify justify, int x, int y, int color) {
         drawJustifiedText(text, justify, x, y, color, false);
     }
 
@@ -76,11 +74,11 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         drawBorder(x, y, x2 - x, y2 - y, color);
     }
 
-    public static void fillWidget(Widget widget, int color) {
+    public static void fillWidget(LayoutElement widget, int color) {
         UContext.fillZone(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), color);
     }
 
-    public static void borderWidget(Widget widget, int color) {
+    public static void borderWidget(LayoutElement widget, int color) {
         UContext.drawBorder(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), color);
     }
 
@@ -92,12 +90,12 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
         drawContext.fill(x - radius, y - radius, x + radius, y + radius, color);
     }
 
-    public static void fillAndDrawText(Text text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor, boolean shadow) {
-        fillZone(x, y, (marginWidth * 2) + textRenderer.getWidth(text), (marginHeight * 2) + textRenderer.fontHeight, fillColor);
+    public static void fillAndDrawText(Component text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor, boolean shadow) {
+        fillZone(x, y, (marginWidth * 2) + textRenderer.width(text), (marginHeight * 2) + textRenderer.lineHeight, fillColor);
         drawJustifiedText(text, Justify.LEFT, x + marginWidth, y + marginHeight, textColor, shadow);
     }
 
-    public static void fillAndDrawText(Text text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor) {
+    public static void fillAndDrawText(Component text, int x, int y, int marginWidth, int marginHeight, int fillColor, int textColor) {
         fillAndDrawText(text, x, y, marginWidth, marginHeight, fillColor, textColor, false);
     }
 
@@ -123,32 +121,32 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     }
 
     public static void drawTexture(Identifier identifier, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-        drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, identifier, x, y, u, v, width, height, regionWidth, regionHeight, textureWidth, textureHeight, textureAlphaColor);
+        drawContext.blit(RenderPipelines.GUI_TEXTURED, identifier, x, y, u, v, width, height, regionWidth, regionHeight, textureWidth, textureHeight, textureAlphaColor);
     }
 
     public static void drawTriangle(int[][] triangle, int fillColor) {
-        drawContext.state.addSimpleElement(new ColoredPolygonGuiElementRenderState(
-                drawContext.getMatrices(),
+        drawContext.guiRenderState.submitGuiElement(new ColoredPolygonGuiElementRenderState(
+                drawContext.pose(),
                 new int[][][] {triangle},
                 triangle[0][0],
                 triangle[0][1],
                 triangle[1][0],
                 triangle[1][1],
                 fillColor,
-                drawContext.scissorStack.peekLast()));
+                drawContext.scissorStack.peek()));
 
     }
 
     public static void drawPolygon(int[][][] polygon, int fillColor) {
-        drawContext.state.addSimpleElement(new ColoredPolygonGuiElementRenderState(
-                drawContext.getMatrices(),
+        drawContext.guiRenderState.submitGuiElement(new ColoredPolygonGuiElementRenderState(
+                drawContext.pose(),
                 polygon,
                 polygon[0][0][0],
                 polygon[0][0][1],
                 polygon[0][1][0],
                 polygon[0][1][1],
                 fillColor,
-                drawContext.scissorStack.peekLast()));
+                drawContext.scissorStack.peek()));
         /*drawContext.state.addSimpleElement(new whywhywhywhywhy(
                 RenderPipelines.GUI,
                 TextureSetup.empty(),
@@ -220,7 +218,7 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     public static void drawDiagonalLine(int[] start, int[] end, float thickness, int color) {
 
 
-        Matrix3x2fStack matrixStack = drawContext.getMatrices();
+        Matrix3x2fStack matrixStack = drawContext.pose();
         matrixStack.pushMatrix();
 
         double boundsX = start[0] - end[0];
@@ -241,18 +239,18 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
 
     }
 
-    public static void drawButtonOnWidget(Widget widget, boolean disabled, boolean highlighted) {
+    public static void drawButtonOnWidget(LayoutElement widget, boolean disabled, boolean highlighted) {
         drawButton(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), disabled, highlighted);
     }
 
     public static void drawButton(int x, int y, int width, int height, boolean disabled, boolean highlighted) {
-        drawContext.drawGuiTexture(
+        drawContext.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
                 disabled ?
-                    Identifier.ofVanilla("widget/button_disabled") :
+                    Identifier.withDefaultNamespace("widget/button_disabled") :
                     (highlighted ?
-                            Identifier.ofVanilla("widget/button_highlighted") :
-                            Identifier.ofVanilla("widget/button")
+                            Identifier.withDefaultNamespace("widget/button_highlighted") :
+                            Identifier.withDefaultNamespace("widget/button")
                 ),
                 x, y, width, height, textureAlphaColor);
     }

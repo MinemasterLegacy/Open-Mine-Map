@@ -1,6 +1,6 @@
 package net.mmly.openminemap.util;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public class DrawableMapTile {
     public Identifier identifier;

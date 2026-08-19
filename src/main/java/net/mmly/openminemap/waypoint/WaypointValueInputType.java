@@ -1,6 +1,6 @@
 package net.mmly.openminemap.waypoint;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public enum WaypointValueInputType {
     NAME("omm.text.name"),
@@ -23,6 +23,6 @@ public enum WaypointValueInputType {
     }
 
     public String getTranslatedString() {
-        return Text.translatable(translationKey).getString();
+        return Component.translatable(translationKey).getString();
     }
 }

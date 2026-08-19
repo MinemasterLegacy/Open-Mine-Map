@@ -1,6 +1,6 @@
 package net.mmly.openminemap.enums;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public enum ResizeDirection {
     UP_MAP(true),
@@ -16,8 +16,8 @@ public enum ResizeDirection {
     ResizeDirection(boolean isVertical) {
         this.isVertical = isVertical;
         identifier = isVertical ?
-                Identifier.of("openminemap", "resizevertical.png") :
-                Identifier.of("openminemap", "resizehorizontal.png");
+                Identifier.fromNamespaceAndPath("openminemap", "resizevertical.png") :
+                Identifier.fromNamespaceAndPath("openminemap", "resizehorizontal.png");
 
     }
 

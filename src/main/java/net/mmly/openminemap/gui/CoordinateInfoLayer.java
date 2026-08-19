@@ -1,11 +1,11 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
@@ -14,7 +14,7 @@ import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Projection;
 import net.mmly.openminemap.util.UnitConvert;
 
-public class CoordinateInfoLayer extends ClickableWidget {
+public class CoordinateInfoLayer extends AbstractWidget {
 
     private static boolean showMouseCoordinates = true;
     private static boolean showPlayerCoordinates = true;
@@ -27,8 +27,8 @@ public class CoordinateInfoLayer extends ClickableWidget {
     private static final int TEXT_MARGIN = 4;
 
     public CoordinateInfoLayer() {
-        super(0, 0, 0, 0, Text.of(""));
-        setWidth(getMaxWidth(MinecraftClient.getInstance().textRenderer));
+        super(0, 0, 0, 0, Component.nullToEmpty(""));
+        setWidth(getMaxWidth(Minecraft.getInstance().font));
         showDistortion = ConfigOptions.DISTORTION_DISPLAY.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF);
         setHeight(
                 (showMouseCoordinates ? LINE_HEIGHT : 0) +
@@ -37,22 +37,22 @@ public class CoordinateInfoLayer extends ClickableWidget {
         );
     }
 
-    private int getMaxWidth(TextRenderer textRenderer) {
+    private int getMaxWidth(Font textRenderer) {
         return Math.max(
                 Math.max(
                         Math.max(
-                                showMouseCoordinates ? textRenderer.getWidth(Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) : 0,
-                                showPlayerCoordinates ? textRenderer.getWidth(Text.translatable("omm.fullscreen.player-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) : 0
+                                showMouseCoordinates ? textRenderer.width(Component.translatable("omm.fullscreen.mouse-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) : 0,
+                                showPlayerCoordinates ? textRenderer.width(Component.translatable("omm.fullscreen.player-coordinates-label").getString() + MAX_LENGTH_COORDINATE_STRING) : 0
                         ),
-                        showDistortion ? textRenderer.getWidth(Text.translatable("omm.fullscreen.distortion-label").getString() + MAX_LENGTH_DISTORTION_STRING) : 0
+                        showDistortion ? textRenderer.width(Component.translatable("omm.fullscreen.distortion-label").getString() + MAX_LENGTH_DISTORTION_STRING) : 0
                 ),
                 MIN_WIDTH
         ) + 2 * TEXT_MARGIN;
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        setY(context.getScaledWindowHeight()
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        setY(context.guiHeight()
                 - (showDistortion ? LINE_HEIGHT : 0)
                 - (showPlayerCoordinates ? LINE_HEIGHT : 0)
                 - (showMouseCoordinates ? LINE_HEIGHT : 0)
@@ -91,22 +91,22 @@ public class CoordinateInfoLayer extends ClickableWidget {
         int lineNum = 1;
         if (showDistortion) {
             drawTextLine(
-                    MinecraftClient.getInstance().textRenderer,
-                    Text.translatable("omm.fullscreen.distortion-label").getString() + distortionBaseDisplay + " ±" + distortionMarginDisplay + "°",
+                    Minecraft.getInstance().font,
+                    Component.translatable("omm.fullscreen.distortion-label").getString() + distortionBaseDisplay + " ±" + distortionMarginDisplay + "°",
                     lineNum++,
                     windowHeight);
         }
         if (showPlayerCoordinates) {
             drawTextLine(
-                    MinecraftClient.getInstance().textRenderer,
-                    Text.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°",
+                    Minecraft.getInstance().font,
+                    Component.translatable("omm.fullscreen.player-coordinates-label").getString() + playerDisplayLat + "°, " + playerDisplayLon + "°",
                     lineNum++,
                     windowHeight);
         }
         if (showMouseCoordinates) {
             drawTextLine(
-                    MinecraftClient.getInstance().textRenderer,
-                    Text.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°",
+                    Minecraft.getInstance().font,
+                    Component.translatable("omm.fullscreen.mouse-coordinates-label").getString() + mouseDisplayLat + "°, " + mouseDisplayLong + "°",
                     lineNum++,
                     windowHeight);
         }
@@ -114,13 +114,13 @@ public class CoordinateInfoLayer extends ClickableWidget {
 
     }
 
-    private void drawTextLine(TextRenderer renderer, String text, int num, int windowHeight) {
-        UContext.fillZone(0, windowHeight - num * LINE_HEIGHT, TEXT_MARGIN * 2 + renderer.getWidth(Text.of(text)), LINE_HEIGHT, MapScreen.backingColor);
-        UContext.drawJustifiedText(Text.of(text), Justify.LEFT, TEXT_MARGIN, TEXT_MARGIN + windowHeight - num * LINE_HEIGHT, MapScreen.getPlainTextColor(), true);
+    private void drawTextLine(Font renderer, String text, int num, int windowHeight) {
+        UContext.fillZone(0, windowHeight - num * LINE_HEIGHT, TEXT_MARGIN * 2 + renderer.width(Component.nullToEmpty(text)), LINE_HEIGHT, MapScreen.backingColor);
+        UContext.drawJustifiedText(Component.nullToEmpty(text), Justify.LEFT, TEXT_MARGIN, TEXT_MARGIN + windowHeight - num * LINE_HEIGHT, MapScreen.getPlainTextColor(), true);
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 }

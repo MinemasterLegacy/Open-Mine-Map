@@ -8,8 +8,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
@@ -34,8 +34,8 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
     public static final String MODVERSION = "1.8.0";
     public static final int MAX_PACKET_VERSION = 1;
 
-    private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");
-    private static final Identifier HUD_MAP_LAYER_FS = Identifier.of("openminemap", "hud-example-layer-fs");
+    private static final Identifier HUD_MAP_LAYER = Identifier.fromNamespaceAndPath("openminemap", "hud-example-layer");
+    private static final Identifier HUD_MAP_LAYER_FS = Identifier.fromNamespaceAndPath("openminemap", "hud-example-layer-fs");
 
     @Override
     public void onInitializeClient() { //method where other fabric api methods for registering and adding objects and behaviors will be called
@@ -77,7 +77,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         ClientPlayConnectionEvents.DISCONNECT.register(NetworkState::resetNetworkState);
 
         ClientTickEvents.START_CLIENT_TICK.register(minecraftClient -> {
-            if (minecraftClient.currentScreen instanceof TitleScreen && HudMap.initialized) {
+            if (minecraftClient.screen instanceof TitleScreen && HudMap.initialized) {
                 HudMap.initialized = false;
             }
         });

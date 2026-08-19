@@ -1,17 +1,16 @@
 package net.mmly.openminemap.waypoint;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.AnchorWidget;
@@ -25,6 +24,7 @@ import net.mmly.openminemap.util.WaypointFile;
 import org.lwjgl.glfw.GLFW;
 
 import javax.imageio.ImageIO;
+import com.mojang.blaze3d.platform.NativeImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -48,9 +48,9 @@ public class WaypointScreen extends Screen {
     private ColorSliderWidget hueSlider;
     private ColorSliderWidget saturationSlider;
     private ColorSliderWidget valueSlider;
-    private ButtonWidget createWaypointButton;
-    private ButtonWidget saveWaypointButton;
-    private ButtonWidget deleteWaypointButton;
+    private Button createWaypointButton;
+    private Button saveWaypointButton;
+    private Button deleteWaypointButton;
     WaypointList waypointList;
 
     private WaypointParameterWidget nameField;
@@ -83,11 +83,11 @@ public class WaypointScreen extends Screen {
     ArrayList<AnchorWidget> anchorWidgets = new ArrayList<>();
 
     private static final Identifier[] styleIdentifiers = new Identifier[] {
-            Identifier.of("openminemap", "waypoints/diamond.png"),
-            Identifier.of("openminemap", "waypoints/star.png"),
-            Identifier.of("openminemap", "waypoints/house.png"),
-            Identifier.of("openminemap", "waypoints/city.png"),
-            Identifier.of("openminemap", "waypoints/cross.png")
+            Identifier.fromNamespaceAndPath("openminemap", "waypoints/diamond.png"),
+            Identifier.fromNamespaceAndPath("openminemap", "waypoints/star.png"),
+            Identifier.fromNamespaceAndPath("openminemap", "waypoints/house.png"),
+            Identifier.fromNamespaceAndPath("openminemap", "waypoints/city.png"),
+            Identifier.fromNamespaceAndPath("openminemap", "waypoints/cross.png")
     };
 
     public static WaypointScreen getInstance() {
@@ -95,7 +95,7 @@ public class WaypointScreen extends Screen {
     }
 
     public WaypointScreen() {
-        super(Text.of("OpenMineMap Waypoints"));
+        super(Component.nullToEmpty("OpenMineMap Waypoints"));
         instance = this;
     }
 
@@ -105,7 +105,7 @@ public class WaypointScreen extends Screen {
     }
 
     public WaypointScreen(double lat, double lon) {
-        super(Text.of("OpenMineMap Waypoints"));
+        super(Component.nullToEmpty("OpenMineMap Waypoints"));
         instance = this;
         initWithValues = true;
         initLong = lon;
@@ -114,19 +114,19 @@ public class WaypointScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
-        if (input.getKeycode() == GLFW.GLFW_KEY_LEFT_SHIFT || input.getKeycode() == GLFW.GLFW_KEY_RIGHT_SHIFT) shiftPressed = true;
+    public boolean keyPressed(KeyEvent input) {
+        if (input.input() == GLFW.GLFW_KEY_LEFT_SHIFT || input.input() == GLFW.GLFW_KEY_RIGHT_SHIFT) shiftPressed = true;
         return super.keyPressed(input);
     }
 
     @Override
-    public boolean keyReleased(KeyInput input) {
-        if (input.getKeycode() == GLFW.GLFW_KEY_LEFT_SHIFT || input.getKeycode() == GLFW.GLFW_KEY_RIGHT_SHIFT) shiftPressed = false;
+    public boolean keyReleased(KeyEvent input) {
+        if (input.input() == GLFW.GLFW_KEY_LEFT_SHIFT || input.input() == GLFW.GLFW_KEY_RIGHT_SHIFT) shiftPressed = false;
         return super.keyReleased(input);
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         if (RightClickMenu.instance.isMouseOver(click.x(), click.y())) {
             if (RightClickMenu.instance.mouseClicked(click, doubled)) {
                 return true;
@@ -139,7 +139,7 @@ public class WaypointScreen extends Screen {
 
     //called by the right click menu to immediately enter edit mode
     public WaypointScreen(Waypoint waypoint) {
-        super(Text.of("OpenMineMap Waypoints"));
+        super(Component.nullToEmpty("OpenMineMap Waypoints"));
         instance = this;
         initEditWaypoint = waypoint;
         initInEditMode = true;
@@ -151,13 +151,13 @@ public class WaypointScreen extends Screen {
         inEditMode = true;
         ColorSliderWidget.setColor(waypoint.color);
         styleSelection = WaypointStyle.getByString(waypoint.style);
-        nameField.setText(waypoint.name);
-        latitudeWidget.setText(Double.toString(waypoint.latitude));
-        longitudeWidget.setText(Double.toString(waypoint.longitude));
+        nameField.setValue(waypoint.name);
+        latitudeWidget.setValue(Double.toString(waypoint.latitude));
+        longitudeWidget.setValue(Double.toString(waypoint.longitude));
         if (waypoint.angle < 0) {
-            angleWidget.setText("");
+            angleWidget.setValue("");
         } else {
-            angleWidget.setText(Double.toString(waypoint.angle));
+            angleWidget.setValue(Double.toString(waypoint.angle));
         }
         createWaypointButton.visible = false;
         saveWaypointButton.visible = true;
@@ -169,10 +169,10 @@ public class WaypointScreen extends Screen {
         inEditMode = false;
         ColorSliderWidget.setColor(ColorSliderWidget.defaultHue, ColorSliderWidget.defaultSaturation, ColorSliderWidget.defaultValue);
         styleSelection = WaypointStyle.DIAMOND;
-        nameField.setText("");
-        latitudeWidget.setText("");
-        longitudeWidget.setText("");
-        angleWidget.setText("");
+        nameField.setValue("");
+        latitudeWidget.setValue("");
+        longitudeWidget.setValue("");
+        angleWidget.setValue("");
         saveWaypointButton.visible = false;
         createWaypointButton.visible = true;
     }
@@ -185,70 +185,70 @@ public class WaypointScreen extends Screen {
         saturationSlider = new ColorSliderWidget(60, 20, 20, 120, ColorSliderType.SATURATION);
         valueSlider = new ColorSliderWidget(100, 20, 20, 120, ColorSliderType.VALUE);
 
-        this.addDrawableChild(hueSlider);
-        this.addDrawableChild(saturationSlider);
-        this.addDrawableChild(valueSlider);
+        this.addRenderableWidget(hueSlider);
+        this.addRenderableWidget(saturationSlider);
+        this.addRenderableWidget(valueSlider);
 
         generateWaypointEntries();
 
-        createWaypointButton = ButtonWidget.builder(Text.translatable("omm.waypoints.button.create"), (buttonWidget) -> {
+        createWaypointButton = Button.builder(Component.translatable("omm.waypoints.button.create"), (buttonWidget) -> {
             if (!fieldsAreValid()) return;
             WaypointScreen.createWaypoint(
-                    nameField.getText(),
-                    Double.parseDouble(latitudeWidget.getText()),
-                    Double.parseDouble(longitudeWidget.getText()),
+                    nameField.getValue(),
+                    Double.parseDouble(latitudeWidget.getValue()),
+                    Double.parseDouble(longitudeWidget.getValue()),
                     getSelectedHSB(),
                     styleSelection,
-                    angleWidget.getText().isBlank() ? -1 : Double.parseDouble(angleWidget.getText())
+                    angleWidget.getValue().isBlank() ? -1 : Double.parseDouble(angleWidget.getValue())
                     );
         }).build();
-        this.addDrawableChild(createWaypointButton);
+        this.addRenderableWidget(createWaypointButton);
 
-        saveWaypointButton = ButtonWidget.builder(Text.translatable("omm.waypoints.button.save"), (buttonWidget) -> {
+        saveWaypointButton = Button.builder(Component.translatable("omm.waypoints.button.save"), (buttonWidget) -> {
             if (!fieldsAreValid()) return;
             WaypointScreen.saveEditingWaypoint();
             exitEditMode();
         }).build();
-        this.addDrawableChild(saveWaypointButton);
+        this.addRenderableWidget(saveWaypointButton);
 
-        deleteWaypointButton = ButtonWidget.builder(Text.translatable("omm.waypoints.button.delete"), (buttonWidget) -> {
+        deleteWaypointButton = Button.builder(Component.translatable("omm.waypoints.button.delete"), (buttonWidget) -> {
             if (!WaypointScreen.instance.inEditMode) return;
             WaypointScreen.deleteEditingWaypoint();
             exitEditMode();
         }).build();
-        this.addDrawableChild(deleteWaypointButton);
+        this.addRenderableWidget(deleteWaypointButton);
 
-        nameField = new WaypointParameterWidget(this.textRenderer,
-                Text.of(initWithValues ?
+        nameField = new WaypointParameterWidget(this.font,
+                Component.nullToEmpty(initWithValues ?
                             (initName != null ?
                                 initName :
                                 UnitConvert.floorToPlace(initLat, 7) + ", " + UnitConvert.floorToPlace(initLong, 7)) :
                             "")
                 , true, WaypointValueInputType.NAME);
         nameField.setMaxLength(200);
-        this.addDrawableChild(nameField);
+        this.addRenderableWidget(nameField);
 
-        latitudeWidget = new WaypointParameterWidget(this.textRenderer,  Text.of(initWithValues ? Double.toString(initLat) : ""), true, WaypointValueInputType.LATITUDE);
-        this.addDrawableChild(latitudeWidget);
+        latitudeWidget = new WaypointParameterWidget(this.font,  Component.nullToEmpty(initWithValues ? Double.toString(initLat) : ""), true, WaypointValueInputType.LATITUDE);
+        this.addRenderableWidget(latitudeWidget);
 
-        longitudeWidget = new WaypointParameterWidget(this.textRenderer,  Text.of(initWithValues ? Double.toString(initLong) : ""), true, WaypointValueInputType.LONGITUDE);
-        this.addDrawableChild(longitudeWidget);
+        longitudeWidget = new WaypointParameterWidget(this.font,  Component.nullToEmpty(initWithValues ? Double.toString(initLong) : ""), true, WaypointValueInputType.LONGITUDE);
+        this.addRenderableWidget(longitudeWidget);
 
-        angleWidget = new WaypointParameterWidget(this.textRenderer, Text.of(""), false, WaypointValueInputType.SNAP_ANGLE);
-        this.addDrawableChild(angleWidget);
+        angleWidget = new WaypointParameterWidget(this.font, Component.nullToEmpty(""), false, WaypointValueInputType.SNAP_ANGLE);
+        this.addRenderableWidget(angleWidget);
 
         leftButton = new WaypointIconSelectButton(-1);
-        this.addDrawableChild(leftButton);
+        this.addRenderableWidget(leftButton);
 
         rightButton = new WaypointIconSelectButton(1);
-        this.addDrawableChild(rightButton);
+        this.addRenderableWidget(rightButton);
 
-        this.addDrawableChild(new RightClickMenu(this.textRenderer));
+        this.addRenderableWidget(new RightClickMenu(this.font));
 
         if (initWithValues) {
-            nameField.setCursorToStart(false);
-            nameField.setSelectionEnd(nameField.getText().length());
-            nameField.setSelectionStart(0);
+            nameField.moveCursorToStart(false);
+            nameField.setHighlightPos(nameField.getValue().length());
+            nameField.setCursorPosition(0);
         }
 
         editingWaypoint = null;
@@ -258,10 +258,10 @@ public class WaypointScreen extends Screen {
 
         if (initInEditMode) {
             enableEditMode(initEditWaypoint);
-            latitudeWidget.setCursorToStart(false);
-            longitudeWidget.setCursorToStart(false);
-            angleWidget.setCursorToStart(false);
-            nameField.setCursorToStart(false);
+            latitudeWidget.moveCursorToStart(false);
+            longitudeWidget.moveCursorToStart(false);
+            angleWidget.moveCursorToStart(false);
+            nameField.moveCursorToStart(false);
         }
 
         initWithValues = false;
@@ -276,7 +276,7 @@ public class WaypointScreen extends Screen {
             WaypointFile.setWaypointsOfThisWorld(false);
             instance.generateWaypointEntries();
         } else {
-            OpenMineMapClient.debugMessages.add(Text.translatable("omm.error.waypoint-delete-failed").toString());
+            OpenMineMapClient.debugMessages.add(Component.translatable("omm.error.waypoint-delete-failed").toString());
         }
     }
 
@@ -287,16 +287,16 @@ public class WaypointScreen extends Screen {
     public static void saveEditingWaypoint() {
         if (WaypointFile.overwriteWaypoint(
                 instance.editingWaypointName,
-                instance.nameField.getText(),
-                Double.parseDouble(instance.latitudeWidget.getText()),
-                Double.parseDouble(instance.longitudeWidget.getText()),
+                instance.nameField.getValue(),
+                Double.parseDouble(instance.latitudeWidget.getValue()),
+                Double.parseDouble(instance.longitudeWidget.getValue()),
                 instance.getSelectedHSB(),
-                instance.angleWidget.getText().isBlank() ? -1 : positiseAngle(Double.parseDouble(instance.angleWidget.getText())),
+                instance.angleWidget.getValue().isBlank() ? -1 : positiseAngle(Double.parseDouble(instance.angleWidget.getValue())),
                 instance.styleSelection.toString().toLowerCase()
         )) {
             instance.generateWaypointEntries();
         } else {
-            OpenMineMapClient.debugMessages.add(Text.translatable("omm.error.waypoint-property-failiure").getString());
+            OpenMineMapClient.debugMessages.add(Component.translatable("omm.error.waypoint-property-failiure").getString());
         }
     }
 
@@ -317,13 +317,13 @@ public class WaypointScreen extends Screen {
     private void generateWaypointEntries() {
 
         refreshMidpoint();
-        if (waypointList != null) this.remove(waypointList);
+        if (waypointList != null) this.removeWidget(waypointList);
         for (WaypointEntryWidget widget : waypointWidgets) {
-            this.remove(widget);
+            this.removeWidget(widget);
         }
 
-        waypointList = new WaypointList(MinecraftClient.getInstance(), midPoint, height, 0, 24);
-        this.addDrawableChild(waypointList);
+        waypointList = new WaypointList(Minecraft.getInstance(), midPoint, height, 0, 24);
+        this.addRenderableWidget(waypointList);
 
         waypointWidgets.clear();
         anchorWidgets.clear();
@@ -333,7 +333,7 @@ public class WaypointScreen extends Screen {
         Waypoint[] waypoints = OmmMap.getWaypoints();
 
         for (int i = 0; i < numEntries; i++) {
-            waypointWidgets.add(new WaypointEntryWidget(Text.of(""), waypoints[i], this.textRenderer, waypoints[i].pinned, waypoints[i].visible));
+            waypointWidgets.add(new WaypointEntryWidget(Component.nullToEmpty(""), waypoints[i], this.font, waypoints[i].pinned, waypoints[i].visible));
             this.addWaypointWidget(waypointWidgets.getLast());
         }
     }
@@ -341,7 +341,7 @@ public class WaypointScreen extends Screen {
     private void addWaypointWidget(WaypointEntryWidget widget) {
         waypointWidgets.add(widget);
         AnchorWidget anchor = new AnchorWidget();
-        this.addDrawableChild(widget);
+        this.addRenderableWidget(widget);
 
         waypointList.addEntry(anchor);
         anchorWidgets.add(anchor);
@@ -370,7 +370,7 @@ public class WaypointScreen extends Screen {
             if (horizontalAmount > 0) leftButton.onClick(mouseX, mouseY);
             else rightButton.onClick(mouseX, mouseY);
         } else if (mouseX > midPoint) {
-            int maxScroll = Math.max(390 - MinecraftClient.getInstance().getWindow().getScaledHeight(), 0);
+            int maxScroll = Math.max(390 - Minecraft.getInstance().getWindow().getGuiScaledHeight(), 0);
             createScroll = Math.clamp(
                     createScroll + (verticalAmount < 0 ? -10 : 10),
                     0,
@@ -392,11 +392,11 @@ public class WaypointScreen extends Screen {
 
         float x = midPoint + marginWidths;
 
-        hueSlider.setDimensionsAndPosition(sliderWidths, 120, (int) x, 20 - createScroll);
+        hueSlider.setRectangle(sliderWidths, 120, (int) x, 20 - createScroll);
         x += marginWidths + sliderWidths;
-        saturationSlider.setDimensionsAndPosition(sliderWidths, 120, (int) x, 20 - createScroll);
+        saturationSlider.setRectangle(sliderWidths, 120, (int) x, 20 - createScroll);
         x += marginWidths + sliderWidths;
-        valueSlider.setDimensionsAndPosition(sliderWidths, 120, (int) x, 20 - createScroll);
+        valueSlider.setRectangle(sliderWidths, 120, (int) x, 20 - createScroll);
 
         int elementWidths = width - midPoint - 40;
         int elementXs = midPoint + 20;
@@ -423,27 +423,27 @@ public class WaypointScreen extends Screen {
 
         //        context.fill(midPoint + 20, 148, context.getScaledWindowWidth() - 21, 180, 0xFF000000);
         leftButton.setPosition(midPoint + 11, 157 - createScroll);
-        rightButton.setPosition(MinecraftClient.getInstance().getWindow().getScaledWidth() - 18,157 - createScroll);
+        rightButton.setPosition(Minecraft.getInstance().getWindow().getGuiScaledWidth() - 18,157 - createScroll);
 
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 
         deleteWaypointButton.active = inEditMode;
-        deleteWaypointButton.setTooltip(inEditMode ? Tooltip.of(Text.translatable("omm.waypoints.delete-tooltip")) : null);
+        deleteWaypointButton.setTooltip(inEditMode ? Tooltip.create(Component.translatable("omm.waypoints.delete-tooltip")) : null);
 
         super.render(context, mouseX, mouseY, delta);
         UContext.setContext(context);
 
         while (pathInt > -1) {
-            MinecraftClient.getInstance().getTextureManager().destroyTexture(Identifier.of("openminemap", "waypoint-s-shaded-"+pathInt));
+            Minecraft.getInstance().getTextureManager().release(Identifier.fromNamespaceAndPath("openminemap", "waypoint-s-shaded-"+pathInt));
             pathInt--;
         }
         pathInt = 0;
 
         updateWidgetPositions();
-        context.drawVerticalLine(midPoint, -3, height, GRAY);
+        context.vLine(midPoint, -3, height, GRAY);
 
         if ((inEditMode && saveWaypointButton.isHovered()) || (!inEditMode && createWaypointButton.isHovered())) {
             if (nameField.valueIsValid() && longitudeWidget.valueIsValid() && latitudeWidget.valueIsValid() && angleWidget.valueIsValid()) {
@@ -464,15 +464,15 @@ public class WaypointScreen extends Screen {
 
         int createMidpoint = (width - midPoint) / 2 + midPoint;
 
-        context.fill(midPoint + 20, 148 - createScroll, context.getScaledWindowWidth() - 21, 180 - createScroll, BLACK);
-        UContext.drawBorder(midPoint + 20, 148 - createScroll, context.getScaledWindowWidth() - 40 - midPoint, 32, GRAY);
-        context.enableScissor(midPoint + 21, 148 - createScroll, context.getScaledWindowWidth() - 21, 180 - createScroll);
+        context.fill(midPoint + 20, 148 - createScroll, context.guiWidth() - 21, 180 - createScroll, BLACK);
+        UContext.drawBorder(midPoint + 20, 148 - createScroll, context.guiWidth() - 40 - midPoint, 32, GRAY);
+        context.enableScissor(midPoint + 21, 148 - createScroll, context.guiWidth() - 21, 180 - createScroll);
 
         int image = styleSelection.ordinal();
         context.fill(createMidpoint - 14, 149 - createScroll, createMidpoint + 14, 179 - createScroll, DARK_GRAY);
         drawColorizedImage(context, styleIdentifiers[image], createMidpoint - 12, 152 - createScroll, 24, 24);
 
-        for (int i = 1; (createMidpoint - 12 + (i * 30)) < context.getScaledWindowWidth() - 20; i++) {
+        for (int i = 1; (createMidpoint - 12 + (i * 30)) < context.guiWidth() - 20; i++) {
             drawColorizedImage(context, styleIdentifiers[(image + i) % styleIdentifiers.length], createMidpoint - 12 + (i * 30), 152 - createScroll, 24, 24);
         }
 
@@ -481,11 +481,11 @@ public class WaypointScreen extends Screen {
         }
 
         UContext.drawDottedVerticalLine(148 - createScroll, 180 - createScroll, midPoint + 21, GRAY);
-        UContext.drawDottedVerticalLine(148 - createScroll, 180 - createScroll, context.getScaledWindowWidth() - 22, GRAY);
+        UContext.drawDottedVerticalLine(148 - createScroll, 180 - createScroll, context.guiWidth() - 22, GRAY);
 
         context.disableScissor();
 
-        RightClickMenu.instance.drawWidget(context, this.textRenderer);
+        RightClickMenu.instance.drawWidget(context, this.font);
 
     }
 
@@ -493,9 +493,9 @@ public class WaypointScreen extends Screen {
         return (angle % 360 + 360) % 360;
     }
 
-    private static void drawColorizedImage(DrawContext context, Identifier identifier, int x, int y, int width, int height) {
+    private static void drawColorizedImage(GuiGraphics context, Identifier identifier, int x, int y, int width, int height) {
         try {
-            BufferedImage image = ImageIO.read(MinecraftClient.getInstance().getResourceManager().getResource(identifier).get().getInputStream());
+            BufferedImage image = ImageIO.read(Minecraft.getInstance().getResourceManager().getResource(identifier).get().open());
             image = colorize(image, ColorSliderWidget.hue, ColorSliderWidget.saturation, ColorSliderWidget.value);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -503,17 +503,17 @@ public class WaypointScreen extends Screen {
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             NativeImage nImage = NativeImage.read(is);
 
-            Identifier wayIdent = Identifier.of("openminemap", "waypoint-s-shaded-"+pathInt);
-            MinecraftClient.getInstance().getTextureManager().registerTexture(wayIdent, new NativeImageBackedTexture(new nameSupplier(), nImage));
+            Identifier wayIdent = Identifier.fromNamespaceAndPath("openminemap", "waypoint-s-shaded-"+pathInt);
+            Minecraft.getInstance().getTextureManager().register(wayIdent, new DynamicTexture(new nameSupplier(), nImage));
             pathInt++;
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, wayIdent, x, y, 0, 0, width, height, width, height);
+            context.blit(RenderPipelines.GUI_TEXTURED, wayIdent, x, y, 0, 0, width, height, width, height);
 
             is.close();
             nImage.close();
             os.close();
 
         } catch (IOException | IllegalArgumentException e) {
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, identifier, x, y, 0, 0, width, height, width, height);
+            context.blit(RenderPipelines.GUI_TEXTURED, identifier, x, y, 0, 0, width, height, width, height);
         }
     }
 
@@ -549,9 +549,9 @@ public class WaypointScreen extends Screen {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         //super.close();
-        MinecraftClient.getInstance().setScreen(
+        Minecraft.getInstance().setScreen(
                 new MapScreen()
         );
         MapScreen.updateAltScreenMap(this);

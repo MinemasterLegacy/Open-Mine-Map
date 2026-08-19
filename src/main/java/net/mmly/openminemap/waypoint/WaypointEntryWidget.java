@@ -1,18 +1,17 @@
 package net.mmly.openminemap.waypoint;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.input.MouseInput;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.draw.UContext;
@@ -20,20 +19,20 @@ import net.mmly.openminemap.gui.RightClickMenu;
 import net.mmly.openminemap.gui.RightClickMenuType;
 import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
-
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import java.time.Duration;
 
-public class WaypointEntryWidget extends ClickableWidget {
+public class WaypointEntryWidget extends AbstractWidget {
 
     Waypoint waypoint;
-    TextRenderer renderer;
+    Font renderer;
     public static int scrollOffset;
 
-    private static final Identifier editId = Identifier.of("openminemap", "waypoints/gui/edit.png");
-    private static final Identifier pinOnId = Identifier.of("openminemap", "waypoints/gui/pinon.png");
-    private static final Identifier pinOffId = Identifier.of("openminemap", "waypoints/gui/pinoff.png");
-    private static final Identifier viewOnId = Identifier.of("openminemap", "waypoints/gui/viewon.png");
-    private static final Identifier viewOffId = Identifier.of("openminemap", "waypoints/gui/viewoff.png");
+    private static final Identifier editId = Identifier.fromNamespaceAndPath("openminemap", "waypoints/gui/edit.png");
+    private static final Identifier pinOnId = Identifier.fromNamespaceAndPath("openminemap", "waypoints/gui/pinon.png");
+    private static final Identifier pinOffId = Identifier.fromNamespaceAndPath("openminemap", "waypoints/gui/pinoff.png");
+    private static final Identifier viewOnId = Identifier.fromNamespaceAndPath("openminemap", "waypoints/gui/viewon.png");
+    private static final Identifier viewOffId = Identifier.fromNamespaceAndPath("openminemap", "waypoints/gui/viewoff.png");
 
     private static final int selectedColor = 0xFFFFFFFF;
     private static final int idleColor = 0xFF808080;
@@ -50,17 +49,17 @@ public class WaypointEntryWidget extends ClickableWidget {
     private AnchorWidget anchor;
     private int lastCheckedButton = 0;
 
-    private static final Text[] tooltipMessages = new Text[] {
-            Text.translatable("omm.waypoints.button.edit"),
-            Text.translatable("omm.waypoints.button.view"),
-            Text.translatable("omm.waypoints.button.pin"),
+    private static final Component[] tooltipMessages = new Component[] {
+            Component.translatable("omm.waypoints.button.edit"),
+            Component.translatable("omm.waypoints.button.view"),
+            Component.translatable("omm.waypoints.button.pin"),
     };
 
     public static void setScroll(int scroll) {
         scrollOffset = scroll;
     }
 
-    public WaypointEntryWidget(Text message, Waypoint waypoint, TextRenderer textRenderer, boolean pinned, boolean visible) {
+    public WaypointEntryWidget(Component message, Waypoint waypoint, Font textRenderer, boolean pinned, boolean visible) {
         super(10, 0, 0, 20, message);
         this.waypoint = waypoint;
         this.renderer = textRenderer;
@@ -93,13 +92,13 @@ public class WaypointEntryWidget extends ClickableWidget {
     }
 
     @Override
-    protected boolean isValidClickButton(MouseInput input) {
+    protected boolean isValidClickButton(MouseButtonInfo input) {
         this.lastCheckedButton = input.button();
         return input.button() == 0 || this.lastCheckedButton == 1;
     }
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 
         if (!anchor.drawNow) return;
 
@@ -112,21 +111,21 @@ public class WaypointEntryWidget extends ClickableWidget {
 
         int borderColor = WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? editingColor : (isFocused() ? selectedColor : (isHovered() ? hoverColor : idleColor));
 
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, waypoint.identifier, getX() + 3, getY() + 3, 0, 0, 14, 14, 14, 14);
+        context.blit(RenderPipelines.GUI_TEXTURED, waypoint.identifier, getX() + 3, getY() + 3, 0, 0, 14, 14, 14, 14);
 
         int xMod = 0;
         selection = Selection.NONE;
         if (mouseX < getRight() - 51) {
-            setTooltip(Tooltip.of(Text.of(waypoint.name)));
+            setTooltip(Tooltip.create(Component.nullToEmpty(waypoint.name)));
             setTooltipDelay(Duration.ofMillis(1000));
         }
         for (Identifier i : new Identifier[]{editId, visibleWaypoint ? viewOnId : viewOffId, pinnedWaypoint ? pinOnId : pinOffId}) {
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, i, getX() + width - 17 - (xMod * 16), getY() + 3, 0, 0, 14, 14, 14, 14);
+            context.blit(RenderPipelines.GUI_TEXTURED, i, getX() + width - 17 - (xMod * 16), getY() + 3, 0, 0, 14, 14, 14, 14);
             if (mouseIsInArea(getX() + width - 17 - (xMod * 16), getY() + 3, 14, 14)) {
-                setTooltip(Tooltip.of(tooltipMessages[xMod]));
+                setTooltip(Tooltip.create(tooltipMessages[xMod]));
                 setTooltipDelay(Duration.ZERO);
                 selection = Selection.getById(xMod + 1);
-                if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+                if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
 
             }
             xMod++;
@@ -136,24 +135,24 @@ public class WaypointEntryWidget extends ClickableWidget {
                 (getY() >= RightClickMenu.instance.getY() && getY() < RightClickMenu.instance.getBottom()) ||
                 (getBottom() < RightClickMenu.instance.getBottom() && getY() >= RightClickMenu.instance.getY())
             )) {
-            context.enableScissor(0, 0, getX() + width - 52, MinecraftClient.getInstance().getWindow().getScaledHeight());
-            context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.translatable("omm.waypoints.editing").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2), 0xFFFFFFFF, true);
+            context.enableScissor(0, 0, getX() + width - 52, Minecraft.getInstance().getWindow().getGuiScaledHeight());
+            context.drawString(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Component.translatable("omm.waypoints.editing").withStyle(ChatFormatting.BOLD) : Component.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.lineHeight / 2), 0xFFFFFFFF, true);
             context.disableScissor();
         }
 
         UContext.drawBorder(getX(), getY(), getWidth(), getHeight(), borderColor);
-        context.drawVerticalLine(getX() + width - 52, getY(), getY() + height, borderColor);
-        context.drawVerticalLine(getX() + 19, getY(), getY() + height, borderColor);
+        context.vLine(getX() + width - 52, getY(), getY() + height, borderColor);
+        context.vLine(getX() + 19, getY(), getY() + height, borderColor);
 
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
 
         if (lastCheckedButton == 1) {
             RightClickMenu.enableMenu(

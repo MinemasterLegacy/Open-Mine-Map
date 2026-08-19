@@ -1,20 +1,19 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.ConfirmLinkScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.draw.Justify;
@@ -36,17 +35,17 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class RightClickMenu extends ClickableWidget {
+public class RightClickMenu extends AbstractWidget {
 
     // = 16 * number of menu options
     private static final int OPTION_HEIGHT = 16;
     private RightClickMenuOption selectedOption;
     static double clickX = 0;
     static double clickY = 0;
-    private final Identifier rightClickMarker = Identifier.of("openminemap", "locationhighlight.png");
+    private final Identifier rightClickMarker = Identifier.fromNamespaceAndPath("openminemap", "locationhighlight.png");
     public int horizontalSide = 1;
     public int verticalSize = 1;
-    TextRenderer textRenderer;
+    Font textRenderer;
     //private WebAppSelectLayer webSelect = null;
     public NamedLocation selectedLocation;
     private boolean firstOptionIsBold = false;
@@ -139,8 +138,8 @@ public class RightClickMenu extends ClickableWidget {
         width = 16;
         for (int i = 0; i < menuOptions.size(); i++) {
             int compare = 8;
-            if (menuOptions.get(i) == RightClickMenuOption.NAME) compare += textRenderer.getWidth(Text.literal(selectedLocation == null ? "(null)" : selectedLocation.name).formatted(Formatting.BOLD));
-            else compare += textRenderer.getWidth(Text.translatable(menuOptions.get(i).getTranslationKey()));
+            if (menuOptions.get(i) == RightClickMenuOption.NAME) compare += textRenderer.width(Component.literal(selectedLocation == null ? "(null)" : selectedLocation.name).withStyle(ChatFormatting.BOLD));
+            else compare += textRenderer.width(Component.translatable(menuOptions.get(i).getTranslationKey()));
             width = Math.max(width, 8 + compare);
         }
         this.setWidth(width);
@@ -155,15 +154,15 @@ public class RightClickMenu extends ClickableWidget {
         if (option.equals("tpll")) return false;
         if (option.equals("tp")) return true;
         //option is dynamic
-        return MinecraftClient.getInstance().isInSingleplayer();
+        return Minecraft.getInstance().isLocalServer();
     }
 
     public static boolean useTpll() {
         return !useTp();
     }
 
-    public RightClickMenu(TextRenderer textRenderer) {
-        super(-500, -500, 0, 0, Text.empty());
+    public RightClickMenu(Font textRenderer) {
+        super(-500, -500, 0, 0, Component.empty());
 
         instance = this;
         this.textRenderer = textRenderer;
@@ -190,7 +189,7 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + width, getY() + height, 0x00000000);
         if (this.isMouseOver(mouseX, mouseY)) {
             selectedOption = menuOptions.get((mouseY - getY()) / OPTION_HEIGHT);
@@ -209,7 +208,7 @@ public class RightClickMenu extends ClickableWidget {
         } else {
             webIconSelection = null;
         }
-        if (this.isHovered() && selectedOption != null) context.setCursor(StandardCursors.POINTING_HAND);
+        if (this.isHovered() && selectedOption != null) context.requestCursor(CursorTypes.POINTING_HAND);
 
     }
 
@@ -238,7 +237,7 @@ public class RightClickMenu extends ClickableWidget {
             instance.setSavedMouseLatLong(MapScreen.map.getMouseLong(), MapScreen.map.getMouseLat());
         }
 
-        if (!(MinecraftClient.getInstance().currentScreen instanceof WaypointScreen)) instance.repositionForOverflow();
+        if (!(Minecraft.getInstance().screen instanceof WaypointScreen)) instance.repositionForOverflow();
     }
 
     private void repositionLeftward() {
@@ -252,7 +251,7 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     protected void repositionForOverflow() {
-        Screen currentScreen = MinecraftClient.getInstance().currentScreen;
+        Screen currentScreen = Minecraft.getInstance().screen;
         if (currentScreen == null) return;
         int windowScaledWidth = currentScreen.width;
         int windowScaledHeight = currentScreen.height;
@@ -277,13 +276,13 @@ public class RightClickMenu extends ClickableWidget {
         } else verticalSize = 1;
     }
 
-    private MutableText getTextFor(RightClickMenuOption option) {
-        if (option == null) return Text.literal("[null]").formatted(Formatting.GRAY);
-        if (option == RightClickMenuOption.NAME) return Text.literal(selectedLocation.name).formatted(Formatting.BOLD);
-        else return Text.translatable(option.getTranslationKey());
+    private MutableComponent getTextFor(RightClickMenuOption option) {
+        if (option == null) return Component.literal("[null]").withStyle(ChatFormatting.GRAY);
+        if (option == RightClickMenuOption.NAME) return Component.literal(selectedLocation.name).withStyle(ChatFormatting.BOLD);
+        else return Component.translatable(option.getTranslationKey());
     }
 
-    public void drawWidget(DrawContext context, TextRenderer renderer) {
+    public void drawWidget(GuiGraphics context, Font renderer) {
         if (displayType == RightClickMenuType.HIDDEN) return;
 
         if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 5, (int) clickY - 14, 10, 14);
@@ -291,7 +290,7 @@ public class RightClickMenu extends ClickableWidget {
 
         for (int i = 0; i < menuOptions.size(); i++) {
             boolean selected = selectedOption == menuOptions.get(i);
-            MutableText text = getTextFor(menuOptions.get(i));
+            MutableComponent text = getTextFor(menuOptions.get(i));
 
             if (menuOptions.get(i) == RightClickMenuOption.OPEN_IN && selected && showWebIcons) {
                 context.enableScissor(getX() + 1, getY(), getRight() - 1, getBottom());
@@ -305,7 +304,7 @@ public class RightClickMenu extends ClickableWidget {
                 }
 
                 context.disableScissor();
-                if (webIconSelection != null) context.drawTooltip(textRenderer, Text.of(webIconSelection.tooltipText), getX() - 6, getY() + (OPTION_HEIGHT * (i-1) + 14));
+                if (webIconSelection != null) context.setTooltipForNextFrame(textRenderer, Component.translationArg(webIconSelection.tooltipText), getX() - 6, getY() + (OPTION_HEIGHT * (i-1) + 14));
 
                 if (webIconScroll < 0) {
                     UContext.drawDottedVerticalLine(getY() + (OPTION_HEIGHT * i), getY() + (OPTION_HEIGHT * i) + 17, getX(), (MapScreen.getPlainTextColor() == 0xFFFFFFFF ? 0xFFa8afff : MapScreen.getPlainTextColor()));
@@ -318,7 +317,7 @@ public class RightClickMenu extends ClickableWidget {
             }
 
             UContext.drawJustifiedText(
-                    selected && MapScreen.getPlainTextColor() != 0xFFFFFFFF ? text.formatted(Formatting.UNDERLINE) : text,
+                    selected && MapScreen.getPlainTextColor() != 0xFFFFFFFF ? text.withStyle(ChatFormatting.UNDERLINE) : text,
                     horizontalSide == -1 ? Justify.RIGHT : Justify.LEFT,
                     horizontalSide == -1 ? getX() + width - 4 : getX() + 4,
                     getY() + 4 + (OPTION_HEIGHT * i),
@@ -345,35 +344,35 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         switch (selectedOption) {
             case TELEPORT_HERE: {
                 //MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll " + savedMouseLat + " " + savedMouseLong);
                 try { //can be used during development to use the /tp command instead of /tpll
-                    if (MinecraftClient.getInstance().player != null) {
+                    if (Minecraft.getInstance().player != null) {
                         double[] mcXz = Projection.from_geo(savedMouseLat, savedMouseLong);
                         if (useTp()) {
-                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tp "+(int) mcXz[0]+" "+PlayersManager.getHighestPoint(mcXz[0], mcXz[1])+" "+ (int) mcXz[1]);
+                            Minecraft.getInstance().player.connection.sendCommand("tp "+(int) mcXz[0]+" "+PlayersManager.getHighestPoint(mcXz[0], mcXz[1])+" "+ (int) mcXz[1]);
                         } else {
-                            MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll "+savedMouseLat+" "+savedMouseLong);
+                            Minecraft.getInstance().player.connection.sendCommand("tpll "+savedMouseLat+" "+savedMouseLong);
                         }
-                        if (MinecraftClient.getInstance().currentScreen instanceof WaypointScreen) {
-                            MinecraftClient.getInstance().setScreen(new MapScreen());
+                        if (Minecraft.getInstance().screen instanceof WaypointScreen) {
+                            Minecraft.getInstance().setScreen(new MapScreen());
                             MapScreen.map.setMapLatLong(selectedLocation.latitude, selectedLocation.longitude);
                         }
                     }
                 } catch (CoordinateValueError error) {
-                    MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+                    MapScreen.addNotification(new Notification(Component.translatable("omm.notification.something-wrong")));
                 }
                 break;
             }
             case COPY_COORDINATES: {
                 try {
                     //Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection("test"), null);
-                    MinecraftClient.getInstance().keyboard.setClipboard(savedMouseLat + " " + savedMouseLong);
-                    MapScreen.addNotification(new Notification(Text.translatable("omm.key.execute.copy-coordinates")));
+                    Minecraft.getInstance().keyboardHandler.setClipboard(savedMouseLat + " " + savedMouseLong);
+                    MapScreen.addNotification(new Notification(Component.translatable("omm.key.execute.copy-coordinates")));
                 } catch (HeadlessException e) {
-                    MapScreen.addNotification(new Notification(Text.translatable("omm.notification.something-wrong")));
+                    MapScreen.addNotification(new Notification(Component.translatable("omm.notification.something-wrong")));
                 }
                 break;
             }
@@ -387,10 +386,10 @@ public class RightClickMenu extends ClickableWidget {
                 return;
             }
             case CREATE_WAYPOINT: {
-                if (selectedLocation != null) MinecraftClient.getInstance().setScreen(
+                if (selectedLocation != null) Minecraft.getInstance().setScreen(
                         new WaypointScreen(savedMouseLat, savedMouseLong, selectedLocation.name)
                 );
-                else MinecraftClient.getInstance().setScreen(
+                else Minecraft.getInstance().setScreen(
                         new WaypointScreen(savedMouseLat, savedMouseLong)
                 );
                 selectedLocation = null;
@@ -398,7 +397,7 @@ public class RightClickMenu extends ClickableWidget {
             }
             case EDIT_WAYPOINT: {
                 //open the waypoint screen in edit mode
-                MinecraftClient.getInstance().setScreen(
+                Minecraft.getInstance().setScreen(
                         new WaypointScreen((Waypoint) selectedLocation)
                 );
                 break;
@@ -410,20 +409,20 @@ public class RightClickMenu extends ClickableWidget {
             }
             case UNPIN: {
                 if (!WaypointFile.setWaypointPinned(selectedLocation.name, false)) {
-                    OpenMineMapClient.debugMessages.add(Text.translatable("omm.error.waypoint-property-failiure").getString());
+                    OpenMineMapClient.debugMessages.add(Component.translatable("omm.error.waypoint-property-failiure").getString());
                 }
                 break;
             }
             case SET_SNAP_ANGLE: {
                 setSnapAngle();
-                MapScreen.addNotification(new Notification(Text.of(
-                        Text.translatable("omm.notification.snap-angle-set").getString() +
+                MapScreen.addNotification(new Notification(Component.nullToEmpty(
+                        Component.translatable("omm.notification.snap-angle-set").getString() +
                         UnitConvert.floorToPlace(HudMap.snapAngle,3) +
                         "°")));
                 break;
             }
             case REVERSE_SEARCH: {
-                MapScreen.addNotification(new Notification(Text.translatable("omm.notification.searching")));
+                MapScreen.addNotification(new Notification(Component.translatable("omm.notification.searching")));
                 RequestManager.reverseSearch(savedMouseLat, savedMouseLong);
                 break;
             }
@@ -449,7 +448,7 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
     private static void openUrl(WebIcon icon) {
         float lat = RightClickMenu.savedMouseLat;
@@ -492,15 +491,15 @@ public class RightClickMenu extends ClickableWidget {
     }
 
     private static void openUrl(String url, boolean isGep) {
-        MinecraftClient.getInstance().setScreen(
+        Minecraft.getInstance().setScreen(
                 new ConfirmLinkScreen(new BooleanConsumer() {
                     @Override
                     public void accept(boolean b) {
                         if(b) {
                             if (isGep) openInGep();
-                            else Util.getOperatingSystem().open(url);
+                            else Util.getPlatform().openUri(url);
                         }
-                        MinecraftClient.getInstance().setScreen(new MapScreen());
+                        Minecraft.getInstance().setScreen(new MapScreen());
                     }
                 }, url, true)
 
@@ -540,7 +539,7 @@ public class RightClickMenu extends ClickableWidget {
             return;
         }
         //System.out.println(file.exists());
-        Util.getOperatingSystem().open(file);
+        Util.getPlatform().openFile(file);
     }
 
     private static String zoomToMetersAbove(int z) {

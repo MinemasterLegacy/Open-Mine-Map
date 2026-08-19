@@ -2,9 +2,8 @@ package net.mmly.openminemap.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.storage.LevelResource;
 import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
@@ -101,10 +100,10 @@ public class WaypointFile {
 
      */
     private static boolean establishWorldType() {
-        worldType = MinecraftClient.getInstance().isInSingleplayer() ? WorldType.SINGLEPLAYER : WorldType.MULTIPLAYER;
+        worldType = Minecraft.getInstance().isLocalServer() ? WorldType.SINGLEPLAYER : WorldType.MULTIPLAYER;
         try {
-            if (worldType == WorldType.SINGLEPLAYER) worldName = MinecraftClient.getInstance().getServer().getSavePath(WorldSavePath.ROOT).getParent().getFileName().toString();
-            else worldName = MinecraftClient.getInstance().getCurrentServerEntry().name;
+            if (worldType == WorldType.SINGLEPLAYER) worldName = Minecraft.getInstance().getSingleplayerServer().getWorldPath(LevelResource.ROOT).getParent().getFileName().toString();
+            else worldName = Minecraft.getInstance().getCurrentServer().name;
         } catch (NullPointerException e) {
             OpenMineMap.LOGGER.warn("Unable to determine level identifier.");
             return false;

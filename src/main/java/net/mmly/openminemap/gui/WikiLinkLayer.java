@@ -1,49 +1,49 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.mmly.openminemap.draw.UContext;
 
-public class WikiLinkLayer extends ClickableWidget {
+public class WikiLinkLayer extends AbstractWidget {
 
     private static final int TEXT_COLOR = 0xFFaa00aa;
-    private static final MutableText TEXT = Text.translatable("omm.config.gui.omm-wiki");
-    private static final MutableText UNDERLINED_TEXT = Text.translatable("omm.config.gui.omm-wiki").formatted(Formatting.UNDERLINE);
+    private static final MutableComponent TEXT = Component.translatable("omm.config.gui.omm-wiki");
+    private static final MutableComponent UNDERLINED_TEXT = Component.translatable("omm.config.gui.omm-wiki").withStyle(ChatFormatting.UNDERLINE);
 
     public WikiLinkLayer(int x, int y) {
-        super(x, y, 0, 16, Text.empty());
-        setWidth(MinecraftClient.getInstance().textRenderer.getWidth(TEXT) + 8);
+        super(x, y, 0, 16, Component.empty());
+        setWidth(Minecraft.getInstance().font.width(TEXT) + 8);
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0xFFFFFFFF);
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
-    public void drawWidget(DrawContext context, TextRenderer textRenderer) {
+    public void drawWidget(GuiGraphics context, Font textRenderer) {
         UContext.fillWidget(this, MapScreen.backingColor);
-        context.drawText(textRenderer,
+        context.drawString(textRenderer,
                 isHovered() ? UNDERLINED_TEXT : TEXT,
                 getX() + 4,
                 getY() + 4,
                 TEXT_COLOR,
                 true);
-        if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+        if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         //FullscreenMapScreen.openBugReportScreen();
         MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", new MapScreen(), true);
     }

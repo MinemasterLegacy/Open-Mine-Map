@@ -1,9 +1,9 @@
 package net.mmly.openminemap.map;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.mmly.openminemap.enums.OverlayVisibility;
 import net.mmly.openminemap.projection.CoordinateValueError;
 import net.mmly.openminemap.projection.Direction;
@@ -18,14 +18,14 @@ public class MappablePlayer {
     public final double longitude;
     public final double altitude;
     public final double geoYaw;
-    public final Text stylizedName;
-    public final Text name;
+    public final Component stylizedName;
+    public final Component name;
     public final UUID uuid;
     private final double x;
     private final double z;
     private final OverlayVisibility visibility;
 
-    private static final Text fallbackText = Text.of("(unknown)");
+    private static final Component fallbackText = Component.nullToEmpty("(unknown)");
 
     @Deprecated
     public MappablePlayer(OverlayVisibility visibility) {
@@ -43,8 +43,8 @@ public class MappablePlayer {
         this.visibility = visibility;
     }
 
-    public MappablePlayer(PlayerEntity player, OverlayVisibility visibility) {
-        this(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getName(), player.getStyledDisplayName(), player.getUuid(), visibility);
+    public MappablePlayer(Player player, OverlayVisibility visibility) {
+        this(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getName(), player.getFeedbackDisplayName(), player.getUUID(), visibility);
     }
 
     public MappablePlayer(double lat, double lon, double yaw, UUID uuid, OverlayVisibility visibility) {
@@ -55,14 +55,14 @@ public class MappablePlayer {
         this.altitude = Double.NaN;
         this.visibility = visibility;
 
-        Text name = PlayersManager.getDisplayNameOf(uuid);
+        Component name = PlayersManager.getDisplayNameOf(uuid);
 
         if (name == null) {
             this.stylizedName = fallbackText;
             this.name = fallbackText;
         } else {
             this.stylizedName = name;
-            this.name = Text.of(stylizedName);
+            this.name = Component.translationArg(stylizedName);
         }
 
         double[] mcxz;
@@ -80,7 +80,7 @@ public class MappablePlayer {
         this.geoYaw = Direction.getGeoAzimuth(x, z, yaw);
     }
 
-    public MappablePlayer(double x, double y, double z, double yaw, Text name, Text stylizedName, UUID uuid, OverlayVisibility visibility) {
+    public MappablePlayer(double x, double y, double z, double yaw, Component name, Component stylizedName, UUID uuid, OverlayVisibility visibility) {
 
         this.x = x;
         this.z = z;
@@ -115,7 +115,7 @@ public class MappablePlayer {
         float f = (float)(x - entity.getX());
         float g = (float)(altitude - entity.getY());
         float h = (float)(z - entity.getZ());
-        return MathHelper.sqrt(f * f + g * g + h * h);
+        return Mth.sqrt(f * f + g * g + h * h);
     }
 
     public boolean isPlayerDrawable() {

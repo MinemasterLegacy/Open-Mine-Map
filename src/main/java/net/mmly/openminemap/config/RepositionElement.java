@@ -1,20 +1,20 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.enums.RepositionType;
 import net.mmly.openminemap.hud.HudMap;
 
-public class RepositionElement extends ClickableWidget {
+public class RepositionElement extends AbstractWidget {
 
     RepositionType type;
 
     public RepositionElement(RepositionType type) {
-        super(0, 0, 0, 0, Text.empty());
+        super(0, 0, 0, 0, Component.empty());
         this.type = type; //0 is for map, 1 is for compass
         updateDimensionsAndPosition();
     }
@@ -24,29 +24,29 @@ public class RepositionElement extends ClickableWidget {
 
     private void updateDimensionsAndPosition() {
         if (type == RepositionType.MAP) {
-            this.setDimensionsAndPosition(
+            this.setRectangle(
                     HudMap.map.getRenderAreaWidth(),
                     HudMap.map.getRenderAreaHeight(),
                     HudMap.map.getRenderAreaX(),
                     HudMap.map.getRenderAreaY()
             );
         } else if (type == RepositionType.COMPASS) {
-            this.setDimensionsAndPosition(HudMap.hudCompassWidth, 16, HudMap.hudCompassX, HudMap.hudCompassY);
+            this.setRectangle(HudMap.hudCompassWidth, 16, HudMap.hudCompassX, HudMap.hudCompassY);
         }
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         updateDimensionsAndPosition();
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x00000000);
-        if (isHovered()) context.setCursor(StandardCursors.RESIZE_ALL);
+        if (isHovered()) context.requestCursor(CursorTypes.RESIZE_ALL);
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
     @Override
-    protected void onDrag(Click click, double offsetX, double offsetY) {
+    protected void onDrag(MouseButtonEvent click, double offsetX, double offsetY) {
         subDeltaX += offsetX;
         subDeltaY += offsetY;
         if (type == RepositionType.MAP) {

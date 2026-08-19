@@ -1,22 +1,21 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
-
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChoiceMultiSelectWidget extends ClickableWidget implements ConfigChoice{
+public class ChoiceMultiSelectWidget extends AbstractWidget implements ConfigChoice{
 
     AnchorWidget anchor;
     private final ArrayList<WebIcon> highlighted = new ArrayList<>();
@@ -25,7 +24,7 @@ public class ChoiceMultiSelectWidget extends ClickableWidget implements ConfigCh
     int highlightedIcon = -1;
 
     public ChoiceMultiSelectWidget(List<WebIcon> options, ConfigOptions configOptions) {
-        super(0, -100, 200, 20, Text.of(""));
+        super(0, -100, 200, 20, Component.nullToEmpty(""));
 
         this.options = options;
 
@@ -78,7 +77,7 @@ public class ChoiceMultiSelectWidget extends ClickableWidget implements ConfigCh
     }
 
     @Override
-    public void onClick(Click click, boolean doubled) {
+    public void onClick(MouseButtonEvent click, boolean doubled) {
         if (highlightedIcon < 0) return;
         WebIcon icon = options.get(highlightedIcon);
         if (highlighted.contains(icon)) highlighted.remove(icon);
@@ -86,7 +85,7 @@ public class ChoiceMultiSelectWidget extends ClickableWidget implements ConfigCh
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
         this.setX(anchor.getX());
         this.setY(anchor.getY());
@@ -114,13 +113,13 @@ public class ChoiceMultiSelectWidget extends ClickableWidget implements ConfigCh
         context.disableScissor();
 
         if (highlightedIcon > -1) {
-            context.drawTooltip(MinecraftClient.getInstance().textRenderer, options.get(highlightedIcon).tooltipText, mouseX, mouseY);
-            context.setCursor(StandardCursors.POINTING_HAND);
+            context.setTooltipForNextFrame(Minecraft.getInstance().font, options.get(highlightedIcon).tooltipText, mouseX, mouseY);
+            context.requestCursor(CursorTypes.POINTING_HAND);
         }
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
     }
 }

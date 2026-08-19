@@ -1,13 +1,12 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.util.Window;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
@@ -23,13 +22,13 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
-
+import com.mojang.blaze3d.platform.Window;
 import java.util.ArrayList;
 
 public class ConfigScreen extends Screen {
     public ConfigScreen() {
-        super(Text.of("OMM Config"));
-        this.returnScreen = MinecraftClient.getInstance().currentScreen;
+        super(Component.nullToEmpty("OMM Config"));
+        this.returnScreen = Minecraft.getInstance().screen;
     }
 
     static ConfigScreen configScreen;
@@ -41,7 +40,7 @@ public class ConfigScreen extends Screen {
     private static CreditLayer creditLayer;
     private static ButtonLayer exitButtonLayer;
     private static ButtonLayer checkButtonLayer;
-    ButtonWidget configHud;
+    Button configHud;
 
     CategoryLabelWidget generalLabel;
     ChoiceButtonWidget artificialZoomOption;
@@ -82,18 +81,18 @@ public class ConfigScreen extends Screen {
 
     Window window;
     private final Screen returnScreen;
-    public static ButtonWidget toggleArtificialZoomButton;
+    public static Button toggleArtificialZoomButton;
     private static final int ITEM_HEIGHT = 24;
 
     private int overlayLabelPosition;
 
     static ConfigList configList;
-    ArrayList<ClickableWidget> choiceWidgets = new ArrayList<>();
+    ArrayList<AbstractWidget> choiceWidgets = new ArrayList<>();
     ArrayList<AnchorWidget> anchorWidgets = new ArrayList<>();
 
     @Override
-    public void close() {
-        MinecraftClient.getInstance().setScreen(
+    public void onClose() {
+        Minecraft.getInstance().setScreen(
                 returnScreen instanceof ViewSetRastersScreen ? returnScreen : new MapScreen()
         );
         MapScreen.updateAltScreenMap(this);
@@ -107,12 +106,12 @@ public class ConfigScreen extends Screen {
     }
 
     private void updateScreenDims() {
-        window = MinecraftClient.getInstance().getWindow();
-        windowScaledHeight = window.getScaledHeight();
-        windowScaledWidth = window.getScaledWidth();
+        window = Minecraft.getInstance().getWindow();
+        windowScaledHeight = window.getGuiScaledHeight();
+        windowScaledWidth = window.getGuiScaledWidth();
     }
 
-    private void addConfigOptionWidget(ClickableWidget widget) {
+    private void addConfigOptionWidget(AbstractWidget widget) {
         if (!ConfigChoice.class.isAssignableFrom(widget.getClass())) return;
         choiceWidgets.add(widget);
         AnchorWidget anchor = new AnchorWidget() {
@@ -121,7 +120,7 @@ public class ConfigScreen extends Screen {
                 return super.getWidth() - 4;
             }
         };
-        this.addDrawableChild(widget);
+        this.addRenderableWidget(widget);
 
         configList.addEntry(anchor);
         anchorWidgets.add(anchor);
@@ -130,7 +129,7 @@ public class ConfigScreen extends Screen {
     }
 
     public void scrollToOverlay() {
-        configList.setScrollY(Math.max((overlayLabelPosition - 1.5) * ITEM_HEIGHT, 0));
+        configList.setScrollAmount(Math.max((overlayLabelPosition - 1.5) * ITEM_HEIGHT, 0));
     }
 
     @Override
@@ -139,40 +138,40 @@ public class ConfigScreen extends Screen {
 
         updateScreenDims();
 
-        configList = new ConfigList(MinecraftClient.getInstance(), 0, 0, 0, 24);
+        configList = new ConfigList(Minecraft.getInstance(), 0, 0, 0, 24);
         configList.setWidth(windowScaledWidth);
         configList.setHeight(windowScaledHeight - BOTTOM_SPACE);
-        this.addDrawableChild(configList);
+        this.addRenderableWidget(configList);
 
         creditLayer = new CreditLayer(0, 0);
-        this.addDrawableChild(creditLayer);
+        this.addRenderableWidget(creditLayer);
 
         exitButtonLayer = new ButtonLayer(windowScaledWidth - 22, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, ButtonFunction.EXIT);
         checkButtonLayer = new ButtonLayer(windowScaledWidth + 2, (windowScaledHeight / 2) - BOTTOM_BUTTON_OFFSET, ButtonFunction.CHECKMARK);
-        exitButtonLayer.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.exit-without-saving")));
-        checkButtonLayer.setTooltip(Tooltip.of(Text.translatable("omm.config.gui.save-and-exit")));
-        this.addDrawableChild(exitButtonLayer);
-        this.addDrawableChild(checkButtonLayer);
+        exitButtonLayer.setTooltip(Tooltip.create(Component.translatable("omm.config.gui.exit-without-saving")));
+        checkButtonLayer.setTooltip(Tooltip.create(Component.translatable("omm.config.gui.save-and-exit")));
+        this.addRenderableWidget(exitButtonLayer);
+        this.addRenderableWidget(checkButtonLayer);
 
         //versionLabel = new TextWidget(0, windowScaledHeight - 16, windowScaledWidth - 5, 9, Text.of("OpenMineMap v" + OpenMineMapClient.MODVERSION), this.textRenderer);
         //versionLabel.alignRight();
         //this.addDrawableChild(versionLabel);
 
-        configHud = ButtonWidget.builder(Text.translatable("omm.config.option.configure-hud"), (btn) -> {
+        configHud = Button.builder(Component.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
-                MinecraftClient.getInstance().setScreen(new MapConfigScreen());
+                Minecraft.getInstance().setScreen(new MapConfigScreen());
                 MapScreen.updateAltScreenMap(this);
-        }).dimensions(15, windowScaledHeight - 35, 120, 20).build();
-        configHud.setTooltip(Tooltip.of(Text.translatable("omm.config.tooltip.configure-hud")));
-        this.addDrawableChild(configHud);
+        }).bounds(15, windowScaledHeight - 35, 120, 20).build();
+        configHud.setTooltip(Tooltip.create(Component.translatable("omm.config.tooltip.configure-hud")));
+        this.addRenderableWidget(configHud);
 
-        generalLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.general"), this.textRenderer);
+        generalLabel = new CategoryLabelWidget(Component.translatable("omm.config.category.general"), this.font);
         this.addConfigOptionWidget(generalLabel);
 
         artificialZoomOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.ARTIFICIAL_ZOOM);
         this.addConfigOptionWidget(artificialZoomOption);
 
-        snapAngleWidget = new ChoiceNumberWidget(textRenderer);
+        snapAngleWidget = new ChoiceNumberWidget(font);
         this.addConfigOptionWidget(snapAngleWidget);
 
         rightClickMeuUsesOption = new ChoiceButtonWidget(ConfigOptions.Values.TP_COMMANDS, ConfigOptions.TELEPORT_METHOD, false);
@@ -190,9 +189,9 @@ public class ConfigScreen extends Screen {
         teleportInterceptionOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.TELEPORT_INTERCEPT);
         this.addConfigOptionWidget(teleportInterceptionOption);
 
-        overlayLabel = new CategoryLabelWidget(Text.translatable("omm.raster.type.local-gen"), this.textRenderer);
+        overlayLabel = new CategoryLabelWidget(Component.translatable("omm.raster.type.local-gen"), this.font);
         this.addConfigOptionWidget(overlayLabel);
-        overlayLabelPosition = configList.getEntryCount();
+        overlayLabelPosition = configList.getItemCount();
 
         renderClaimsOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.CLAIMS_RENDERING);
         this.addConfigOptionWidget(renderClaimsOption);
@@ -218,13 +217,13 @@ public class ConfigScreen extends Screen {
         altitudeShadingOption = new ChoiceButtonWidget(ConfigOptions.Values.ON_OFF, ConfigOptions.ALTITUDE_SHADING);
         this.addConfigOptionWidget(altitudeShadingOption);
 
-        rasterLabel = new CategoryLabelWidget(Text.translatable("omm.config.category.tile-source"), this.textRenderer);
+        rasterLabel = new CategoryLabelWidget(Component.translatable("omm.config.category.tile-source"), this.font);
         this.addConfigOptionWidget(rasterLabel);
 
-        definedUrlWidget = new RasterConfigWidget(Text.translatable("omm.config.option.configure-rasters"));
+        definedUrlWidget = new RasterConfigWidget(Component.translatable("omm.config.option.configure-rasters"));
         this.addConfigOptionWidget(definedUrlWidget);
 
-        interfaceLabel = new CategoryLabelWidget(Text.of("Interface"), this.textRenderer);
+        interfaceLabel = new CategoryLabelWidget(Component.nullToEmpty("Interface"), this.font);
         this.addConfigOptionWidget(interfaceLabel);
 
         transparencySlider = new ChoiceSliderWidget(ConfigOptions.Values.DECIMAL_PERCENT, ConfigOptions.INTERFACE_OPACITY, true);
@@ -252,7 +251,7 @@ public class ConfigScreen extends Screen {
         this.addConfigOptionWidget(distortionDisplayOption);
 
         if (OpenMineMapClient.SHOWDEVELOPEROPTIONS) {
-            this.addConfigOptionWidget(new CategoryLabelWidget(Text.of("Developer"), this.textRenderer));
+            this.addConfigOptionWidget(new CategoryLabelWidget(Component.nullToEmpty("Developer"), this.font));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__DISABLE_WEB_REQUESTS, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__SHOW_MEMORY_CACHE_SIZE, true));
             this.addConfigOptionWidget(new ChoiceButtonWidget(ConfigOptions.Values.TRUE_FALSE, ConfigOptions.__ALT_INFO_TOOLTIP, true));
@@ -269,7 +268,7 @@ public class ConfigScreen extends Screen {
     }
 
     public void saveChanges() {
-        for (ClickableWidget widget : choiceWidgets) {
+        for (AbstractWidget widget : choiceWidgets) {
             ((ConfigChoice) widget).writeParameterToFile();
         }
         if (!ConfigOptions.ARTIFICIAL_ZOOM.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
@@ -289,7 +288,7 @@ public class ConfigScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         updateScreenDims();
 
         creditLayer.setPosition(windowScaledWidth - creditLayer.getWidth() - 3, windowScaledHeight - BOTTOM_SPACE + 7);
@@ -301,7 +300,7 @@ public class ConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
 
         UContext.setContext(context);
-        creditLayer.drawWidget(context, textRenderer);
-        UContext.drawJustifiedText(Text.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF, true);
+        creditLayer.drawWidget(context, font);
+        UContext.drawJustifiedText(Component.literal("OpenMineMap v" + OpenMineMapClient.MODVERSION), Justify.RIGHT, windowScaledWidth - 5, windowScaledHeight - 16, 0xFFFFFFFF, true);
     }
 }

@@ -23,9 +23,9 @@ public class RasterConfigWidget extends ButtonWidget implements ConfigChoice {
 
     AnchorWidget anchor;
 
-    public RasterConfigWidget(Text message) {
+    public RasterConfigWidget(net.minecraft.text.Text message) {
         super(0, -100, 200, 20, message, button -> {}, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
-        this.setTooltip(Tooltip.of(Text.translatable(ConfigOptions.TILE_MAP_URL.tooltip)));
+        this.setTooltip(Tooltip.of(net.minecraft.text.Text.translatable(ConfigOptions.TILE_MAP_URL.tooltip)));
     }
 
     @Override
@@ -37,12 +37,13 @@ public class RasterConfigWidget extends ButtonWidget implements ConfigChoice {
     }
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         if (!anchor.drawNow) {return; }
         this.setX(anchor.getX());
         this.setY(anchor.getY());
         this.width = anchor.getWidth();
-        super.renderWidget(context, mouseX, mouseY, delta);
+        this.drawButton(context);
+        this.drawLabel(context.getHoverListener(this, DrawContext.HoverType.NONE));
     }
 
     @Override

@@ -75,7 +75,7 @@ public class PinnedWaypointsLayer extends ClickableWidget {
             context.drawBorder(getX() + margin - 1, getY() + margin - 1 + (selectedPosition * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFFFF);
             if (RightClickMenu.getDisplayType() == RightClickMenuType.HIDDEN) {
                 UContext.fillZone(getX() + width + 3, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2) - 2, textRenderer.getWidth(pinnedWaypoints[selectedWaypointId].name) + 3, textRenderer.fontHeight + 3, MapScreen.backingColor);
-                context.drawText(textRenderer, pinnedWaypoints[selectedWaypointId].name, getX() + width + 5, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2), RGBof(pinnedWaypoints[selectedWaypointId].color), false);
+                context.drawText(textRenderer, pinnedWaypoints[selectedWaypointId].name, getX() + width + 5, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.fontHeight / 2), RGBof(pinnedWaypoints[selectedWaypointId].color), true);
             }
         }
 
@@ -116,13 +116,14 @@ public class PinnedWaypointsLayer extends ClickableWidget {
         } else {
             RightClickMenu.enableMenu(
                     RightClickMenuType.PINNED_WAYPOINT,
-                    getX() + width + 3,
+                    getX() + width + 2,
                     /*getY() + (selection * waypointHitboxSize) + ((double) waypointHitboxSize / 2) - ((double) textRenderer.fontHeight / 2) - 3,*/
-                    getY() + 3,
+                    getY() + 2 + (selection - scrollOffset) * waypointHitboxSize,
                     getSelectedWaypoint()
             );
             menuSelection = selection;
 
+            RightClickMenu.instance.setY(RightClickMenu.instance.getY() - Math.max(0, RightClickMenu.instance.getBottom() - getBottom()));
         }
     }
 

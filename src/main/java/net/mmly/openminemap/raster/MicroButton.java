@@ -93,7 +93,7 @@ public class MicroButton extends ClickableWidget {
     }
 
     private void drawFlash() {
-        int alpha = Math.abs(((int) (Util.getEpochTimeMs() >>> 3) % 256) + 128);
+        int alpha = Math.abs(((int) (Util.getEpochTimeMs() >>> 3) % 256) - 128);
         int color = ColorUtil.setAlpha(alpha, 0xFFFFFFFF);
         if (ButtonLayer.texturedButtons) {
             UContext.fillZone(getX() + 1, getY(), getWidth() - 2, getHeight(), color);

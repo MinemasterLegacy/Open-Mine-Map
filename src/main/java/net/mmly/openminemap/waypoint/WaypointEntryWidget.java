@@ -5,6 +5,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -13,6 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.RightClickMenu;
 import net.mmly.openminemap.gui.RightClickMenuType;
@@ -45,7 +47,7 @@ public class WaypointEntryWidget extends ClickableWidget {
     private int mx = 0;
     private int my = 0;
 
-    private WaypointAnchorWidget anchor;
+    private AnchorWidget anchor;
     private int lastCheckedButton = 0;
 
     private static final Text[] tooltipMessages = new Text[] {
@@ -86,7 +88,7 @@ public class WaypointEntryWidget extends ClickableWidget {
         WaypointScreen.getInstance().enableEditMode(waypoint);
     }
 
-    public void setAnchor(WaypointAnchorWidget anchor) {
+    public void setAnchor(AnchorWidget anchor) {
         this.anchor = anchor;
     }
 
@@ -97,7 +99,9 @@ public class WaypointEntryWidget extends ClickableWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+
+        if (!anchor.drawNow) return;
 
         mx = mouseX;
         my = mouseY;
@@ -122,6 +126,8 @@ public class WaypointEntryWidget extends ClickableWidget {
                 setTooltip(Tooltip.of(tooltipMessages[xMod]));
                 setTooltipDelay(Duration.ZERO);
                 selection = Selection.getById(xMod + 1);
+                if (this.isHovered()) context.setCursor(StandardCursors.POINTING_HAND);
+
             }
             xMod++;
         }
@@ -134,7 +140,6 @@ public class WaypointEntryWidget extends ClickableWidget {
             context.drawText(renderer, WaypointScreen.instance.editingWaypointName.equals(waypoint.name) ? Text.translatable("omm.waypoints.editing").formatted(Formatting.BOLD) : Text.literal(waypoint.name), getX() + 23, getY() + (height / 2) - (renderer.fontHeight / 2), 0xFFFFFFFF, true);
             context.disableScissor();
         }
-
 
         UContext.drawBorder(getX(), getY(), getWidth(), getHeight(), borderColor);
         context.drawVerticalLine(getX() + width - 52, getY(), getY() + height, borderColor);

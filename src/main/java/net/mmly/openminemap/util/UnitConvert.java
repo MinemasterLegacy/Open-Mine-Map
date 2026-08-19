@@ -2,10 +2,21 @@ package net.mmly.openminemap.util;
 
 import net.mmly.openminemap.gui.MapScreen;
 
-import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class UnitConvert {
+
+    public static int modVersionAsNumber(String version) {
+        String[] segments = version.split("[-.]");
+        try {
+            return Integer.parseInt(segments[0]) * 10000 +
+                    Integer.parseInt(segments[1]) * 100 +
+                    Integer.parseInt(segments[2]);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 
     // long/lat and x/y equations can be found at https://www.desmos.com/calculator/x8chytp9bq
     private static double getMapSize(double zoom, int tileScaledSize) {
@@ -43,11 +54,11 @@ public class UnitConvert {
     }
 
     public static float scaledToPixelCoords(float x) {
-        return (x*((float) MapScreen.windowHeight/ MapScreen.windowScaledHeight));
+        return (x*((float) MapScreen.getInstance().height / MapScreen.windowScaledHeight));
     }
 
     public static float pixelToScaledCoords(float x) {
-        return (x*((float) MapScreen.windowScaledHeight/ MapScreen.windowHeight));
+        return (x*((float) MapScreen.windowScaledHeight / MapScreen.getInstance().height));
     }
 
     public static double[] toDecimalDegrees(String lat, String lon) {

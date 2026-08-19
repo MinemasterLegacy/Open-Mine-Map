@@ -6,6 +6,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.input.AbstractInput;
 import net.minecraft.text.Text;
 import net.mmly.openminemap.enums.ConfigOptions;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     int selection;
     net.minecraft.text.Text message;
     ConfigOptions configOption;
-    ConfigAnchorWidget anchor;
+    AnchorWidget anchor;
     boolean optionIsLiteral;
 
     protected ChoiceButtonWidget(List<String> options, ConfigOptions configOption, boolean optionIsLiteral) {
@@ -68,7 +69,7 @@ public class ChoiceButtonWidget extends ButtonWidget implements ConfigChoice {
     }
 
     @Override
-    public void setAnchor(ConfigAnchorWidget anchor) {
+    public void setAnchor(AnchorWidget anchor) {
         this.anchor = anchor;
     }
 

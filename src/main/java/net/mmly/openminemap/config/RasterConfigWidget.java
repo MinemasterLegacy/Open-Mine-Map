@@ -1,17 +1,13 @@
 package net.mmly.openminemap.config;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
-import net.mmly.openminemap.gui.MapScreen;
-import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
-import net.mmly.openminemap.util.RasterProvider;
-import net.mmly.openminemap.util.TileUrl;
 
 public class RasterConfigWidget extends Button implements ConfigChoice {
 
@@ -31,13 +27,13 @@ public class RasterConfigWidget extends Button implements ConfigChoice {
     }
 
     @Override
-    protected void renderContents(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
+    protected void extractContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
         if (!anchor.drawNow) {return; }
         this.setX(anchor.getX());
         this.setY(anchor.getY());
         this.width = anchor.getWidth();
-        this.renderDefaultSprite(context);
-        this.renderDefaultLabel(context.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
+        this.extractDefaultSprite(context);
+        this.extractDefaultLabel(context.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
     }
 
     @Override

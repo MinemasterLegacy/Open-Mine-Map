@@ -1,7 +1,8 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -11,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.Waypoint;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import java.awt.*;
 
 public class PinnedWaypointsLayer extends AbstractWidget {
@@ -61,7 +62,7 @@ public class PinnedWaypointsLayer extends AbstractWidget {
         scrollOffset = Math.clamp(scrollOffset, 0, Math.max(0, pinnedWaypoints.length - visibleWaypointCount));
     }
 
-    public void drawWidget(GuiGraphics context) {
+    public void drawWidget(GuiGraphicsExtractor context) {
 
         if (!visible) return;
         setHeight(Math.min(maxHeight, pinnedWaypoints.length * width));
@@ -77,7 +78,7 @@ public class PinnedWaypointsLayer extends AbstractWidget {
             UContext.drawBorder(getX() + margin - 1, getY() + margin - 1 + (selectedPosition * waypointHitboxSize), waypointRenderSize + 2, waypointRenderSize + 2, 0xFFFFFFFF);
             if (RightClickMenu.getDisplayType() == RightClickMenuType.HIDDEN) {
                 UContext.fillZone(getX() + width + 3, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.lineHeight / 2) - 2, textRenderer.width(pinnedWaypoints[selectedWaypointId].name) + 3, textRenderer.lineHeight + 3, MapScreen.backingColor);
-                context.drawString(textRenderer, pinnedWaypoints[selectedWaypointId].name, getX() + width + 5, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.lineHeight / 2), RGBof(pinnedWaypoints[selectedWaypointId].color), true);
+                context.text(textRenderer, pinnedWaypoints[selectedWaypointId].name, getX() + width + 5, getY() + (selectedPosition * waypointHitboxSize) + (waypointHitboxSize / 2) - (textRenderer.lineHeight / 2), RGBof(pinnedWaypoints[selectedWaypointId].color), true);
             }
         }
 
@@ -152,7 +153,7 @@ public class PinnedWaypointsLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
         if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);

@@ -1,9 +1,10 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -12,7 +13,7 @@ import net.mmly.openminemap.raster.LayerType;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -66,7 +67,7 @@ public class AttributionLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000);
         if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
         calculateSelection(mouseX, mouseY);
@@ -91,7 +92,7 @@ public class AttributionLayer extends AbstractWidget {
         HOVER
     }
 
-    public void drawWidget(GuiGraphics context, Font textRenderer) {
+    public void drawWidget(GuiGraphicsExtractor context, Font textRenderer) {
         context.fill(getX(), getY(), getRight(), getBottom(), MapScreen.backingColor);
         int offsetX = X_MARGIN;
         int offsetY = Y_MARGIN;
@@ -101,7 +102,7 @@ public class AttributionLayer extends AbstractWidget {
                 String word = line.get(i);
 
                 SelectState selectState = determineSelectState(l, offsetX);
-                context.drawString(
+                context.text(
                         textRenderer,
                         Component.literal(word).withStyle(selectState == SelectState.HOVER ? ChatFormatting.UNDERLINE : ChatFormatting.RESET),
                         getX() + offsetX,
@@ -114,7 +115,7 @@ public class AttributionLayer extends AbstractWidget {
                 if (line.size() - 1 == i) continue;
 
                 selectState = determineSelectState(l, offsetX);
-                context.drawString(
+                context.text(
                         textRenderer,
                         Component.literal(" ").withStyle(selectState == SelectState.HOVER ? ChatFormatting.UNDERLINE : ChatFormatting.RESET),
                         getX() + offsetX,

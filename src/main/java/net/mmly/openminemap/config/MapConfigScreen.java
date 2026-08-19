@@ -1,9 +1,8 @@
 package net.mmly.openminemap.config;
 
-import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
@@ -60,9 +59,7 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    protected void renderMenuBackground(GuiGraphics context) {}
-    @Override
-    public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {}
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {}
 
     public static void saveChanges() {
         ConfigFile.writeParameter(ConfigOptions.HUD_MAP_X, Integer.toString(HudMap.map.getRenderAreaX()));
@@ -138,13 +135,13 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         HudMap.render(context, null);
         saveButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10));
         exitButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 + 24));
         resetConfigButton.setPosition((windowWidth / 2 - 10), (windowHeight / 2 - 10 - 24));
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
         updateScreenDims();
         //Blue rectangle overlay
         //context.fill(HudMap.hudMapX, HudMap.hudMapY, HudMap.hudMapX2, HudMap.hudMapY2, 0xFFCEE1E4);

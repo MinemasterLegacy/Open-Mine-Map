@@ -1,7 +1,8 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -17,7 +18,7 @@ import net.mmly.openminemap.raster.CreateRasterScreen;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
 import net.mmly.openminemap.waypoint.WaypointScreen;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import java.util.function.BooleanSupplier;
 
 public class ButtonLayer extends AbstractWidget {
@@ -42,7 +43,7 @@ public class ButtonLayer extends AbstractWidget {
         else this.disableCondition = disableCondition;
     }
 
-    public void drawWidget(GuiGraphics context) {
+    public void drawWidget(GuiGraphicsExtractor context) {
         if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (!texturedButtons) {
             UContext.drawButtonOnWidget(this, disableCondition.getAsBoolean(), isHovered());
@@ -59,7 +60,7 @@ public class ButtonLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000); //0x00000000
         drawWidget(context);
         if (this.isHovered()) {

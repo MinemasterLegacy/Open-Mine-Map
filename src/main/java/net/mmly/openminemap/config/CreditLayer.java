@@ -1,21 +1,16 @@
 package net.mmly.openminemap.config;
 
-import net.mmly.openminemap.draw.UContext;
-import net.mmly.openminemap.gui.MapScreen;
-
-import static net.mmly.openminemap.config.ConfigScreen.windowScaledHeight;
-import static net.mmly.openminemap.config.ConfigScreen.windowScaledWidth;
-
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.mmly.openminemap.gui.MapScreen;
 
 public class CreditLayer extends AbstractWidget {
 
@@ -28,7 +23,7 @@ public class CreditLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0xFFFFFFFF);
         if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
@@ -36,8 +31,8 @@ public class CreditLayer extends AbstractWidget {
     @Override
     protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
-    public void drawWidget(GuiGraphics context, Font textRenderer) {
-        context.drawString(textRenderer,
+    public void drawWidget(GuiGraphicsExtractor context, Font textRenderer) {
+        context.text(textRenderer,
                 isHovered() ? UNDERLINED_TEXT : TEXT,
                 getX() + 2,
                 getY() + 1,

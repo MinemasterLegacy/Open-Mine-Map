@@ -1,7 +1,8 @@
 package net.mmly.openminemap.config;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -11,7 +12,7 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.util.ConfigFile;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +86,7 @@ public class ChoiceMultiSelectWidget extends AbstractWidget implements ConfigCho
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
         this.setX(anchor.getX());
         this.setY(anchor.getY());

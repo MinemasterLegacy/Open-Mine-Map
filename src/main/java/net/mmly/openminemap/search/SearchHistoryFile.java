@@ -7,7 +7,6 @@ import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.map.TileManager;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 

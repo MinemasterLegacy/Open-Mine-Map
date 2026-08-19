@@ -5,9 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
-import net.mmly.openminemap.util.ConfigFile;
 
 public class WaypointList extends AbstractSelectionList<AnchorWidget> {
 

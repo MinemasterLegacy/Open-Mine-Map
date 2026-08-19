@@ -1,5 +1,6 @@
 package net.mmly.openminemap.search;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,7 +18,7 @@ import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.http.RequestManager;
 import org.lwjgl.glfw.GLFW;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import java.time.Duration;
 
 public class SearchResultLayer extends AbstractWidget {

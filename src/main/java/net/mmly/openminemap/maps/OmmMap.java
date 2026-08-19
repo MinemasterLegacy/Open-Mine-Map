@@ -1,9 +1,10 @@
 package net.mmly.openminemap.maps;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.KeyEvent;
@@ -28,7 +29,7 @@ import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.*;
 import org.lwjgl.glfw.GLFW;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -424,7 +425,7 @@ public class OmmMap extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mX, int mY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mX, int mY, float delta) {
         mouseX = mX;
         mouseY = mY;
 
@@ -682,7 +683,7 @@ public class OmmMap extends AbstractWidget {
     @Override
     protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
-    private void drawBufferedPlayer(GuiGraphics context, BufferedPlayer bufferedPlayer) {
+    private void drawBufferedPlayer(GuiGraphicsExtractor context, BufferedPlayer bufferedPlayer) {
 
         //get position of player relative to te screen (number passed to draw methods)
         int relativeX = getWindowRelativeX(bufferedPlayer.mapX, PLAYERSIZE / 2);
@@ -739,7 +740,7 @@ public class OmmMap extends AbstractWidget {
         else return searchResults[hoveredResultId];
     }
 
-    private BufferedPlayer drawDirectionIndicator(GuiGraphics context, MappablePlayer playerDraw) {
+    private BufferedPlayer drawDirectionIndicator(GuiGraphicsExtractor context, MappablePlayer playerDraw) {
         //Draws a direction indicator
         //May also return a BufferedPlayer if other players are to be drawn
 
@@ -966,7 +967,7 @@ public class OmmMap extends AbstractWidget {
         mouseTileY = mapCenterY + mouseY - ((double) renderAreaHeight / 2);
     }
 
-    private void drawClientPlayerCentered(GuiGraphics context) {
+    private void drawClientPlayerCentered(GuiGraphicsExtractor context) {
         context.blit(
                 RenderPipelines.GUI_TEXTURED,
                 PlayerAttributes.getIdentifier(),
@@ -989,16 +990,16 @@ public class OmmMap extends AbstractWidget {
         );
     }
 
-    private void drawHoveredPlayerText(GuiGraphics context) {
+    private void drawHoveredPlayerText(GuiGraphicsExtractor context) {
 
         int textWidth = textRenderer.width(hoveredPlayerName);
         int centerX = hoveredPlayerX + PLAYERSIZE / 2;
 
         context.fill(centerX - (textWidth/2) - 2, hoveredPlayerY + 2 + PLAYERSIZE, centerX + (textWidth/2) + 2, hoveredPlayerY + 2 + PLAYERSIZE + textRenderer.lineHeight + 4, 0x80000000);
-        context.drawString(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + PLAYERSIZE + 5, 0xFFFFFFFF,false);
+        context.text(textRenderer, hoveredPlayerName, centerX - (textWidth/2), hoveredPlayerY + PLAYERSIZE + 5, 0xFFFFFFFF,false);
     }
 
-    private void drawGeneratedOverlays(GuiGraphics context) {
+    private void drawGeneratedOverlays(GuiGraphicsExtractor context) {
 
         //draw claims
         if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) && zoomFadeAlpha != 0 && zoom > 6 && zoom < 20 && claims != null && renderClaimsToggle) {
@@ -1089,7 +1090,7 @@ public class OmmMap extends AbstractWidget {
 
     }
 
-    public void renderMap(GuiGraphics context, MapType mapType) {
+    public void renderMap(GuiGraphicsExtractor context, MapType mapType) {
 
         UContext.setContext(context);
         updateFields();

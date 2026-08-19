@@ -2,7 +2,7 @@ package net.mmly.openminemap;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
 import java.util.concurrent.CompletableFuture;
@@ -40,7 +40,7 @@ public class OpenMineMapDataGenerator implements DataGeneratorEntrypoint {
 }
 
 class OmmEnglishLanguageProvider extends FabricLanguageProvider {
-    protected OmmEnglishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmEnglishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "en_us", registryLookup);
     }
 
@@ -249,7 +249,7 @@ class OmmEnglishLanguageProvider extends FabricLanguageProvider {
 }
 
 abstract class OmmSpanishLanguageProvider extends FabricLanguageProvider {
-    protected OmmSpanishLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmSpanishLanguageProvider(FabricPackOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
@@ -408,43 +408,43 @@ abstract class OmmSpanishLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmArgentinianSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmArgentinianSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmArgentinianSpanishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_ar", registryLookup);
     }
 }
 class OmmChileanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmChileanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmChileanSpanishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_cl", registryLookup);
     }
 }
 class OmmEcuadorianSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmEcuadorianSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmEcuadorianSpanishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_ec", registryLookup);
     }
 }
 class OmmEuropeanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmEuropeanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmEuropeanSpanishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_es", registryLookup);
     }
 }
 class OmmMexicanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmMexicanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmMexicanSpanishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_mx", registryLookup);
     }
 }
 class OmmUruguayanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmUruguayanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmUruguayanSpanishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_uy", registryLookup);
     }
 }
 class OmmVenezuelanSpanishLanguageProvider extends OmmSpanishLanguageProvider {
-    protected OmmVenezuelanSpanishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmVenezuelanSpanishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "es_ve", registryLookup);
     }
 }
 
 class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
-    protected OmmSimplifiedChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmSimplifiedChineseLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "zh_cn", registryLookup);
     }
 
@@ -562,7 +562,7 @@ class OmmSimplifiedChineseLanguageProvider extends FabricLanguageProvider {
 }
 
 abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvider {
-    protected OmmTraditionalChineseLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmTraditionalChineseLanguageProvider(FabricPackOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
@@ -679,18 +679,18 @@ abstract class OmmTraditionalChineseLanguageProvider extends FabricLanguageProvi
     }
 }
 class OmmTraditionalHongKongChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {
-    protected OmmTraditionalHongKongChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmTraditionalHongKongChineseLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "zh_hk", registryLookup);
     }
 }
 class OmmTraditionalTaiwaneseChineseLanguageProvider extends OmmTraditionalChineseLanguageProvider {
-    protected OmmTraditionalTaiwaneseChineseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmTraditionalTaiwaneseChineseLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "zh_tw", registryLookup);
     }
 }
 
 abstract class OmmFrenchLanguageProvider extends FabricLanguageProvider {
-    protected OmmFrenchLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmFrenchLanguageProvider(FabricPackOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
@@ -796,18 +796,18 @@ abstract class OmmFrenchLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmEuropeanFrenchLanguageProvider extends OmmFrenchLanguageProvider {
-    protected OmmEuropeanFrenchLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmEuropeanFrenchLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "fr_fr", registryLookup);
     }
 }
 class OmmCanadianFrenchLanguageProvider extends OmmFrenchLanguageProvider {
-    protected OmmCanadianFrenchLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmCanadianFrenchLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "fr_ca", registryLookup);
     }
 }
 
 abstract class OmmRussianLanguageProvider extends FabricLanguageProvider {
-    protected OmmRussianLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmRussianLanguageProvider(FabricPackOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
@@ -913,18 +913,18 @@ abstract class OmmRussianLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmModernRussianLanguageProvider extends OmmRussianLanguageProvider {
-    protected OmmModernRussianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmModernRussianLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "ru_ru", registryLookup);
     }
 }
 class OmmPreRevolutionaryRussianLanguageProvider extends OmmRussianLanguageProvider {
-    protected OmmPreRevolutionaryRussianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmPreRevolutionaryRussianLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "rpr", registryLookup);
     }
 }
 
 abstract class OmmGermanLanguageProvider extends FabricLanguageProvider {
-    protected OmmGermanLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmGermanLanguageProvider(FabricPackOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
@@ -1030,23 +1030,23 @@ abstract class OmmGermanLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmEuropeanGermanLanguageProvider extends OmmGermanLanguageProvider {
-    protected OmmEuropeanGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmEuropeanGermanLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "de_de", registryLookup);
     }
 }
 class OmmSwissGermanLanguageProvider extends OmmGermanLanguageProvider {
-    protected OmmSwissGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmSwissGermanLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "de_ch", registryLookup);
     }
 }
 class OmmAustrianGermanLanguageProvider extends OmmGermanLanguageProvider {
-    protected OmmAustrianGermanLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmAustrianGermanLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "de_at", registryLookup);
     }
 }
 
 abstract class OmmPortugueseLanguageProvider extends FabricLanguageProvider {
-    protected OmmPortugueseLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmPortugueseLanguageProvider(FabricPackOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
@@ -1152,18 +1152,18 @@ abstract class OmmPortugueseLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmBrazilianPortugueseLanguageProvider extends OmmPortugueseLanguageProvider {
-    protected OmmBrazilianPortugueseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmBrazilianPortugueseLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "pt_br", registryLookup);
     }
 }
 class OmmEuropeanPortugueseLanguageProvider extends OmmPortugueseLanguageProvider {
-    protected OmmEuropeanPortugueseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmEuropeanPortugueseLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "pt_pt", registryLookup);
     }
 }
 
 abstract class OmmIndonesianLanguageProvider extends FabricLanguageProvider {
-    protected OmmIndonesianLanguageProvider(FabricDataOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmIndonesianLanguageProvider(FabricPackOutput dataOutput, String languageCode, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, languageCode, registryLookup);
     }
 
@@ -1269,18 +1269,18 @@ abstract class OmmIndonesianLanguageProvider extends FabricLanguageProvider {
     }
 }
 class OmmModernIndonesianLanguageProvider extends OmmIndonesianLanguageProvider {
-    protected OmmModernIndonesianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmModernIndonesianLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "id_id", registryLookup);
     }
 }
 class OmmPreReformIndonesianLanguageProvider extends OmmIndonesianLanguageProvider {
-    protected OmmPreReformIndonesianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmPreReformIndonesianLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "qid", registryLookup);
     }
 }
 
 class OmmJapaneseLanguageProvider extends FabricLanguageProvider {
-    protected OmmJapaneseLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmJapaneseLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "ja_jp", registryLookup);
     }
 
@@ -1387,7 +1387,7 @@ class OmmJapaneseLanguageProvider extends FabricLanguageProvider {
 }
 
 class OmmItalianLanguageProvider extends FabricLanguageProvider {
-    protected OmmItalianLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmItalianLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "it_it", registryLookup);
     }
 
@@ -1494,7 +1494,7 @@ class OmmItalianLanguageProvider extends FabricLanguageProvider {
 }
 
 class OmmPolishLanguageProvider extends FabricLanguageProvider {
-    protected OmmPolishLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    protected OmmPolishLanguageProvider(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, "pl_pl", registryLookup);
     }
 

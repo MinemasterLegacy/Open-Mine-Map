@@ -1,6 +1,6 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.input.InputWithModifiers;
@@ -77,13 +77,13 @@ public class ChoiceButtonWidget extends Button implements ConfigChoice {
     }
 
     @Override
-    protected void renderContents(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
+    protected void extractContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
         if (!anchor.drawNow) return;
         this.setX(anchor.getX());
         this.setY(anchor.getY());
         this.width = anchor.getWidth();
-        this.renderDefaultSprite(context);
-        this.renderDefaultLabel(context.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
+        this.extractDefaultSprite(context);
+        this.extractDefaultLabel(context.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
         //context.fill(getX(), getY(), getRight(), getBottom(), 0x3300FF00);
     }
 

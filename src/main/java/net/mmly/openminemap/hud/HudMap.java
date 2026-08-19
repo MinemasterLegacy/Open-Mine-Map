@@ -4,7 +4,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -76,7 +76,7 @@ public class HudMap {
         }
     }
 
-    public static void initialize(GuiGraphics context) {
+    public static void initialize(GuiGraphicsExtractor context) {
         //TileManager.initializeConfigParameters();
         setSnapAngle();
         loadConfigParameters();
@@ -97,7 +97,7 @@ public class HudMap {
 
         if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) {
             Minecraft.getInstance().player
-                    .displayClientMessage(Component
+                    .sendSystemMessage(Component
                             .translatable("omm.category.openminemap")
                             .append(": ")
                             .withStyle(ChatFormatting.DARK_GREEN).withStyle(ChatFormatting.BOLD)
@@ -137,7 +137,7 @@ public class HudMap {
         ConfigFile.writeToFile();
     }
 
-    private static void drawCompass(GuiGraphics context) {
+    private static void drawCompass(GuiGraphicsExtractor context) {
         drawCompassBackground(context);
         Player player = Minecraft.getInstance().player;
         //draw the compass
@@ -150,17 +150,17 @@ public class HudMap {
 
     }
 
-    private static void drawCompassBackground(GuiGraphics context) {
+    private static void drawCompassBackground(GuiGraphicsExtractor context) {
         for (int i = 2; i >= 0; i--) { //draw the semi-transparent compass background
             context.fill(hudCompassX + i, hudCompassY + i, hudCompassX + hudCompassWidth - i, hudCompassY + 16 - i, 0x33CCCCCC);
         }
     }
 
-    public static void render(GuiGraphics context, DeltaTracker renderTickCounter) {
+    public static void render(GuiGraphicsExtractor context, DeltaTracker renderTickCounter) {
 
         //method is called every frame, so a couple of things are included here that need to run every frame
         while (!OpenMineMapClient.debugMessages.isEmpty()) {
-            if (OpenMineMapClient.debugMessages.getFirst() != null) Minecraft.getInstance().player.displayClientMessage(Component.literal(OpenMineMapClient.debugMessages.getFirst()).withStyle(ChatFormatting.RED), false);
+            if (OpenMineMapClient.debugMessages.getFirst() != null) Minecraft.getInstance().player.sendSystemMessage(Component.literal(OpenMineMapClient.debugMessages.getFirst()).withStyle(ChatFormatting.RED), false);
             OpenMineMapClient.debugMessages.removeFirst();
         }
 

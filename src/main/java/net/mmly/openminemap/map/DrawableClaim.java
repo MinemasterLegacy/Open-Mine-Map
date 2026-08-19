@@ -118,12 +118,12 @@ public class DrawableClaim {
                                 Component.translatable("omm.claims.wait-end").getString()
                 );
                 if (notifyMapScreen) MapScreen.addNotification(new Notification(waitNotifyText));
-                if (notifyChat) Minecraft.getInstance().player.displayClientMessage(waitNotifyText.withStyle(CommandHander.ERROR_COLOR), false);
+                if (notifyChat) Minecraft.getInstance().player.sendSystemMessage(waitNotifyText.withStyle(CommandHander.ERROR_COLOR));
                 return;
             }
         }
         if (notifyMapScreen) MapScreen.addNotification(new Notification(Component.translatable("omm.claims.reloading")));
-        if (notifyChat) Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.claims.reloading").withStyle(CommandHander.FEEDBACK_COLOR), false);
+        if (notifyChat) Minecraft.getInstance().player.sendSystemMessage(Component.translatable("omm.claims.reloading").withStyle(CommandHander.FEEDBACK_COLOR));
         new Loader().start();
         if (considerTimeLimit) lastReloaded = Util.getMillis();
     }
@@ -148,7 +148,7 @@ public class DrawableClaim {
                 //if (ConfigFile.readParameter(ConfigOptions.__SHOW_DEVELOPER_OPTIONS).equals("true")) MinecraftClient.getInstance().player.sendMessage(Text.literal("Claim triangulation success rate: " + (((double) DrawableClaim.succeededTriangulations / OmmMap.claims.length) * 100) + "%"), false);
             } catch (Exception e) {
                 e.printStackTrace();
-                Minecraft.getInstance().player.displayClientMessage(Component.translatable("omm.error.load-claims"), false);
+                Minecraft.getInstance().player.sendSystemMessage(Component.translatable("omm.error.load-claims"));
             }
         }
     }

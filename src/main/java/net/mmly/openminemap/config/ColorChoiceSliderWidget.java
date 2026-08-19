@@ -1,6 +1,6 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.util.ColorUtil;
@@ -11,8 +11,8 @@ public class ColorChoiceSliderWidget extends ChoiceSliderWidget {
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.renderWidget(context, mouseX, mouseY, delta);
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractWidgetRenderState(context, mouseX, mouseY, delta);
         //Following copied from renderWidget method
         if (!anchor.drawNow) return;
         UContext.drawBorder(getX(), getY(), width, height, getTextColor(true));

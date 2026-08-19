@@ -1,5 +1,6 @@
 package net.mmly.openminemap.util;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
@@ -7,7 +8,6 @@ import net.minecraft.util.Util;
 import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import javax.imageio.ImageIO;
-import com.mojang.blaze3d.platform.NativeImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;

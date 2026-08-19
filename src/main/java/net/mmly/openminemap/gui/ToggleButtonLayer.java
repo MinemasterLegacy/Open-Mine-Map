@@ -1,6 +1,7 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -15,7 +16,7 @@ import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.ConfigFile;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import java.util.function.BooleanSupplier;
 
 public class ToggleButtonLayer extends AbstractWidget {
@@ -29,7 +30,7 @@ public class ToggleButtonLayer extends AbstractWidget {
         setOwnTooltip();
     }
 
-    public void draw(GuiGraphics context) {
+    public void draw(GuiGraphicsExtractor context) {
         if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (!ButtonLayer.texturedButtons) {
             UContext.drawButtonOnWidget(this, false, isHovered());
@@ -61,7 +62,7 @@ public class ToggleButtonLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0x00000000); //0x00000000
         if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }

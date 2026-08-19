@@ -1,7 +1,7 @@
 package net.mmly.openminemap.config;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.Justify;
@@ -27,7 +27,7 @@ public class CategoryLabelWidget extends StringWidget implements ConfigChoice {
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
         setY(anchor.getY());
         setX(anchor.getX());

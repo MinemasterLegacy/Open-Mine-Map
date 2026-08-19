@@ -2,7 +2,6 @@ package net.mmly.openminemap.util;
 
 import net.mmly.openminemap.gui.MapScreen;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 public class UnitConvert {

@@ -1,5 +1,6 @@
 package net.mmly.openminemap.raster;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -22,8 +23,7 @@ import net.mmly.openminemap.util.ColorUtil;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
-import java.util.Arrays;
+
 import java.util.Locale;
 
 public class RasterLayerWidget extends AbstractWidget {

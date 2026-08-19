@@ -1,5 +1,6 @@
 package net.mmly.openminemap.waypoint;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -24,7 +25,6 @@ import net.mmly.openminemap.util.WaypointFile;
 import org.lwjgl.glfw.GLFW;
 
 import javax.imageio.ImageIO;
-import com.mojang.blaze3d.platform.NativeImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;

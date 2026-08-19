@@ -2,7 +2,6 @@ package net.mmly.openminemap.enums;
 
 import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.gui.ButtonLayer;
-import net.mmly.openminemap.gui.ToggleButtonLayer;
 import net.mmly.openminemap.util.ColorUtil;
 
 public enum ButtonFunction {

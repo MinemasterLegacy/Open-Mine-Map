@@ -1,6 +1,6 @@
 package net.mmly.openminemap.config;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -70,11 +70,11 @@ public class ChoiceSliderWidget extends AbstractSliderButton implements ConfigCh
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
         this.setX(anchor.getX());
         this.setY(anchor.getY());
         this.width = anchor.getWidth();
-        super.renderWidget(context, mouseX, mouseY, delta);
+        super.extractWidgetRenderState(context, mouseX, mouseY, delta);
     }
 }

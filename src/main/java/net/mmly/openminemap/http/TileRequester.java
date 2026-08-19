@@ -4,8 +4,6 @@ import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.map.RequestableTile;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.RasterApiKeysFile;
-import net.mmly.openminemap.util.RasterProvider;
-import net.mmly.openminemap.util.TileUrl;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

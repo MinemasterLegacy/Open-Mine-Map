@@ -5,7 +5,10 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.raster.LayerType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 //TODO load/save current configuration from config file (base, overlays, opacity, visibility)
 

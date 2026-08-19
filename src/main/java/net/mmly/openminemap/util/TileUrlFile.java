@@ -10,7 +10,6 @@ import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.enums.TileUrlErrorType;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.raster.LayerType;
-import org.apache.commons.lang3.SystemUtils;
 
 import java.io.*;
 import java.net.MalformedURLException;

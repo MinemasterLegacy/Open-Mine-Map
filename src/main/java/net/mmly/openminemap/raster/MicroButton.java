@@ -8,7 +8,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
-import net.mmly.openminemap.OpenMineMap;
 import net.mmly.openminemap.config.ConfigScreen;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ButtonState;

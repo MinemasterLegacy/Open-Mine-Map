@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
 
 public class RasterList extends AbstractSelectionList<AnchorWidget> {

@@ -1,8 +1,9 @@
 package net.mmly.openminemap.enums;
 
-import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+
+import java.util.List;
 
 public enum WebIcon {
     GOOGLE_MAPS("Google Maps", "gm"),

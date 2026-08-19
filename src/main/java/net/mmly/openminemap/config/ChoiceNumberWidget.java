@@ -2,6 +2,7 @@ package net.mmly.openminemap.config;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -43,14 +44,14 @@ public class ChoiceNumberWidget extends EditBox implements ConfigChoice{
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (!anchor.drawNow) return;
         this.setX(anchor.getX());
         this.setY(anchor.getY());
         this.width = anchor.getWidth();
-        super.renderWidget(context, mouseX, mouseY, delta);
+        super.extractWidgetRenderState(context, mouseX, mouseY, delta);
         if (getValue().isEmpty() && !isFocused()) {
-            context.drawString(textRenderer, placeholder, getX() + 4, getY() + 6, 0xFF404040);
+            context.text(textRenderer, placeholder, getX() + 4, getY() + 6, 0xFF404040);
         }
     }
 }

@@ -1,13 +1,12 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.mmly.openminemap.draw.UContext;
 
 public class AnchorWidget extends ObjectSelectionList.Entry<AnchorWidget> {
 
@@ -64,9 +63,9 @@ public class AnchorWidget extends ObjectSelectionList.Entry<AnchorWidget> {
     }
 
     @Override
-    public void renderContent(GuiGraphics context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+    public void extractContent(GuiGraphicsExtractor context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
         drawNow = true;
-        widget.render(context, mouseX, mouseY, deltaTicks);
+        widget.extractRenderState(context, mouseX, mouseY, deltaTicks);
         drawNow = false;
         //context.fill(getX(), getY(), getX() + getWidth(), getX() + getHeight(), 0x80FF0000);
     }

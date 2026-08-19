@@ -2,7 +2,7 @@ package net.mmly.openminemap.gui;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -10,7 +10,6 @@ import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.network.NetworkState;
-import net.mmly.openminemap.util.ConfigFile;
 
 public class NetworkStatusLayer extends AbstractWidget {
     public NetworkStatusLayer(int x, int y) {
@@ -18,7 +17,7 @@ public class NetworkStatusLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (this.isHovered()) context.requestCursor(CursorTypes.POINTING_HAND);
     }
 
@@ -26,7 +25,7 @@ public class NetworkStatusLayer extends AbstractWidget {
         return !Minecraft.getInstance().isLocalServer() && ConfigOptions.SHOW_CONNECTION_STATUS.getAsBooleanFromValues(ConfigOptions.Values.SHOW_HIDE);
     }
 
-    protected void drawWidget(GuiGraphics context) {
+    protected void drawWidget(GuiGraphicsExtractor context) {
         if (!shouldBeVisible()) return;
         int winWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         UContext.fillZone(winWidth - 26, 0, 26, 26, MapScreen.backingColor);

@@ -1,7 +1,7 @@
 package net.mmly.openminemap.config;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -27,7 +27,7 @@ public class ResizeElement extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         //context.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), 0xFF0000FF);
         if (isHovered()) context.requestCursor(direction.isVertical() ? CursorTypes.RESIZE_NS : CursorTypes.RESIZE_EW);
 
@@ -89,7 +89,7 @@ public class ResizeElement extends AbstractWidget {
         }
     }
 
-    public void drawWidget(GuiGraphics context) {
+    public void drawWidget(GuiGraphicsExtractor context) {
         context.blit(RenderPipelines.GUI_TEXTURED, texture, getX(), getY(), 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
     }
 

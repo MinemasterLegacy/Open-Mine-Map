@@ -1,34 +1,34 @@
 package net.mmly.openminemap.draw;
 
+import com.mojang.blaze3d.platform.cursor.CursorType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.layouts.LayoutElement;
-import net.minecraft.client.gui.render.state.GuiRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-import org.joml.Matrix3x2fStack;
 import net.mmly.openminemap.util.ColorUtil;
-import com.mojang.blaze3d.platform.cursor.CursorType;
+import org.joml.Matrix3x2fStack;
+
 import java.util.TreeMap;
 
 public class UContext { //UniversalContext ; makes it easier to update draw methods per-version and allows for adding custom ones ; also eliminates the need to pass a context with draw methods
 
-    static GuiGraphics drawContext;
+    static GuiGraphicsExtractor drawContext;
     static Font textRenderer = Minecraft.getInstance().font;
     @Deprecated
     public static MultiBufferSource.BufferSource capturedVertexProvider;
     private static int textureAlphaColor = 0xFFFFFFFF;
     public static int SEMI_TRANSPARENT_UI_ALPHA = 64;
 
-    public static void setContext(GuiGraphics context) {
+    public static void setContext(GuiGraphicsExtractor context) {
         drawContext = context;
     }
 
-    public static GuiGraphics getContext() {
+    public static GuiGraphicsExtractor getContext() {
         return drawContext;
     }
 

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -24,16 +24,16 @@ public class WikiLinkLayer extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + this.width, getY() + this.height, 0xFFFFFFFF);
     }
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
-    public void drawWidget(GuiGraphics context, Font textRenderer) {
+    public void drawWidget(GuiGraphicsExtractor context, Font textRenderer) {
         UContext.fillWidget(this, MapScreen.backingColor);
-        context.drawString(textRenderer,
+        context.text(textRenderer,
                 isHovered() ? UNDERLINED_TEXT : TEXT,
                 getX() + 4,
                 getY() + 4,

@@ -1,6 +1,6 @@
 package net.mmly.openminemap.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -29,11 +29,11 @@ public class DirectionIndicator extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
 
     }
 
-    public static void draw(GuiGraphics context, double rotation, int x, int y, boolean indicatorOnly) {
+    public static void draw(GuiGraphicsExtractor context, double rotation, int x, int y, boolean indicatorOnly) {
 
         int size = OmmMap.PLAYERSIZE * 3;
 

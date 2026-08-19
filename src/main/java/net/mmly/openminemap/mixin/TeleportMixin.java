@@ -1,7 +1,5 @@
 package net.mmly.openminemap.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;

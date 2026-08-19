@@ -14,7 +14,6 @@ import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.event.CommandHander;
 import net.mmly.openminemap.event.KeyInputHandler;
 import net.mmly.openminemap.gui.MapScreen;
-import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
@@ -72,7 +71,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
         OpenMineMapClient.SHOWDEVELOPEROPTIONS = ConfigOptions.__SHOW_DEVELOPER_OPTIONS.getAsBoolean();
 
-        PayloadTypeRegistry.playS2C().register(PlayerDataS2CPayload.ID, PlayerDataS2CPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(PlayerDataS2CPayload.ID, PlayerDataS2CPayload.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(PlayerDataS2CPayload.ID, ((playerDataS2CPayload, context) -> {}));
         ClientPlayConnectionEvents.DISCONNECT.register(NetworkState::resetNetworkState);
 

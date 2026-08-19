@@ -2,9 +2,9 @@ package net.mmly.openminemap.raster;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
@@ -68,7 +68,7 @@ public class BaseRasterScreen extends RasterScreen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 }

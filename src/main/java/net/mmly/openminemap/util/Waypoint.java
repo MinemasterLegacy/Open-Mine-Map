@@ -3,8 +3,6 @@ package net.mmly.openminemap.util;
 import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.waypoint.WaypointStyle;
 
-import java.util.function.Supplier;
-
 public class Waypoint extends NamedLocation{
 
     public Identifier identifier;

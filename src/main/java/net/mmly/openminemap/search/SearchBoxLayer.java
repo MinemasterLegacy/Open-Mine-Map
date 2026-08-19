@@ -8,7 +8,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.draw.Justify;
 import net.mmly.openminemap.draw.UContext;
-import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.map.MappablePlayer;

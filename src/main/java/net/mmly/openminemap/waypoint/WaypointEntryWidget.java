@@ -1,5 +1,6 @@
 package net.mmly.openminemap.waypoint;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -13,13 +14,13 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.OpenMineMapClient;
-import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.draw.UContext;
+import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.RightClickMenu;
 import net.mmly.openminemap.gui.RightClickMenuType;
 import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import java.time.Duration;
 
 public class WaypointEntryWidget extends AbstractWidget {

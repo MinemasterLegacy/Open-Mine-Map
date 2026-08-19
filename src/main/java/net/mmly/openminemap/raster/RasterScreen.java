@@ -1,7 +1,8 @@
 package net.mmly.openminemap.raster;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -15,7 +16,7 @@ import net.mmly.openminemap.map.RegisterableTile;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
 import net.mmly.openminemap.util.nameSupplier;
-import com.mojang.blaze3d.platform.NativeImage;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -148,12 +149,12 @@ public abstract class RasterScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         UContext.setContext(context);
         updateWidgetPositions();
         registerQueue();
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
 
     }
 

@@ -6,7 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -343,7 +343,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         toggleSearchMenu(false);
     }
 
-    private static void drawButtons(GuiGraphics context) {
+    private static void drawButtons(GuiGraphicsExtractor context) {
         for (ButtonFunction function : buttonCenterShelf.keySet()) {
             buttonCenterShelf.get(function).drawWidget(context);
         }
@@ -526,7 +526,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
     }
 
-    private void drawNotificationText(GuiGraphics context) {
+    private void drawNotificationText(GuiGraphicsExtractor context) {
         if (notifications.isEmpty()) return;
         int maxY = buttonPositions[1][0] - 13; //top of button row
         int yPos = maxY;
@@ -542,7 +542,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
                     yPos + 1 + font.lineHeight,
                     ColorUtil.setAlpha((int) (alphaPercent * ColorUtil.decompose(backingColor)[0]), backingColor)
             );
-            if (alphaPercent > 0.02) context.drawString( //under 0.02 makes it draw the text fully opaque for some reason
+            if (alphaPercent > 0.02) context.text( //under 0.02 makes it draw the text fully opaque for some reason
                     font,
                     text,
                     centerX - (textWidth / 2),
@@ -554,16 +554,16 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) { //called every frame
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) { //called every frame
         UContext.setContext(context);
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
 
         if (chatToBeOpened) {
-            if (minecraft.getChatStatus().isChatAllowed(minecraft.isLocalServer())) { //copied from minecraftclient
+            if (minecraft.computeChatAbilities().canSendCommands()) { //copied from minecraftclient
                 minecraft.setScreen(new ChatScreen("", false));
                 toggleAltScreenMap(true);
+                chatIsOpened = true;
             }
-            chatIsOpened = true;
             chatToBeOpened = false;
         }
 
@@ -648,7 +648,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     //used in the hud to render a 'fake' fsmap screen when chat is opened
-    public static void render(GuiGraphics context, DeltaTracker renderTickCounter) {
+    public static void render(GuiGraphicsExtractor context, DeltaTracker renderTickCounter) {
 
         if (instance == null) return;
         if (!renderAltMap) return;
@@ -663,7 +663,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         //context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x22FF0000);
         UContext.setContext(context);
-        if (Minecraft.getInstance().screen instanceof ChatScreen) MapScreen.instance.renderBackground(context, 0, 0, 0);
+        if (Minecraft.getInstance().screen instanceof ChatScreen) MapScreen.instance.extractBackground(context, 0, 0, 0);
 
         map.setRenderSize(
                 Minecraft.getInstance().getWindow().getGuiScaledWidth(),

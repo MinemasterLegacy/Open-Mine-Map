@@ -1,5 +1,6 @@
 package net.mmly.openminemap.map;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
@@ -11,14 +12,16 @@ import net.mmly.openminemap.http.MapType;
 import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.raster.LayerType;
-import net.mmly.openminemap.util.*;
-import com.mojang.blaze3d.platform.NativeImage;
+import net.mmly.openminemap.util.ColorUtil;
+import net.mmly.openminemap.util.DrawableMapTile;
+import net.mmly.openminemap.util.RasterProvider;
+import net.mmly.openminemap.util.TileUrl;
+
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;

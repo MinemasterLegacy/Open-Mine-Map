@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -189,7 +189,7 @@ public class RightClickMenu extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         //context.fill(getX(), getY(), getX() + width, getY() + height, 0x00000000);
         if (this.isMouseOver(mouseX, mouseY)) {
             selectedOption = menuOptions.get((mouseY - getY()) / OPTION_HEIGHT);
@@ -282,7 +282,7 @@ public class RightClickMenu extends AbstractWidget {
         else return Component.translatable(option.getTranslationKey());
     }
 
-    public void drawWidget(GuiGraphics context, Font renderer) {
+    public void drawWidget(GuiGraphicsExtractor context, Font renderer) {
         if (displayType == RightClickMenuType.HIDDEN) return;
 
         if (displayType == RightClickMenuType.DEFAULT) UContext.drawTexture(rightClickMarker, (int) clickX - 5, (int) clickY - 14, 10, 14);

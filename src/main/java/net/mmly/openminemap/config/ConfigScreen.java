@@ -1,7 +1,8 @@
 package net.mmly.openminemap.config;
 
+import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -22,7 +23,7 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
-import com.mojang.blaze3d.platform.Window;
+
 import java.util.ArrayList;
 
 public class ConfigScreen extends Screen {
@@ -288,7 +289,7 @@ public class ConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         updateScreenDims();
 
         creditLayer.setPosition(windowScaledWidth - creditLayer.getWidth() - 3, windowScaledHeight - BOTTOM_SPACE + 7);
@@ -297,7 +298,7 @@ public class ConfigScreen extends Screen {
         configHud.setY(windowScaledHeight - BOTTOM_BUTTON_OFFSET);
 
         //context.enableScissor(0, 0, windowScaledWidth, windowScaledHeight - BOTTOM_SPACE);
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
 
         UContext.setContext(context);
         creditLayer.drawWidget(context, font);

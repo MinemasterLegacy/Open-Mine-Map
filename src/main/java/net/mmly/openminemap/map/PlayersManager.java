@@ -8,7 +8,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.mmly.openminemap.enums.OverlayVisibility;
@@ -32,7 +34,7 @@ public class PlayersManager {
         updatePlayerSkinList();
         LocalPlayer selfPlayer = Minecraft.getInstance().player;
 
-        List<Player> list = Minecraft.getInstance().level.getEntities(EntityType.PLAYER, new AABB(
+        List<Player> list = Minecraft.getInstance().level.getEntities(EntityTypeTest.forClass(Player.class), new AABB(
                 selfPlayer.getBlockX() + 128,
                 selfPlayer.getBlockY() + 128,
                 selfPlayer.getBlockZ() + 128,

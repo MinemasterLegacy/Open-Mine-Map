@@ -45,7 +45,7 @@ public class KeyInputHandler {
             if(openFullscreenOsmMapKey.consumeClick()) {
                 //what to do when key is pressed
                 //client.player.sendMessage(Text.literal("Key pressed!")); //send message in chat
-                Minecraft.getInstance().setScreen(
+                Minecraft.getInstance().gui.setScreen(
                         new MapScreen()
                 );
 
@@ -72,7 +72,7 @@ public class KeyInputHandler {
             }
 
             if (rasterScreenKey.consumeClick()) {
-                Minecraft.getInstance().setScreen(new ViewSetRastersScreen(true));
+                Minecraft.getInstance().gui.setScreen(new ViewSetRastersScreen(true));
             }
 
         });

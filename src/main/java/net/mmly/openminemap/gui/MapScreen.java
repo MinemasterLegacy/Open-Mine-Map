@@ -152,7 +152,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         RightClickMenu.disableMenu();
         writeParameters();
         ConfigFile.writeToFile();
-        this.minecraft.setScreen(null);
+        this.minecraft.gui.setScreen(null);
         toggleAltScreenMap(false);
     }
 
@@ -182,14 +182,14 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     public static void openLinkScreen(String link, Screen returnScreen, boolean toggleAltScreenMap) {
-        Minecraft.getInstance().setScreen(
+        Minecraft.getInstance().gui.setScreen(
                 new ConfirmLinkScreen(new BooleanConsumer() {
                     @Override
                     public void accept(boolean b) {
                         if(b) {
                             Util.getPlatform().openUri(link);
                         }
-                        Minecraft.getInstance().setScreen(returnScreen);
+                        Minecraft.getInstance().gui.setScreen(returnScreen);
                     }
 
                 }, link, true)
@@ -469,7 +469,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
     }
 
     public static void updateAltScreenMap(Screen previous) {
-        updateAltScreenMap(previous, Minecraft.getInstance().screen);
+        updateAltScreenMap(previous, Minecraft.getInstance().gui.screen());
     }
 
     public static void updateAltScreenMap(Screen previous, Screen next) {
@@ -504,10 +504,16 @@ public class MapScreen extends Screen { //Screen object that represents the full
         renderAltMap = state;
         map.setDraggable(!state);
         if (state) {
-            hudWasHidden = Minecraft.getInstance().options.hideGui;
-            Minecraft.getInstance().options.hideGui = true;
+            hudWasHidden = Minecraft.getInstance().gui.hud.isHidden();
+            setHudHidden(true);
         }
-        else Minecraft.getInstance().options.hideGui = hudWasHidden;
+        else setHudHidden(hudWasHidden);
+    }
+
+    private static void setHudHidden(boolean hidden) {
+        if (Minecraft.getInstance().gui.hud.isHidden() == !hidden) {
+            Minecraft.getInstance().gui.hud.toggle();
+        }
     }
 
     public static void addNotification(Notification notification) {
@@ -560,7 +566,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         if (chatToBeOpened) {
             if (minecraft.computeChatAbilities().canSendCommands()) { //copied from minecraftclient
-                minecraft.setScreen(new ChatScreen("", false));
+                minecraft.gui.setScreen(new ChatScreen("", false));
                 toggleAltScreenMap(true);
                 chatIsOpened = true;
             }
@@ -652,9 +658,9 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         if (instance == null) return;
         if (!renderAltMap) return;
-        if (Minecraft.getInstance().screen instanceof MapConfigScreen) return;
-        if (getInstance().chatIsOpened && !(Minecraft.getInstance().screen instanceof ChatScreen)) {
-            Minecraft.getInstance().setScreen(new MapScreen());
+        if (Minecraft.getInstance().gui.screen() instanceof MapConfigScreen) return;
+        if (getInstance().chatIsOpened && !(Minecraft.getInstance().gui.screen() instanceof ChatScreen)) {
+            Minecraft.getInstance().gui.setScreen(new MapScreen());
             toggleAltScreenMap(false);
             getInstance().chatIsOpened = false;
         }
@@ -663,7 +669,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
         //context.fill(map.getRenderAreaX(), map.getRenderAreaY(), map.getRenderAreaX2(), map.getRenderAreaY2(), 0x22FF0000);
         UContext.setContext(context);
-        if (Minecraft.getInstance().screen instanceof ChatScreen) MapScreen.instance.extractBackground(context, 0, 0, 0);
+        if (Minecraft.getInstance().gui.screen() instanceof ChatScreen) MapScreen.instance.extractBackground(context, 0, 0, 0);
 
         map.setRenderSize(
                 Minecraft.getInstance().getWindow().getGuiScaledWidth(),

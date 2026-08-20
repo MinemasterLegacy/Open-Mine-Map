@@ -73,11 +73,11 @@ public class RasterLayerWidget extends AbstractWidget {
 
         if (url != null) {
             if (url.hasKeyField()) {
-                if (Minecraft.getInstance().screen instanceof BaseRasterScreen) showKey = true;
+                if (Minecraft.getInstance().gui.screen() instanceof BaseRasterScreen) showKey = true;
                 if (!RasterApiKeysFile.hasApiKey(url.presetID)) microButtons[0].setApiKeyNeeded(true);
             }
 
-            if (layerType == LayerType.OVERLAY && Minecraft.getInstance().screen instanceof ViewSetRastersScreen) {
+            if (layerType == LayerType.OVERLAY && Minecraft.getInstance().gui.screen() instanceof ViewSetRastersScreen) {
                 opacitySlider = new OpacitySlider(0, 0, RasterProvider.getOpacityOf(raster));
                 opacitySlider.setParentWidget(this);
                 ViewSetRastersScreen.getInstance().addOpacitySlider(opacitySlider);
@@ -196,7 +196,7 @@ public class RasterLayerWidget extends AbstractWidget {
         UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
         if (raster != null) if (!raster.isPreset()) UContext.borderWidget(this, isFocused() ? outlineFocusColor : outlineBaseColor);
 
-        if (Minecraft.getInstance().screen instanceof BaseRasterScreen && isHovered()) UContext.borderWidget(this, 0xFFFFFFFF);
+        if (Minecraft.getInstance().gui.screen() instanceof BaseRasterScreen && isHovered()) UContext.borderWidget(this, 0xFFFFFFFF);
 
         if (isAddButton) {
             UContext.drawJustifiedText(getMessage(), Justify.CENTER, getX() + getWidth() / 2, getY() + (getHeight() / 2) - 4,0xFFFFFCA8, true);
@@ -233,7 +233,7 @@ public class RasterLayerWidget extends AbstractWidget {
         else setTooltip(Tooltip.create(Component.empty()));
 
         UContext.borderWidget(this,
-                isFocused() || (isHovered() && (Minecraft.getInstance().screen instanceof BaseRasterScreen || isAddButton)) ?
+                isFocused() || (isHovered() && (Minecraft.getInstance().gui.screen() instanceof BaseRasterScreen || isAddButton)) ?
                     outlineFocusColor :
                     outlineBaseColor
         );
@@ -317,7 +317,7 @@ public class RasterLayerWidget extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-        Screen currentScreen = Minecraft.getInstance().screen;
+        Screen currentScreen = Minecraft.getInstance().gui.screen();
         if (currentScreen instanceof BaseRasterScreen) {
             if (click.y() > BaseRasterScreen.getInstance().rasterList.getBottom()) {
                 BaseRasterScreen.confirmButton.mouseClicked(click, doubled);
@@ -327,12 +327,12 @@ public class RasterLayerWidget extends AbstractWidget {
 
         if (isAddButton) {
             if (currentScreen instanceof ViewSetRastersScreen) {
-                Minecraft.getInstance().setScreen(new OverlayRasterScreen(true));
+                Minecraft.getInstance().gui.setScreen(new OverlayRasterScreen(true));
             }
             if (currentScreen instanceof BaseRasterScreen || currentScreen instanceof OverlayRasterScreen) {
                 CreateRasterScreen.layerType = (currentScreen instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
-                if (ConfigOptions._RASTER_WARNING_ACCEPTED.getAsBoolean()) Minecraft.getInstance().setScreen(new CreateRasterScreen(null)); //conditional should be a config setting for if the warning screen was passed already
-                else Minecraft.getInstance().setScreen(new RasterWarningScreen());
+                if (ConfigOptions._RASTER_WARNING_ACCEPTED.getAsBoolean()) Minecraft.getInstance().gui.setScreen(new CreateRasterScreen(null)); //conditional should be a config setting for if the warning screen was passed already
+                else Minecraft.getInstance().gui.setScreen(new RasterWarningScreen());
             }
         }
 
@@ -354,7 +354,7 @@ public class RasterLayerWidget extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent click, boolean doubled) {
         if (isHovered() && showKey && mouseIsOverKey((int) click.x(), (int) click.y())) {
-            MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Rasters#api-keys", Minecraft.getInstance().screen, false);
+            MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki/Rasters#api-keys", Minecraft.getInstance().gui.screen(), false);
         }
         super.onClick(click, doubled);
     }

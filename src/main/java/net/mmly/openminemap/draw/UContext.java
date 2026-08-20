@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.layouts.LayoutElement;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -20,7 +19,6 @@ public class UContext { //UniversalContext ; makes it easier to update draw meth
     static GuiGraphicsExtractor drawContext;
     static Font textRenderer = Minecraft.getInstance().font;
     @Deprecated
-    public static MultiBufferSource.BufferSource capturedVertexProvider;
     private static int textureAlphaColor = 0xFFFFFFFF;
     public static int SEMI_TRANSPARENT_UI_ALPHA = 64;
 

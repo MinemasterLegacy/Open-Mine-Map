@@ -29,7 +29,7 @@ import java.util.ArrayList;
 public class ConfigScreen extends Screen {
     public ConfigScreen() {
         super(Component.nullToEmpty("OMM Config"));
-        this.returnScreen = Minecraft.getInstance().screen;
+        this.returnScreen = Minecraft.getInstance().gui.screen();
     }
 
     static ConfigScreen configScreen;
@@ -93,7 +93,7 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(
+        Minecraft.getInstance().gui.setScreen(
                 returnScreen instanceof ViewSetRastersScreen ? returnScreen : new MapScreen()
         );
         MapScreen.updateAltScreenMap(this);
@@ -160,7 +160,7 @@ public class ConfigScreen extends Screen {
 
         configHud = Button.builder(Component.translatable("omm.config.option.configure-hud"), (btn) -> {
                 this.saveChanges();
-                Minecraft.getInstance().setScreen(new MapConfigScreen());
+                Minecraft.getInstance().gui.setScreen(new MapConfigScreen());
                 MapScreen.updateAltScreenMap(this);
         }).bounds(15, windowScaledHeight - 35, 120, 20).build();
         configHud.setTooltip(Tooltip.create(Component.translatable("omm.config.tooltip.configure-hud")));

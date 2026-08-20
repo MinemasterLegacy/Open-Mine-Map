@@ -38,7 +38,7 @@ public class RasterConfigWidget extends Button implements ConfigChoice {
 
     @Override
     public void onClick(MouseButtonEvent click, boolean doubled) {
-        Minecraft.getInstance().setScreen(
+        Minecraft.getInstance().gui.setScreen(
                 new ViewSetRastersScreen(true)
         );
     }

@@ -128,6 +128,6 @@ public class RequestManager {
     }
 
     public static MapType currentPriorityMapType() {
-        return Minecraft.getInstance().screen == null ? MapType.HUD : MapType.FULLSCREEN;
+        return Minecraft.getInstance().gui.screen() == null ? MapType.HUD : MapType.FULLSCREEN;
     }
 }

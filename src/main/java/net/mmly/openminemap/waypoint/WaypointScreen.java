@@ -551,7 +551,7 @@ public class WaypointScreen extends Screen {
     @Override
     public void onClose() {
         //super.close();
-        Minecraft.getInstance().setScreen(
+        Minecraft.getInstance().gui.setScreen(
                 new MapScreen()
         );
         MapScreen.updateAltScreenMap(this);

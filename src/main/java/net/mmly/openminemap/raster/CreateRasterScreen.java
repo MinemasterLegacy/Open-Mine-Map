@@ -45,7 +45,7 @@ public class CreateRasterScreen extends Screen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(returnScreen);
+        Minecraft.getInstance().gui.setScreen(returnScreen);
         layerType = null;
     }
 
@@ -81,10 +81,10 @@ public class CreateRasterScreen extends Screen {
         if (originalRaster == null) baseFieldsEditable = true;
         else baseFieldsEditable = !originalRaster.isPreset();
 
-        if (Minecraft.getInstance().screen instanceof RasterWarningScreen) {
-            returnScreen = ((RasterWarningScreen) Minecraft.getInstance().screen).parent;
+        if (Minecraft.getInstance().gui.screen() instanceof RasterWarningScreen) {
+            returnScreen = ((RasterWarningScreen) Minecraft.getInstance().gui.screen()).parent;
         } else {
-            returnScreen = Minecraft.getInstance().screen;
+            returnScreen = Minecraft.getInstance().gui.screen();
         }
     }
 

@@ -35,7 +35,7 @@ public class BaseRasterScreen extends RasterScreen {
             try {
                 if (getSelectedLayerWidget().raster.hasKeyField() && !RasterApiKeysFile.hasApiKey(getSelectedLayerWidget().raster.presetID)) return;
                 RasterProvider.setCurrentBaseRaster(getSelectedLayerWidget().raster);
-                Minecraft.getInstance().screen.onClose();
+                Minecraft.getInstance().gui.screen().onClose();
             } catch (NullPointerException ignored) {}
         }).width(200).build();
         this.addRenderableWidget(confirmButton);

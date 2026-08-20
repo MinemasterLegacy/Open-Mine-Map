@@ -22,7 +22,7 @@ public class RasterWarningScreen extends WarningScreen {
                 Component.translatable("omm.raster.warning.body")
                         .append(Component.translatable("omm.raster.warning.disclaimer").withStyle(ChatFormatting.BOLD)),
                 Component.translatable("multiplayerWarning.check"), Component.literal(""));
-        parent = Minecraft.getInstance().screen;
+        parent = Minecraft.getInstance().gui.screen();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class RasterWarningScreen extends WarningScreen {
                 ConfigFile.writeToFile();
             }
 
-            this.minecraft.setScreen(new CreateRasterScreen(null));
+            this.minecraft.gui.setScreen(new CreateRasterScreen(null));
         }).build());
         directionalLayoutWidget.addChild(Button.builder(CommonComponents.GUI_BACK, (button) -> this.onClose()).build());
         return directionalLayoutWidget;
@@ -42,6 +42,6 @@ public class RasterWarningScreen extends WarningScreen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 }

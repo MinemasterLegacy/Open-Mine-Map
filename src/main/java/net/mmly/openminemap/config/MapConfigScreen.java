@@ -41,7 +41,7 @@ public class MapConfigScreen extends Screen {
     public boolean keyPressed(KeyEvent input) {
         if (input.input() == 256 && this.shouldCloseOnEsc()) {
             revertChanges();
-            Minecraft.getInstance().setScreen(
+            Minecraft.getInstance().gui.setScreen(
                     new ConfigScreen()
             );
             return true;
@@ -159,7 +159,7 @@ public class MapConfigScreen extends Screen {
     @Override
     public void onClose() {
         MapConfigScreen.revertChanges();
-        Minecraft.getInstance().setScreen(new ConfigScreen());
+        Minecraft.getInstance().gui.setScreen(new ConfigScreen());
         MapScreen.updateAltScreenMap(this);
     }
 }

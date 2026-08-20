@@ -237,7 +237,7 @@ public class RightClickMenu extends AbstractWidget {
             instance.setSavedMouseLatLong(MapScreen.map.getMouseLong(), MapScreen.map.getMouseLat());
         }
 
-        if (!(Minecraft.getInstance().screen instanceof WaypointScreen)) instance.repositionForOverflow();
+        if (!(Minecraft.getInstance().gui.screen() instanceof WaypointScreen)) instance.repositionForOverflow();
     }
 
     private void repositionLeftward() {
@@ -251,7 +251,7 @@ public class RightClickMenu extends AbstractWidget {
     }
 
     protected void repositionForOverflow() {
-        Screen currentScreen = Minecraft.getInstance().screen;
+        Screen currentScreen = Minecraft.getInstance().gui.screen();
         if (currentScreen == null) return;
         int windowScaledWidth = currentScreen.width;
         int windowScaledHeight = currentScreen.height;
@@ -356,8 +356,8 @@ public class RightClickMenu extends AbstractWidget {
                         } else {
                             Minecraft.getInstance().player.connection.sendCommand("tpll "+savedMouseLat+" "+savedMouseLong);
                         }
-                        if (Minecraft.getInstance().screen instanceof WaypointScreen) {
-                            Minecraft.getInstance().setScreen(new MapScreen());
+                        if (Minecraft.getInstance().gui.screen() instanceof WaypointScreen) {
+                            Minecraft.getInstance().gui.setScreen(new MapScreen());
                             MapScreen.map.setMapLatLong(selectedLocation.latitude, selectedLocation.longitude);
                         }
                     }
@@ -386,10 +386,10 @@ public class RightClickMenu extends AbstractWidget {
                 return;
             }
             case CREATE_WAYPOINT: {
-                if (selectedLocation != null) Minecraft.getInstance().setScreen(
+                if (selectedLocation != null) Minecraft.getInstance().gui.setScreen(
                         new WaypointScreen(savedMouseLat, savedMouseLong, selectedLocation.name)
                 );
-                else Minecraft.getInstance().setScreen(
+                else Minecraft.getInstance().gui.setScreen(
                         new WaypointScreen(savedMouseLat, savedMouseLong)
                 );
                 selectedLocation = null;
@@ -397,7 +397,7 @@ public class RightClickMenu extends AbstractWidget {
             }
             case EDIT_WAYPOINT: {
                 //open the waypoint screen in edit mode
-                Minecraft.getInstance().setScreen(
+                Minecraft.getInstance().gui.setScreen(
                         new WaypointScreen((Waypoint) selectedLocation)
                 );
                 break;
@@ -491,7 +491,7 @@ public class RightClickMenu extends AbstractWidget {
     }
 
     private static void openUrl(String url, boolean isGep) {
-        Minecraft.getInstance().setScreen(
+        Minecraft.getInstance().gui.setScreen(
                 new ConfirmLinkScreen(new BooleanConsumer() {
                     @Override
                     public void accept(boolean b) {
@@ -499,7 +499,7 @@ public class RightClickMenu extends AbstractWidget {
                             if (isGep) openInGep();
                             else Util.getPlatform().openUri(url);
                         }
-                        Minecraft.getInstance().setScreen(new MapScreen());
+                        Minecraft.getInstance().gui.setScreen(new MapScreen());
                     }
                 }, url, true)
 

@@ -76,7 +76,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
         ClientPlayConnectionEvents.DISCONNECT.register(NetworkState::resetNetworkState);
 
         ClientTickEvents.START_CLIENT_TICK.register(minecraftClient -> {
-            if (minecraftClient.screen instanceof TitleScreen && HudMap.initialized) {
+            if (minecraftClient.gui.screen() instanceof TitleScreen && HudMap.initialized) {
                 HudMap.initialized = false;
             }
         });

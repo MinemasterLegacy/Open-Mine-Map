@@ -37,13 +37,13 @@ public abstract class RasterScreen extends Screen {
         super(Component.nullToEmpty(""));
         instance = this;
         this.BOTTOM_PADDING = bottomPadding;
-        if (updateReturnScreen) returnScreen = Minecraft.getInstance().screen;
-        else returnScreen = ((RasterScreen) Minecraft.getInstance().screen).returnScreen;
+        if (updateReturnScreen) returnScreen = Minecraft.getInstance().gui.screen();
+        else returnScreen = ((RasterScreen) Minecraft.getInstance().gui.screen()).returnScreen;
     }
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(returnScreen);
+        Minecraft.getInstance().gui.setScreen(returnScreen);
     }
 
     private static void registerQueue() {

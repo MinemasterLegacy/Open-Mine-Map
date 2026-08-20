@@ -113,27 +113,27 @@ public class MicroButton extends AbstractWidget {
                 switch (layerType) {
                     case null -> {
                         CreateRasterScreen.layerType = parentWidget.raster.layerType;
-                        client.setScreen(new CreateRasterScreen(parentWidget.raster));
+                        client.gui.setScreen(new CreateRasterScreen(parentWidget.raster));
                     }
-                    case BASE -> client.setScreen(new BaseRasterScreen(true));
+                    case BASE -> client.gui.setScreen(new BaseRasterScreen(true));
                     case LOCAL_GEN -> {
-                        client.setScreen(new ConfigScreen());
+                        client.gui.setScreen(new ConfigScreen());
                         ConfigScreen.getInstance().scrollToOverlay();
                     }
-                    case OVERLAY -> client.setScreen(new CreateRasterScreen(parentWidget.raster));
+                    case OVERLAY -> client.gui.setScreen(new CreateRasterScreen(parentWidget.raster));
                 }
                 break;
             }
             case UP: {
                 RasterProvider.moveForward(parentWidget.raster);
                 //((ViewSetRastersScreen) MinecraftClient.getInstance().currentScreen).reloadRasterList();
-                Minecraft.getInstance().setScreen(new ViewSetRastersScreen(false));
+                Minecraft.getInstance().gui.setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case DOWN: {
                 RasterProvider.moveBackwards(parentWidget.raster);
                 //((ViewSetRastersScreen) MinecraftClient.getInstance().currentScreen).reloadRasterList();
-                Minecraft.getInstance().setScreen(new ViewSetRastersScreen(false));
+                Minecraft.getInstance().gui.setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case VISIBILITY: {
@@ -142,12 +142,12 @@ public class MicroButton extends AbstractWidget {
             }
             case REMOVE: {
                 RasterProvider.popOverlay(parentWidget.raster);
-                Minecraft.getInstance().setScreen(new ViewSetRastersScreen(false));
+                Minecraft.getInstance().gui.setScreen(new ViewSetRastersScreen(false));
                 break;
             }
             case INFO: {
-                CreateRasterScreen.layerType = (Minecraft.getInstance().screen instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
-                Minecraft.getInstance().setScreen(new CreateRasterScreen(parentWidget.raster));
+                CreateRasterScreen.layerType = (Minecraft.getInstance().gui.screen() instanceof BaseRasterScreen ? LayerType.BASE : LayerType.OVERLAY);
+                Minecraft.getInstance().gui.setScreen(new CreateRasterScreen(parentWidget.raster));
                 break;
             }
             case DELETE: {
@@ -168,8 +168,8 @@ public class MicroButton extends AbstractWidget {
     private void stopDeleteTimer(double mouseX, double mouseY) {
         if (isMouseOver(mouseX, mouseY) && deleteProgressPercent() == 1f) {
             RasterProvider.deleteCustomRaster(parentWidget.raster);
-            if (Minecraft.getInstance().screen instanceof BaseRasterScreen) Minecraft.getInstance().setScreen(new BaseRasterScreen(false));
-            if (Minecraft.getInstance().screen instanceof OverlayRasterScreen) Minecraft.getInstance().setScreen(new OverlayRasterScreen(false));
+            if (Minecraft.getInstance().gui.screen() instanceof BaseRasterScreen) Minecraft.getInstance().gui.setScreen(new BaseRasterScreen(false));
+            if (Minecraft.getInstance().gui.screen() instanceof OverlayRasterScreen) Minecraft.getInstance().gui.setScreen(new OverlayRasterScreen(false));
         }
         parentWidget.setDeleteProgressPercent(0f);
         deleteStartTime = -1;

@@ -174,7 +174,7 @@ public class HudMap {
         if (!initialized) initialize(context); //initialize hudmap if not done already
         if (TileManager.getThemeColor() == 0xFF808080) TileManager.loadTopTile();
 
-        if ((!renderHud || !hudEnabled || Minecraft.getInstance().options.hideGui) && !(Minecraft.getInstance().screen instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
+        if ((!renderHud || !hudEnabled || Minecraft.getInstance().gui.hud.isHidden()) && !(Minecraft.getInstance().gui.screen() instanceof MapConfigScreen)) return; //do not do anything if hud rendering is disabled
 
         UContext.setContext(context);
         playerIdentifier = Minecraft.getInstance().player.getSkin().body().texturePath();
@@ -194,7 +194,7 @@ public class HudMap {
                     map.getRenderAreaX() + (map.getRenderAreaWidth() / 2) - (Minecraft.getInstance().font.width(text) / 2),
                     map.getRenderAreaY() + (map.getRenderAreaHeight() / 2) - (Minecraft.getInstance().font.lineHeight / 2),
                     0xFFcccccc, true);
-            if (Minecraft.getInstance().screen instanceof MapConfigScreen) {
+            if (Minecraft.getInstance().gui.screen() instanceof MapConfigScreen) {
                 drawCompassBackground(context);
             }
             return;

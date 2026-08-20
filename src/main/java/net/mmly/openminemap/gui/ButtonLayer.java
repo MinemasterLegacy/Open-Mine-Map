@@ -86,33 +86,33 @@ public class ButtonLayer extends AbstractWidget {
                 if (PlayerAttributes.positionIsValid()) MapScreen.followPlayer(true);
                 break;
             case CONFIG: //config
-                Minecraft.getInstance().setScreen(
+                Minecraft.getInstance().gui.setScreen(
                         new ConfigScreen()
                 );
                 break;
             case EXIT: //exit
-                Minecraft.getInstance().screen.onClose();
+                Minecraft.getInstance().gui.screen().onClose();
                 break;
             case WAYPOINTS:
-                Minecraft.getInstance().setScreen(
+                Minecraft.getInstance().gui.setScreen(
                         new WaypointScreen()
                 );
                 break;
             case CHECKMARK:
-                if (Minecraft.getInstance().screen instanceof ConfigScreen) {
+                if (Minecraft.getInstance().gui.screen() instanceof ConfigScreen) {
                     ConfigScreen.getInstance().saveChanges();
-                    Minecraft.getInstance().setScreen(
+                    Minecraft.getInstance().gui.setScreen(
                             new MapScreen()
                     );
                     MapScreen.updateAltScreenMap(ConfigScreen.getInstance());
                     break;
-                } else if (Minecraft.getInstance().screen instanceof MapConfigScreen) {
+                } else if (Minecraft.getInstance().gui.screen() instanceof MapConfigScreen) {
                     MapConfigScreen.saveChanges();
-                    MapScreen.updateAltScreenMap(Minecraft.getInstance().screen, null);
+                    MapScreen.updateAltScreenMap(Minecraft.getInstance().gui.screen(), null);
                 } else {
                     break;
                 }
-                Minecraft.getInstance().setScreen(null);
+                Minecraft.getInstance().gui.setScreen(null);
                 break;
             case RESETCONFIG:
                 HudMap.map.setRenderPositionAndSize(
@@ -127,7 +127,7 @@ public class ButtonLayer extends AbstractWidget {
                 MapConfigScreen.updateResizePos();
                 break;
             case RASTER:
-                Minecraft.getInstance().setScreen(
+                Minecraft.getInstance().gui.setScreen(
                         new ViewSetRastersScreen(true)
                 );
                 break;

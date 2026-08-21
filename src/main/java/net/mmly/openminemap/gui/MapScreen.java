@@ -314,6 +314,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
 
         networkStatusLayer = new NetworkStatusLayer(0, 0);
+        this.addDrawableChild(networkStatusLayer);
 
         searchButtonLayer = new SearchButtonLayer(3, 3);
         this.addDrawableChild(searchButtonLayer);

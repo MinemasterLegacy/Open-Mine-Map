@@ -17,12 +17,14 @@ import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 
@@ -82,7 +84,6 @@ public class ConfigScreen extends Screen {
 
     Window window;
     private final Screen returnScreen;
-    public static ButtonWidget toggleArtificialZoomButton;
     private static final int ITEM_HEIGHT = 24;
 
     private int overlayLabelPosition;
@@ -131,6 +132,12 @@ public class ConfigScreen extends Screen {
 
     public void scrollToOverlay() {
         configList.setScrollY(Math.max((overlayLabelPosition - 1.5) * ITEM_HEIGHT, 0));
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE) return true; //prevents exiting without saving changes
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -283,7 +290,7 @@ public class ConfigScreen extends Screen {
         ConfigFile.writeToFile();
         ButtonLayer.texturedButtons = ConfigOptions.BUTTON_STYLE.getAsBooleanFromValues(ConfigOptions.Values.BUTTON_STYLES);
         MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
-        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) && !RequestManager.claimsLoaded()) {
             DrawableClaim.reloadClaimData(false, false, true);
         }
     }

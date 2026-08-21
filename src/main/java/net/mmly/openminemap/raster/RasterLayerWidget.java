@@ -225,11 +225,11 @@ public class RasterLayerWidget extends AbstractWidget {
         }
         UContext.resetTextureAlpha();
 
-        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.create(Component.nullToEmpty(
-                Component.translatable("omm.raster.requires-api-key").toString() +
-                "\n" +
-                Component.translatable("omm.raster.click-info").toString()
-        )));
+        if (isHovered() && showKey && mouseIsOverKey(mouseX, mouseY)) setTooltip(Tooltip.create(
+                Component.translatable("omm.raster.requires-api-key")
+                        .append("\n")
+                        .append(Component.translatable("omm.raster.click-info"))
+        ));
         else setTooltip(Tooltip.create(Component.empty()));
 
         UContext.borderWidget(this,

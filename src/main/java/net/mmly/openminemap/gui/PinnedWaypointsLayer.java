@@ -27,6 +27,7 @@ public class PinnedWaypointsLayer extends AbstractWidget {
     int mouseY = 0;
     Font textRenderer;
     public static int menuSelection = -1;
+    private static int MARGIN = 2;
 
     private int scrollOffset = 0;
 
@@ -119,14 +120,16 @@ public class PinnedWaypointsLayer extends AbstractWidget {
         } else {
             RightClickMenu.enableMenu(
                     RightClickMenuType.PINNED_WAYPOINT,
-                    getX() + width + 2,
+                    getX() + width + MARGIN,
                     /*getY() + (selection * waypointHitboxSize) + ((double) waypointHitboxSize / 2) - ((double) textRenderer.fontHeight / 2) - 3,*/
-                    getY() + 2 + (selection - scrollOffset) * waypointHitboxSize,
+                    getY() + (selection - scrollOffset) * waypointHitboxSize,
                     getSelectedWaypoint()
             );
             menuSelection = selection;
 
+
             RightClickMenu.instance.setY(RightClickMenu.instance.getY() - Math.max(0, RightClickMenu.instance.getBottom() - getBottom()));
+            RightClickMenu.getInstance().setY(Math.max(MARGIN, RightClickMenu.getInstance().getY()));
         }
     }
 

@@ -74,12 +74,12 @@ public class ResizeElement extends AbstractWidget {
         } else /*(plane == ResizePlane.VERTICAL)*/ {
             switch (direction) {
                 case ResizeDirection.UP_MAP: {
-                    int change = (int) (offsetX + moveRemainder);
+                    int change = (int) (offsetY + moveRemainder);
                     HudMap.map.setHeightFromTop(HudMap.map.getRenderAreaHeight() - change, HudMap.MIN_SIZE);
                     MapConfigScreen.updateResizePos();
                     break;
                 } case ResizeDirection.DOWN_MAP: {
-                    int change = (int) (offsetX + moveRemainder);
+                    int change = (int) (offsetY + moveRemainder);
                     HudMap.map.setHeightFromBottom(HudMap.map.getRenderAreaHeight() + change, HudMap.MIN_SIZE);
                     MapConfigScreen.updateResizePos();
                     break;

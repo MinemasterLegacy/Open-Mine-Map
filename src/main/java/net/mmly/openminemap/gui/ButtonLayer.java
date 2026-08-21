@@ -71,7 +71,6 @@ public class ButtonLayer extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent click, boolean doubled) {
         RightClickMenu.disableMenu();
-        System.out.println("clicked");
         switch (function) {
             case ZOOMIN: //zoom in
                 MapScreen.zoomIn();

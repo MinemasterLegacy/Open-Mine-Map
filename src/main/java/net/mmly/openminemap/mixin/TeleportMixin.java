@@ -36,7 +36,7 @@ public class TeleportMixin {
             "minecraft:tp"
     );
 
-    @ModifyVariable(method = "sendCommand", at = @At(value = "HEAD"), argsOnly = true, name = "command")
+    @ModifyVariable(method = "sendCommand", at = @At(value = "HEAD"), argsOnly = true, ordinal = 0)
     private static String injected(String command) {
         if (!ConfigOptions.TELEPORT_INTERCEPT.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) return command;
         if (!RightClickMenu.useTpll()) return command;

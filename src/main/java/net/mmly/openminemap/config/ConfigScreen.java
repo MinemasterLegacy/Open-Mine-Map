@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.mmly.openminemap.OpenMineMapClient;
 import net.mmly.openminemap.draw.Justify;
@@ -17,12 +18,14 @@ import net.mmly.openminemap.enums.WebIcon;
 import net.mmly.openminemap.gui.AnchorWidget;
 import net.mmly.openminemap.gui.ButtonLayer;
 import net.mmly.openminemap.gui.MapScreen;
+import net.mmly.openminemap.http.RequestManager;
 import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.DrawableClaim;
 import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 
@@ -131,6 +134,12 @@ public class ConfigScreen extends Screen {
 
     public void scrollToOverlay() {
         configList.setScrollAmount(Math.max((overlayLabelPosition - 1.5) * ITEM_HEIGHT, 0));
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent input) {
+        if (input.input() == GLFW.GLFW_KEY_ESCAPE) return true; //prevents exiting without saving changes
+        return super.keyPressed(input);
     }
 
     @Override
@@ -283,7 +292,7 @@ public class ConfigScreen extends Screen {
         ConfigFile.writeToFile();
         ButtonLayer.texturedButtons = ConfigOptions.BUTTON_STYLE.getAsBooleanFromValues(ConfigOptions.Values.BUTTON_STYLES);
         MapScreen.setPlainTextColor(textColorSlider.getTextColor(false), true);
-        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF)) {
+        if (ConfigOptions.CLAIMS_RENDERING.getAsBooleanFromValues(ConfigOptions.Values.ON_OFF) && !RequestManager.claimsLoaded()) {
             DrawableClaim.reloadClaimData(false, false, true);
         }
     }

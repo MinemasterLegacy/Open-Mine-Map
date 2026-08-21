@@ -43,6 +43,6 @@ public class CreditLayer extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent click, boolean doubled) {
         //FullscreenMapScreen.openBugReportScreen();
-        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/Open-Mine-Map/wiki", ConfigScreen.getInstance(), false);
+        MapScreen.openLinkScreen("https://github.com/MinemasterLegacy/", ConfigScreen.getInstance(), false);
     }
 }

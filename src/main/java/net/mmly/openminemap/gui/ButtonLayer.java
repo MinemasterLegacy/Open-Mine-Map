@@ -66,7 +66,6 @@ public class ButtonLayer extends ClickableWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         RightClickMenu.disableMenu();
-        System.out.println("clicked");
         switch (function) {
             case ZOOMIN: //zoom in
                 MapScreen.zoomIn();

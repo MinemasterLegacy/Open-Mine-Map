@@ -98,7 +98,7 @@ public class HudMap {
         if (!ConfigOptions._FIRST_SESSION_TIP_GIVEN.getAsBoolean()) {
             MinecraftClient.getInstance().player
                     .sendMessage(Text
-                            .translatable("omm.category.openminemap")
+                            .translatable("key.category.openminemap.keycategory")
                             .append(": ")
                             .formatted(Formatting.DARK_GREEN).formatted(Formatting.BOLD)
                     .append(Text

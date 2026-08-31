@@ -38,4 +38,15 @@ public class RasterList extends EntryListWidget<AnchorWidget> {
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        for (AnchorWidget widget : children()) {
+            if (widget.isMouseOver(mouseX, mouseY)) {
+                widget.mouseReleased(mouseX, mouseY, button);
+                break;
+            }
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
 }

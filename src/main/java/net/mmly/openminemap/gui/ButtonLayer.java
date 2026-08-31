@@ -43,7 +43,7 @@ public class ButtonLayer extends ClickableWidget {
     }
 
     public void drawWidget(DrawContext context) {
-        if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
+        if (MapScreen.semiTransparentUi && !isHovered()) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (!texturedButtons) {
             UContext.drawButtonOnWidget(this, disableCondition.getAsBoolean(), isHovered());
             UContext.drawTexture(function.generatedShadowIdentifier, getX() + 1, getY() + 1, BUTTONSIZE, BUTTONSIZE);

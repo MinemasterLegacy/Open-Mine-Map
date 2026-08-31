@@ -478,11 +478,11 @@ public class OmmMap extends ClickableWidget {
 
     public void setMouseDown(boolean mouseDown) {
         this.mouseDown = mouseDown;
-        MapScreen.semiTransparentUi = false;
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        MapScreen.semiTransparentUi = false;
         if (hoveredWaypoint != null) {
             waypointClickedProcedure.execute();
             return false;

@@ -1,6 +1,7 @@
 package net.mmly.openminemap.raster;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -37,5 +38,16 @@ public class RasterList extends EntryListWidget<AnchorWidget> {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    @Override
+    public boolean mouseReleased(Click click) {
+        for (AnchorWidget widget : children()) {
+            if (widget.isMouseOver(click.x(), click.y())) {
+                widget.mouseReleased(click);
+                break;
+            }
+        }
+        return super.mouseReleased(click);
     }
 }

@@ -31,7 +31,7 @@ public class OpenMineMapClient implements ClientModInitializer { // client class
 
     public static ArrayList<String> debugMessages = new ArrayList<>();
     public static boolean SHOWDEVELOPEROPTIONS = false;
-    public static final String MODVERSION = "1.8.1";
+    public static final String MODVERSION = "1.8.2";
     public static final int MAX_PACKET_VERSION = 1;
 
     private static final Identifier HUD_MAP_LAYER = Identifier.of("openminemap", "hud-example-layer");

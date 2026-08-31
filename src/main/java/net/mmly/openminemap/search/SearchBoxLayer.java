@@ -101,6 +101,12 @@ public class SearchBoxLayer extends TextFieldWidget {
     }
 
     @Override
+    public void setFocused(boolean focused) {
+        if (focused) MapScreen.semiTransparentUi = true;
+        super.setFocused(focused);
+    }
+
+    @Override
     public boolean keyPressed(KeyInput input) {
         if (searching) return true;
         if (input.getKeycode() == GLFW.GLFW_KEY_ENTER && !getText().isEmpty()) {

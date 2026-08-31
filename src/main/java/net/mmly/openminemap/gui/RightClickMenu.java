@@ -346,6 +346,7 @@ public class RightClickMenu extends ClickableWidget {
 
     @Override
     public void onClick(Click click, boolean doubled) {
+        if (selectedOption == null) return;
         switch (selectedOption) {
             case TELEPORT_HERE: {
                 //MinecraftClient.getInstance().player.networkHandler.sendChatCommand("tpll " + savedMouseLat + " " + savedMouseLong);

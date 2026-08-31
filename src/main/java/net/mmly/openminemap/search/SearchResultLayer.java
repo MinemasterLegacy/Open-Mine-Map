@@ -121,6 +121,12 @@ public class SearchResultLayer extends ClickableWidget {
     }
 
     @Override
+    public void setFocused(boolean focused) {
+        if (focused) MapScreen.semiTransparentUi = true;
+        super.setFocused(focused);
+    }
+
+    @Override
     public void onClick(Click click, boolean doubled) {
         if (isFocused()) goToResult();
     }

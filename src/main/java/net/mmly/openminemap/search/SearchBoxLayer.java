@@ -99,6 +99,12 @@ public class SearchBoxLayer extends EditBox {
     }
 
     @Override
+    public void setFocused(boolean focused) {
+        if (focused) MapScreen.semiTransparentUi = true;
+        super.setFocused(focused);
+    }
+
+    @Override
     public boolean keyPressed(KeyEvent input) {
         if (searching) return true;
         if (input.input() == GLFW.GLFW_KEY_ENTER && !getValue().isEmpty()) {

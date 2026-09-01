@@ -121,6 +121,12 @@ public class SearchResultLayer extends AbstractWidget {
     }
 
     @Override
+    public void setFocused(boolean focused) {
+        if (focused) MapScreen.semiTransparentUi = true;
+        super.setFocused(focused);
+    }
+
+    @Override
     public void onClick(MouseButtonEvent click, boolean doubled) {
         if (isFocused()) goToResult();
     }

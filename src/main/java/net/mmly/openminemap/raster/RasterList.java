@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.mmly.openminemap.enums.ConfigOptions;
 import net.mmly.openminemap.gui.AnchorWidget;
 
 public class RasterList extends AbstractSelectionList<AnchorWidget> {
@@ -35,5 +37,16 @@ public class RasterList extends AbstractSelectionList<AnchorWidget> {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent click) {
+        for (AnchorWidget widget : children()) {
+            if (widget.isMouseOver(click.x(), click.y())) {
+                widget.mouseReleased(click);
+                break;
+            }
+        }
+        return super.mouseReleased(click);
     }
 }

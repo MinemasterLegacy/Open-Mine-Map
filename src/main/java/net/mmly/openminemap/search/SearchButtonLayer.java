@@ -33,6 +33,12 @@ public class SearchButtonLayer extends AbstractWidget {
         UContext.drawTexture(getIdentifier(MapScreen.getSearchMenuState(), isHovered()), getX(), getY(), getWidth(), getHeight());
     }
 
+    @Override
+    public void setFocused(boolean focused) {
+        if (focused) MapScreen.semiTransparentUi = true;
+        super.setFocused(focused);
+    }
+
     private Identifier getIdentifier(boolean disabled, boolean highlighted) {
         if (!ButtonLayer.texturedButtons) {
             if (highlighted) return generatedIdentifier;

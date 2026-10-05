@@ -449,7 +449,7 @@ public class OmmMap extends ClickableWidget {
     public void keyNavigate(int keyCode, int modifiers) {
         if (!draggable) return;
         if (mouseDown) return;
-        MapScreen.semiTransparentUi = false;
+        //MapScreen.semiTransparentUi = false;
         //modifiers: bit 1 is shift, bit 2 is control, but 3 is alt
 
         modifiers %= 4;
@@ -1093,7 +1093,6 @@ public class OmmMap extends ClickableWidget {
     }
 
     public void renderMap(DrawContext context, MapType mapType) {
-
         UContext.setContext(context);
         updateFields();
 

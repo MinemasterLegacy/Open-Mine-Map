@@ -76,7 +76,7 @@ public class SearchBoxLayer extends TextFieldWidget {
         numResults = getNumResultsOf(searchResults);
         getInstance().setText(result.name);
         MapScreen.map.setMouseDown(false);
-        MapScreen.semiTransparentUi = true;
+        //MapScreen.semiTransparentUi = true;
         MapScreen.map.displaySearchResults(searchResults);
         MapScreen.getInstance().jumpToSearchBox();
         updateResultElements();
@@ -102,7 +102,7 @@ public class SearchBoxLayer extends TextFieldWidget {
 
     @Override
     public void setFocused(boolean focused) {
-        if (focused) MapScreen.semiTransparentUi = true;
+        //if (focused) MapScreen.semiTransparentUi = true;
         super.setFocused(focused);
     }
 
@@ -150,7 +150,7 @@ public class SearchBoxLayer extends TextFieldWidget {
             numDisplayedResults = Math.min(maxDisplayedResults, numResults);
             RequestManager.clearSearchResults();
             MapScreen.map.setMouseDown(false);
-            MapScreen.semiTransparentUi = true;
+            //MapScreen.semiTransparentUi = true;
             if (!searchResults[0].name.isEmpty()) MapScreen.map.displaySearchResults(searchResults);
             MapScreen.getInstance().jumpToSearchBox();
             updateResultElements();

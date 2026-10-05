@@ -55,7 +55,7 @@ public class SearchResultLayer extends AbstractWidget {
     public void drawWidget(GuiGraphicsExtractor context, Font renderer) {
         //context.drawBorder(getX(), getY(), getX() + width, getY() + height, 0xFFFF0000);
 
-        if (!MapScreen.getSearchMenuState() || myResult == null || !SearchBoxLayer.isResultVisible(resultNumber)) {
+        if (!MapScreen.searchMenuEnabled() || myResult == null || !SearchBoxLayer.isResultVisible(resultNumber)) {
             visible = false;
             return;
         }
@@ -122,7 +122,7 @@ public class SearchResultLayer extends AbstractWidget {
 
     @Override
     public void setFocused(boolean focused) {
-        if (focused) MapScreen.semiTransparentUi = true;
+        //if (focused) MapScreen.semiTransparentUi = true;
         super.setFocused(focused);
     }
 

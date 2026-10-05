@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.draw.UContext;
@@ -27,15 +28,15 @@ public class SearchButtonLayer extends AbstractWidget {
 
     public void drawWidget(GuiGraphicsExtractor context) {
         if (!ButtonLayer.texturedButtons) {
-            UContext.drawButtonOnWidget(this, MapScreen.getSearchMenuState() && !isHovered(), isHovered());
+            UContext.drawButtonOnWidget(this, MapScreen.searchMenuEnabled() && !isHovered(), isHovered());
             UContext.drawTexture(generatedShadowIdentifier, getX() + 1, getY() + 1, getWidth(), getHeight());
         }
-        UContext.drawTexture(getIdentifier(MapScreen.getSearchMenuState(), isHovered()), getX(), getY(), getWidth(), getHeight());
+        UContext.drawTexture(getIdentifier(MapScreen.searchMenuEnabled(), isHovered()), getX(), getY(), getWidth(), getHeight());
     }
 
     @Override
     public void setFocused(boolean focused) {
-        if (focused) MapScreen.semiTransparentUi = true;
+        //if (focused) MapScreen.semiTransparentUi = true;
         super.setFocused(focused);
     }
 
@@ -59,8 +60,8 @@ public class SearchButtonLayer extends AbstractWidget {
 
     @Override
     public void onClick(MouseButtonEvent click, boolean doubled) {
-        MapScreen.toggleSearchMenu(!MapScreen.getSearchMenuState());
-        MapScreen.getInstance().jumpToSearchBox();
+        MapScreen.toggleSearchMenu(!MapScreen.searchMenuEnabled());
+        if (MapScreen.searchMenuEnabled()) MapScreen.getInstance().jumpToSearchBox();
     }
 
     @Override

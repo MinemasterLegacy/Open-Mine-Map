@@ -13,7 +13,8 @@ import net.mmly.openminemap.hud.HudMap;
 import net.mmly.openminemap.map.PlayerAttributes;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.UnitConvert;
-import org.lwjgl.glfw.GLFW;
+
+import java.io.InputStream;
 
 public class KeyInputHandler {
     public static final KeyMapping.Category KEY_CATEGORY_OPENMINEMAP = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("openminemap", "keycategory")); //"key.category.osmMap.osmMapCategory";
@@ -81,50 +82,50 @@ public class KeyInputHandler {
     public static void register() { //function for registering the new keybinds; called in TutorialModClient
         openFullscreenOsmMapKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_FULLSCREEN_OSM_MAP, //translation key of the keybinding's name
-                InputConstants.Type.KEYSYM, //the type of the keybinding, KEYSYM for keyboard, MOUSE for mouse
-                GLFW.GLFW_KEY_N, //the keycode of the key
+                InputConstants.Type.KEYBOARD, //the type of the keybinding, KEYSYM for keyboard, MOUSE for mouse
+                InputConstants.KEY_N, //the keycode of the key
                 KEY_CATEGORY_OPENMINEMAP //the translation key of the keybinding's category
         ));
 
         hudMapZoomInKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_ZOOMIN_HUD_OSM_MAP,
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_EQUAL,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_EQUALS,
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
         hudMapZoomOutKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_ZOOMOUT_HUD_OSM_MAP,
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_MINUS,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_MINUS,
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
         hudMapToggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_TOGGLE_HUD_OSM_MAP,
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_M,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_M,
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
         copyCoordinatesKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_COPY_COORDINATES,
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.UNKNOWN.getValue(),
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
         snapAngleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_SNAP_ANGLE,
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.UNKNOWN.getValue(),
                 KEY_CATEGORY_OPENMINEMAP
         ));
 
         rasterScreenKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 KEY_RASTER_SCREEN,
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.UNKNOWN.getValue(),
                 KEY_CATEGORY_OPENMINEMAP
         ));
 

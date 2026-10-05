@@ -1,5 +1,6 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -48,7 +49,7 @@ public class ToggleButtonLayer extends AbstractWidget {
 
     @Override
     protected boolean isValidClickButton(MouseButtonInfo input) {
-        return input.button() == 0 || input.button() == 1;
+        return input.button() == InputConstants.MOUSE_BUTTON_LEFT || input.button() == InputConstants.MOUSE_BUTTON_RIGHT;
     }
 
     private void setOwnTooltip() {
@@ -70,12 +71,12 @@ public class ToggleButtonLayer extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent click, boolean doubled) {
         if (type == Type.CLAIM_RENDERING) {
-            if (click.button() == 0) {
+            if (click.button() == InputConstants.MOUSE_BUTTON_LEFT) {
                 OmmMap.renderClaimsToggle = !OmmMap.renderClaimsToggle;
                 setOwnTooltip();
                 ConfigFile.writeParameter(ConfigOptions._CLAIMS_TOGGLE, Boolean.toString(OmmMap.renderClaimsToggle));
             }
-            if (click.button() == 1) {
+            if (click.button() == InputConstants.MOUSE_BUTTON_RIGHT) {
                 DrawableClaim.reloadClaimData(true, false, true);
             }
         }

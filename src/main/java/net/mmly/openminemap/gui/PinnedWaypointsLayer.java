@@ -1,5 +1,6 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -135,7 +136,7 @@ public class PinnedWaypointsLayer extends AbstractWidget {
 
     @Override
     protected boolean isValidClickButton(MouseButtonInfo input) {
-        return input.button() == 0 || input.button() == 1;
+        return input.button() == InputConstants.MOUSE_BUTTON_RIGHT || input.button() == InputConstants.MOUSE_BUTTON_LEFT;
     }
 
     public static void updatePinnedWaypoints() {

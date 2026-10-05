@@ -1,5 +1,6 @@
 package net.mmly.openminemap.search;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -17,7 +18,6 @@ import net.minecraft.resources.Identifier;
 import net.mmly.openminemap.draw.UContext;
 import net.mmly.openminemap.gui.MapScreen;
 import net.mmly.openminemap.http.RequestManager;
-import org.lwjgl.glfw.GLFW;
 
 import java.time.Duration;
 
@@ -172,7 +172,7 @@ public class SearchResultLayer extends AbstractWidget {
 
     @Override
     public boolean keyPressed(KeyEvent input) {
-        if (input.input() == GLFW.GLFW_KEY_ENTER) {
+        if (input.input() == InputConstants.KEY_RETURN) {
             goToResult();
             return true;
         }

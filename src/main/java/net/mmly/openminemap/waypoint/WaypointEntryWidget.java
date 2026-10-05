@@ -1,5 +1,6 @@
 package net.mmly.openminemap.waypoint;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -95,7 +96,7 @@ public class WaypointEntryWidget extends AbstractWidget {
     @Override
     protected boolean isValidClickButton(MouseButtonInfo input) {
         this.lastCheckedButton = input.button();
-        return input.button() == 0 || this.lastCheckedButton == 1;
+        return lastCheckedButton == InputConstants.MOUSE_BUTTON_LEFT || lastCheckedButton == InputConstants.MOUSE_BUTTON_RIGHT;
     }
 
     @Override

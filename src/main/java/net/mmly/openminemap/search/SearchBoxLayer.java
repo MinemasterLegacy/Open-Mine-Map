@@ -1,5 +1,6 @@
 package net.mmly.openminemap.search;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -15,7 +16,6 @@ import net.mmly.openminemap.map.PlayersManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -107,7 +107,7 @@ public class SearchBoxLayer extends EditBox {
     @Override
     public boolean keyPressed(KeyEvent input) {
         if (searching) return true;
-        if (input.input() == GLFW.GLFW_KEY_ENTER && !getValue().isEmpty()) {
+        if (input.input() == InputConstants.KEY_RETURN && !getValue().isEmpty()) {
             MapScreen.getInstance().jumpToBestOption();
             //RequestManager.setSearchRequest(FullscreenMapScreen.getInstance().getSearchBoxContents());
             return true;

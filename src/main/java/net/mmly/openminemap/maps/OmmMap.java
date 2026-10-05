@@ -1,5 +1,6 @@
 package net.mmly.openminemap.maps;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -28,7 +29,6 @@ import net.mmly.openminemap.raster.LayerType;
 import net.mmly.openminemap.search.SearchBoxLayer;
 import net.mmly.openminemap.search.SearchResult;
 import net.mmly.openminemap.util.*;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -462,16 +462,16 @@ public class OmmMap extends AbstractWidget {
             }
         }
 
-        if (keyCode == GLFW.GLFW_KEY_UP || client.options.keyUp.matches(new KeyEvent(keyCode, 0, 0))) {
+        if (keyCode == InputConstants.KEY_UP || client.options.keyUp.matches(new KeyEvent(keyCode, 0, 0))) {
             mapCenterY -= change;
         }
-        if (keyCode == GLFW.GLFW_KEY_RIGHT || client.options.keyRight.matches(new KeyEvent(keyCode, 0, 0))) {
+        if (keyCode == InputConstants.KEY_RIGHT || client.options.keyRight.matches(new KeyEvent(keyCode, 0, 0))) {
             mapCenterX += change;
         }
-        if (keyCode == GLFW.GLFW_KEY_DOWN || client.options.keyDown.matches(new KeyEvent(keyCode, 0, 0))) {
+        if (keyCode == InputConstants.KEY_DOWN || client.options.keyDown.matches(new KeyEvent(keyCode, 0, 0))) {
             mapCenterY += change;
         }
-        if (keyCode == GLFW.GLFW_KEY_LEFT || client.options.keyLeft.matches(new KeyEvent(keyCode, 0, 0))) {
+        if (keyCode == InputConstants.KEY_LEFT || client.options.keyLeft.matches(new KeyEvent(keyCode, 0, 0))) {
             mapCenterX -= change;
         }
 
@@ -488,17 +488,17 @@ public class OmmMap extends AbstractWidget {
             waypointClickedProcedure.execute();
             return false;
         }
-        if (hoveredResultId != -1 && click.button() == 0) {
+        if (hoveredResultId != -1 && click.button() == InputConstants.MOUSE_BUTTON_LEFT) {
             getHoveredSearchResult().focusOnMapViaSearchMenu();
             return false;
         }
-        if (click.button() == 0) { //left click
+        if (click.button() == InputConstants.MOUSE_BUTTON_LEFT) { //left click
             setMouseDown(true);
             mouseHoldX = mouseTileX;
             mouseHoldY = mouseTileY;
             leftClickProcedure.execute();
         }
-        if (click.button() == 1) { //right click
+        if (click.button() == InputConstants.MOUSE_BUTTON_RIGHT) { //right click
             rightClickProcedure.execute();
         }
         followPlayer = false;

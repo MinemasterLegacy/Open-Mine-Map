@@ -1,5 +1,6 @@
 package net.mmly.openminemap.raster;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -19,7 +20,6 @@ import net.mmly.openminemap.util.RasterApiKeysFile;
 import net.mmly.openminemap.util.RasterProvider;
 import net.mmly.openminemap.util.TileUrl;
 import net.mmly.openminemap.util.TileUrlFile;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -229,7 +229,7 @@ public class CreateRasterScreen extends Screen {
     public boolean keyPressed(KeyEvent input) {
         boolean b = super.keyPressed(input);
         if (!ConfigOptions.__SHOW_DEVELOPER_OPTIONS.getAsBoolean()) return b;
-        if (input.input() != GLFW.GLFW_KEY_RIGHT_ALT) return b;
+        if (input.input() != InputConstants.KEY_RALT) return b;
         if (!isNew) return b;
 
         fieldWidgets.get(0).setValue("Dummy Raster");

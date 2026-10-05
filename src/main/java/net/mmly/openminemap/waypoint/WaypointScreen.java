@@ -1,5 +1,6 @@
 package net.mmly.openminemap.waypoint;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -22,7 +23,6 @@ import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.util.UnitConvert;
 import net.mmly.openminemap.util.Waypoint;
 import net.mmly.openminemap.util.WaypointFile;
-import org.lwjgl.glfw.GLFW;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -115,13 +115,13 @@ public class WaypointScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent input) {
-        if (input.input() == GLFW.GLFW_KEY_LEFT_SHIFT || input.input() == GLFW.GLFW_KEY_RIGHT_SHIFT) shiftPressed = true;
+        if (input.input() == InputConstants.KEY_LSHIFT || input.input() == InputConstants.KEY_RSHIFT) shiftPressed = true;
         return super.keyPressed(input);
     }
 
     @Override
     public boolean keyReleased(KeyEvent input) {
-        if (input.input() == GLFW.GLFW_KEY_LEFT_SHIFT || input.input() == GLFW.GLFW_KEY_RIGHT_SHIFT) shiftPressed = false;
+        if (input.input() == InputConstants.KEY_LSHIFT || input.input() == InputConstants.KEY_RSHIFT) shiftPressed = false;
         return super.keyReleased(input);
     }
 
@@ -133,7 +133,7 @@ public class WaypointScreen extends Screen {
             }
         }
         boolean b = super.mouseClicked(click, doubled);
-        if (click.button() == 0) RightClickMenu.disableMenu();
+        if (click.button() == InputConstants.MOUSE_BUTTON_LEFT) RightClickMenu.disableMenu();
         return b;
     }
 

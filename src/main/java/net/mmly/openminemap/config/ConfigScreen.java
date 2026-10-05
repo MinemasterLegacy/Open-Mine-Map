@@ -1,5 +1,6 @@
 package net.mmly.openminemap.config;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -25,7 +26,6 @@ import net.mmly.openminemap.map.TileManager;
 import net.mmly.openminemap.maps.OmmMap;
 import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.util.ConfigFile;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 
@@ -138,7 +138,7 @@ public class ConfigScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent input) {
-        if (input.input() == GLFW.GLFW_KEY_ESCAPE) return true; //prevents exiting without saving changes
+        if (input.input() == InputConstants.KEY_ESCAPE) return true; //prevents exiting without saving changes
         return super.keyPressed(input);
     }
 

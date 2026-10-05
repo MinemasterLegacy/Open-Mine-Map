@@ -1,5 +1,7 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.Blaze3D;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.ChatFormatting;
@@ -34,8 +36,8 @@ import net.mmly.openminemap.raster.ViewSetRastersScreen;
 import net.mmly.openminemap.search.*;
 import net.mmly.openminemap.util.*;
 import net.mmly.openminemap.waypoint.WaypointScreen;
-import org.lwjgl.glfw.GLFW;
 
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.function.BooleanSupplier;
@@ -186,12 +188,12 @@ public class MapScreen extends Screen { //Screen object that represents the full
                     @Override
                     public void accept(boolean b) {
                         if(b) {
-                            Util.getPlatform().openUri(link);
+                            Blaze3D.openUri(URI.create(link));
                         }
                         Minecraft.getInstance().gui.setScreen(returnScreen);
                     }
 
-                }, link, true)
+                }, URI.create(link), true)
 
         );
         if (toggleAltScreenMap) toggleAltScreenMap(true);
@@ -247,7 +249,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         for (SearchResultLayer layer : searchResultLayers) {
             if (layer.isOption(SearchResultType.SEARCH) || layer.isOption(SearchResultType.COORDINATES) || layer.isHistoric()) {
                 setFocused(layer);
-                layer.keyPressed(new KeyEvent(GLFW.GLFW_KEY_ENTER, 0, 0));
+                layer.keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
                 return;
             }
         }
@@ -395,8 +397,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     private void arrowNavigateSearch(int code) {
         int change;
-        if (code == GLFW.GLFW_KEY_DOWN) change = 1;
-        else if (code == GLFW.GLFW_KEY_UP) change = -1;
+        if (code == InputConstants.KEY_DOWN) change = 1;
+        else if (code == InputConstants.KEY_UP) change = -1;
         else return;
 
         GuiEventListener[] searchElements = new GuiEventListener[SearchBoxLayer.getNumResults() + 1];
@@ -423,20 +425,20 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     @Override
     public boolean keyPressed(KeyEvent input) {
-        if (input.input() == GLFW.GLFW_KEY_ESCAPE) {
+        if (input.input() == InputConstants.KEY_ESCAPE) {
             if (searchElementsFocused()) toggleSearchMenu(false);
             else onClose();
             return true;
         }
 
-        if (input.input() == GLFW.GLFW_KEY_LEFT_ALT || input.input() == GLFW.GLFW_KEY_RIGHT_ALT) altKeyPressed = true;
+        if (input.input() == InputConstants.KEY_LALT || input.input() == InputConstants.KEY_RALT) altKeyPressed = true;
 
         if (searchElementsFocused()) {
-            if (input.input() == GLFW.GLFW_KEY_UP || input.input() == GLFW.GLFW_KEY_DOWN) {
+            if (input.input() == InputConstants.KEY_UP || input.input() == InputConstants.KEY_DOWN) {
                 arrowNavigateSearch(input.input());
                 return true;
             } else {
-                if (input.input() == GLFW.GLFW_KEY_TAB) {
+                if (input.input() == InputConstants.KEY_TAB) {
                     toggleSearchMenu(false);
                     return true;
                 }
@@ -452,7 +454,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
             chatToBeOpened = true;
         }
 
-        if (input.input() == GLFW.GLFW_KEY_TAB) {
+        if (input.input() == InputConstants.KEY_TAB) {
             toggleSearchMenu(true);
             return true;
         }
@@ -464,7 +466,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
 
     @Override
     public boolean keyReleased(KeyEvent input) {
-        if (input.input() == GLFW.GLFW_KEY_LEFT_ALT || input.input() == GLFW.GLFW_KEY_RIGHT_ALT) altKeyPressed = false;
+        if (input.input() == InputConstants.KEY_LALT || input.input() == InputConstants.KEY_RALT) altKeyPressed = false;
         return super.keyReleased(input);
     }
 

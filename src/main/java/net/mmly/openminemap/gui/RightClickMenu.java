@@ -1,5 +1,6 @@
 package net.mmly.openminemap.gui;
 
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.ChatFormatting;
@@ -7,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -32,6 +34,7 @@ import net.mmly.openminemap.waypoint.WaypointScreen;
 
 import java.awt.*;
 import java.io.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -498,11 +501,11 @@ public class RightClickMenu extends AbstractWidget {
                     public void accept(boolean b) {
                         if(b) {
                             if (isGep) openInGep();
-                            else Util.getPlatform().openUri(url);
+                            else Blaze3D.openUri(URI.create(url));
                         }
                         Minecraft.getInstance().gui.setScreen(new MapScreen());
                     }
-                }, url, true)
+                }, URI.create("about:blank"), true)
 
         );
     }
@@ -540,7 +543,7 @@ public class RightClickMenu extends AbstractWidget {
             return;
         }
         //System.out.println(file.exists());
-        Util.getPlatform().openFile(file);
+        Blaze3D.openUri(URI.create(file.getAbsolutePath()));
     }
 
     private static String zoomToMetersAbove(int z) {

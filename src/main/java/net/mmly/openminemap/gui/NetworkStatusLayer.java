@@ -29,7 +29,7 @@ public class NetworkStatusLayer extends AbstractWidget {
         if (!shouldBeVisible()) return;
         int winWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         UContext.fillZone(winWidth - 26, 0, 26, 26, MapScreen.backingColor);
-        if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
+        //if (MapScreen.semiTransparentUi) UContext.setTextureAlpha(UContext.SEMI_TRANSPARENT_UI_ALPHA);
         if (isHovered()) {
             UContext.drawTexture(NetworkState.getNetworkState().selectionIdentifier, winWidth - 24, 2, 22, 22, 22, 22);
             setTooltip(Tooltip.create(Component.translatable(NetworkState.getNetworkState().translationKey)));
@@ -37,7 +37,7 @@ public class NetworkStatusLayer extends AbstractWidget {
             setTooltip(null);
         }
         UContext.drawTexture(NetworkState.getNetworkState().identifier, winWidth - 23, 3, 20, 20, 20, 20);
-        UContext.resetTextureAlpha();
+        //UContext.resetTextureAlpha();
     }
 
     /*

@@ -74,7 +74,7 @@ public class SearchBoxLayer extends EditBox {
         numResults = getNumResultsOf(searchResults);
         getInstance().setValue(result.name);
         MapScreen.map.setMouseDown(false);
-        MapScreen.semiTransparentUi = true;
+        //MapScreen.semiTransparentUi = true;
         MapScreen.map.displaySearchResults(searchResults);
         MapScreen.getInstance().jumpToSearchBox();
         updateResultElements();
@@ -100,7 +100,7 @@ public class SearchBoxLayer extends EditBox {
 
     @Override
     public void setFocused(boolean focused) {
-        if (focused) MapScreen.semiTransparentUi = true;
+        //if (focused) MapScreen.semiTransparentUi = true;
         super.setFocused(focused);
     }
 
@@ -148,7 +148,7 @@ public class SearchBoxLayer extends EditBox {
             numDisplayedResults = Math.min(maxDisplayedResults, numResults);
             RequestManager.clearSearchResults();
             MapScreen.map.setMouseDown(false);
-            MapScreen.semiTransparentUi = true;
+            //MapScreen.semiTransparentUi = true;
             if (!searchResults[0].name.isEmpty()) MapScreen.map.displaySearchResults(searchResults);
             MapScreen.getInstance().jumpToSearchBox();
             updateResultElements();

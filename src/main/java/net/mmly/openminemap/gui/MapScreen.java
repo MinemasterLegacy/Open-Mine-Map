@@ -106,7 +106,6 @@ public class MapScreen extends Screen { //Screen object that represents the full
     private static boolean altKeyPressed = false;
     public static boolean semiTransparentUi = false;
 
-
     public static void setPlainTextColor(int argb, boolean checkForRainbowText) {
         if (checkForRainbowText) textIsRainbow = (argb == 0xFF7f7f7f);
         plainTextColor = argb;
@@ -240,7 +239,7 @@ public class MapScreen extends Screen { //Screen object that represents the full
         }
     }
 
-    public static boolean getSearchMenuState() {
+    public static boolean searchMenuEnabled() {
         return searchBoxLayer.visible;
     }
     public void jumpToSearchBox() {
@@ -583,6 +582,8 @@ public class MapScreen extends Screen { //Screen object that represents the full
         map.setMouseZoomStrength(TileManager.mouseZoomStrength);
         map.renderMap(context, MapType.FULLSCREEN);
 
+        if (searchElementsFocused() && !map.mouseIsDown() && searchMenuEnabled()) semiTransparentUi = true;
+        else semiTransparentUi = false;
         drawButtons(context);
 
         toggleHudMapButtonLayer.draw(context);
